@@ -37,3 +37,10 @@ Use `./glm-claude.sh` from the repo root. This script:
 - Sets `ANTHROPIC_BASE_URL` and auth token from `.env.local` (GLM_AUTH_TOKEN)
 - Maps model overrides (Haiku → glm-4.5-air, Sonnet/Opus → glm-5.1)
 - Blocks macOS Keychain access to force credential file storage
+
+## Active Technologies
+- TypeScript 5.x (strict mode) + Next.js 15 (App Router), Supabase JS Client, shadcn/ui, react-hook-form, zod, Tailwind CSS (001-rsvp-landing-page)
+- Supabase PostgreSQL (database), Supabase Storage (image uploads) (001-rsvp-landing-page)
+
+## Recent Changes
+- 001-rsvp-landing-page: Added TypeScript 5.x (strict mode) + Next.js 15 (App Router), Supabase JS Client, shadcn/ui, react-hook-form, zod, Tailwind CSS
