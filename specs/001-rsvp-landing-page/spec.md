@@ -126,10 +126,19 @@ click into any wedding to view its landing page and RSVP responses.
   box should have a reasonable character limit.
 - What happens if the uploaded Canva template is very large? The system
   should enforce a maximum file size.
+- What happens if admin replaces the template after guests have RSVPed?
+  RSVPs are preserved; only the landing page visual changes.
 - What happens if someone accesses the RSVP form URL directly without
   a valid wedding association? The system should show an error.
 - What happens if a couple has not yet uploaded a landing page template?
   The system should show a placeholder or setup prompt.
+
+## Clarifications
+
+### Session 2026-04-13
+
+- Q: When a new couple wants to use the system, how do they get an account? → A: Admin creates the couple account manually.
+- Q: What happens when admin updates the landing page template after guests have started RSVPing? → A: Admin can replace the template image; existing RSVPs are preserved.
 
 ## Requirements *(mandatory)*
 
@@ -137,6 +146,8 @@ click into any wedding to view its landing page and RSVP responses.
 
 - **FR-001**: System MUST allow administrators to upload a Canva-designed
   image to serve as the wedding landing page background.
+- **FR-001a**: Admin MUST be able to replace the template image at any time.
+  Existing RSVP responses MUST be preserved when the template is updated.
 - **FR-002**: System MUST display a CTA button overlaid on the landing
   page that links to the RSVP form.
 - **FR-003**: System MUST generate a shareable link for each landing page
@@ -149,6 +160,8 @@ click into any wedding to view its landing page and RSVP responses.
 - **FR-006**: System MUST show a clear message when a duplicate name is
   detected instead of accepting the submission.
 - **FR-007**: System MUST provide authentication for couples and admins.
+- **FR-007a**: Admins MUST be able to create couple accounts manually
+  (no public signup page).
 - **FR-008**: Couples MUST only be able to access their own wedding's
   data (landing page, RSVP responses).
 - **FR-009**: Admins MUST be able to access all weddings and all RSVP
@@ -170,8 +183,8 @@ click into any wedding to view its landing page and RSVP responses.
 - **RSVP Response**: Contains guest name, RSVP status (attending/declining),
   dietary notes, vegetarian preference, baby chair requirement. Tied to
   one Wedding. Guest name is unique per Wedding.
-- **User (Couple)**: An authenticated user who owns a Wedding. Can only
-  access their own data.
+- **User (Couple)**: An authenticated user who owns a Wedding. Account
+  created by admin. Can only access their own data.
 - **Admin**: An authenticated user with access to all Weddings and data.
 
 ## Success Criteria *(mandatory)*
