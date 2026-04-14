@@ -121,15 +121,15 @@
 
 ### Tests for User Story 3 (TDD/BDD)
 
-- [ ] T040 [P] [US3] Create E2E test for couple dashboard in `tests/e2e/couple-dashboard.spec.ts` — Given a couple is logged in with existing RSVPs, When they view their dashboard, Then they see all RSVPs and summary counts, and cannot access another couple's data
+- [x] T040 [P] [US3] Create E2E test for couple dashboard in `tests/e2e/couple-dashboard.spec.ts` — Given a couple is logged in with existing RSVPs, When they view their dashboard, Then they see all RSVPs and summary counts, and cannot access another couple's data
 
 ### Implementation for User Story 3
 
-- [ ] T041 [P] [US3] Create dashboard layout in `src/app/(auth)/dashboard/layout.tsx` with navigation for Overview and RSVPs
-- [ ] T042 [US3] Create couple dashboard page in `src/app/(auth)/dashboard/page.tsx` — Server Component calling `getWeddingRSVPs` action, rendering summary cards
-- [ ] T043 [P] [US3] Create RSVP summary component in `src/components/rsvp-summary.tsx` — displaying cards with total, attending, declining, vegetarian, baby chair counts using shadcn/ui Card
-- [ ] T044 [P] [US3] Create RSVP table component in `src/components/rsvp-table.tsx` — displaying all RSVP responses in a shadcn/ui Table with guest name, status badge, dietary notes, vegetarian, baby chair columns
-- [ ] T045 [US3] Create RSVP list page in `src/app/(auth)/dashboard/rsvps/page.tsx` — Server Component fetching RSVPs, rendering RSVPTable component
+- [x] T041 [P] [US3] Create dashboard layout in `src/app/(auth)/dashboard/layout.tsx` with navigation for Overview and RSVPs
+- [x] T042 [US3] Create couple dashboard page in `src/app/(auth)/dashboard/page.tsx` — Server Component calling `getWeddingRSVPs` action, rendering summary cards
+- [x] T043 [P] [US3] Create RSVP summary component in `src/components/rsvp-summary.tsx` — displaying cards with total, attending, declining, vegetarian, baby chair counts using shadcn/ui Card
+- [x] T044 [P] [US3] Create RSVP table component in `src/components/rsvp-table.tsx` — displaying all RSVP responses in a shadcn/ui Table with guest name, status badge, dietary notes, vegetarian, baby chair columns
+- [x] T045 [US3] Create RSVP list page in `src/app/(auth)/dashboard/rsvps/page.tsx` — Server Component fetching RSVPs, rendering RSVPTable component
 
 **Checkpoint**: Couples can log in and view their RSVP responses with summary. Data isolation enforced by RLS.
 
