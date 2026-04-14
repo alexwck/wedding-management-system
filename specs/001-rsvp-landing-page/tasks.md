@@ -70,21 +70,21 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T021 [P] [US1] Create E2E test for admin login and template upload flow in `tests/e2e/admin-manage.spec.ts` — Given admin is logged in, When they upload a Canva template, Then the landing page is created with a CTA button and shareable link
-- [ ] T022 [P] [US1] Create E2E test for landing page rendering in `tests/e2e/landing-page.spec.ts` — Given a wedding with a template image, When a guest visits `/w/{slug}`, Then the landing page renders the image with CTA button on mobile and desktop
+- [x] T021 [P] [US1] Create E2E test for admin login and template upload flow in `tests/e2e/admin-manage.spec.ts` — Given admin is logged in, When they upload a Canva template, Then the landing page is created with a CTA button and shareable link
+- [x] T022 [P] [US1] Create E2E test for landing page rendering in `tests/e2e/landing-page.spec.ts` — Given a wedding with a template image, When a guest visits `/w/{slug}`, Then the landing page renders the image with CTA button on mobile and desktop
 
 ### Implementation for User Story 1
 
-- [ ] T023 [P] [US1] Create login page in `src/app/(public)/auth/login/page.tsx` with email/password form using shadcn/ui Form components
-- [ ] T024 [US1] Create image upload server action in `src/app/actions/upload.ts` implementing `uploadTemplateImage` — validate file type (PNG/JPG) and size (10MB max), upload to Supabase Storage `wedding-templates` bucket, update wedding record with image URL
-- [ ] T025 [P] [US1] Create template upload component in `src/components/template-upload.tsx` — Client Component with file input, preview, and upload button using shadcn/ui Button and Dialog
-- [ ] T026 [P] [US1] Create admin layout in `src/app/(auth)/admin/layout.tsx` with navigation sidebar for Weddings and Couples
-- [ ] T027 [US1] Create admin dashboard page in `src/app/(auth)/admin/page.tsx` — Server Component listing all weddings with links to manage each
-- [ ] T028 [US1] Create wedding list page in `src/app/(auth)/admin/weddings/page.tsx` — Server Component showing all weddings in a shadcn/ui Table with slug, couple name, template status
-- [ ] T029 [US1] Create manage wedding page in `src/app/(auth)/admin/weddings/[id]/page.tsx` — Server Component showing wedding details with template upload component and shareable link display
-- [ ] T030 [P] [US1] Create landing page component in `src/components/landing-page.tsx` — Server Component displaying Canva template image full-width with overlaid CTA button linking to RSVP form, mobile-responsive layout
-- [ ] T031 [US1] Create public landing page route in `src/app/(public)/w/[slug]/page.tsx` — Server Component fetching wedding by slug, rendering LandingPage component or 404 if not found
-- [ ] T032 [US1] Create admin server actions in `src/app/actions/admin.ts` implementing `getWeddingRSVPs` for fetching wedding data with RSVP summary
+- [x] T023 [P] [US1] Create login page in `src/app/(public)/auth/login/page.tsx` with email/password form using shadcn/ui Form components
+- [x] T024 [US1] Create image upload server action in `src/app/actions/upload.ts` implementing `uploadTemplateImage` — validate file type (PNG/JPG) and size (10MB max), upload to Supabase Storage `wedding-templates` bucket, update wedding record with image URL
+- [x] T025 [P] [US1] Create template upload component in `src/components/template-upload.tsx` — Client Component with file input, preview, and upload button using shadcn/ui Button and Dialog
+- [x] T026 [P] [US1] Create admin layout in `src/app/(auth)/admin/layout.tsx` with navigation sidebar for Weddings and Couples
+- [x] T027 [US1] Create admin dashboard page in `src/app/(auth)/admin/page.tsx` — Server Component listing all weddings with links to manage each
+- [x] T028 [US1] Create wedding list page in `src/app/(auth)/admin/weddings/page.tsx` — Server Component showing all weddings in a shadcn/ui Table with slug, couple name, template status
+- [x] T029 [US1] Create manage wedding page in `src/app/(auth)/admin/weddings/[id]/page.tsx` — Server Component showing wedding details with template upload component and shareable link display
+- [x] T030 [P] [US1] Create landing page component in `src/components/landing-page.tsx` — Server Component displaying Canva template image full-width with overlaid CTA button linking to RSVP form, mobile-responsive layout
+- [x] T031 [US1] Create public landing page route in `src/app/(public)/w/[slug]/page.tsx` — Server Component fetching wedding by slug, rendering LandingPage component or 404 if not found
+- [x] T032 [US1] Create admin server actions in `src/app/actions/admin.ts` implementing `getWeddingRSVPs` for fetching wedding data with RSVP summary
 
 **Checkpoint**: At this point, admin can log in, upload a template, and the public landing page with CTA button is accessible via shareable link. User Story 1 is fully functional and testable independently.
 
