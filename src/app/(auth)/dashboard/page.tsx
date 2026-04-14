@@ -1,0 +1,55 @@
+import Link from "next/link";
+import { getMyWeddingRSVPs } from "@/app/actions/admin";
+import { RVPSummary } from "@/components/rsvp-summary";
+
+export default async function CoupleDashboard() {
+  const result = await getMyWeddingRSVPs();
+
+  if (!result.success || !result.wedding || !result.summary) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold">Dashboard</h2>
+        <p className="text-destructive">
+          {result.message || "Failed to load wedding data."}
+        </p>
+      </div>
+    );
+  }
+
+  const { wedding, summary } = result;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">{wedding.coupleName}</h2>
+          <p className="text-muted-foreground">
+            Public link:{" "}
+            <a
+              href={`/w/${wedding.slug}`}
+              className="text-primary hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              /w/{wedding.slug}
+            </a>
+          </p>
+        </div>
+        <Link
+          href="/dashboard/rsvps"
+          className="text-sm text-primary hover:underline"
+        >
+          View All RSVPs
+        </Link>
+      </div>
+
+      <RVPSummary summary={summary} />
+
+      {summary.total === 0 && (
+        <div className="text-center py-8 text-muted-foreground">
+          No RSVPs yet. Share your wedding link with guests!
+        </div>
+      )}
+    </div>
+  );
+}
