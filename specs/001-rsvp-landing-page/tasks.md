@@ -98,16 +98,16 @@
 
 ### Tests for User Story 2 (TDD/BDD)
 
-- [ ] T033 [P] [US2] Create E2E test for RSVP submission flow in `tests/e2e/rsvp-flow.spec.ts` — Given guest has the landing page link, When they click CTA, fill the form, and submit, Then they see a confirmation message
-- [ ] T034 [P] [US2] Create E2E test for duplicate RSVP prevention in `tests/e2e/duplicate-rsvp.spec.ts` — Given a guest has already submitted, When the same name is submitted again, Then the system shows a duplicate name error message
-- [ ] T035 [P] [US2] Create unit test for RSVP zod validation in `tests/unit/validations.test.ts` — test valid and invalid inputs for the RSVP schema
-- [ ] T036 [P] [US2] Create unit test for RSVP form component in `tests/unit/rsvp-form.test.tsx` — test form renders all fields, validates input, and calls submit action
+- [x] T033 [P] [US2] Create E2E test for RSVP submission flow in `tests/e2e/rsvp-flow.spec.ts` — Given guest has the landing page link, When they click CTA, fill the form, and submit, Then they see a confirmation message
+- [x] T034 [P] [US2] Create E2E test for duplicate RSVP prevention in `tests/e2e/duplicate-rsvp.spec.ts` — Given a guest has already submitted, When the same name is submitted again, Then the system shows a duplicate name error message
+- [x] T035 [P] [US2] Create unit test for RSVP zod validation in `tests/unit/validations.test.ts` — test valid and invalid inputs for the RSVP schema
+- [x] T036 [P] [US2] Create unit test for RSVP form component in `tests/unit/rsvp-form.test.tsx` — test form renders all fields, validates input, and calls submit action
 
 ### Implementation for User Story 2
 
-- [ ] T037 [US2] Create RSVP submission server action in `src/app/actions/rsvp.ts` implementing `submitRSVP` — validate input with zod schema, lookup wedding by slug, check for duplicate guest name (case-insensitive), insert into rsvps table, return success or duplicate_name error
-- [ ] T038 [US2] Create RSVP form component in `src/components/rsvp-form.tsx` — Client Component with shadcn/ui Form, Input for guest name, Select for RSVP status (attending/declining), Textarea for dietary notes, Checkbox for vegetarian and baby chair, submit Button with loading state, success and error message display
-- [ ] T039 [US2] Create RSVP form page route in `src/app/(public)/w/[slug]/rsvp/page.tsx` — Server Component fetching wedding by slug, passing wedding data to RSVP form component, or showing 404
+- [x] T037 [US2] Create RSVP submission server action in `src/app/actions/rsvp.ts` implementing `submitRSVP` — validate input with zod schema, lookup wedding by slug, check for duplicate guest name (case-insensitive), insert into rsvps table, return success or duplicate_name error
+- [x] T038 [US2] Create RSVP form component in `src/components/rsvp-form.tsx` — Client Component with shadcn/ui Form, Input for guest name, Select for RSVP status (attending/declining), Textarea for dietary notes, Checkbox for vegetarian and baby chair, submit Button with loading state, success and error message display
+- [x] T039 [US2] Create RSVP form page route in `src/app/(public)/w/[slug]/rsvp/page.tsx` — Server Component fetching wedding by slug, passing wedding data to RSVP form component, or showing 404
 
 **Checkpoint**: At this point, guests can view the landing page, click CTA, submit RSVPs, and see confirmations. Duplicate names are rejected. User Stories 1 AND 2 together form the MVP.
 
