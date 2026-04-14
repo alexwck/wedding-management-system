@@ -143,14 +143,14 @@
 
 ### Tests for User Story 4 (TDD/BDD)
 
-- [ ] T046 [US4] Extend admin E2E test in `tests/e2e/admin-manage.spec.ts` — Given admin is logged in, When they create a couple account, Then the couple user and wedding are created; When they view any wedding, Then they see all RSVP data
+- [x] T046 [US4] Extend admin E2E test in `tests/e2e/admin-manage.spec.ts` — Given admin is logged in, When they create a couple account, Then the couple user and wedding are created; When they view any wedding, Then they see all RSVP data
 
 ### Implementation for User Story 4
 
-- [ ] T047 [US4] Add `createCoupleAccount` server action in `src/app/actions/admin.ts` — create auth user via Supabase admin API, insert into users table with role 'couple', create wedding with auto-generated slug using nanoid
-- [ ] T048 [P] [US4] Create couple creation form component in `src/components/create-couple-form.tsx` — Client Component with email, password, display name, couple name fields using shadcn/ui Form
-- [ ] T049 [US4] Create couples management page in `src/app/(auth)/admin/couples/page.tsx` — rendering CreateCoupleForm and list of existing couples in a Table
-- [ ] T050 [US4] Add `updateTemplateImage` server action in `src/app/actions/upload.ts` — same as upload but replaces existing image, preserves RSVPs, updates wedding record
+- [x] T047 [US4] Add `createCoupleAccount` server action in `src/app/actions/admin.ts` — create auth user via Supabase admin API, insert into users table with role 'couple', create wedding with auto-generated slug using nanoid
+- [x] T048 [P] [US4] Create couple creation form component in `src/components/create-couple-form.tsx` — Client Component with email, password, display name, couple name fields using shadcn/ui Form
+- [x] T049 [US4] Create couples management page in `src/app/(auth)/admin/couples/page.tsx` — rendering CreateCoupleForm and list of existing couples in a Table
+- [x] T050 [US4] Add `updateTemplateImage` server action in `src/app/actions/upload.ts` — same as upload but replaces existing image, preserves RSVPs, updates wedding record
 
 **Checkpoint**: All user stories are independently functional. Admin has full management access.
 
