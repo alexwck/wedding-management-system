@@ -24,12 +24,12 @@
 
 **Purpose**: Project initialization, dependencies, and Supabase configuration
 
-- [ ] T001 Initialize Next.js project with TypeScript, Tailwind, ESLint, App Router, src directory using `npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir`
-- [ ] T002 [P] Install runtime dependencies: `@supabase/supabase-js`, `@supabase/ssr`, `react-hook-form`, `@hookform/resolvers`, `zod`, `nanoid`
-- [ ] T003 [P] Initialize shadcn/ui with `npx shadcn@latest init`
-- [ ] T004 [P] Add shadcn/ui components: `button`, `input`, `textarea`, `checkbox`, `label`, `card`, `form`, `select`, `table`, `badge`, `dialog`, `sheet`
-- [ ] T005 [P] Initialize Supabase with `npx supabase init` and start local instance with `npx supabase start`
-- [ ] T006 Configure environment variables in `.env.local` with `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
+- [x] T001 Initialize Next.js project with TypeScript, Tailwind, ESLint, App Router, src directory using `npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir`
+- [x] T002 [P] Install runtime dependencies: `@supabase/supabase-js`, `@supabase/ssr`, `react-hook-form`, `@hookform/resolvers`, `zod`, `nanoid`
+- [x] T003 [P] Initialize shadcn/ui with `npx shadcn@latest init`
+- [x] T004 [P] Add shadcn/ui components: `button`, `input`, `textarea`, `checkbox`, `label`, `card`, `form`, `select`, `table`, `badge`, `dialog`, `sheet`
+- [x] T005 [P] Initialize Supabase with `npx supabase init` and start local instance with `npx supabase start`
+- [x] T006 Configure environment variables in `.env.local` with `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
 
 **Checkpoint**: Project scaffolded, dependencies installed, Supabase running locally
 
