@@ -41,20 +41,20 @@
 
 **CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T007 Create users table migration in `supabase/migrations/<timestamp>_create_users.sql` with id (UUID PK), role (admin/couple check constraint), display_name, created_at, and RLS policy for self-read
-- [ ] T008 [P] Create weddings table migration in `supabase/migrations/<timestamp>_create_weddings.sql` with id (bigint identity PK), slug (unique), user_id (FK to users), couple_name, template_image_url, wedding_date, created_at, updated_at, index on user_id, and RLS policy for couple access
-- [ ] T009 [P] Create rsvps table migration in `supabase/migrations/<timestamp>_create_rsvps.sql` with id (bigint identity PK), wedding_id (FK to weddings), guest_name, status (attending/declining check), dietary_notes (max 500), is_vegetarian, needs_baby_chair, created_at, unique index on (wedding_id, LOWER(guest_name)), index on wedding_id, and RLS policies for couple read and public INSERT
-- [ ] T010 [P] Create seed file in `supabase/seed.sql` with admin user, 2 couple users with weddings, and sample RSVP responses
-- [ ] T11 Create Supabase Storage bucket `wedding-templates` with public read policy and admin-only upload policy
-- [ ] T012 [P] Create browser Supabase client in `src/lib/supabase/client.ts`
-- [ ] T013 [P] Create server Supabase client in `src/lib/supabase/server.ts` using cookie-based session
-- [ ] T014 [P] Create admin Supabase client in `src/lib/supabase/admin.ts` using service role key
-- [ ] T015 [P] Create utility functions in `src/lib/utils.ts` (cn helper for Tailwind class merging)
-- [ ] T016 Create RSVP zod validation schema in `src/lib/validations/rsvp.ts` with guestName (min 1), status (enum attending/declining), dietaryNotes (max 500, optional), isVegetarian (boolean), needsBabyChair (boolean)
-- [ ] T017 [P] Create admin zod validation schema in `src/lib/validations/admin.ts` with createCouple schema (email, password min 8, displayName, coupleName)
-- [ ] T018 Generate Supabase database types in `src/types/database.ts` using `npx supabase gen types typescript`
-- [ ] T019 Create auth middleware in `src/middleware.ts` that protects `/dashboard/*` and `/admin/*` routes, redirects unauthenticated users to `/auth/login`
-- [ ] T020 Create root layout in `src/app/layout.tsx` with Supabase providers and global styles
+- [x] T007 Create users table migration in `supabase/migrations/<timestamp>_create_users.sql` with id (UUID PK), role (admin/couple check constraint), display_name, created_at, and RLS policy for self-read
+- [x] T008 [P] Create weddings table migration in `supabase/migrations/<timestamp>_create_weddings.sql` with id (bigint identity PK), slug (unique), user_id (FK to users), couple_name, template_image_url, wedding_date, created_at, updated_at, index on user_id, and RLS policy for couple access
+- [x] T009 [P] Create rsvps table migration in `supabase/migrations/<timestamp>_create_rsvps.sql` with id (bigint identity PK), wedding_id (FK to weddings), guest_name, status (attending/declining check), dietary_notes (max 500), is_vegetarian, needs_baby_chair, created_at, unique index on (wedding_id, LOWER(guest_name)), index on wedding_id, and RLS policies for couple read and public INSERT
+- [x] T010 [P] Create seed file in `supabase/seed.sql` with admin user, 2 couple users with weddings, and sample RSVP responses
+- [x] T11 Create Supabase Storage bucket `wedding-templates` with public read policy and admin-only upload policy
+- [x] T012 [P] Create browser Supabase client in `src/lib/supabase/client.ts`
+- [x] T013 [P] Create server Supabase client in `src/lib/supabase/server.ts` using cookie-based session
+- [x] T014 [P] Create admin Supabase client in `src/lib/supabase/admin.ts` using service role key
+- [x] T015 [P] Create utility functions in `src/lib/utils.ts` (cn helper for Tailwind class merging)
+- [x] T016 Create RSVP zod validation schema in `src/lib/validations/rsvp.ts` with guestName (min 1), status (enum attending/declining), dietaryNotes (max 500, optional), isVegetarian (boolean), needsBabyChair (boolean)
+- [x] T017 [P] Create admin zod validation schema in `src/lib/validations/admin.ts` with createCouple schema (email, password min 8, displayName, coupleName)
+- [x] T018 Generate Supabase database types in `src/types/database.ts` using `npx supabase gen types typescript`
+- [x] T019 Create auth middleware in `src/middleware.ts` that protects `/dashboard/*` and `/admin/*` routes, redirects unauthenticated users to `/auth/login`
+- [x] T020 Create root layout in `src/app/layout.tsx` with Supabase providers and global styles
 
 **Checkpoint**: Foundation ready — database tables, Supabase clients, middleware, and shared utilities are in place. User story implementation can now begin in parallel.
 
