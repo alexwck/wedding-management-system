@@ -138,7 +138,7 @@ src/
 │   ├── supabase/           # Supabase clients (browser, server, admin)
 │   ├── validations/        # Zod schemas (rsvp, admin)
 │   └── utils.ts            # Utilities
-├── middleware.ts            # Auth middleware
+├── proxy.ts                 # Auth proxy (renamed from middleware.ts for Next.js 16 compat)
 └── types/                  # TypeScript types
 supabase/
 ├── config.toml             # Supabase configuration
@@ -155,7 +155,7 @@ tests/
 - **RLS (Row-Level Security)** — couples can only access their own wedding data; admin uses service role to bypass
 - **RSVP deduplication** — unique constraint on `(wedding_id, LOWER(guest_name))` plus application-level check
 - **Image uploads** — stored in Supabase Storage `wedding-templates` bucket; admin-only upload, public read
-- **Auth** — Supabase Auth with Next.js middleware protecting `/dashboard/*` and `/admin/*` routes; admin role checked via `app_metadata`
+- **Auth** — Supabase Auth with `proxy.ts` (not `middleware.ts` — renamed for Next.js 16 compat) protecting `/dashboard/*` and `/admin/*` routes; admin role checked via `app_metadata`
 
 ## Troubleshooting
 
