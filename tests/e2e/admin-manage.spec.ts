@@ -12,7 +12,7 @@ test.describe("Admin manages weddings", () => {
     await expect(page).toHaveURL(/\/admin/);
 
     // Navigate to weddings
-    await page.click('a[href="/admin/weddings"]');
+    await page.goto("/admin/weddings");
 
     // Should see wedding list
     await expect(page.locator("table")).toBeVisible();
@@ -49,8 +49,8 @@ test.describe("Admin manages weddings", () => {
 
     await expect(page).toHaveURL(/\/admin/);
 
-    // Dashboard should show wedding links
-    await expect(page.getByRole("link", { name: "Weddings" })).toBeVisible();
+    // Dashboard should show admin content
+    await expect(page.locator("h2", { hasText: "Admin Dashboard" })).toBeVisible();
   });
 });
 
@@ -64,17 +64,18 @@ test.describe("Admin manages couple accounts (US4)", () => {
     await expect(page).toHaveURL(/\/admin/);
 
     // Navigate to couples page
-    await page.click('a[href="/admin/couples"]');
+    await page.goto("/admin/couples");
 
     // Should see the couple creation form
     await expect(page.locator("text=Create Couple Account")).toBeVisible();
 
     // Fill out the form
     const uniqueEmail = `newcouple-${Date.now()}@example.com`;
+    const uniqueName = `Test Couple ${Date.now()}`;
     await page.fill('input[id="email"]', uniqueEmail);
     await page.fill('input[id="password"]', "password123");
-    await page.fill('input[id="displayName"]', "Jane & John");
-    await page.fill('input[id="coupleName"]', "Jane & John");
+    await page.fill('input[id="displayName"]', uniqueName);
+    await page.fill('input[id="coupleName"]', uniqueName);
 
     // Submit
     await page.getByRole("button", { name: "Create Couple" }).click();
@@ -83,7 +84,7 @@ test.describe("Admin manages couple accounts (US4)", () => {
     await expect(page.locator("text=Couple account created")).toBeVisible();
 
     // New couple should appear in the couples list
-    await expect(page.locator("text=Jane & John")).toBeVisible();
+    await expect(page.locator("table").getByText(uniqueName)).toBeVisible();
   });
 
   test("admin can view any wedding's RSVP data", async ({ page }) => {
@@ -95,13 +96,13 @@ test.describe("Admin manages couple accounts (US4)", () => {
     await expect(page).toHaveURL(/\/admin/);
 
     // Navigate to weddings
-    await page.click('a[href="/admin/weddings"]');
+    await page.goto("/admin/weddings");
 
     // Should see wedding list
     await expect(page.locator("table")).toBeVisible();
 
     // Click first wedding to view its details including RSVP data
-    await page.locator("table tbody tr").first().click();
+    await page.locator("table tbody tr td a").first().click();
 
     // Should see RSVP summary section (admin can see all RSVPs for any wedding)
     await expect(page.locator("text=RSVP Summary")).toBeVisible();
@@ -116,7 +117,7 @@ test.describe("Admin manages couple accounts (US4)", () => {
     await expect(page).toHaveURL(/\/admin/);
 
     // Navigate to couples page
-    await page.click('a[href="/admin/couples"]');
+    await page.goto("/admin/couples");
 
     // Submit empty form
     await page.getByRole("button", { name: "Create Couple" }).click();

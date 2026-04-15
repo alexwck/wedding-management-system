@@ -1,4 +1,7 @@
--- Storage policies for wedding-templates bucket
+-- Storage bucket for wedding templates
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('wedding-templates', 'wedding-templates', true)
+ON CONFLICT (id) DO NOTHING;
 
 -- Public read: anyone can view template images
 CREATE POLICY "Public read access"

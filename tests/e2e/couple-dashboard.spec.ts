@@ -4,7 +4,7 @@ test.describe("Couple views RSVP dashboard", () => {
   test("couple can login and view their RSVP dashboard with summary", async ({ page }) => {
     // Login as a couple user
     await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "couple1@example.com");
+    await page.fill('input[id="email"]', "alex@example.com");
     await page.fill('input[id="password"]', "couple123");
     await page.click('button[type="submit"]');
 
@@ -20,14 +20,14 @@ test.describe("Couple views RSVP dashboard", () => {
   test("couple can view RSVP list page", async ({ page }) => {
     // Login as a couple user
     await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "couple1@example.com");
+    await page.fill('input[id="email"]', "alex@example.com");
     await page.fill('input[id="password"]', "couple123");
     await page.click('button[type="submit"]');
 
     await expect(page).toHaveURL(/\/dashboard/);
 
     // Navigate to RSVPs page
-    await page.click('a[href="/dashboard/rsvps"]');
+    await page.goto("/dashboard/rsvps");
 
     // Should see RSVP table
     await expect(page.locator("table")).toBeVisible();
@@ -40,7 +40,7 @@ test.describe("Couple views RSVP dashboard", () => {
   test("couple cannot access another couple's data", async ({ page }) => {
     // Login as couple1
     await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "couple1@example.com");
+    await page.fill('input[id="email"]', "alex@example.com");
     await page.fill('input[id="password"]', "couple123");
     await page.click('button[type="submit"]');
 

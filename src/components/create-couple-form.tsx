@@ -9,19 +9,25 @@ import {
 } from "@/lib/validations/admin";
 import { createCoupleAccount } from "@/app/actions/admin";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useRouter } from "next/navigation";
 
 export function CreateCoupleForm() {
   const [serverMessage, setServerMessage] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
+  const router = useRouter();
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<CreateCoupleFormData>({
+  const form = useForm<CreateCoupleFormData>({
     resolver: zodResolver(createCoupleSchema),
     defaultValues: {
       email: "",
@@ -47,7 +53,8 @@ export function CreateCoupleForm() {
         type: "success",
         text: `Couple account created! Wedding slug: ${result.slug}`,
       });
-      reset();
+      form.reset();
+      router.refresh();
     } else {
       setServerMessage({ type: "error", text: result.message ?? "Failed to create couple account." });
     }
@@ -69,90 +76,89 @@ export function CreateCoupleForm() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium leading-none">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            placeholder="couple@example.com"
-            className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-            {...register("email")}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="couple@example.com"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          {errors.email && (
-            <p className="text-sm text-destructive">{errors.email.message}</p>
-          )}
-        </div>
 
-        <div className="space-y-2">
-          <label
-            htmlFor="password"
-            className="text-sm font-medium leading-none"
-          >
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            placeholder="Min. 8 characters"
-            className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-            {...register("password")}
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Min. 8 characters"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          {errors.password && (
-            <p className="text-sm text-destructive">
-              {errors.password.message}
-            </p>
-          )}
-        </div>
 
-        <div className="space-y-2">
-          <label
-            htmlFor="displayName"
-            className="text-sm font-medium leading-none"
-          >
-            Display Name
-          </label>
-          <input
-            id="displayName"
-            type="text"
-            placeholder="Jane Doe"
-            className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-            {...register("displayName")}
+          <FormField
+            control={form.control}
+            name="displayName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Display Name</FormLabel>
+                <FormControl>
+                  <Input
+                    id="displayName"
+                    type="text"
+                    placeholder="Jane Doe"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          {errors.displayName && (
-            <p className="text-sm text-destructive">
-              {errors.displayName.message}
-            </p>
-          )}
-        </div>
 
-        <div className="space-y-2">
-          <label
-            htmlFor="coupleName"
-            className="text-sm font-medium leading-none"
-          >
-            Couple Name
-          </label>
-          <input
-            id="coupleName"
-            type="text"
-            placeholder="Jane & John"
-            className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-            {...register("coupleName")}
+          <FormField
+            control={form.control}
+            name="coupleName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Couple Name</FormLabel>
+                <FormControl>
+                  <Input
+                    id="coupleName"
+                    type="text"
+                    placeholder="Jane & John"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          {errors.coupleName && (
-            <p className="text-sm text-destructive">
-              {errors.coupleName.message}
-            </p>
-          )}
-        </div>
 
-        <Button type="submit" disabled={isSubmitting} className="w-full">
-          {isSubmitting ? "Creating..." : "Create Couple"}
-        </Button>
-      </form>
+          <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
+            {form.formState.isSubmitting ? "Creating..." : "Create Couple"}
+          </Button>
+        </form>
+      </Form>
     </div>
   );
 }
