@@ -18,17 +18,21 @@ test.describe("Admin manages weddings", () => {
     await expect(page.locator("table")).toBeVisible();
 
     // Click first wedding to manage
-    await page.locator("table tbody tr").first().click();
+    await page.locator("table tbody tr td a").first().click();
 
     // Should see upload area
     await expect(page.locator('input[type="file"]')).toBeVisible();
 
-    // Upload a template image
+    // Upload a template image (minimal valid 1x1 PNG)
     const fileInput = page.locator('input[type="file"]');
+    const minPng = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPj/HwADBwIAMCbHYQAAAABJRU5ErkJggg==",
+      "base64"
+    );
     await fileInput.setInputFiles({
       name: "template.png",
       mimeType: "image/png",
-      buffer: Buffer.from("fake-png-content"),
+      buffer: minPng,
     });
 
     await page.getByRole("button", { name: "Upload Template" }).click();
@@ -46,7 +50,7 @@ test.describe("Admin manages weddings", () => {
     await expect(page).toHaveURL(/\/admin/);
 
     // Dashboard should show wedding links
-    await expect(page.locator("text=Weddings")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Weddings" })).toBeVisible();
   });
 });
 
@@ -66,7 +70,8 @@ test.describe("Admin manages couple accounts (US4)", () => {
     await expect(page.locator("text=Create Couple Account")).toBeVisible();
 
     // Fill out the form
-    await page.fill('input[id="email"]', "newcouple@example.com");
+    const uniqueEmail = `newcouple-${Date.now()}@example.com`;
+    await page.fill('input[id="email"]', uniqueEmail);
     await page.fill('input[id="password"]', "password123");
     await page.fill('input[id="displayName"]', "Jane & John");
     await page.fill('input[id="coupleName"]', "Jane & John");

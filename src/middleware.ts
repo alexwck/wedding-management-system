@@ -33,14 +33,24 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protected routes that require authentication
   const isDashboardRoute = request.nextUrl.pathname.startsWith("/dashboard");
   const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
 
+  // Protected routes require authentication
   if (!user && (isDashboardRoute || isAdminRoute)) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     return NextResponse.redirect(url);
+  }
+
+  // Admin routes require admin role (check app_metadata)
+  if (user && isAdminRoute) {
+    const role = user.app_metadata?.role;
+    if (role !== "admin") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/auth/login";
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;
