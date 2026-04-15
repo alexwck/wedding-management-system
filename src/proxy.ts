@@ -2,6 +2,19 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function proxy(request: NextRequest) {
+  // For server action POST requests, just pass through without touching
+  // the Supabase session. The Supabase SSR setAll callback re-creates
+  // NextResponse.next() which hangs the body stream on POST requests.
+  // Auth is enforced on the GET that rendered the page, and server
+  // actions that need auth should validate the session themselves.
+  const isServerAction =
+    request.method === "POST" &&
+    request.headers.get("Next-Action") !== null;
+
+  if (isServerAction) {
+    return NextResponse.next({ request });
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   });

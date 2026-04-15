@@ -24,11 +24,11 @@ describe("RSVPForm", () => {
   it("renders all form fields", () => {
     render(<RSVPForm {...defaultProps} />);
 
-    expect(screen.getByLabelText(/your name/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/status/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/dietary notes/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/vegetarian/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/baby chair/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/enter your name/i)).toBeInTheDocument();
+    expect(screen.getByRole("combobox")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/any dietary/i)).toBeInTheDocument();
+    expect(document.querySelector("input[type=checkbox][id=isVegetarian]")).toBeInTheDocument();
+    expect(document.querySelector("input[type=checkbox][id=needsBabyChair]")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /submit rsvp/i })).toBeInTheDocument();
   });
 
@@ -57,10 +57,10 @@ describe("RSVPForm", () => {
 
     render(<RSVPForm {...defaultProps} />);
 
-    await user.type(screen.getByLabelText(/your name/i), "Jane Doe");
-    await user.selectOptions(screen.getByLabelText(/status/i), "attending");
-    await user.type(screen.getByLabelText(/dietary notes/i), "No nuts");
-    await user.click(screen.getByLabelText(/vegetarian/i));
+    await user.type(screen.getByPlaceholderText(/enter your name/i), "Jane Doe");
+    await user.selectOptions(screen.getByRole("combobox"), "attending");
+    await user.type(screen.getByPlaceholderText(/any dietary/i), "No nuts");
+    await user.click(document.querySelector("input[type=checkbox][id=isVegetarian]")!);
     await user.click(screen.getByRole("button", { name: /submit rsvp/i }));
 
     await waitFor(() => {
@@ -84,8 +84,8 @@ describe("RSVPForm", () => {
 
     render(<RSVPForm {...defaultProps} />);
 
-    await user.type(screen.getByLabelText(/your name/i), "Jane Doe");
-    await user.selectOptions(screen.getByLabelText(/status/i), "attending");
+    await user.type(screen.getByPlaceholderText(/enter your name/i), "Jane Doe");
+    await user.selectOptions(screen.getByRole("combobox"), "attending");
     await user.click(screen.getByRole("button", { name: /submit rsvp/i }));
 
     await waitFor(() => {
@@ -103,8 +103,8 @@ describe("RSVPForm", () => {
 
     render(<RSVPForm {...defaultProps} />);
 
-    await user.type(screen.getByLabelText(/your name/i), "Duplicate");
-    await user.selectOptions(screen.getByLabelText(/status/i), "attending");
+    await user.type(screen.getByPlaceholderText(/enter your name/i), "Duplicate");
+    await user.selectOptions(screen.getByRole("combobox"), "attending");
     await user.click(screen.getByRole("button", { name: /submit rsvp/i }));
 
     await waitFor(() => {

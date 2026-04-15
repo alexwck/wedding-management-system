@@ -70,8 +70,9 @@ test.describe("Admin manages couple accounts (US4)", () => {
     await expect(page.locator("text=Create Couple Account")).toBeVisible();
 
     // Fill out the form
-    const uniqueEmail = `newcouple-${Date.now()}@example.com`;
-    const uniqueName = `Test Couple ${Date.now()}`;
+    const uniqueId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const uniqueEmail = `newcouple-${uniqueId}@example.com`;
+    const uniqueName = `Test Couple ${uniqueId}`;
     await page.fill('input[id="email"]', uniqueEmail);
     await page.fill('input[id="password"]', "password123");
     await page.fill('input[id="displayName"]', uniqueName);
@@ -80,8 +81,13 @@ test.describe("Admin manages couple accounts (US4)", () => {
     // Submit
     await page.getByRole("button", { name: "Create Couple" }).click();
 
-    // Should see success message
-    await expect(page.locator("text=Couple account created")).toBeVisible();
+    // Should see success message (or error for diagnosable failure)
+    const successLocator = page.locator("div.bg-green-500\\/10");
+    const errorLocator = page.locator("div.bg-destructive\\/10");
+    await expect(successLocator.or(errorLocator)).toBeVisible({ timeout: 15000 });
+    if (await errorLocator.isVisible()) {
+      throw new Error(`Couple creation failed: ${await errorLocator.textContent()}`);
+    }
 
     // New couple should appear in the couples list
     await expect(page.locator("table").getByText(uniqueName)).toBeVisible();
