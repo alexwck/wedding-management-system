@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { nanoid } from "nanoid";
@@ -150,6 +151,9 @@ export async function createCoupleAccount(formData: FormData) {
       message: "Failed to create wedding.",
     };
   }
+
+  // Revalidate couples page to show new couple in the table
+  revalidatePath("/admin/couples");
 
   return {
     success: true,

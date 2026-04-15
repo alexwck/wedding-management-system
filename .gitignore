@@ -12,6 +12,11 @@
 
 # testing
 /coverage
+playwright-report/
+test-results/
+
+# claude code
+.claude/settings.local.json
 
 # next.js
 /.next/

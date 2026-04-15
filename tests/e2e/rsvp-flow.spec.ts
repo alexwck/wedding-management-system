@@ -2,6 +2,8 @@ import { test, expect } from "@playwright/test";
 
 test.describe("RSVP submission flow", () => {
   test("guest can submit RSVP and see confirmation", async ({ page }) => {
+    const uniqueName = `Jane Doe ${Date.now()}`;
+
     // Visit the landing page
     await page.goto("/w/test-wedding-1");
 
@@ -15,7 +17,7 @@ test.describe("RSVP submission flow", () => {
     await expect(page.locator("form")).toBeVisible();
 
     // Fill out the RSVP form
-    await page.fill('input[id="guestName"]', "Jane Doe");
+    await page.fill('input[id="guestName"]', uniqueName);
     await page.selectOption('select[id="status"]', "attending");
     await page.fill('textarea[id="dietaryNotes"]', "No nuts please");
     await page.check('input[id="isVegetarian"]');
@@ -29,10 +31,12 @@ test.describe("RSVP submission flow", () => {
   });
 
   test("guest can submit declining RSVP", async ({ page }) => {
+    const uniqueName = `Bob Smith ${Date.now()}`;
+
     await page.goto("/w/test-wedding-1/rsvp");
 
     // Fill out with declining status
-    await page.fill('input[id="guestName"]', "Bob Smith");
+    await page.fill('input[id="guestName"]', uniqueName);
     await page.selectOption('select[id="status"]', "declining");
 
     await page.click('button[type="submit"]');

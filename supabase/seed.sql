@@ -1,8 +1,15 @@
 -- Seed data for development
 -- Run with: npx supabase db seed
--- NOTE: Auth users are created by supabase/scripts/seed-auth.sh after this SQL runs
 
--- Insert user profiles (auth users must be created first via seed-auth.sh)
+-- 1. Create auth users first (required by public.users FK)
+INSERT INTO auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token)
+VALUES
+  ('a0000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'admin@example.com', crypt('admin123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"],"role":"admin"}', '{"role":"admin","display_name":"Admin User"}', now(), now(), '', '', '', ''),
+  ('a0000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'alex@example.com', crypt('couple123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"],"role":"couple"}', '{"role":"couple","display_name":"Alex & Sam"}', now(), now(), '', '', '', ''),
+  ('a0000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'jordan@example.com', crypt('couple123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"],"role":"couple"}', '{"role":"couple","display_name":"Jordan & Taylor"}', now(), now(), '', '', '', '')
+ON CONFLICT (id) DO NOTHING;
+
+-- 2. Insert user profiles (links to auth.users)
 INSERT INTO public.users (id, role, display_name) VALUES
   ('a0000000-0000-0000-0000-000000000001', 'admin', 'Admin User'),
   ('a0000000-0000-0000-0000-000000000002', 'couple', 'Alex & Sam'),

@@ -6,6 +6,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { rsvpSchema, type RSVPFormData } from "@/lib/validations/rsvp";
 import { submitRSVP } from "@/app/actions/rsvp";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 interface RSVPFormProps {
   slug: string;
@@ -18,11 +28,7 @@ export function RSVPForm({ slug, coupleName }: RSVPFormProps) {
     text: string;
   } | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<RSVPFormData>({
+  const form = useForm<RSVPFormData>({
     resolver: zodResolver(rsvpSchema),
     defaultValues: {
       guestName: "",
@@ -78,98 +84,109 @@ export function RSVPForm({ slug, coupleName }: RSVPFormProps) {
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <label
-              htmlFor="guestName"
-              className="text-sm font-medium leading-none"
-            >
-              Your Name
-            </label>
-            <input
-              id="guestName"
-              type="text"
-              placeholder="Enter your name"
-              className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-              {...register("guestName")}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="guestName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Your Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="guestName"
+                      placeholder="Enter your name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.guestName && (
-              <p className="text-sm text-destructive">
-                {errors.guestName.message}
-              </p>
-            )}
-          </div>
 
-          <div className="space-y-2">
-            <label
-              htmlFor="status"
-              className="text-sm font-medium leading-none"
-            >
-              Status
-            </label>
-            <select
-              id="status"
-              className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-              {...register("status")}
-            >
-              <option value="attending">Attending</option>
-              <option value="declining">Declining</option>
-            </select>
-            {errors.status && (
-              <p className="text-sm text-destructive">
-                {errors.status.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <label
-              htmlFor="dietaryNotes"
-              className="text-sm font-medium leading-none"
-            >
-              Dietary Notes
-            </label>
-            <textarea
-              id="dietaryNotes"
-              placeholder="Any dietary requirements? (optional)"
-              className="flex min-h-16 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-              {...register("dietaryNotes")}
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status</FormLabel>
+                  <FormControl>
+                    <select
+                      id="status"
+                      className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                      value={field.value}
+                      onChange={field.onChange}
+                    >
+                      <option value="attending">Attending</option>
+                      <option value="declining">Declining</option>
+                    </select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.dietaryNotes && (
-              <p className="text-sm text-destructive">
-                {errors.dietaryNotes.message}
-              </p>
-            )}
-          </div>
 
-          <div className="flex items-center gap-2">
-            <input
-              id="isVegetarian"
-              type="checkbox"
-              className="size-4 rounded border border-input accent-primary"
-              {...register("isVegetarian")}
+            <FormField
+              control={form.control}
+              name="dietaryNotes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Dietary Notes</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      id="dietaryNotes"
+                      placeholder="Any dietary requirements? (optional)"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            <label htmlFor="isVegetarian" className="text-sm font-medium leading-none">
-              Vegetarian
-            </label>
-          </div>
 
-          <div className="flex items-center gap-2">
-            <input
-              id="needsBabyChair"
-              type="checkbox"
-              className="size-4 rounded border border-input accent-primary"
-              {...register("needsBabyChair")}
+            <FormField
+              control={form.control}
+              name="isVegetarian"
+              render={({ field }) => (
+                <FormItem className="flex items-center gap-2 space-y-0">
+                  <FormControl>
+                    <input
+                      id="isVegetarian"
+                      type="checkbox"
+                      className="size-4 rounded border border-input accent-primary"
+                      checked={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel>Vegetarian</FormLabel>
+                </FormItem>
+              )}
             />
-            <label htmlFor="needsBabyChair" className="text-sm font-medium leading-none">
-              Baby Chair
-            </label>
-          </div>
 
-          <Button type="submit" disabled={isSubmitting} className="w-full">
-            {isSubmitting ? "Submitting..." : "Submit RSVP"}
-          </Button>
-        </form>
+            <FormField
+              control={form.control}
+              name="needsBabyChair"
+              render={({ field }) => (
+                <FormItem className="flex items-center gap-2 space-y-0">
+                  <FormControl>
+                    <input
+                      id="needsBabyChair"
+                      type="checkbox"
+                      className="size-4 rounded border border-input accent-primary"
+                      checked={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel>Baby Chair</FormLabel>
+                </FormItem>
+              )}
+            />
+
+            <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
+              {form.formState.isSubmitting ? "Submitting..." : "Submit RSVP"}
+            </Button>
+          </form>
+        </Form>
       </div>
     </div>
   );
