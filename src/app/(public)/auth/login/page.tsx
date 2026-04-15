@@ -32,7 +32,17 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/admin");
+    // Fetch user role to determine redirect
+    const { data: profile } = await supabase
+      .from("users")
+      .select("role")
+      .single();
+
+    if (profile?.role === "admin") {
+      router.push("/admin");
+    } else {
+      router.push("/dashboard");
+    }
     router.refresh();
   }
 

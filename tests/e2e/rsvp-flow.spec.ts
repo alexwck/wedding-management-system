@@ -25,7 +25,7 @@ test.describe("RSVP submission flow", () => {
     await page.click('button[type="submit"]');
 
     // Should see confirmation message
-    await expect(page.locator("text=/thank you/i")).toBeVisible();
+    await expect(page.locator("h1", { hasText: /thank you/i })).toBeVisible();
   });
 
   test("guest can submit declining RSVP", async ({ page }) => {
@@ -38,7 +38,7 @@ test.describe("RSVP submission flow", () => {
     await page.click('button[type="submit"]');
 
     // Should see confirmation message
-    await expect(page.locator("text=/thank you/i")).toBeVisible();
+    await expect(page.locator("h1", { hasText: /thank you/i })).toBeVisible();
   });
 
   test("RSVP form shows validation errors for missing fields", async ({ page }) => {

@@ -160,13 +160,13 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T051 [P] Add not-found page in `src/app/not-found.tsx` for invalid wedding slugs
-- [ ] T052 [P] Add error page in `src/app/error.tsx` with user-friendly error messaging
-- [ ] T053 [P] Add loading states in `src/app/(public)/w/[slug]/loading.tsx` and `src/app/(auth)/dashboard/loading.tsx` using shadcn/ui Skeleton components
-- [ ] T054 [P] Add mobile-responsive navigation component in `src/components/nav.tsx` with hamburger menu using shadcn/ui Sheet for mobile
-- [ ] T055 Update `.env.example` with all required environment variables documented
-- [ ] T056 [P] Configure `next.config.ts` with Supabase image domain in `remotePatterns` for Next.js Image optimization
-- [ ] T057 Run all tests to verify complete feature functionality (`npm run test` and `npm run test:e2e`)
+- [x] T051 [P] Add not-found page in `src/app/not-found.tsx` for invalid wedding slugs
+- [x] T052 [P] Add error page in `src/app/error.tsx` with user-friendly error messaging
+- [x] T053 [P] Add loading states in `src/app/(public)/w/[slug]/loading.tsx` and `src/app/(auth)/dashboard/loading.tsx` using shadcn/ui Skeleton components
+- [x] T054 [P] Add mobile-responsive navigation component in `src/components/nav.tsx` with hamburger menu using shadcn/ui Sheet for mobile
+- [x] T055 Update `.env.example` with all required environment variables documented
+- [x] T056 [P] Configure `next.config.ts` with Supabase image domain in `remotePatterns` for Next.js Image optimization
+- [x] T057 Run all tests to verify complete feature functionality (`npm run test` and `npm run test:e2e`)
 
 ---
 
