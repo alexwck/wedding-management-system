@@ -23,6 +23,10 @@ INSERT INTO public.weddings (id, slug, user_id, couple_name, template_image_url,
   (2, 'jordan-taylor-wedding', 'a0000000-0000-0000-0000-000000000003', 'Jordan & Taylor', NULL, '2026-09-20T16:00:00Z')
 ON CONFLICT (id) DO NOTHING;
 
+-- Reset identity sequences after seeding with explicit IDs
+SELECT setval('public.weddings_id_seq', (SELECT COALESCE(MAX(id), 1) FROM public.weddings));
+SELECT setval('public.rsvps_id_seq', (SELECT COALESCE(MAX(id), 1) FROM public.rsvps));
+
 -- Insert sample RSVPs for test-wedding-1
 INSERT INTO public.rsvps (wedding_id, guest_name, status, dietary_notes, is_vegetarian, needs_baby_chair) VALUES
   (1, 'Emma Watson', 'attending', 'No nuts please', false, false),

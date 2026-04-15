@@ -83,6 +83,34 @@ export async function getAllWeddings() {
   return { success: true, weddings: weddings ?? [] };
 }
 
+async function insertWeddingWithRetry(
+  supabase: ReturnType<typeof createAdminClient>,
+  userId: string,
+  coupleName: string,
+  maxRetries = 3,
+) {
+  let lastError: { code?: string; message?: string; details?: string; hint?: string } | null = null;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const slug = nanoid(8);
+    const result = await supabase
+      .from("weddings")
+      .insert({ slug, user_id: userId, couple_name: coupleName })
+      .select("id, slug")
+      .single();
+
+    if (!result.error) return { data: result.data, error: null };
+    lastError = result.error;
+
+    console.warn(
+      `[createCoupleAccount/wedding] Attempt ${attempt + 1} failed`,
+      { code: result.error.code, message: result.error.message },
+    );
+
+    if (attempt >= maxRetries) break;
+  }
+  return { data: null, error: lastError };
+}
+
 export async function createCoupleAccount(formData: FormData) {
   const rawData = {
     email: formData.get("email") as string,
@@ -109,6 +137,11 @@ export async function createCoupleAccount(formData: FormData) {
   });
 
   if (authError || !authData.user) {
+    console.error("[createCoupleAccount] Auth user creation failed:", {
+      code: authError?.code,
+      message: authError?.message,
+      status: authError?.status,
+    });
     return {
       success: false,
       error: "auth_failed" as const,
@@ -123,6 +156,12 @@ export async function createCoupleAccount(formData: FormData) {
   });
 
   if (profileError) {
+    console.error("[createCoupleAccount] Profile insert failed:", {
+      code: profileError.code,
+      message: profileError.message,
+      details: profileError.details,
+      hint: profileError.hint,
+    });
     // Clean up auth user if profile insert fails
     await supabase.auth.admin.deleteUser(authData.user.id);
     return {
@@ -132,23 +171,27 @@ export async function createCoupleAccount(formData: FormData) {
     };
   }
 
-  const slug = nanoid(8);
-
-  const { data: wedding, error: weddingError } = await supabase
-    .from("weddings")
-    .insert({
-      slug,
-      user_id: authData.user.id,
-      couple_name: parsed.data.coupleName,
-    })
-    .select("id")
-    .single();
+  const { data: wedding, error: weddingError } = await insertWeddingWithRetry(
+    supabase,
+    authData.user.id,
+    parsed.data.coupleName,
+  );
 
   if (weddingError || !wedding) {
+    console.error("[createCoupleAccount] Wedding insert failed after retries:", {
+      code: weddingError?.code,
+      message: weddingError?.message,
+      details: weddingError?.details,
+      hint: weddingError?.hint,
+      userId: authData.user.id,
+    });
+    // Full cleanup: remove profile then auth user
+    await supabase.from("users").delete().eq("id", authData.user.id);
+    await supabase.auth.admin.deleteUser(authData.user.id);
     return {
       success: false,
       error: "wedding_failed" as const,
-      message: "Failed to create wedding.",
+      message: weddingError?.message || "Failed to create wedding.",
     };
   }
 
@@ -159,7 +202,7 @@ export async function createCoupleAccount(formData: FormData) {
     success: true,
     userId: authData.user.id,
     weddingId: wedding.id,
-    slug,
+    slug: wedding.slug,
   };
 }
 
