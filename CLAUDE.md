@@ -17,19 +17,6 @@ npm run test:watch   # Vitest in watch mode
 npm run test:e2e     # Playwright E2E tests (tests/e2e/)
 ```
 
-## Local Development Setup
-
-1. Start Supabase locally: `npx supabase start` (requires Supabase CLI + Podman)
-2. Copy `.env.example` to `.env.local` and fill in values from `npx supabase start` output
-3. Run `npm run dev`
-4. Seed data: `supabase/seed.sql` provides 3 users, 2 weddings, 6 RSVPs
-
-## Environment Variables
-
-- `NEXT_PUBLIC_SUPABASE_URL` — Supabase project URL
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase anonymous key
-- `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key (server-side only)
-
 ## Architecture
 
 ```
@@ -88,6 +75,18 @@ Git hooks in `.specify/extensions.yml` auto-commit at each stage.
 - **Testing**: Vitest + React Testing Library (unit), Playwright (E2E, desktop + mobile Chrome)
 - **TypeScript**: Strict mode, path alias `@/*` → `src/*`
 
+## Git Hooks
+
+Shared git hooks live in `.githooks/` and are committed to the repo. Each collaborator needs to run once:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+| Hook | Purpose |
+|------|---------|
+| `prepare-commit-msg` | Strips `Co-Authored-By` lines from commit messages |
+
 ## Gotchas
 
 - **proxy.ts, not middleware.ts**: Auth middleware is named `src/proxy.ts` because Next.js 16 has a conflict with `middleware.ts` naming
@@ -95,7 +94,3 @@ Git hooks in `.specify/extensions.yml` auto-commit at each stage.
 - **RSVP deduplication**: Unique constraint on `(wedding_id, LOWER(guest_name))` plus application-level checks
 - **Server components by default**: Most components are RSCs; only form components use `"use client"`
 - **Supabase client variants**: Three separate clients — `client.ts` (browser), `server.ts` (server components), `admin.ts` (service role, bypasses RLS)
-
-## Launching Claude
-
-Run `claude` directly from the repo root.

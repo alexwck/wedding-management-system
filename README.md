@@ -8,7 +8,6 @@ A wedding RSVP management system where admins upload Canva-designed invitation t
 - **UI**: shadcn/ui, Tailwind CSS, react-hook-form, zod
 - **Database & Auth**: Supabase (PostgreSQL with RLS, Auth, Storage)
 - **Testing**: Vitest + React Testing Library (unit), Playwright (E2E)
-- **Container Runtime**: Podman (local Supabase)
 
 ## Prerequisites
 
@@ -96,6 +95,18 @@ npx supabase db reset
 | `/w/{slug}` | Public landing page |
 | `/w/{slug}/rsvp` | Public RSVP form |
 
+## Git Hooks
+
+Shared git hooks are stored in `.githooks/` and committed to the repo. After cloning, run once:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+| Hook | What it does |
+|------|--------------|
+| `prepare-commit-msg` | Automatically strips `Co-Authored-By` lines from commit messages |
+
 ## Testing
 
 ### Unit Tests (Vitest)
@@ -117,12 +128,6 @@ npx playwright test --ui                       # interactive mode
 ```
 
 The test suite runs against two projects: **Desktop Chrome** and **Mobile Chrome** (Pixel 5 viewport).
-
-### Run all tests
-
-```bash
-npm run test && npm run test:e2e
-```
 
 ## Project Structure
 
