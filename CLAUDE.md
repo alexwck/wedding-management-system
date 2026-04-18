@@ -29,7 +29,6 @@ npm run test:e2e     # Playwright E2E tests (tests/e2e/)
 - `NEXT_PUBLIC_SUPABASE_URL` — Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase anonymous key
 - `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key (server-side only)
-- `GLM_AUTH_TOKEN` — Auth token for glm-claude.sh launch script
 
 ## Architecture
 
@@ -99,4 +98,4 @@ Git hooks in `.specify/extensions.yml` auto-commit at each stage.
 
 ## Launching Claude
 
-Use `./glm-claude.sh` from repo root. Sets `ANTHROPIC_BASE_URL` and auth token from `.env.local`, maps model overrides (Haiku → glm-4.5-air, Sonnet/Opus → glm-5.1).
+Run `claude` directly from the repo root.
