@@ -144,10 +144,10 @@
 
 **Independent Test**: Log in as couple (see own plan only), admin (see all), and unauthenticated (redirected to login)
 
-- [ ] T047 [US5] Add floor plan link to couple dashboard nav in `src/components/nav.tsx` and `src/app/(auth)/dashboard/layout.tsx`
-- [ ] T048 [US5] Add floor plan link to admin wedding detail view (e.g., button on `/admin/weddings/[id]`) in `src/app/(auth)/admin/weddings/[id]/page.tsx`
-- [ ] T049 [US5] Verify existing auth proxy (`src/proxy.ts`) protects `/dashboard/floor-plan` and `/admin/weddings/*/floor-plan` routes — add if not covered
-- [ ] T050 [US5] Add RLS-validated server action checks: couple can only load/save their own wedding's floor plan in `src/app/actions/floor-plan.ts`
+- [X] T047 [US5] Add floor plan link to couple dashboard nav in `src/components/nav.tsx` and `src/app/(auth)/dashboard/layout.tsx`
+- [X] T048 [US5] Add floor plan link to admin wedding detail view (e.g., button on `/admin/weddings/[id]`) in `src/app/(auth)/admin/weddings/[id]/page.tsx`
+- [X] T049 [US5] Verify existing auth proxy (`src/proxy.ts`) protects `/dashboard/floor-plan` and `/admin/weddings/*/floor-plan` routes — add if not covered
+- [X] T050 [US5] Add RLS-validated server action checks: couple can only load/save their own wedding's floor plan in `src/app/actions/floor-plan.ts`
 
 **Checkpoint**: User Story 5 complete — access control enforced at route and data level.
 
