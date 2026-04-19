@@ -14,6 +14,7 @@ import { StageItem } from "./items/stage-item";
 import { PillarItem } from "./items/pillar-item";
 import { WalkwayItem } from "./items/walkway-item";
 import { MiscItem } from "./items/misc-item";
+import { Chair } from "./items/chair";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +23,7 @@ import {
 } from "@/lib/floor-plan/constants";
 import { isItemOutOfBounds } from "@/lib/floor-plan/collision";
 import type { FloorPlan, FloorPlanItem, ItemType } from "@/types/floor-plan";
+import { redistributeChairs, getMaxChairCount } from "./hooks/use-chair-generation";
 
 interface FloorPlanCanvasProps {
   weddingId: number;
@@ -36,6 +38,7 @@ const DIMENSION_EDITABLE_TYPES: ItemType[] = [
   "pillar",
   "walkway",
   "misc",
+  "chair",
 ];
 
 export function FloorPlanCanvas({
@@ -131,7 +134,24 @@ export function FloorPlanCanvas({
       const node = e.target;
       const newX = node.x() / FEET_TO_PIXELS;
       const newY = node.y() / FEET_TO_PIXELS;
+      const item = state.items.find((i) => i.id === id);
+      if (!item) return;
+
+      const dx = newX - item.x;
+      const dy = newY - item.y;
       state.updateItem(id, { x: newX, y: newY });
+
+      const isTable = item.type === "round_table" || item.type === "long_table";
+      if (isTable && (dx !== 0 || dy !== 0)) {
+        state.items
+          .filter((i) => i.parentItemId === id)
+          .forEach((child) => {
+            state.updateItem(child.id, {
+              x: child.x + dx,
+              y: child.y + dy,
+            });
+          });
+      }
     },
     [state],
   );
@@ -156,6 +176,22 @@ export function FloorPlanCanvas({
         }
       } else {
         collision.savePosition(id, newX, newY);
+        const isTable = movedItem.type === "round_table" || movedItem.type === "long_table";
+        if (isTable) {
+          const dx = newX - movedItem.x;
+          const dy = newY - movedItem.y;
+          state.items
+            .filter((i) => i.parentItemId === id)
+            .forEach((child) => {
+              const stage = stageRef.current;
+              if (!stage) return;
+              const childNode = stage.findOne(`#${child.id}`);
+              if (childNode) {
+                childNode.x((child.x + dx) * FEET_TO_PIXELS);
+                childNode.y((child.y + dy) * FEET_TO_PIXELS);
+              }
+            });
+        }
       }
     },
     [state, collision],
@@ -199,6 +235,32 @@ export function FloorPlanCanvas({
       state.updateItem(editingDimId, { [dim]: num });
     },
     [editingDimId, pushHistory, state],
+  );
+
+  const handleChairCountChange = useCallback(
+    (tableId: string, newCount: number) => {
+      const table = state.items.find((i) => i.id === tableId);
+      if (!table) return;
+      const max = getMaxChairCount(table);
+      const clamped = Math.min(Math.max(newCount, 0), max);
+      pushHistory();
+
+      const existingChairs = state.items.filter(
+        (i) => i.parentItemId === tableId,
+      );
+
+      const updatedTable = { ...table, metadata: { ...table.metadata, chairCount: clamped } };
+      const newChairs = redistributeChairs(updatedTable, clamped);
+
+      state.setAllItems([
+        ...state.items.filter(
+          (i) => i.id !== tableId && i.parentItemId !== tableId,
+        ),
+        updatedTable,
+        ...newChairs,
+      ]);
+    },
+    [state, pushHistory],
   );
 
   const handleUndo = useCallback(() => {
@@ -317,6 +379,16 @@ export function FloorPlanCanvas({
             width={item.width}
             height={item.height}
             customType={item.metadata.customType}
+          />
+        );
+        break;
+      case "chair":
+        element = (
+          <Chair
+            {...commonProps}
+            width={item.width}
+            height={item.height}
+            draggable={false}
           />
         );
         break;
@@ -501,6 +573,61 @@ export function FloorPlanCanvas({
             <span className="text-xs text-muted-foreground">ft</span>
           </div>
         )}
+
+        {/* Chair count adjustment for selected table */}
+        {selectedItem &&
+          (selectedItem.type === "round_table" ||
+            selectedItem.type === "long_table") && (
+            <div className="flex items-center gap-2 px-4 py-2 border-b bg-muted/30">
+              <span className="text-sm text-muted-foreground">Chairs:</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  handleChairCountChange(
+                    selectedItem.id,
+                    (selectedItem.metadata.chairCount ?? 0) - 1,
+                  )
+                }
+                disabled={(selectedItem.metadata.chairCount ?? 0) <= 0}
+              >
+                -
+              </Button>
+              <Input
+                data-testid="chair-count-input"
+                type="number"
+                min={0}
+                max={getMaxChairCount(selectedItem)}
+                value={selectedItem.metadata.chairCount ?? 0}
+                onChange={(e) =>
+                  handleChairCountChange(
+                    selectedItem.id,
+                    Number(e.target.value),
+                  )
+                }
+                className="w-16 text-center"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  handleChairCountChange(
+                    selectedItem.id,
+                    (selectedItem.metadata.chairCount ?? 0) + 1,
+                  )
+                }
+                disabled={
+                  (selectedItem.metadata.chairCount ?? 0) >=
+                  getMaxChairCount(selectedItem)
+                }
+              >
+                +
+              </Button>
+              <span className="text-xs text-muted-foreground">
+                (max {getMaxChairCount(selectedItem)})
+              </span>
+            </div>
+          )}
 
         <div
           ref={containerRef}

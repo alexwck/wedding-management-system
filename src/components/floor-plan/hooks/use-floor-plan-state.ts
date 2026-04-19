@@ -14,6 +14,7 @@ import {
   DEFAULT_CHAIR_SIZE,
 } from "@/lib/floor-plan/constants";
 import type { RoundTableSize, LongTableLength } from "@/types/floor-plan";
+import { generateChairsForTable } from "./use-chair-generation";
 
 function getNextLabel(items: FloorPlanItem[], type: ItemType): string {
   const existing = items.filter((i) => i.type === type);
@@ -76,7 +77,13 @@ export function useFloorPlanState(initialWidth: number, initialHeight: number) {
             : {}),
         },
       };
-      setItems((prev) => [...prev, item]);
+      setItems((prev) => {
+        const chairs =
+          type === "round_table" || type === "long_table"
+            ? generateChairsForTable(item)
+            : [];
+        return [...prev, item, ...chairs];
+      });
       return item;
     },
     [items, width, height],
