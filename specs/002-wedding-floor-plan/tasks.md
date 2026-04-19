@@ -107,17 +107,17 @@
 
 ### Tests for User Story 3 (RED — write first, must fail)
 
-- [ ] T035 [P] [US3] Write unit tests for chair generation (round table positioning, long table positioning, chair count ranges) in `tests/unit/floor-plan/chair-generation.test.ts`
+- [X] T035 [P] [US3] Write unit tests for chair generation (round table positioning, long table positioning, chair count ranges) in `tests/unit/floor-plan/chair-generation.test.ts`
 
 ### Implementation for User Story 3
 
-- [ ] T036 [US3] Create chair Konva shape (small Rect/Circle + label, linked to parent table) in `src/components/floor-plan/items/chair.tsx`
-- [ ] T037 [US3] Create `use-chair-generation` hook (generates chair items for round and long tables based on catalog capacities) in `src/components/floor-plan/hooks/use-chair-generation.ts`
-- [ ] T038 [US3] Integrate chair generation into table placement — when a table is added, chairs auto-generate at correct positions in `src/components/floor-plan/floor-plan-canvas.tsx`
-- [ ] T039 [US3] Add group movement — dragging a table repositions all child chairs relative to table center in canvas drag handler
-- [ ] T040 [US3] Add group deletion — removing a table removes all child chairs
-- [ ] T041 [US3] Add chair count adjustment UI per table (input or +/- buttons, range 0 to max+1) with even redistribution of chairs
-- [ ] T042 [US3] Add dimension editing UI for chair items (width/height inputs, default 2ft x 2ft) in chair shape component or via dimension editing from T032
+- [X] T036 [US3] Create chair Konva shape (small Rect/Circle + label, linked to parent table) in `src/components/floor-plan/items/chair.tsx`
+- [X] T037 [US3] Create `use-chair-generation` hook (generates chair items for round and long tables based on catalog capacities) in `src/components/floor-plan/hooks/use-chair-generation.ts`
+- [X] T038 [US3] Integrate chair generation into table placement — when a table is added, chairs auto-generate at correct positions in `src/components/floor-plan/floor-plan-canvas.tsx`
+- [X] T039 [US3] Add group movement — dragging a table repositions all child chairs relative to table center in canvas drag handler
+- [X] T040 [US3] Add group deletion — removing a table removes all child chairs
+- [X] T041 [US3] Add chair count adjustment UI per table (input or +/- buttons, range 0 to max+1) with even redistribution of chairs
+- [X] T042 [US3] Add dimension editing UI for chair items (width/height inputs, default 2ft x 2ft) in chair shape component or via dimension editing from T032
 
 **Checkpoint**: User Story 3 complete — chairs auto-populate, follow tables, count is adjustable, and chair dimensions are configurable. Unit tests pass (GREEN).
 
