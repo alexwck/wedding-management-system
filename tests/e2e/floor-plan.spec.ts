@@ -29,12 +29,13 @@ test.describe("Couple floor plan — User Story 1", () => {
     await heightInput.clear();
     await heightInput.fill("60");
 
-    // Explicitly save via "Save now" button (force for mobile header overlap)
-    await page.getByRole("button", { name: /save now/i }).click({ force: true });
+    // Explicitly save via "Save now" button
+    await page.getByRole("button", { name: /save now/i }).click();
     await expect(page.locator('[data-testid="save-status"]')).toContainText(/saved/i, { timeout: 10000 });
 
     // Reload the page
     await page.reload();
+    await expect(page.getByRole("heading", { name: /floor plan/i })).toBeVisible();
 
     // Verify dimensions persisted
     const widthAfter = page.locator('input[data-testid="venue-width"]');
@@ -70,7 +71,6 @@ test.describe("Couple floor plan — User Story 1", () => {
     await expect(page.getByRole("heading", { name: /floor plan/i })).toBeVisible();
 
     const widthInput = page.locator('input[data-testid="venue-width"]');
-    await expect(widthInput).toBeVisible();
     await widthInput.clear();
     await widthInput.fill("500");
 
@@ -112,12 +112,13 @@ test.describe("Admin floor plan — User Story 1", () => {
     await heightInput.clear();
     await heightInput.fill("75");
 
-    // Explicitly save via "Save now" button (force for mobile header overlap)
-    await page.getByRole("button", { name: /save now/i }).click({ force: true });
+    // Explicitly save via "Save now" button
+    await page.getByRole("button", { name: /save now/i }).click();
     await expect(page.locator('[data-testid="save-status"]')).toContainText(/saved/i, { timeout: 10000 });
 
     // Reload and verify
     await page.reload();
+    await expect(page.getByRole("heading", { name: /floor plan/i })).toBeVisible();
     await expect(page.locator('input[data-testid="venue-width"]')).toHaveValue("100");
     await expect(page.locator('input[data-testid="venue-height"]')).toHaveValue("75");
   });

@@ -606,7 +606,7 @@ export function FloorPlanCanvas({
       <ItemCatalog onSelectItem={handleSelectItem} />
 
       <div className="flex-1 flex flex-col">
-        <div className="flex items-center gap-4 p-4 border-b">
+        <div className="flex flex-wrap items-center gap-4 p-4 border-b">
           <div className="flex items-center gap-2">
             <label htmlFor="venue-width" className="text-sm font-medium">
               Width (ft)
