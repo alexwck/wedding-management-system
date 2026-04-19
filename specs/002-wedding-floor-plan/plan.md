@@ -59,8 +59,7 @@ src/
 │       └── floor-plan.ts                              # Server actions for CRUD
 ├── components/
 │   ├── floor-plan/
-│   │   ├── floor-plan-canvas.tsx       # Main canvas wrapper (client component)
-│   │   ├── floor-plan-canvas.tsx       # Konva Stage/Layer setup
+│   │   ├── floor-plan-canvas.tsx       # Main canvas wrapper (client component, Konva Stage/Layer)
 │   │   ├── item-catalog.tsx            # Sidebar catalog of placeable items
 │   │   ├── floor-plan-toolbar.tsx      # Undo/redo, zoom controls
 │   │   ├── items/
