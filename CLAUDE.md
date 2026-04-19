@@ -27,25 +27,35 @@ src/
 │   │   └── w/[slug]/       # Wedding landing pages (+ /rsvp sub-route)
 │   ├── (auth)/             # Authenticated route group
 │   │   ├── admin/          # Admin: manage weddings, couples
+│   │   │   └── weddings/[id]/floor-plan/  # Admin floor plan editor
 │   │   └── dashboard/      # Couple: manage own RSVPs
-│   ├── actions/            # Server actions (admin.ts, rsvp.ts, upload.ts)
+│   │       └── floor-plan/ # Couple floor plan editor
+│   ├── actions/            # Server actions (admin.ts, rsvp.ts, upload.ts, floor-plan.ts)
 │   ├── layout.tsx          # Root layout
 │   ├── globals.css         # Tailwind v4 via @import
 │   ├── error.tsx / not-found.tsx
 ├── components/
+│   ├── floor-plan/         # Konva canvas floor plan editor (all client components)
+│   │   ├── floor-plan-canvas.tsx    # Main canvas wrapper (Stage/Layer, controls)
+│   │   ├── floor-plan-toolbar.tsx   # Undo/redo, zoom controls
+│   │   ├── item-catalog.tsx         # Sidebar of placeable items
+│   │   ├── items/                   # Konva shape components (round-table, long-table, chair, etc.)
+│   │   └── hooks/                   # use-floor-plan-state, use-auto-save, use-collision-detection, etc.
 │   ├── ui/                 # shadcn/ui components (button, card, dialog, etc.)
 │   ├── landing-page.tsx    # Wedding landing page component
 │   ├── rsvp-form.tsx       # RSVP form with react-hook-form + zod
 │   └── ...                 # Other app components
 ├── lib/
+│   ├── floor-plan/         # Floor plan utilities (constants, collision, serializers)
 │   ├── supabase/           # Supabase clients: client.ts, server.ts, admin.ts
 │   ├── utils.ts            # cn() helper and utilities
-│   └── validations/        # Zod schemas (admin.ts, rsvp.ts)
+│   └── validations/        # Zod schemas (admin.ts, rsvp.ts, floor-plan.ts)
 ├── proxy.ts                # Auth middleware (NOT middleware.ts — renamed for Next.js 16 compat)
-├── types/                  # TypeScript type definitions
+├── types/
+│   └── floor-plan.ts       # Floor plan type definitions
 supabase/
-├── migrations/             # 4 migrations: users, weddings, rsvps, storage policies
-├── seed.sql                # Dev seed data
+├── migrations/             # 5 migrations: users, weddings, rsvps, storage, floor_plans
+├── seed.sql                # Dev seed data (includes sample floor plan for wedding 1)
 ├── config.toml             # Supabase local config
 ```
 
@@ -68,6 +78,7 @@ Git hooks in `.specify/extensions.yml` auto-commit at each stage.
 
 - **Framework**: Next.js 16 (App Router) + React 19
 - **Styling**: Tailwind CSS v4 (CSS-based config in globals.css, no tailwind.config file) + shadcn/ui (Nova theme)
+- **Canvas**: react-konva + konva for interactive 2D floor plan editor
 - **Database**: Supabase PostgreSQL with Row-Level Security (RLS)
 - **Auth**: Supabase Auth (email-based, admin/couple roles)
 - **Storage**: Supabase Storage (`wedding-templates` bucket)
@@ -92,12 +103,7 @@ git config core.hooksPath .githooks
 - **proxy.ts, not middleware.ts**: Auth middleware is named `src/proxy.ts` because Next.js 16 has a conflict with `middleware.ts` naming
 - **Tailwind v4**: No `tailwind.config.js` — configuration lives in `globals.css` using `@theme` blocks
 - **RSVP deduplication**: Unique constraint on `(wedding_id, LOWER(guest_name))` plus application-level checks
-- **Server components by default**: Most components are RSCs; only form components use `"use client"`
+- **Server components by default**: Most components are RSCs; only form components and canvas components use `"use client"`
 - **Supabase client variants**: Three separate clients — `client.ts` (browser), `server.ts` (server components), `admin.ts` (service role, bypasses RLS)
-
-## Active Technologies
-- TypeScript (strict mode) on Node.js 20+ + react-konva + konva (canvas), zod (validation), react-hook-form (002-wedding-floor-plan)
-- Supabase PostgreSQL (new `floor_plans` and `floor_plan_items` tables) (002-wedding-floor-plan)
-
-## Recent Changes
-- 002-wedding-floor-plan: Added TypeScript (strict mode) on Node.js 20+ + react-konva + konva (canvas), zod (validation), react-hook-form
+- **Floor plan item IDs**: Arbitrary strings (e.g. `"fp-rt-1"`), not UUIDs — Zod schema validates `z.string().min(1)`
+- **Floor plan server actions**: Use `adminClient` for reads/writes (bypasses RLS); access control checked in application code via `verifyWeddingAccess`
