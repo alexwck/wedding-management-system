@@ -14,12 +14,14 @@ export function TemplateUpload({ weddingId, currentImageUrl }: TemplateUploadPro
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [hasFile, setHasFile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     setError(null);
     setSuccess(false);
+    setHasFile(!!file);
 
     if (!file) return;
 
@@ -88,7 +90,7 @@ export function TemplateUpload({ weddingId, currentImageUrl }: TemplateUploadPro
         </div>
       )}
 
-      <Button onClick={handleUpload} disabled={uploading || !fileInputRef.current?.files?.[0]}>
+      <Button onClick={handleUpload} disabled={uploading || !hasFile}>
         {uploading ? "Uploading..." : "Upload Template"}
       </Button>
     </div>
