@@ -94,3 +94,10 @@ git config core.hooksPath .githooks
 - **RSVP deduplication**: Unique constraint on `(wedding_id, LOWER(guest_name))` plus application-level checks
 - **Server components by default**: Most components are RSCs; only form components use `"use client"`
 - **Supabase client variants**: Three separate clients — `client.ts` (browser), `server.ts` (server components), `admin.ts` (service role, bypasses RLS)
+
+## Active Technologies
+- TypeScript (strict mode) on Node.js 20+ + react-konva + konva (canvas), zod (validation), react-hook-form (002-wedding-floor-plan)
+- Supabase PostgreSQL (new `floor_plans` and `floor_plan_items` tables) (002-wedding-floor-plan)
+
+## Recent Changes
+- 002-wedding-floor-plan: Added TypeScript (strict mode) on Node.js 20+ + react-konva + konva (canvas), zod (validation), react-hook-form
