@@ -22,8 +22,8 @@ interface DbFloorPlanItem {
 interface DbFloorPlan {
   id: number;
   wedding_id: number;
-  width: number;
-  height: number;
+  width: number | string;
+  height: number | string;
   items: DbFloorPlanItem[];
   created_at: string;
   updated_at: string;
