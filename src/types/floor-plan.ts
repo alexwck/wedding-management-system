@@ -1,11 +1,14 @@
-export type ItemType =
-  | "round_table"
-  | "long_table"
-  | "chair"
-  | "stage"
-  | "pillar"
-  | "walkway"
-  | "misc";
+export const ITEM_TYPES = [
+  "round_table",
+  "long_table",
+  "chair",
+  "stage",
+  "pillar",
+  "walkway",
+  "misc",
+] as const;
+
+export type ItemType = (typeof ITEM_TYPES)[number];
 
 export type RoundTableSize = 3 | 4 | 5 | 6 | 7;
 export type LongTableLength = 6 | 7;

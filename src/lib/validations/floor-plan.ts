@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ITEM_TYPES } from "@/types/floor-plan";
 
 const floorPlanItemMetadataSchema = z.object({
   diameter: z.number().min(3).max(7).optional(),
@@ -10,22 +11,14 @@ const floorPlanItemMetadataSchema = z.object({
 
 const floorPlanItemSchema = z.object({
   id: z.string().min(1),
-  type: z.enum([
-    "round_table",
-    "long_table",
-    "chair",
-    "stage",
-    "pillar",
-    "walkway",
-    "misc",
-  ]),
+  type: z.enum(ITEM_TYPES),
   label: z.string().min(1).max(50),
   x: z.number(),
   y: z.number(),
   width: z.number().positive(),
   height: z.number().positive(),
   rotation: z.number().min(0).max(360),
-  parentItemId: z.string().nullable(),
+  parentItemId: z.string().min(1).nullable(),
   metadata: floorPlanItemMetadataSchema,
 });
 
