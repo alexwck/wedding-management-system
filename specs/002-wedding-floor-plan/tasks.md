@@ -157,10 +157,10 @@
 
 **Purpose**: Visual polish, edge cases, and end-to-end validation
 
-- [ ] T051 [P] Add empty state and loading state for floor plan page (no floor plan yet, loading indicator)
-- [ ] T052 [P] Add visual feedback for out-of-bounds items (red highlight when item exceeds floor plan boundary)
-- [ ] T053 Run `supabase db reset` and verify seed data includes a sample floor plan for testing in `supabase/seed.sql`
-- [ ] T054 Run quickstart.md validation — verify all routes load, items place and save, dimensions persist, auto-save recovers after page reload, and collision detection prevents overlaps
+- [X] T051 [P] Add empty state and loading state for floor plan page (no floor plan yet, loading indicator)
+- [X] T052 [P] Add visual feedback for out-of-bounds items (red highlight when item exceeds floor plan boundary)
+- [X] T053 Run `supabase db reset` and verify seed data includes a sample floor plan for testing in `supabase/seed.sql`
+- [X] T054 Run quickstart.md validation — verify all routes load, items place and save, dimensions persist, auto-save recovers after page reload, and collision detection prevents overlaps
 
 ---
 
