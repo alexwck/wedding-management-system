@@ -4,8 +4,6 @@ import React from "react";
 import {
   ITEM_CATALOG,
   type CatalogEntry,
-  ROUND_TABLE_SIZES,
-  LONG_TABLE_LENGTHS,
 } from "@/lib/floor-plan/constants";
 import type { ItemType } from "@/types/floor-plan";
 import { Button } from "@/components/ui/button";

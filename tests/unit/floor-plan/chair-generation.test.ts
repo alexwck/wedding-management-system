@@ -5,8 +5,6 @@ import {
   redistributeChairs,
 } from "@/components/floor-plan/hooks/use-chair-generation";
 import {
-  ROUND_TABLE_SIZES,
-  LONG_TABLE_LENGTHS,
   DEFAULT_CHAIR_SIZE,
 } from "@/lib/floor-plan/constants";
 import type { RoundTableSize, LongTableLength } from "@/types/floor-plan";

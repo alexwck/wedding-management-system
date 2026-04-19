@@ -67,7 +67,6 @@ export function FloorPlanCanvas({
   const lastTouchCenter = useRef<{ x: number; y: number } | null>(null);
 
   const stageRef = useRef<Konva.Stage>(null);
-  const transformerRef = useRef<Konva.Transformer>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
 
@@ -409,10 +408,6 @@ export function FloorPlanCanvas({
       const max = getMaxChairCount(table);
       const clamped = Math.min(Math.max(newCount, 0), max);
       pushHistory();
-
-      const existingChairs = state.items.filter(
-        (i) => i.parentItemId === tableId,
-      );
 
       const updatedTable = { ...table, metadata: { ...table.metadata, chairCount: clamped } };
       const newChairs = redistributeChairs(updatedTable, clamped);
