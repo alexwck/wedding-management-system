@@ -58,6 +58,7 @@ When a user places a table on the floor plan, chairs are automatically generated
 2. **Given** the user places a Viking/long table (e.g., 6ft long), **When** the table is placed on the canvas, **Then** chairs appear along the top and bottom sides only, evenly distributed, facing inward
 3. **Given** a table with auto-generated chairs exists, **When** the user moves the table, **Then** all associated chairs move with it as a group
 4. **Given** a table with chairs, **When** the user removes the table, **Then** all associated chairs are also removed
+5. **Given** a table with auto-generated chairs (e.g., 6ft round table with 8–10 range), **When** the user adjusts the chair count, **Then** chairs can be set from 0 up to 11 (max + 1), adding or removing chairs evenly around the table
 
 **Chair Seating Capacities**:
 
@@ -129,7 +130,7 @@ Admin users can access and edit floor plans for all weddings, while couple users
 - **FR-009**: The system MUST automatically generate and arrange chairs around tables when placed:
   - Round tables: chairs in a circle around the table edge, evenly spaced, facing inward
   - Viking/long tables: chairs along top and bottom sides only, evenly distributed, facing inward
-- **FR-010**: The system MUST associate auto-generated chairs with their parent table — moving or removing a table moves or removes its chairs
+- **FR-010**: The system MUST associate auto-generated chairs with their parent table — moving or removing a table moves or removes its chairs. Users can adjust the number of chairs per table from 0 up to the recommended maximum plus 1 (e.g., a 6ft round table with range 8–10 allows 0–11 chairs)
 - **FR-011**: The system MUST support pan and zoom on the canvas for navigation
 - **FR-012**: The system MUST support touch input (pinch-to-zoom, two-finger pan, tap-to-place) for mobile devices
 - **FR-013**: The system MUST persist the floor plan state (dimensions, placed items with positions and rotations) so users can return to a saved layout
@@ -140,6 +141,7 @@ Admin users can access and edit floor plans for all weddings, while couple users
 - **FR-018**: The system MUST display the label on or near each item on the canvas
 - **FR-019**: The system MUST allow authenticated admin and couple users to edit the label of any placed item
 - **FR-020**: The system MUST allow authenticated admin and couple users to set custom dimensions (width and height) for Stage, Pillar, Walkway, Misc, and Chair items when placing them or after placement
+- **FR-021**: The system MUST support undo/redo for the last 20 actions (place, move, rotate, remove, resize, label edit)
 
 ### Key Entities
 
@@ -159,6 +161,13 @@ Admin users can access and edit floor plans for all weddings, while couple users
 - **SC-005**: Touch interactions on mobile devices perform identically to desktop mouse interactions for all core operations (place, drag, rotate, zoom, pan)
 - **SC-006**: A user can close and reopen the page, and their floor plan loads with all items in their saved positions within 3 seconds
 - **SC-007**: Chair generation is instantaneous — chairs appear at the same time as the parent table with no perceptible delay
+
+## Clarifications
+
+### Session 2026-04-19
+
+- Q: Should users be able to adjust the number of chairs after auto-generation? → A: Yes — users can add or remove individual chairs, with the count adjustable from 0 up to the recommended maximum + 1 per table size (e.g., a 6ft round table with range 8–10 allows 0–11 chairs)
+- Q: Should the floor plan support undo/redo for actions? → A: Basic undo/redo for the last 20 actions
 
 ## Assumptions
 
