@@ -129,10 +129,10 @@
 
 **Independent Test**: Load a floor plan with items, scroll to zoom, drag empty space to pan, verify touch gestures work on mobile
 
-- [ ] T043 [P] [US4] Add Konva Stage zoom (wheel/pinch zoom centered on cursor) in `src/components/floor-plan/floor-plan-canvas.tsx`
-- [ ] T044 [P] [US4] Add Konva Stage pan (drag on empty space) in `src/components/floor-plan/floor-plan-canvas.tsx`
-- [ ] T045 [US4] Create toolbar component with undo/redo buttons and zoom controls (zoom in, zoom out, fit to screen) in `src/components/floor-plan/floor-plan-toolbar.tsx`
-- [ ] T046 [US4] Add touch gesture support (pinch-to-zoom, two-finger pan) via Konva touch events in `src/components/floor-plan/floor-plan-canvas.tsx`
+- [X] T043 [P] [US4] Add Konva Stage zoom (wheel/pinch zoom centered on cursor) in `src/components/floor-plan/floor-plan-canvas.tsx`
+- [X] T044 [P] [US4] Add Konva Stage pan (drag on empty space) in `src/components/floor-plan/floor-plan-canvas.tsx`
+- [X] T045 [US4] Create toolbar component with undo/redo buttons and zoom controls (zoom in, zoom out, fit to screen) in `src/components/floor-plan/floor-plan-toolbar.tsx`
+- [X] T046 [US4] Add touch gesture support (pinch-to-zoom, two-finger pan) via Konva touch events in `src/components/floor-plan/floor-plan-canvas.tsx`
 
 **Checkpoint**: User Story 4 complete — canvas is fully navigable with mouse and touch.
 

@@ -17,6 +17,7 @@ import { MiscItem } from "./items/misc-item";
 import { Chair } from "./items/chair";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { FloorPlanToolbar } from "./floor-plan-toolbar";
 import {
   FEET_TO_PIXELS,
   MAX_VENUE_DIMENSION,
@@ -57,6 +58,11 @@ export function FloorPlanCanvas({
   const [editingLabelValue, setEditingLabelValue] = useState("");
   const [editingDimId, setEditingDimId] = useState<string | null>(null);
   const [containerWidth, setContainerWidth] = useState(800);
+  const [containerHeight, setContainerHeight] = useState(600);
+  const [stageScale, setStageScale] = useState(1);
+  const [stagePosition, setStagePosition] = useState({ x: 0, y: 0 });
+  const lastTouchDist = useRef(0);
+  const lastTouchCenter = useRef<{ x: number; y: number } | null>(null);
 
   const stageRef = useRef<Konva.Stage>(null);
   const transformerRef = useRef<Konva.Transformer>(null);
@@ -74,6 +80,7 @@ export function FloorPlanCanvas({
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
         setContainerWidth(entry.contentRect.width);
+        setContainerHeight(entry.contentRect.height);
       }
     });
     if (containerRef.current) observer.observe(containerRef.current);
@@ -95,6 +102,159 @@ export function FloorPlanCanvas({
   const outOfBoundsIds = new Set(
     state.getOutOfBoundsItems().map((i) => i.id),
   );
+
+  // Zoom: wheel centered on cursor
+  const handleWheel = useCallback((e: Konva.KonvaEventObject<WheelEvent>) => {
+    e.evt.preventDefault();
+    const stage = e.target.getStage();
+    if (!stage) return;
+
+    const pointer = stage.getPointerPosition();
+    if (!pointer) return;
+
+    const oldScale = stage.scaleX();
+    const scaleBy = 1.08;
+    const newScale =
+      e.evt.deltaY < 0
+        ? Math.min(oldScale * scaleBy, 5)
+        : Math.max(oldScale / scaleBy, 0.1);
+
+    const mousePointTo = {
+      x: (pointer.x - stage.x()) / oldScale,
+      y: (pointer.y - stage.y()) / oldScale,
+    };
+
+    setStageScale(newScale);
+    setStagePosition({
+      x: pointer.x - mousePointTo.x * newScale,
+      y: pointer.y - mousePointTo.y * newScale,
+    });
+  }, []);
+
+  // Pan: stage drag on empty space
+  const handleStageDragEnd = useCallback(
+    (e: Konva.KonvaEventObject<DragEvent>) => {
+      const stage = e.target.getStage();
+      if (!stage || e.target !== stage) return;
+      setStagePosition({ x: stage.x(), y: stage.y() });
+    },
+    [],
+  );
+
+  // Touch: pinch-to-zoom + two-finger pan
+  const handleTouchMove = useCallback(
+    (e: Konva.KonvaEventObject<TouchEvent>) => {
+      const touches = e.evt.touches;
+      if (touches.length !== 2) return;
+
+      e.evt.preventDefault();
+
+      const touch1 = touches[0];
+      const touch2 = touches[1];
+      const stage = stageRef.current;
+      if (!stage) return;
+
+      const dist = Math.hypot(
+        touch2.clientX - touch1.clientX,
+        touch2.clientY - touch1.clientY,
+      );
+
+      const stageRect = stage.container().getBoundingClientRect();
+      const center = {
+        x: (touch1.clientX + touch2.clientX) / 2 - stageRect.left,
+        y: (touch1.clientY + touch2.clientY) / 2 - stageRect.top,
+      };
+
+      if (lastTouchDist.current > 0 && lastTouchCenter.current) {
+        const oldScale = stage.scaleX();
+
+        const scaleFactor = dist / lastTouchDist.current;
+        const newScale = Math.min(Math.max(oldScale * scaleFactor, 0.1), 5);
+
+        const mousePointTo = {
+          x: (center.x - stage.x()) / oldScale,
+          y: (center.y - stage.y()) / oldScale,
+        };
+
+        const dx = center.x - lastTouchCenter.current.x;
+        const dy = center.y - lastTouchCenter.current.y;
+
+        setStageScale(newScale);
+        setStagePosition({
+          x: center.x - mousePointTo.x * newScale + dx,
+          y: center.y - mousePointTo.y * newScale + dy,
+        });
+      }
+
+      lastTouchDist.current = dist;
+      lastTouchCenter.current = center;
+    },
+    [],
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    lastTouchDist.current = 0;
+    lastTouchCenter.current = null;
+  }, []);
+
+  // Zoom controls
+  const handleZoomIn = useCallback(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    const oldScale = stage.scaleX();
+    const newScale = Math.min(oldScale * 1.25, 5);
+    const center = { x: stage.width() / 2, y: stage.height() / 2 };
+
+    const mousePointTo = {
+      x: (center.x - stage.x()) / oldScale,
+      y: (center.y - stage.y()) / oldScale,
+    };
+
+    setStageScale(newScale);
+    setStagePosition({
+      x: center.x - mousePointTo.x * newScale,
+      y: center.y - mousePointTo.y * newScale,
+    });
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    const oldScale = stage.scaleX();
+    const newScale = Math.max(oldScale / 1.25, 0.1);
+    const center = { x: stage.width() / 2, y: stage.height() / 2 };
+
+    const mousePointTo = {
+      x: (center.x - stage.x()) / oldScale,
+      y: (center.y - stage.y()) / oldScale,
+    };
+
+    setStageScale(newScale);
+    setStagePosition({
+      x: center.x - mousePointTo.x * newScale,
+      y: center.y - mousePointTo.y * newScale,
+    });
+  }, []);
+
+  const handleFitToScreen = useCallback(() => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const padding = 32;
+    const availWidth = rect.width - padding;
+    const availHeight = rect.height - padding;
+
+    const scaleX = availWidth / canvasWidth;
+    const scaleY = availHeight / canvasHeight;
+    const newScale = Math.min(scaleX, scaleY, 1);
+
+    const offsetX = (rect.width - canvasWidth * newScale) / 2;
+    const offsetY = (rect.height - canvasHeight * newScale) / 2;
+
+    setStageScale(newScale);
+    setStagePosition({ x: offsetX, y: offsetY });
+  }, [canvasWidth, canvasHeight]);
 
   const pushHistory = useCallback(() => {
     undoRedo.pushState(state.items, state.width, state.height);
@@ -463,23 +623,17 @@ export function FloorPlanCanvas({
             />
           </div>
 
-          <div className="flex items-center gap-1 ml-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleUndo}
-              disabled={!undoRedo.canUndo()}
-            >
-              Undo
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRedo}
-              disabled={!undoRedo.canRedo()}
-            >
-              Redo
-            </Button>
+          <div className="ml-4">
+            <FloorPlanToolbar
+              canUndo={undoRedo.canUndo()}
+              canRedo={undoRedo.canRedo()}
+              onUndo={handleUndo}
+              onRedo={handleRedo}
+              zoomPercent={stageScale * 100}
+              onZoomIn={handleZoomIn}
+              onZoomOut={handleZoomOut}
+              onFitToScreen={handleFitToScreen}
+            />
           </div>
 
           {selectedItemId && (
@@ -632,14 +786,23 @@ export function FloorPlanCanvas({
         <div
           ref={containerRef}
           data-testid="floor-plan-canvas"
-          className="flex-1 overflow-auto bg-muted/30 p-4"
+          className="flex-1 overflow-hidden bg-muted/30"
         >
           <Stage
             ref={stageRef}
-            width={Math.max(canvasWidth, containerWidth - 32)}
-            height={canvasHeight}
+            width={containerWidth}
+            height={containerHeight}
+            scaleX={stageScale}
+            scaleY={stageScale}
+            x={stagePosition.x}
+            y={stagePosition.y}
+            draggable
             onClick={handleStageClick}
             onTap={handleStageClick as unknown as (evt: Konva.KonvaEventObject<TouchEvent>) => void}
+            onDragEnd={handleStageDragEnd}
+            onWheel={handleWheel}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
             <Layer>
               <Rect
