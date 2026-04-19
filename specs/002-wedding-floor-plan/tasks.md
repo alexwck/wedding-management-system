@@ -19,10 +19,10 @@
 
 **Purpose**: Install dependencies and create shared types/constants
 
-- [ ] T001 Install konva and react-konva dependencies via npm
-- [ ] T002 [P] Create TypeScript types for floor plan entities in `src/types/floor-plan.ts`
-- [ ] T003 [P] Create Zod validation schemas for floor plan data in `src/lib/validations/floor-plan.ts`
-- [ ] T004 [P] Create item catalog constants (table sizes, chair capacities, default dimensions) in `src/lib/floor-plan/constants.ts`
+- [X] T001 Install konva and react-konva dependencies via npm
+- [X] T002 [P] Create TypeScript types for floor plan entities in `src/types/floor-plan.ts`
+- [X] T003 [P] Create Zod validation schemas for floor plan data in `src/lib/validations/floor-plan.ts`
+- [X] T004 [P] Create item catalog constants (table sizes, chair capacities, default dimensions) in `src/lib/floor-plan/constants.ts`
 
 ---
 
