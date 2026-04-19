@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import { Stage, Layer, Rect } from "react-konva";
+import { Stage, Layer, Rect, Circle } from "react-konva";
 import type Konva from "konva";
 import { useFloorPlanState } from "./hooks/use-floor-plan-state";
 import { useAutoSave } from "./hooks/use-auto-save";
@@ -52,6 +52,8 @@ export function FloorPlanCanvas({
   const state = useFloorPlanState(initialWidth, initialHeight);
   const collision = useCollisionDetection();
   const undoRedo = useUndoRedo();
+
+  const isNewFloorPlan = !initialFloorPlan;
 
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [editingLabelId, setEditingLabelId] = useState<string | null>(null);
@@ -560,18 +562,31 @@ export function FloorPlanCanvas({
       <React.Fragment key={item.id}>
         {element}
         {isOutOfBounds && (
-          <Rect
-            x={item.x * FEET_TO_PIXELS}
-            y={item.y * FEET_TO_PIXELS}
-            width={item.width * FEET_TO_PIXELS}
-            height={item.height * FEET_TO_PIXELS}
-            rotation={item.rotation}
-            fill="transparent"
-            stroke="#ef4444"
-            strokeWidth={2}
-            dash={[4, 4]}
-            listening={false}
-          />
+          item.type === "round_table" ? (
+            <Circle
+              x={item.x * FEET_TO_PIXELS}
+              y={item.y * FEET_TO_PIXELS}
+              radius={(item.width / 2) * FEET_TO_PIXELS}
+              fill="transparent"
+              stroke="#ef4444"
+              strokeWidth={2}
+              dash={[4, 4]}
+              listening={false}
+            />
+          ) : (
+            <Rect
+              x={item.x * FEET_TO_PIXELS}
+              y={item.y * FEET_TO_PIXELS}
+              width={item.width * FEET_TO_PIXELS}
+              height={item.height * FEET_TO_PIXELS}
+              rotation={item.rotation}
+              fill="transparent"
+              stroke="#ef4444"
+              strokeWidth={2}
+              dash={[4, 4]}
+              listening={false}
+            />
+          )
         )}
       </React.Fragment>
     );
@@ -786,8 +801,19 @@ export function FloorPlanCanvas({
         <div
           ref={containerRef}
           data-testid="floor-plan-canvas"
-          className="flex-1 overflow-hidden bg-muted/30"
+          className="flex-1 overflow-hidden bg-muted/30 relative"
         >
+          {isNewFloorPlan && state.items.length === 0 && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+              <div className="bg-white/90 rounded-lg shadow-md px-8 py-6 text-center max-w-sm">
+                <p className="text-lg font-medium">Design Your Floor Plan</p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Set your venue dimensions above, then select items from the
+                  catalog to start designing.
+                </p>
+              </div>
+            </div>
+          )}
           <Stage
             ref={stageRef}
             width={containerWidth}
