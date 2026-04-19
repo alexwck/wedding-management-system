@@ -12,7 +12,7 @@ test.describe("Couple floor plan — User Story 1", () => {
 
     // Navigate to floor plan page
     await page.goto("/dashboard/floor-plan");
-    await expect(page.locator("h2, h1")).toContainText(/floor plan/i);
+    await expect(page.getByRole("heading", { name: /floor plan/i })).toBeVisible();
 
     // Should see dimension inputs with defaults or existing values
     const widthInput = page.locator('input[data-testid="venue-width"]');
@@ -20,13 +20,17 @@ test.describe("Couple floor plan — User Story 1", () => {
     await expect(widthInput).toBeVisible();
     await expect(heightInput).toBeVisible();
 
+    // Wait for initial auto-save to complete
+    await expect(page.locator('[data-testid="save-status"]')).toContainText(/saved/i, { timeout: 10000 });
+
     // Set new dimensions
     await widthInput.clear();
     await widthInput.fill("80");
     await heightInput.clear();
     await heightInput.fill("60");
 
-    // Wait for auto-save to trigger (5s debounce + network)
+    // Explicitly save via "Save now" button (force for mobile header overlap)
+    await page.getByRole("button", { name: /save now/i }).click({ force: true });
     await expect(page.locator('[data-testid="save-status"]')).toContainText(/saved/i, { timeout: 10000 });
 
     // Reload the page
@@ -63,8 +67,10 @@ test.describe("Couple floor plan — User Story 1", () => {
     await expect(page).toHaveURL(/\/dashboard/);
 
     await page.goto("/dashboard/floor-plan");
+    await expect(page.getByRole("heading", { name: /floor plan/i })).toBeVisible();
 
     const widthInput = page.locator('input[data-testid="venue-width"]');
+    await expect(widthInput).toBeVisible();
     await widthInput.clear();
     await widthInput.fill("500");
 
@@ -90,12 +96,15 @@ test.describe("Admin floor plan — User Story 1", () => {
 
     // Navigate to wedding 1's floor plan
     await page.goto("/admin/weddings/1/floor-plan");
-    await expect(page.locator("h2, h1")).toContainText(/floor plan/i);
+    await expect(page.getByRole("heading", { name: /floor plan/i })).toBeVisible();
 
     const widthInput = page.locator('input[data-testid="venue-width"]');
     const heightInput = page.locator('input[data-testid="venue-height"]');
     await expect(widthInput).toBeVisible();
     await expect(heightInput).toBeVisible();
+
+    // Wait for initial auto-save to complete
+    await expect(page.locator('[data-testid="save-status"]')).toContainText(/saved/i, { timeout: 10000 });
 
     // Set dimensions
     await widthInput.clear();
@@ -103,6 +112,8 @@ test.describe("Admin floor plan — User Story 1", () => {
     await heightInput.clear();
     await heightInput.fill("75");
 
+    // Explicitly save via "Save now" button (force for mobile header overlap)
+    await page.getByRole("button", { name: /save now/i }).click({ force: true });
     await expect(page.locator('[data-testid="save-status"]')).toContainText(/saved/i, { timeout: 10000 });
 
     // Reload and verify

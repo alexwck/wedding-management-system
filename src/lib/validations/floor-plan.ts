@@ -9,7 +9,7 @@ const floorPlanItemMetadataSchema = z.object({
 });
 
 const floorPlanItemSchema = z.object({
-  id: z.uuid(),
+  id: z.string().min(1),
   type: z.enum([
     "round_table",
     "long_table",
@@ -25,7 +25,7 @@ const floorPlanItemSchema = z.object({
   width: z.number().positive(),
   height: z.number().positive(),
   rotation: z.number().min(0).max(360),
-  parentItemId: z.uuid().nullable(),
+  parentItemId: z.string().nullable(),
   metadata: floorPlanItemMetadataSchema,
 });
 
