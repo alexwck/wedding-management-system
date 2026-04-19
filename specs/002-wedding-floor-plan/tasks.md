@@ -50,15 +50,15 @@
 
 ### Tests for User Story 1 (RED — write first, must fail)
 
-- [ ] T010 [P] [US1] Write BDD/E2E test: couple can navigate to floor plan page, set dimensions, reload and verify persistence in `tests/e2e/floor-plan.spec.ts`
+- [X] T010 [P] [US1] Write BDD/E2E test: couple can navigate to floor plan page, set dimensions, reload and verify persistence in `tests/e2e/floor-plan.spec.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Create couple floor plan page (loads floor plan, passes to canvas) in `src/app/(auth)/dashboard/floor-plan/page.tsx`
-- [ ] T012 [US1] Create admin floor plan page (loads floor plan by wedding ID) in `src/app/(auth)/admin/weddings/[id]/floor-plan/page.tsx`
-- [ ] T013 [US1] Create main canvas wrapper component (Konva Stage/Layer, dimension inputs, scale from feet-to-pixels) in `src/components/floor-plan/floor-plan-canvas.tsx`
-- [ ] T014 [US1] Add dimension input controls (width/height fields) that resize the canvas and trigger auto-save in `src/components/floor-plan/floor-plan-canvas.tsx`
-- [ ] T015 [US1] Add dimension change validation — flag items that fall outside new smaller bounds with visual warning in `src/components/floor-plan/hooks/use-floor-plan-state.ts`
+- [X] T011 [US1] Create couple floor plan page (loads floor plan, passes to canvas) in `src/app/(auth)/dashboard/floor-plan/page.tsx`
+- [X] T012 [US1] Create admin floor plan page (loads floor plan by wedding ID) in `src/app/(auth)/admin/weddings/[id]/floor-plan/page.tsx`
+- [X] T013 [US1] Create main canvas wrapper component (Konva Stage/Layer, dimension inputs, scale from feet-to-pixels) in `src/components/floor-plan/floor-plan-canvas.tsx`
+- [X] T014 [US1] Add dimension input controls (width/height fields) that resize the canvas and trigger auto-save in `src/components/floor-plan/floor-plan-canvas.tsx`
+- [X] T015 [US1] Add dimension change validation — flag items that fall outside new smaller bounds with visual warning in `src/components/floor-plan/hooks/use-floor-plan-state.ts`
 
 **Checkpoint**: User Story 1 complete — canvas renders, dimensions are configurable and persisted. E2E test passes (GREEN).
 
