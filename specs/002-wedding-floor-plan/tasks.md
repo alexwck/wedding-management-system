@@ -1,0 +1,225 @@
+# Tasks: Wedding Floor Plan Designer
+
+**Input**: Design documents from `/specs/002-wedding-floor-plan/`
+**Prerequisites**: plan.md (required), spec.md (required), research.md, data-model.md, contracts/
+
+**Tests**: Not explicitly requested in spec — test tasks omitted. Can be added via `/speckit-implement` if TDD is desired.
+
+**Organization**: Tasks grouped by user story (P1–P5) for independent implementation and testing.
+
+## Format: `[ID] [P?] [Story] Description`
+
+- **[P]**: Can run in parallel (different files, no dependencies)
+- **[Story]**: Which user story this task belongs to (US1–US5)
+- Exact file paths included in each task
+
+---
+
+## Phase 1: Setup
+
+**Purpose**: Install dependencies and create shared types/constants
+
+- [ ] T001 Install konva and react-konva dependencies via npm
+- [ ] T002 [P] Create TypeScript types for floor plan entities in `src/types/floor-plan.ts`
+- [ ] T003 [P] Create Zod validation schemas for floor plan data in `src/lib/validations/floor-plan.ts`
+- [ ] T004 [P] Create item catalog constants (table sizes, chair capacities, default dimensions) in `src/lib/floor-plan/constants.ts`
+
+---
+
+## Phase 2: Foundational (Blocking Prerequisites)
+
+**Purpose**: Database schema, server actions, and core utility functions that ALL user stories depend on
+
+**CRITICAL**: No user story work can begin until this phase is complete
+
+- [ ] T005 Create database migration for `floor_plans` table (with JSONB items column, RLS policies, updated_at trigger) in `supabase/migrations/20260419000001_create_floor_plans.sql`
+- [ ] T006 [P] Create serializer utilities (state to/from DB format) in `src/lib/floor-plan/serializers.ts`
+- [ ] T007 Create server actions (`getFloorPlan`, `saveFloorPlan`) with auth checks and RLS-aware queries in `src/app/actions/floor-plan.ts`
+- [ ] T008 Create `use-floor-plan-state` hook (items array CRUD, dimension management, label incrementing) in `src/components/floor-plan/hooks/use-floor-plan-state.ts`
+- [ ] T009 Create `use-auto-save` hook (debounced save via server action) in `src/components/floor-plan/hooks/use-auto-save.ts`
+
+**Checkpoint**: Foundation ready — database, server actions, and core hooks exist. User story implementation can begin.
+
+---
+
+## Phase 3: User Story 1 — Create and Configure a Floor Plan (P1) 🎯 MVP
+
+**Goal**: Authenticated users can set venue width/height and see an empty canvas that persists
+
+**Independent Test**: Navigate to floor plan page, enter dimensions, verify canvas renders and state persists on reload
+
+- [ ] T010 [US1] Create couple floor plan page (loads floor plan, passes to canvas) in `src/app/(auth)/dashboard/floor-plan/page.tsx`
+- [ ] T011 [US1] Create admin floor plan page (loads floor plan by wedding ID) in `src/app/(auth)/admin/weddings/[id]/floor-plan/page.tsx`
+- [ ] T012 [US1] Create main canvas wrapper component (Konva Stage/Layer, dimension inputs, scale from feet-to-pixels) in `src/components/floor-plan/floor-plan-canvas.tsx`
+- [ ] T013 [US1] Add dimension input controls (width/height fields) that resize the canvas and trigger auto-save in `src/components/floor-plan/floor-plan-canvas.tsx`
+- [ ] T014 [US1] Add dimension change validation — warn or flag items that fall outside new smaller bounds in `src/components/floor-plan/hooks/use-floor-plan-state.ts`
+
+**Checkpoint**: User Story 1 complete — canvas renders, dimensions are configurable and persisted.
+
+---
+
+## Phase 4: User Story 2 — Place and Arrange Items (P2)
+
+**Goal**: Users can place items from a catalog, drag-drop, rotate, and see labels — with collision detection and boundary constraints
+
+**Independent Test**: Select item from catalog, place on canvas, drag to reposition, rotate freely — verify collision detection and boundary constraints work
+
+- [ ] T015 [P] [US2] Create item catalog sidebar component (list of placeable items with size variants) in `src/components/floor-plan/item-catalog.tsx`
+- [ ] T016 [P] [US2] Create item label component (Konva Text with inline editing via double-click) in `src/components/floor-plan/items/item-label.tsx`
+- [ ] T017 [P] [US2] Create round table Konva shape (Circle + label) in `src/components/floor-plan/items/round-table.tsx`
+- [ ] T018 [P] [US2] Create long table Konva shape (Rect + label) in `src/components/floor-plan/items/long-table.tsx`
+- [ ] T019 [P] [US2] Create stage Konva shape (Rect + label, user-configurable dimensions) in `src/components/floor-plan/items/stage-item.tsx`
+- [ ] T020 [P] [US2] Create pillar Konva shape (Rect + label, user-configurable dimensions) in `src/components/floor-plan/items/pillar-item.tsx`
+- [ ] T021 [P] [US2] Create walkway Konva shape (Rect + label, user-configurable dimensions) in `src/components/floor-plan/items/walkway-item.tsx`
+- [ ] T022 [P] [US2] Create misc item Konva shape (Rect + label, user-configurable dimensions and custom type) in `src/components/floor-plan/items/misc-item.tsx`
+- [ ] T023 [US2] Create collision detection utility (SAT for rotated rectangles, circle-circle, circle-rect) in `src/lib/floor-plan/collision.ts`
+- [ ] T024 [US2] Create `use-collision-detection` hook (runs on drag move, prevents overlap, boundary constraint) in `src/components/floor-plan/hooks/use-collision-detection.ts`
+- [ ] T025 [US2] Integrate catalog → canvas: clicking catalog item adds it to canvas at default position with auto-incrementing label in `src/components/floor-plan/floor-plan-canvas.tsx`
+- [ ] T026 [US2] Add drag-and-drop repositioning with collision feedback and boundary snapping in canvas items
+- [ ] T027 [US2] Add free rotation via Konva Transformer (drag rotate handle, any angle) with boundary constraint in canvas items
+- [ ] T028 [US2] Add inline label editing (double-click to edit, updates item label) via `item-label.tsx`
+- [ ] T029 [US2] Add dimension editing UI for stage/pillar/walkway/misc/chair items (popover or sidebar with width/height inputs)
+
+**Checkpoint**: User Story 2 complete — full item placement, movement, rotation, labeling, and collision detection working.
+
+---
+
+## Phase 5: User Story 3 — Automatic Chair Population (P3)
+
+**Goal**: Tables auto-generate chairs when placed; chairs move with tables; users can adjust chair count 0 to max+1
+
+**Independent Test**: Place each table type, verify chairs appear at correct positions, adjust chair count, move table and verify chairs follow
+
+- [ ] T030 [US3] Create chair Konva shape (small Rect/Circle + label, linked to parent table) in `src/components/floor-plan/items/chair.tsx`
+- [ ] T031 [US3] Create `use-chair-generation` hook (generates chair items for round and long tables based on catalog capacities) in `src/components/floor-plan/hooks/use-chair-generation.ts`
+- [ ] T032 [US3] Integrate chair generation into table placement — when a table is added, chairs auto-generate at correct positions in `src/components/floor-plan/floor-plan-canvas.tsx`
+- [ ] T033 [US3] Add group movement — dragging a table repositions all child chairs relative to table center in canvas drag handler
+- [ ] T034 [US3] Add group deletion — removing a table removes all child chairs
+- [ ] T035 [US3] Add chair count adjustment UI per table (input or +/- buttons, range 0 to max+1) with even redistribution of chairs
+
+**Checkpoint**: User Story 3 complete — chairs auto-populate, follow tables, and count is adjustable.
+
+---
+
+## Phase 6: User Story 4 — Canvas Navigation and Zoom (P4)
+
+**Goal**: Users can pan and zoom the canvas with mouse and touch gestures
+
+**Independent Test**: Load a floor plan with items, scroll to zoom, drag empty space to pan, verify touch gestures work on mobile
+
+- [ ] T036 [P] [US4] Add Konva Stage zoom (wheel/pinch zoom centered on cursor) in `src/components/floor-plan/floor-plan-canvas.tsx`
+- [ ] T037 [P] [US4] Add Konva Stage pan (drag on empty space) in `src/components/floor-plan/floor-plan-canvas.tsx`
+- [ ] T038 [US4] Create toolbar component with undo/redo buttons and zoom controls (zoom in, zoom out, fit to screen) in `src/components/floor-plan/floor-plan-toolbar.tsx`
+- [ ] T039 [US4] Add touch gesture support (pinch-to-zoom, two-finger pan) via Konva touch events in `src/components/floor-plan/floor-plan-canvas.tsx`
+
+**Checkpoint**: User Story 4 complete — canvas is fully navigable with mouse and touch.
+
+---
+
+## Phase 7: User Story 5 — Access Control (P5)
+
+**Goal**: Role-based access — couples see only their floor plan, admins see all, unauthenticated users are blocked
+
+**Independent Test**: Log in as couple (see own plan only), admin (see all), and unauthenticated (redirected to login)
+
+- [ ] T040 [US5] Add floor plan link to couple dashboard nav in `src/components/nav.tsx` and `src/app/(auth)/dashboard/layout.tsx`
+- [ ] T041 [US5] Add floor plan link to admin wedding detail view (e.g., button on `/admin/weddings/[id]`) in `src/app/(auth)/admin/weddings/[id]/page.tsx`
+- [ ] T042 [US5] Verify existing auth proxy (`src/proxy.ts`) protects `/dashboard/floor-plan` and `/admin/weddings/*/floor-plan` routes — add if not covered
+- [ ] T043 [US5] Add RLS-validated server action checks: couple can only load/save their own wedding's floor plan in `src/app/actions/floor-plan.ts`
+
+**Checkpoint**: User Story 5 complete — access control enforced at route and data level.
+
+---
+
+## Phase 8: Polish & Cross-Cutting
+
+**Purpose**: Undo/redo, edge cases, and quality improvements
+
+- [ ] T044 Create `use-undo-redo` hook (history stack of last 20 state snapshots, undo/redo functions) in `src/components/floor-plan/hooks/use-undo-redo.ts`
+- [ ] T045 [P] Integrate undo/redo into canvas actions (place, move, rotate, remove, resize, label edit push to history) in `src/components/floor-plan/floor-plan-canvas.tsx`
+- [ ] T046 [P] Add empty state and loading state for floor plan page (no floor plan yet, loading indicator)
+- [ ] T047 [P] Add visual feedback for collision (red highlight on overlapping items)
+- [ ] T048 Run `supabase db reset` and verify seed data includes a sample floor plan for testing in `supabase/seed.sql`
+- [ ] T049 Run quickstart.md validation — verify all routes load, items place and save, dimensions persist
+
+---
+
+## Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Phase 1 (Setup)**: No dependencies — start immediately
+- **Phase 2 (Foundational)**: Depends on Phase 1 — BLOCKS all user stories
+- **Phase 3 (US1)**: Depends on Phase 2
+- **Phase 4 (US2)**: Depends on Phase 3 (needs canvas from US1)
+- **Phase 5 (US3)**: Depends on Phase 4 (needs table items from US2)
+- **Phase 6 (US4)**: Depends on Phase 3 (needs canvas, but independent of US2/US3)
+- **Phase 7 (US5)**: Depends on Phase 3 (needs pages, but independent of US2/US3/US4)
+- **Phase 8 (Polish)**: Depends on all desired user stories being complete
+
+### User Story Dependencies
+
+- **US1 (P1)**: No story dependencies — foundation only
+- **US2 (P2)**: Depends on US1 (canvas must exist to place items)
+- **US3 (P3)**: Depends on US2 (needs table items to generate chairs)
+- **US4 (P4)**: Depends on US1 only (pan/zoom works on any canvas content)
+- **US5 (P5)**: Depends on US1 only (access control wraps existing pages)
+
+### Parallel Opportunities
+
+- **Phase 1**: T002, T003, T004 can run in parallel
+- **Phase 2**: T006 can run in parallel with T005
+- **Phase 4**: T015–T022 (all item shape components) can run in parallel
+- **Phase 6**: T036, T037 can run in parallel
+- **Phase 7**: T040, T041 can run in parallel
+- **Phase 8**: T045, T046, T047 can run in parallel
+- **US4 and US5**: Can run in parallel after US1 completes
+- **US4 and US5**: Can run in parallel with US2/US3 (different concerns)
+
+---
+
+## Parallel Example: User Story 2
+
+```bash
+# Launch all item shape components together (T017–T022):
+Task: "Create round table shape in src/components/floor-plan/items/round-table.tsx"
+Task: "Create long table shape in src/components/floor-plan/items/long-table.tsx"
+Task: "Create stage shape in src/components/floor-plan/items/stage-item.tsx"
+Task: "Create pillar shape in src/components/floor-plan/items/pillar-item.tsx"
+Task: "Create walkway shape in src/components/floor-plan/items/walkway-item.tsx"
+Task: "Create misc item shape in src/components/floor-plan/items/misc-item.tsx"
+Task: "Create item label in src/components/floor-plan/items/item-label.tsx"
+Task: "Create item catalog in src/components/floor-plan/item-catalog.tsx"
+```
+
+---
+
+## Implementation Strategy
+
+### MVP First (User Story 1 Only)
+
+1. Complete Phase 1: Setup (T001–T004)
+2. Complete Phase 2: Foundational (T005–T009)
+3. Complete Phase 3: User Story 1 (T010–T014)
+4. **STOP and VALIDATE**: Navigate to floor plan page, set dimensions, reload and verify persistence
+5. Deploy/demo if ready
+
+### Incremental Delivery
+
+1. Setup + Foundational → Foundation ready
+2. Add US1 → Canvas with dimensions (MVP!)
+3. Add US2 → Full item placement with drag/rotate/collision
+4. Add US3 → Chair auto-generation
+5. Add US4 → Pan/zoom navigation
+6. Add US5 → Access control
+7. Add Polish → Undo/redo, visual polish, seed data
+
+---
+
+## Notes
+
+- [P] tasks = different files, no dependencies on incomplete work
+- [Story] label maps task to specific user story for traceability
+- Each user story is independently testable at its checkpoint
+- Commit after each task or logical group
+- Stop at any checkpoint to validate independently
