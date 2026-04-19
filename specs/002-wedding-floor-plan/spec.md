@@ -19,7 +19,7 @@ A couple or admin sets up a new floor plan for a wedding by defining the venue d
 
 1. **Given** a couple is logged in and viewing their wedding, **When** they navigate to the floor plan page, **Then** they see a canvas area with dimension input controls for width and height
 2. **Given** the floor plan page is open, **When** the user enters width "60" and height "40" (in feet), **Then** the canvas resizes to reflect a 60ft x 40ft venue space
-3. **Given** a floor plan exists with dimensions set, **When** the user changes the dimensions to smaller values, **Then** any placed items that fall outside the new boundary are flagged or repositioned
+3. **Given** a floor plan exists with dimensions set, **When** the user changes the dimensions to smaller values, **Then** any placed items that fall outside the new boundary are flagged as out-of-bounds with a visual warning
 4. **Given** a user is on the floor plan page, **When** they set dimensions, **Then** the changes are persisted automatically so they can return later and find their floor plan intact
 
 ---
@@ -36,7 +36,7 @@ A user selects furniture items from a catalog and places them on the floor plan 
 
 1. **Given** the floor plan canvas is open with dimensions set, **When** the user clicks an item from the item catalog (e.g., "6ft Round Table"), **Then** the item appears on the canvas at a default position with its correct physical dimensions and a default label (e.g., "Round Table 1")
 2. **Given** an item is placed on the canvas, **When** the user drags it to a new position, **Then** the item moves to the new location and its coordinates update
-3. **Given** two items are on the canvas, **When** the user drags one item to overlap another, **Then** the system prevents the overlap and the items snap apart or the user receives a visual collision warning
+3. **Given** two items are on the canvas, **When** the user drags one item to overlap another, **Then** the system prevents the movement — the item snaps back to its previous valid position
 4. **Given** an item is placed on the canvas, **When** the user attempts to move or resize it beyond the floor plan boundary, **Then** the item is constrained to remain within the canvas bounds
 5. **Given** an item is placed, **When** the user selects it and applies a rotation, **Then** the item rotates freely to any angle the user desires while staying within bounds
 6. **Given** a placed item with a default label (e.g., "Round Table 1"), **When** the user clicks on the label, **Then** they can edit the label text to a custom name
@@ -108,8 +108,8 @@ Admin users can access and edit floor plans for all weddings, while couple users
 
 ### Edge Cases
 
-- What happens when a user sets floor plan dimensions smaller than an already-placed item? The item should be flagged as out-of-bounds or the dimension change should be rejected with a warning.
-- What happens when two items are placed at the exact same coordinates? Collision detection should prevent this overlap.
+- What happens when a user sets floor plan dimensions smaller than an already-placed item? The item should be flagged as out-of-bounds with a visual warning.
+- What happens when two items are placed at the exact same coordinates? Collision detection should prevent the movement — the item snaps back to its previous valid position.
 - What happens when the user rotates a long table near the canvas edge? The system should prevent the rotation if it would cause the item to exceed the boundary, regardless of the rotation angle.
 - What happens if the browser tab is closed without explicit save? Floor plan state should auto-save periodically so minimal work is lost.
 - How does the system handle very large venues (e.g., 200ft x 200ft)? The canvas should support zooming out to fit the full plan while maintaining readable item labels.
