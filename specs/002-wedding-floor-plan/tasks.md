@@ -32,11 +32,11 @@
 
 **CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Create database migration for `floor_plans` table (with JSONB items column, RLS policies, updated_at trigger) in `supabase/migrations/20260419000001_create_floor_plans.sql`
-- [ ] T006 [P] Create serializer utilities (state to/from DB format) in `src/lib/floor-plan/serializers.ts`
-- [ ] T007 Create server actions (`getFloorPlan`, `saveFloorPlan`) with auth checks and RLS-aware queries in `src/app/actions/floor-plan.ts`
-- [ ] T008 Create `use-floor-plan-state` hook (items array CRUD, dimension management, label incrementing) in `src/components/floor-plan/hooks/use-floor-plan-state.ts`
-- [ ] T009 Create `use-auto-save` hook (debounced save via server action) in `src/components/floor-plan/hooks/use-auto-save.ts`
+- [X] T005 Create database migration for `floor_plans` table (with JSONB items column, RLS policies, updated_at trigger) in `supabase/migrations/20260419000001_create_floor_plans.sql`
+- [X] T006 [P] Create serializer utilities (state to/from DB format) in `src/lib/floor-plan/serializers.ts`
+- [X] T007 Create server actions (`getFloorPlan`, `saveFloorPlan`) with auth checks and RLS-aware queries in `src/app/actions/floor-plan.ts`
+- [X] T008 Create `use-floor-plan-state` hook (items array CRUD, dimension management, label incrementing) in `src/components/floor-plan/hooks/use-floor-plan-state.ts`
+- [X] T009 Create `use-auto-save` hook (debounced save via server action) in `src/components/floor-plan/hooks/use-auto-save.ts`
 
 **Checkpoint**: Foundation ready — database, server actions, and core hooks exist. User story implementation can begin.
 
