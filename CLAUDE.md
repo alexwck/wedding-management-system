@@ -14,7 +14,8 @@ npm run build        # Production build
 npm run lint         # ESLint
 npm run test         # Vitest unit tests (tests/unit/)
 npm run test:watch   # Vitest in watch mode
-npm run test:e2e     # Playwright E2E tests (tests/e2e/)
+npm run test:e2e     # Playwright E2E tests (tests/e2e/, requires Supabase + dev server running)
+supabase db reset    # Reset local DB, re-run migrations + seed data
 ```
 
 ## Architecture
@@ -74,6 +75,8 @@ Specification-driven development via slash-command skills:
 
 Git hooks in `.specify/extensions.yml` auto-commit at each stage.
 
+Constitution at `.specify/memory/constitution.md` (v1.1.0) defines 8 enforceable principles including Security by Default (atomic upserts, server-side role checks), Mobile Parity (`onTap` + `onClick`), and Data Integrity (validate at serialization boundaries, no blind casts).
+
 ## Key Technologies
 
 - **Framework**: Next.js 16 (App Router) + React 19
@@ -106,4 +109,6 @@ git config core.hooksPath .githooks
 - **Server components by default**: Most components are RSCs; only form components and canvas components use `"use client"`
 - **Supabase client variants**: Three separate clients — `client.ts` (browser), `server.ts` (server components), `admin.ts` (service role, bypasses RLS)
 - **Floor plan item IDs**: Arbitrary strings (e.g. `"fp-rt-1"`), not UUIDs — Zod schema validates `z.string().min(1)`
-- **Floor plan server actions**: Use `adminClient` for reads/writes (bypasses RLS); access control checked in application code via `verifyWeddingAccess`
+- **Chair count max is spec-intentional**: `getMaxChairCount` returns `maxChairs + 1` per FR-010 — not a bug
+- **Floor plan server actions**: Use `adminClient` for reads/writes (bypasses RLS); `saveFloorPlan` uses atomic `upsert` on `wedding_id` — no read-then-write
+- **Konva interactive nodes**: Every interactive shape must have `id` (for `findOne` lookups) and `onTap` alongside `onClick` (for mobile touch)
