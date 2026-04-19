@@ -23,6 +23,7 @@ export function useAutoSave({
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savingRef = useRef(false);
   const itemsRef = useRef(items);
   const widthRef = useRef(width);
   const heightRef = useRef(height);
@@ -35,13 +36,16 @@ export function useAutoSave({
 
   const save = useCallback(async () => {
     if (!enabled) return;
+    if (savingRef.current) return;
 
+    savingRef.current = true;
     setSaveStatus("saving");
     const result = await saveFloorPlan(weddingId, {
       width: widthRef.current,
       height: heightRef.current,
       items: itemsRef.current,
     });
+    savingRef.current = false;
 
     if (result.success) {
       setSaveStatus("saved");

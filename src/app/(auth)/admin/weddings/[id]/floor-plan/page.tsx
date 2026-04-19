@@ -1,6 +1,7 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getFloorPlan } from "@/app/actions/floor-plan";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { FloorPlanCanvas } from "@/components/floor-plan/floor-plan-canvas";
 
 interface AdminFloorPlanPageProps {
@@ -13,6 +14,13 @@ export default async function AdminFloorPlanPage({ params }: AdminFloorPlanPageP
 
   if (isNaN(weddingId)) {
     notFound();
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user || user.app_metadata?.role !== "admin") {
+    redirect("/auth/login");
   }
 
   const adminClient = createAdminClient();

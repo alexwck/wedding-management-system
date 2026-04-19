@@ -57,6 +57,7 @@ export function PillarItem({
         onDragEnd={onDragEnd}
         onDragMove={onDragMove}
         onClick={onClick}
+        onTap={onClick}
         onDblClick={onDblClick}
       />
       <ItemLabel

@@ -58,35 +58,37 @@ export function useFloorPlanState(initialWidth: number, initialHeight: number) {
   const addItem = useCallback(
     (type: ItemType, sizeVariant?: number) => {
       const dims = getDimensionsForType(type, sizeVariant);
-      const item: FloorPlanItem = {
-        id: crypto.randomUUID(),
-        type,
-        label: getNextLabel(items, type),
-        x: width / 2 - dims.width / 2,
-        y: height / 2 - dims.height / 2,
-        width: dims.width,
-        height: dims.height,
-        rotation: 0,
-        parentItemId: null,
-        metadata: {
-          ...(type === "round_table" && sizeVariant
-            ? { diameter: sizeVariant as RoundTableSize, chairCount: getDefaultChairs(type, sizeVariant) }
-            : {}),
-          ...(type === "long_table" && sizeVariant
-            ? { length: sizeVariant as LongTableLength, chairCount: getDefaultChairs(type, sizeVariant) }
-            : {}),
-        },
-      };
+      let item: FloorPlanItem | null = null;
       setItems((prev) => {
+        const newItem: FloorPlanItem = {
+          id: crypto.randomUUID(),
+          type,
+          label: getNextLabel(prev, type),
+          x: width / 2 - dims.width / 2,
+          y: height / 2 - dims.height / 2,
+          width: dims.width,
+          height: dims.height,
+          rotation: 0,
+          parentItemId: null,
+          metadata: {
+            ...(type === "round_table" && sizeVariant
+              ? { diameter: sizeVariant as RoundTableSize, chairCount: getDefaultChairs(type, sizeVariant) }
+              : {}),
+            ...(type === "long_table" && sizeVariant
+              ? { length: sizeVariant as LongTableLength, chairCount: getDefaultChairs(type, sizeVariant) }
+              : {}),
+          },
+        };
+        item = newItem;
         const chairs =
           type === "round_table" || type === "long_table"
-            ? generateChairsForTable(item)
+            ? generateChairsForTable(newItem)
             : [];
-        return [...prev, item, ...chairs];
+        return [...prev, newItem, ...chairs];
       });
-      return item;
+      return item!;
     },
-    [items, width, height],
+    [width, height],
   );
 
   const removeItem = useCallback((id: string) => {
