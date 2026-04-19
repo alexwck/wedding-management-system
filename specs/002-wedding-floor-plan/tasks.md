@@ -72,28 +72,28 @@
 
 ### Tests for User Story 2 (RED — write first, must fail)
 
-- [ ] T016 [P] [US2] Write unit tests for collision detection (SAT rotated rects, circle-circle, circle-rect, boundary constraint) in `tests/unit/floor-plan/collision.test.ts`
-- [ ] T017 [P] [US2] Write unit tests for serializer utilities (state to/from DB format) in `tests/unit/floor-plan/serializers.test.ts`
+- [X] T016 [P] [US2] Write unit tests for collision detection (SAT rotated rects, circle-circle, circle-rect, boundary constraint) in `tests/unit/floor-plan/collision.test.ts`
+- [X] T017 [P] [US2] Write unit tests for serializer utilities (state to/from DB format) in `tests/unit/floor-plan/serializers.test.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T018 [P] [US2] Create item catalog sidebar component (list of placeable items with size variants) in `src/components/floor-plan/item-catalog.tsx`
-- [ ] T019 [P] [US2] Create item label component (Konva Text with inline editing via double-click) in `src/components/floor-plan/items/item-label.tsx`
-- [ ] T020 [P] [US2] Create round table Konva shape (Circle + label) in `src/components/floor-plan/items/round-table.tsx`
-- [ ] T021 [P] [US2] Create long table Konva shape (Rect + label) in `src/components/floor-plan/items/long-table.tsx`
-- [ ] T022 [P] [US2] Create stage Konva shape (Rect + label, user-configurable dimensions) in `src/components/floor-plan/items/stage-item.tsx`
-- [ ] T023 [P] [US2] Create pillar Konva shape (Rect + label, user-configurable dimensions) in `src/components/floor-plan/items/pillar-item.tsx`
-- [ ] T024 [P] [US2] Create walkway Konva shape (Rect + label, user-configurable dimensions) in `src/components/floor-plan/items/walkway-item.tsx`
-- [ ] T025 [P] [US2] Create misc item Konva shape (Rect + label, user-configurable dimensions and custom type) in `src/components/floor-plan/items/misc-item.tsx`
-- [ ] T026 [US2] Create collision detection utility (SAT for rotated rectangles, circle-circle, circle-rect, plus item-boundary constraint per FR-016) in `src/lib/floor-plan/collision.ts`
-- [ ] T027 [US2] Create `use-collision-detection` hook (runs on drag move, prevents overlap by snapping back, enforces boundary constraint) in `src/components/floor-plan/hooks/use-collision-detection.ts`
-- [ ] T028 [US2] Integrate catalog → canvas: clicking catalog item adds it to canvas at default position with auto-incrementing label in `src/components/floor-plan/floor-plan-canvas.tsx`
-- [ ] T029 [US2] Add drag-and-drop repositioning with collision snap-back and boundary enforcement in canvas items
-- [ ] T030 [US2] Add free rotation via Konva Transformer (drag rotate handle, any angle) with boundary constraint in canvas items
-- [ ] T031 [US2] Add inline label editing (double-click to edit, updates item label) via `item-label.tsx`
-- [ ] T032 [US2] Add dimension editing UI for stage/pillar/walkway/misc items (popover or sidebar with width/height inputs)
-- [ ] T033 [US2] Create `use-undo-redo` hook (history stack of last 20 state snapshots, undo/redo functions) in `src/components/floor-plan/hooks/use-undo-redo.ts`
-- [ ] T034 [US2] Integrate undo/redo into canvas actions (place, move, rotate, remove, resize, label edit push to history) in `src/components/floor-plan/floor-plan-canvas.tsx`
+- [X] T018 [P] [US2] Create item catalog sidebar component (list of placeable items with size variants) in `src/components/floor-plan/item-catalog.tsx`
+- [X] T019 [P] [US2] Create item label component (Konva Text with inline editing via double-click) in `src/components/floor-plan/items/item-label.tsx`
+- [X] T020 [P] [US2] Create round table Konva shape (Circle + label) in `src/components/floor-plan/items/round-table.tsx`
+- [X] T021 [P] [US2] Create long table Konva shape (Rect + label) in `src/components/floor-plan/items/long-table.tsx`
+- [X] T022 [P] [US2] Create stage Konva shape (Rect + label, user-configurable dimensions) in `src/components/floor-plan/items/stage-item.tsx`
+- [X] T023 [P] [US2] Create pillar Konva shape (Rect + label, user-configurable dimensions) in `src/components/floor-plan/items/pillar-item.tsx`
+- [X] T024 [P] [US2] Create walkway Konva shape (Rect + label, user-configurable dimensions) in `src/components/floor-plan/items/walkway-item.tsx`
+- [X] T025 [P] [US2] Create misc item Konva shape (Rect + label, user-configurable dimensions and custom type) in `src/components/floor-plan/items/misc-item.tsx`
+- [X] T026 [US2] Create collision detection utility (SAT for rotated rectangles, circle-circle, circle-rect, plus item-boundary constraint per FR-016) in `src/lib/floor-plan/collision.ts`
+- [X] T027 [US2] Create `use-collision-detection` hook (runs on drag move, prevents overlap by snapping back, enforces boundary constraint) in `src/components/floor-plan/hooks/use-collision-detection.ts`
+- [X] T028 [US2] Integrate catalog → canvas: clicking catalog item adds it to canvas at default position with auto-incrementing label in `src/components/floor-plan/floor-plan-canvas.tsx`
+- [X] T029 [US2] Add drag-and-drop repositioning with collision snap-back and boundary enforcement in canvas items
+- [X] T030 [US2] Add free rotation via Konva Transformer (drag rotate handle, any angle) with boundary constraint in canvas items
+- [X] T031 [US2] Add inline label editing (double-click to edit, updates item label) via `item-label.tsx`
+- [X] T032 [US2] Add dimension editing UI for stage/pillar/walkway/misc items (popover or sidebar with width/height inputs)
+- [X] T033 [US2] Create `use-undo-redo` hook (history stack of last 20 state snapshots, undo/redo functions) in `src/components/floor-plan/hooks/use-undo-redo.ts`
+- [X] T034 [US2] Integrate undo/redo into canvas actions (place, move, rotate, remove, resize, label edit push to history) in `src/components/floor-plan/floor-plan-canvas.tsx`
 
 **Checkpoint**: User Story 2 complete — full item placement, movement, rotation, labeling, collision detection, and undo/redo working. Unit tests pass (GREEN).
 
