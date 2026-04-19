@@ -13,7 +13,8 @@ A wedding RSVP management system where admins upload Canva-designed invitation t
 
 - [Node.js](https://nodejs.org/) 20+
 - [npm](https://www.npmjs.com/) 10+
-- [Podman](https://podman.io/) (Supabase CLI uses it under the hood instead of Docker)
+- [Supabase CLI](https://supabase.com/docs/guides/cli) — install via [Homebrew](https://brew.sh/): `brew install supabase/tap/supabase`
+- [Podman](https://podman.io/) — install via Homebrew: `brew install podman` (Supabase CLI uses it under the hood instead of Docker)
 
 > **Note**: The Supabase CLI detects Podman automatically if Docker is not installed. No extra configuration needed — just make sure Podman is running before starting Supabase.
 
@@ -34,8 +35,8 @@ npx playwright install
 ### 3. Initialize and start Supabase
 
 ```bash
-npx supabase init   # only needed once
-npx supabase start  # starts all local services via Podman
+supabase init   # only needed once
+supabase start  # starts all local services via Podman
 ```
 
 The `supabase start` command outputs your local credentials. You'll need these for the next step.
@@ -52,8 +53,8 @@ Edit `.env.local`:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<from supabase start output>
-SUPABASE_SERVICE_ROLE_KEY=<from supabase start output>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<Publishable key from the "🔑 Authentication Keys" section>
+SUPABASE_SERVICE_ROLE_KEY=<Secret key from the "🔑 Authentication Keys" section>
 ```
 
 ### 5. Run the development server
@@ -79,8 +80,26 @@ Seed data includes 2 weddings and 6 sample RSVP responses.
 To reset the database to a clean state:
 
 ```bash
-npx supabase db reset
+supabase db reset
 ```
+
+## Database Schema
+
+To browse the database in VS Code, use [DBCode](https://marketplace.visualstudio.com/items?itemName=diev.dbcode) with the connection string:
+
+```
+postgresql://postgres:postgres@127.0.0.1:54322/postgres
+```
+
+### Tables
+
+| Table | Purpose | Key Columns |
+|-------|---------|-------------|
+| `public.users` | App users with roles (admin/couple) | `id` → `auth.users`, `role`, `display_name` |
+| `public.weddings` | Wedding records with shareable slugs | `slug`, `user_id`, `couple_name`, `template_image_url`, `wedding_date` |
+| `public.rsvps` | Guest RSVP submissions per wedding | `wedding_id`, `guest_name`, `status`, `dietary_notes`, `is_vegetarian`, `needs_baby_chair` |
+
+All three tables have Row-Level Security (RLS) enabled. Migrations live in `supabase/migrations/`.
 
 ## Key URLs
 
@@ -164,9 +183,9 @@ tests/
 
 ## Troubleshooting
 
-**Supabase won't start** — Make sure Podman is running (`podman info`). If containers are stuck, try `npx supabase stop && npx supabase start`.
+**Supabase won't start** — Make sure Podman is running (`podman info`). If containers are stuck, try `supabase stop && supabase start`.
 
-**`Failed to fetch` errors in tests** — Supabase isn't running. Run `npx supabase start` before E2E tests.
+**`Failed to fetch` errors in tests** — Supabase isn't running. Run `supabase start` before E2E tests.
 
 **Port conflicts** — Supabase uses ports 54321 (API), 54322 (DB), 54323 (Studio). Make sure they're free.
 
