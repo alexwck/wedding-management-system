@@ -1,11 +1,12 @@
 # Wedding Management System
 
-A wedding RSVP management system where admins upload Canva-designed invitation templates as landing pages with shareable links. Guests view the landing page and submit RSVPs without authentication. Couples log in to view their RSVP responses. Admins manage all weddings, couples, and templates.
+A wedding RSVP management system where admins upload Canva-designed invitation templates as landing pages with shareable links. Guests view the landing page and submit RSVPs without authentication. Couples log in to view their RSVP responses and design interactive floor plans. Admins manage all weddings, couples, and templates.
 
 ## Tech Stack
 
 - **Framework**: Next.js 16 (App Router) with TypeScript (strict mode)
 - **UI**: shadcn/ui, Tailwind CSS, react-hook-form, zod
+- **Canvas**: react-konva + konva (interactive 2D floor plan editor)
 - **Database & Auth**: Supabase (PostgreSQL with RLS, Auth, Storage)
 - **Testing**: Vitest + React Testing Library (unit), Playwright (E2E)
 
@@ -75,7 +76,7 @@ The database is automatically seeded on `supabase start` and `supabase db reset`
 | Couple 1 | alex@example.com | couple123 | couple |
 | Couple 2 | jordan@example.com | couple123 | couple |
 
-Seed data includes 2 weddings and 6 sample RSVP responses.
+Seed data includes 2 weddings, 6 sample RSVP responses, and a sample floor plan (for wedding 1).
 
 To reset the database to a clean state:
 
@@ -98,8 +99,9 @@ postgresql://postgres:postgres@127.0.0.1:54322/postgres
 | `public.users` | App users with roles (admin/couple) | `id` → `auth.users`, `role`, `display_name` |
 | `public.weddings` | Wedding records with shareable slugs | `slug`, `user_id`, `couple_name`, `template_image_url`, `wedding_date` |
 | `public.rsvps` | Guest RSVP submissions per wedding | `wedding_id`, `guest_name`, `status`, `dietary_notes`, `is_vegetarian`, `needs_baby_chair` |
+| `public.floor_plans` | Interactive venue floor plan per wedding | `wedding_id`, `width`, `height`, `items` (JSONB) |
 
-All three tables have Row-Level Security (RLS) enabled. Migrations live in `supabase/migrations/`.
+All tables have Row-Level Security (RLS) enabled. Migrations live in `supabase/migrations/`.
 
 ## Key URLs
 
@@ -109,8 +111,10 @@ All three tables have Row-Level Security (RLS) enabled. Migrations live in `supa
 | `/admin` | Admin dashboard |
 | `/admin/weddings` | Manage weddings |
 | `/admin/couples` | Create couple accounts |
+| `/admin/weddings/[id]/floor-plan` | Admin floor plan editor for a wedding |
 | `/dashboard` | Couple dashboard |
 | `/dashboard/rsvps` | View RSVP responses |
+| `/dashboard/floor-plan` | Couple floor plan editor |
 | `/w/{slug}` | Public landing page |
 | `/w/{slug}/rsvp` | Public RSVP form |
 
@@ -155,12 +159,16 @@ src/
 ├── app/                    # Next.js App Router pages
 │   ├── (public)/           # Public routes (landing page, RSVP, login)
 │   ├── (auth)/             # Protected routes (admin, dashboard)
-│   └── actions/            # Server actions (rsvp, upload, admin)
-├── components/             # React components
+│   └── actions/            # Server actions (rsvp, upload, admin, floor-plan)
+├── components/
+│   ├── floor-plan/         # Konva canvas floor plan editor
+│   │   ├── items/          # Shape components (round-table, long-table, chair, etc.)
+│   │   └── hooks/          # State, auto-save, collision, undo-redo, chair generation
 │   └── ui/                 # shadcn/ui primitives
 ├── lib/
+│   ├── floor-plan/         # Constants, collision detection, serializers
 │   ├── supabase/           # Supabase clients (browser, server, admin)
-│   ├── validations/        # Zod schemas (rsvp, admin)
+│   ├── validations/        # Zod schemas (rsvp, admin, floor-plan)
 │   └── utils.ts            # Utilities
 ├── proxy.ts                 # Auth proxy (renamed from middleware.ts for Next.js 16 compat)
 └── types/                  # TypeScript types
@@ -180,6 +188,7 @@ tests/
 - **RSVP deduplication** — unique constraint on `(wedding_id, LOWER(guest_name))` plus application-level check
 - **Image uploads** — stored in Supabase Storage `wedding-templates` bucket; admin-only upload, public read
 - **Auth** — Supabase Auth with `proxy.ts` (not `middleware.ts` — renamed for Next.js 16 compat) protecting `/dashboard/*` and `/admin/*` routes; admin role checked via `app_metadata`
+- **Floor plan editor** — Interactive 2D canvas built with react-konva; supports drag-and-drop, rotation, collision detection, auto-chair population around tables, pan/zoom, undo/redo, and auto-save
 
 ## Troubleshooting
 
