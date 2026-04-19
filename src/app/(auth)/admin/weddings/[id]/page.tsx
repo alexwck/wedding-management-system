@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getWeddingRSVPs } from "@/app/actions/admin";
 import { TemplateUpload } from "@/components/template-upload";
@@ -27,19 +28,27 @@ export default async function ManageWeddingPage({ params }: ManageWeddingPagePro
 
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold">{wedding.coupleName}</h2>
-        <p className="text-muted-foreground">
-          Public link:{" "}
-          <a
-            href={publicUrl}
-            className="text-primary hover:underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {publicUrl}
-          </a>
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">{wedding.coupleName}</h2>
+          <p className="text-muted-foreground">
+            Public link:{" "}
+            <a
+              href={publicUrl}
+              className="text-primary hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {publicUrl}
+            </a>
+          </p>
+        </div>
+        <Link
+          href={`/admin/weddings/${wedding.id}/floor-plan`}
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+        >
+          Floor Plan
+        </Link>
       </div>
 
       <div className="space-y-4">

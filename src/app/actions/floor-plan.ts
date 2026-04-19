@@ -37,6 +37,14 @@ export async function getFloorPlan(weddingId: number) {
     return { success: false as const, error: "Not authenticated." };
   }
 
+  const isAdmin = user.app_metadata?.role === "admin";
+  if (!isAdmin) {
+    const hasAccess = await verifyWeddingAccess(weddingId, user.id);
+    if (!hasAccess) {
+      return { success: false as const, error: "Access denied." };
+    }
+  }
+
   const adminClient = createAdminClient();
   const { data, error } = await adminClient
     .from("floor_plans")
@@ -67,9 +75,12 @@ export async function saveFloorPlan(
     return { success: false as const, error: "Not authenticated." };
   }
 
-  const hasAccess = await verifyWeddingAccess(weddingId, user.id);
-  if (!hasAccess) {
-    return { success: false as const, error: "Access denied." };
+  const isAdmin = user.app_metadata?.role === "admin";
+  if (!isAdmin) {
+    const hasAccess = await verifyWeddingAccess(weddingId, user.id);
+    if (!hasAccess) {
+      return { success: false as const, error: "Access denied." };
+    }
   }
 
   const parsed = floorPlanInputSchema.safeParse(data);
