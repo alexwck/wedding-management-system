@@ -1,4 +1,7 @@
-import type { FloorPlanItem, FloorPlanItemMetadata, FloorPlan } from "@/types/floor-plan";
+import { ITEM_TYPES } from "@/types/floor-plan";
+import type { FloorPlanItem, FloorPlanItemMetadata, FloorPlan, ItemType } from "@/types/floor-plan";
+
+const VALID_ITEM_TYPES = new Set<string>(ITEM_TYPES);
 
 interface DbFloorPlanItem {
   id: string;
@@ -34,9 +37,12 @@ export function serializeItem(item: FloorPlanItem): DbFloorPlanItem {
 }
 
 export function deserializeItem(dbItem: DbFloorPlanItem): FloorPlanItem {
+  if (!VALID_ITEM_TYPES.has(dbItem.type)) {
+    throw new Error(`Invalid item type: ${dbItem.type}`);
+  }
   return {
     id: dbItem.id,
-    type: dbItem.type as FloorPlanItem["type"],
+    type: dbItem.type as ItemType,
     label: dbItem.label,
     x: dbItem.x,
     y: dbItem.y,
@@ -48,7 +54,7 @@ export function deserializeItem(dbItem: DbFloorPlanItem): FloorPlanItem {
   };
 }
 
-export function serializeItems(items: DbFloorPlanItem[]): DbFloorPlanItem[] {
+export function serializeItems(items: FloorPlanItem[]): DbFloorPlanItem[] {
   return items.map((item) => ({ ...item }));
 }
 

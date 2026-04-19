@@ -22,6 +22,7 @@ interface ChairProps {
 }
 
 export function Chair({
+  id,
   x,
   y,
   width = DEFAULT_CHAIR_SIZE.width,
@@ -43,6 +44,7 @@ export function Chair({
   return (
     <>
       <Rect
+        id={id}
         x={pixelX}
         y={pixelY}
         width={pixelWidth}

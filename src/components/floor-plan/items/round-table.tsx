@@ -21,6 +21,7 @@ interface RoundTableProps {
 }
 
 export function RoundTable({
+  id,
   x,
   y,
   diameter,
@@ -40,6 +41,7 @@ export function RoundTable({
   return (
     <>
       <Circle
+        id={id}
         x={pixelX}
         y={pixelY}
         radius={radius}
@@ -51,6 +53,7 @@ export function RoundTable({
         onDragEnd={onDragEnd}
         onDragMove={onDragMove}
         onClick={onClick}
+        onTap={onClick}
         onDblClick={onDblClick}
       />
       <ItemLabel x={pixelX} y={pixelY} text={label} rotation={0} />

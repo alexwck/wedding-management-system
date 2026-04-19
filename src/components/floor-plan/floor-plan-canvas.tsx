@@ -393,11 +393,14 @@ export function FloorPlanCanvas({
       if (!editingDimId) return;
       const num = Number(value);
       if (isNaN(num) || num <= 0) return;
-      pushHistory();
       state.updateItem(editingDimId, { [dim]: num });
     },
-    [editingDimId, pushHistory, state],
+    [editingDimId, state],
   );
+
+  const handleDimCommit = useCallback(() => {
+    if (editingDimId) pushHistory();
+  }, [editingDimId, pushHistory]);
 
   const handleChairCountChange = useCallback(
     (tableId: string, newCount: number) => {
@@ -725,6 +728,7 @@ export function FloorPlanCanvas({
                 setEditingDimId(selectedItem.id);
                 handleDimChange("width", e.target.value);
               }}
+              onBlur={handleDimCommit}
               className="w-20"
             />
             <label className="text-sm">H</label>
@@ -737,6 +741,7 @@ export function FloorPlanCanvas({
                 setEditingDimId(selectedItem.id);
                 handleDimChange("height", e.target.value);
               }}
+              onBlur={handleDimCommit}
               className="w-20"
             />
             <span className="text-xs text-muted-foreground">ft</span>

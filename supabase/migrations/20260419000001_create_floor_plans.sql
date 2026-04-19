@@ -9,9 +9,6 @@ CREATE TABLE public.floor_plans (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Index on wedding_id for fast lookups
-CREATE UNIQUE INDEX idx_floor_plans_wedding_id ON public.floor_plans(wedding_id);
-
 -- GIN index on items for future JSON queries
 CREATE INDEX idx_floor_plans_items ON public.floor_plans USING GIN (items);
 

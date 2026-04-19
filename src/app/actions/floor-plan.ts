@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase/server";
 import { floorPlanInputSchema } from "@/lib/validations/floor-plan";
 import {
   deserializeFloorPlan,
-  serializeItems,
 } from "@/lib/floor-plan/serializers";
 import type { FloorPlanItem } from "@/types/floor-plan";
 
@@ -93,51 +92,26 @@ export async function saveFloorPlan(
 
   const adminClient = createAdminClient();
 
-  const { data: existing } = await adminClient
+  const { data: upserted, error: upsertError } = await adminClient
     .from("floor_plans")
-    .select("id")
-    .eq("wedding_id", weddingId)
-    .maybeSingle();
-
-  if (existing) {
-    const { data: updated, error: updateError } = await adminClient
-      .from("floor_plans")
-      .update({
+    .upsert(
+      {
+        wedding_id: weddingId,
         width: parsed.data.width,
         height: parsed.data.height,
-        items: serializeItems(parsed.data.items),
-      })
-      .eq("wedding_id", weddingId)
-      .select("*")
-      .single();
-
-    if (updateError) {
-      return { success: false as const, error: "Failed to update floor plan." };
-    }
-
-    return {
-      success: true as const,
-      floorPlan: deserializeFloorPlan(updated),
-    };
-  }
-
-  const { data: inserted, error: insertError } = await adminClient
-    .from("floor_plans")
-    .insert({
-      wedding_id: weddingId,
-      width: parsed.data.width,
-      height: parsed.data.height,
-      items: serializeItems(parsed.data.items),
-    })
+        items: parsed.data.items as Record<string, unknown>[],
+      },
+      { onConflict: "wedding_id" },
+    )
     .select("*")
     .single();
 
-  if (insertError) {
-    return { success: false as const, error: "Failed to create floor plan." };
+  if (upsertError) {
+    return { success: false as const, error: "Failed to save floor plan." };
   }
 
   return {
     success: true as const,
-    floorPlan: deserializeFloorPlan(inserted),
+    floorPlan: deserializeFloorPlan(upserted),
   };
 }

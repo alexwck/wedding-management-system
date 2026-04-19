@@ -93,8 +93,20 @@ export function circleRectCollision(
   const cy = circle.y + r;
 
   const corners = getCorners(rect);
-  let closestDist = Infinity;
 
+  // Check if circle center is inside the polygon
+  let inside = false;
+  for (let i = 0, j = corners.length - 1; i < corners.length; j = i++) {
+    const xi = corners[i].x, yi = corners[i].y;
+    const xj = corners[j].x, yj = corners[j].y;
+    if ((yi > cy) !== (yj > cy) && cx < (xj - xi) * (cy - yi) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  if (inside) return true;
+
+  // Check distance from circle center to each edge
+  let closestDist = Infinity;
   for (let i = 0; i < corners.length; i++) {
     const p1 = corners[i];
     const p2 = corners[(i + 1) % corners.length];
