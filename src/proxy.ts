@@ -49,6 +49,19 @@ export async function proxy(request: NextRequest) {
   const isDashboardRoute = request.nextUrl.pathname.startsWith("/dashboard");
   const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
 
+  // Root redirect based on auth state
+  if (request.nextUrl.pathname === "/") {
+    const url = request.nextUrl.clone();
+    if (!user) {
+      url.pathname = "/auth/login";
+    } else if (user.app_metadata?.role === "admin") {
+      url.pathname = "/admin";
+    } else {
+      url.pathname = "/dashboard";
+    }
+    return NextResponse.redirect(url);
+  }
+
   // Protected routes require authentication
   if (!user && (isDashboardRoute || isAdminRoute)) {
     const url = request.nextUrl.clone();

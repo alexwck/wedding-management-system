@@ -69,13 +69,13 @@
 
 > **Write these FIRST, ensure they FAIL before implementation**
 
-- [ ] T007 [P] [US1] E2E test: verify root "/" redirects unauthenticated users to `/auth/login` — test in `tests/e2e/root-redirect.spec.ts`
-- [ ] T008 [P] [US1] E2E test: verify root "/" redirects couple users to `/dashboard` and admin users to `/admin` — test in `tests/e2e/root-redirect.spec.ts`
+- [x] T007 [P] [US1] E2E test: verify root "/" redirects unauthenticated users to `/auth/login` — test in `tests/e2e/root-redirect.spec.ts`
+- [x] T008 [P] [US1] E2E test: verify root "/" redirects couple users to `/dashboard` and admin users to `/admin` — test in `tests/e2e/root-redirect.spec.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Replace `src/app/page.tsx` with a server component that reads Supabase session from cookies and calls `redirect()` — unauthenticated → `/auth/login`, couple → `/dashboard`, admin → `/admin` (use `createServerClient` from `@supabase/ssr` + `cookies()` from `next/headers` + `redirect` from `next/navigation`)
-- [ ] T010 [P] [US1] Add root "/" redirect logic to `src/proxy.ts` — in the existing `proxy` function, add a check for `request.nextUrl.pathname === "/"` after the user check: if authenticated with admin role → redirect to `/admin`, if authenticated non-admin → redirect to `/dashboard`, if unauthenticated → redirect to `/auth/login`
+- [x] T009 [US1] Replace `src/app/page.tsx` with a server component that reads Supabase session from cookies and calls `redirect()` — unauthenticated → `/auth/login`, couple → `/dashboard`, admin → `/admin` (use `createServerClient` from `@supabase/ssr` + `cookies()` from `next/headers` + `redirect` from `next/navigation`)
+- [x] T010 [P] [US1] Add root "/" redirect logic to `src/proxy.ts` — in the existing `proxy` function, add a check for `request.nextUrl.pathname === "/"` after the user check: if authenticated with admin role → redirect to `/admin`, if authenticated non-admin → redirect to `/dashboard`, if unauthenticated → redirect to `/auth/login`
 
 **Checkpoint**: Root URL "/" correctly redirects for all user types
 
