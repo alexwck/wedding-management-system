@@ -1,0 +1,278 @@
+# Tasks: Floor Plan UX Redesign and App-Wide Design System
+
+**Input**: Design documents from `/specs/004-app-wide-ux-redesign/`
+**Prerequisites**: plan.md (required), spec.md (required), research.md, data-model.md, contracts/
+
+**Tests**: Constitution §I requires Red-Green TDD. Tests are included per the Test Verification principle.
+
+**Organization**: Tasks grouped by user story for independent implementation and testing.
+
+## Format: `[ID] [P?] [Story] Description`
+
+- **[P]**: Can run in parallel (different files, no dependencies)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- Include exact file paths in descriptions
+
+---
+
+## Phase 1: Setup (Shared Infrastructure)
+
+**Purpose**: Shared constants, glassmorphism tokens, and utility classes needed by multiple user stories.
+
+- [ ] T001 Add HIT_PADDING (8px) and ROTATION_SNAPS (0-345 in 15° increments) constants to `src/lib/floor-plan/constants.ts`
+- [ ] T002 [P] Add glassmorphism CSS custom properties to `:root` in `src/app/globals.css` (--glass-bg, --glass-bg-heavy, --glass-bg-light, --glass-border, --glass-shadow, --glass-blur, --radius-glass)
+- [ ] T003 [P] Add glassmorphism theme tokens to `@theme inline` block in `src/app/globals.css` (--color-glass-*, --blur-glass, --shadow-glass mapping to CSS vars)
+- [ ] T004 [P] Add `.glass-panel` and `.glass-panel-heavy` utility classes with `@supports (backdrop-filter)` fallback in `@layer utilities` in `src/app/globals.css`
+- [ ] T005 [P] Add blob keyframe animations (@keyframes blob, blob-reverse) and animation theme tokens (--animate-blob, --animate-blob-reverse) in `src/app/globals.css`
+
+---
+
+## Phase 2: Foundational (Blocking Prerequisites)
+
+**Purpose**: Shared components needed before user story implementation can begin.
+
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete.
+
+- [ ] T006 Create `src/components/gradient-backdrop.tsx` — fixed-position gradient background (rose-50 → white → violet-50) with 3 semi-transparent blob circles using blur-3xl and blob animations; variant prop for "default" vs "landing" (no blobs)
+- [ ] T007 [P] Create `src/components/breadcrumbs.tsx` — parse `usePathname()` into breadcrumb trail with path-segment-to-label mapping (dashboard, admin, couples, weddings, floor-plan); render Links with `>` separators; glassmorphism styling via `.glass-panel`
+- [ ] T008 [P] Create `src/components/floor-plan/rotation-transformer.tsx` — Konva Transformer wrapper with `rotateEnabled={true}`, `resizeEnabled={false}`, `enabledAnchors={[]}`, `rotationSnaps` from constants, `rotationSnapTolerance={5}`, `rotateAnchorOffset={30}`, `onTransformEnd` callback to persist rotation angle; handles node attachment via `useEffect` watching `selectedItemId`
+
+**Checkpoint**: Foundation ready — user story implementation can now begin in parallel.
+
+---
+
+## Phase 3: User Story 1 - Clean Item Labels (Priority: P1) 🎯 MVP
+
+**Goal**: Chair labels show only numbers; table labels show only "Table N" — no type prefixes.
+
+**Independent Test**: Place a round table with 6 chairs. Verify labels: chairs show "1"-"6", table shows "Table N".
+
+### Tests for User Story 1
+
+> **Red phase**: Write tests FIRST, confirm they FAIL before implementation.
+
+- [ ] T009 [P] [US1] Unit test: verify `generateChairsForRoundTable` produces labels as numbers only ("1", "2", etc.) in `tests/unit/use-chair-generation.test.ts`
+- [ ] T010 [P] [US1] Unit test: verify `generateChairsForLongTable` produces labels as numbers only in `tests/unit/use-chair-generation.test.ts`
+
+### Implementation for User Story 1
+
+- [ ] T011 [US1] Change chair label generation from `"Chair ${i + 1}"` to `"${i + 1}"` in `src/components/floor-plan/hooks/use-chair-generation.ts` — update both `generateChairsForRoundTable` and `addChairRow` (long table)
+- [ ] T012 [US1] Change table label generation from `"Round Table ${n}"` / `"Long Table ${n}"` to `"Table ${n}"` — find and update item creation logic in `src/components/floor-plan/hooks/use-floor-plan-state.ts` or wherever new items are created with default labels
+- [ ] T013 [US1] Green phase: run `npm run test` and confirm US1 tests now pass
+
+**Checkpoint**: Labels are clean — chairs show numbers, tables show "Table N". Custom label editing still works via double-click.
+
+---
+
+## Phase 4: User Story 2 - Evenly Spaced Chairs Around Round Tables (Priority: P1)
+
+**Goal**: All chairs around round tables are equidistant at equal angular intervals.
+
+**Independent Test**: Place round tables of all sizes (3ft–7ft) with default and max chair counts. Verify visual symmetry — all chairs equidistant.
+
+### Tests for User Story 2
+
+- [ ] T014 [P] [US2] Unit test: for each round table size (3ft–7ft) with default and max chairs, verify all angular distances between adjacent chairs are equal in `tests/unit/chair-spacing.test.ts`
+- [ ] T015 [P] [US2] Unit test: verify edge cases — 1 chair, 2 chairs, and max+1 (should clamp) produce valid positions in `tests/unit/chair-spacing.test.ts`
+
+### Implementation for User Story 2
+
+- [ ] T016 [US2] Refactor `generateChairsForRoundTable` in `src/components/floor-plan/hooks/use-chair-generation.ts` — separate chair center-point calculation (`cx + cos(angle) * offset`, `cy + sin(angle) * offset`) from top-left offset (`- chairWidth/2`, `- chairHeight/2`); ensure the angular formula `(2π * i) / count - π/2` produces even spacing for all table sizes and counts
+- [ ] T017 [US2] Green phase: run `npm run test` and confirm US2 spacing tests pass
+
+**Checkpoint**: All round tables have perfectly symmetrical chair arrangements at every valid count.
+
+---
+
+## Phase 5: User Story 3 - Precise Item Dragging (Priority: P1)
+
+**Goal**: Clicking near an item grabs the item, not the canvas. Only truly empty space pans.
+
+**Independent Test**: Place 3 items densely. Try dragging near each item's edge — item should move, not canvas. Click empty space — canvas pans.
+
+### Tests for User Story 3
+
+- [ ] T018 [P] [US3] Unit test: verify hitFunc for Rect items expands hit region by HIT_PADDING px in `tests/unit/hit-area.test.ts`
+- [ ] T019 [P] [US3] Unit test: verify hitFunc for Circle items expands hit region by HIT_PADDING px in `tests/unit/hit-area.test.ts`
+
+### Implementation for User Story 3
+
+- [ ] T020 [P] [US3] Add `hitFunc` with 8px padding to `src/components/floor-plan/items/round-table.tsx` — draw expanded circle in hitFunc context
+- [ ] T021 [P] [US3] Add `hitFunc` with 8px padding to `src/components/floor-plan/items/long-table.tsx` — draw expanded rect in hitFunc context
+- [ ] T022 [P] [US3] Add `hitFunc` with 8px padding to `src/components/floor-plan/items/stage-item.tsx`
+- [ ] T023 [P] [US3] Add `hitFunc` with 8px padding to `src/components/floor-plan/items/pillar-item.tsx`
+- [ ] T024 [P] [US3] Add `hitFunc` with 8px padding to `src/components/floor-plan/items/walkway-item.tsx`
+- [ ] T025 [P] [US3] Add `hitFunc` with 8px padding to `src/components/floor-plan/items/misc-item.tsx`
+- [ ] T026 [US3] Green phase: run `npm run test` and confirm US3 hit area tests pass
+
+**Checkpoint**: Items are easy to grab — 8px invisible padding around each shape. Canvas only pans when clicking truly empty space.
+
+---
+
+## Phase 6: User Story 4 - Item Rotation (Priority: P2)
+
+**Goal**: Selected items can be rotated via a handle. 15-degree snap + free rotation. Child chairs rotate with parent table.
+
+**Independent Test**: Place a long table with chairs. Select it. Grab rotation handle. Rotate 90°. Verify table + chairs rotated. Verify collision detection works.
+
+### Tests for User Story 4
+
+- [ ] T027 [P] [US4] Unit test: verify rotation persists to item state on transformEnd in `tests/unit/rotation-transformer.test.ts`
+- [ ] T028 [P] [US4] Unit test: verify rotation snap rounds to nearest 15° within tolerance in `tests/unit/rotation-transformer.test.ts`
+
+### Implementation for User Story 4
+
+- [ ] T029 [US4] Add `RotationTransformer` to the items Layer in `src/components/floor-plan/floor-plan-canvas.tsx` — wire `selectedItemId` state to Transformer node attachment via `useEffect`; handle `onRotationEnd` to persist `rotation` to item state via `state.updateItem()`; push undo history entry on rotation commit
+- [ ] T030 [US4] Verify existing collision detection in `src/lib/floor-plan/collision.ts` correctly handles rotated items — test with manually rotated item data; fix if collision math doesn't account for rotation angle
+- [ ] T031 [US4] Green phase: run `npm run test` and confirm US4 rotation tests pass
+
+**Checkpoint**: Any selected item can be rotated. Rotation handle appears above selected shape. Child chairs rotate with parent. Collision detection works with rotated items.
+
+---
+
+## Phase 7: User Story 5 - App-Wide Glassmorphism Design System (Priority: P2)
+
+**Goal**: Every page uses consistent frosted-glass panels on a gradient backdrop — login, dashboard, admin, landing, RSVP, floor plan editor, error pages.
+
+**Independent Test**: Navigate through every page. Verify all cards, panels, forms, and navigation show translucent frosted-glass effect with backdrop blur.
+
+### Implementation for User Story 5
+
+- [ ] T032 [US5] Add `GradientBackdrop` to `src/app/layout.tsx` — render with `variant="default"` behind all content; verify it renders on all pages via dev server
+- [ ] T033 [P] [US5] Apply `.glass-panel` to login card in `src/app/(public)/auth/login/page.tsx`
+- [ ] T034 [P] [US5] Apply `.glass-panel` to RSVP summary cards and containers in `src/app/(auth)/dashboard/page.tsx`
+- [ ] T035 [P] [US5] Apply `.glass-panel` to RSVP list table container in `src/app/(auth)/dashboard/rsvps/page.tsx`
+- [ ] T036 [P] [US5] Apply `.glass-panel` to admin dashboard cards in `src/app/(auth)/admin/page.tsx`
+- [ ] T037 [P] [US5] Apply `.glass-panel` to couples form + table containers in `src/app/(auth)/admin/couples/page.tsx`
+- [ ] T038 [P] [US5] Apply `.glass-panel` to weddings table container in `src/app/(auth)/admin/weddings/page.tsx`
+- [ ] T039 [P] [US5] Apply `.glass-panel` to wedding detail cards in `src/app/(auth)/admin/weddings/[id]/page.tsx`
+- [ ] T040 [P] [US5] Apply `.glass-panel` to error display in `src/app/error.tsx`
+- [ ] T041 [P] [US5] Apply `.glass-panel` to not-found display in `src/app/not-found.tsx`
+- [ ] T042 [P] [US5] Apply `.glass-panel` to RSVP button/overlay on wedding landing page in `src/components/landing-page.tsx` — use `GradientBackdrop` with `variant="landing"` so couple's background image replaces gradient
+- [ ] T043 [P] [US5] Apply `.glass-panel` to RSVP form card in `src/components/rsvp-form.tsx`
+- [ ] T044 [P] [US5] Apply `.glass-panel` to floor plan toolbar in `src/components/floor-plan/floor-plan-toolbar.tsx`
+- [ ] T045 [P] [US5] Apply `.glass-panel` to floor plan item catalog sidebar in `src/components/floor-plan/item-catalog.tsx`
+- [ ] T046 [US5] Verify glassmorphism renders correctly on all pages via dev server — check login, dashboard, admin pages, landing page, RSVP form, floor plan editor, error pages; verify mobile responsiveness; check fallback on browsers without backdrop-filter support
+
+**Checkpoint**: Every page in the application has consistent frosted-glass panels on a gradient backdrop. Mobile responsive. Graceful degradation.
+
+---
+
+## Phase 8: User Story 6 - App-Wide Intuitive Interaction Design (Priority: P3)
+
+**Goal**: Full navigation redesign with icons, sections, breadcrumbs. Clear affordances, contextual feedback, and intuitive UX across all pages.
+
+**Independent Test**: A new user can navigate to any page, understand where they are (breadcrumbs), find what they need (grouped nav with icons), and complete their task without guidance.
+
+### Implementation for User Story 6
+
+- [ ] T047 [US6] Redesign sidebar navigation in `src/components/nav.tsx` — add section grouping with headers ("Planning", "Management", "Overview"), add lucide-react icons (LayoutDashboard, Users, Grid, Heart, UserPlus) to each nav item, add glassmorphism styling via `.glass-panel`, add active-item highlighting based on current pathname; update mobile Sheet menu to match
+- [ ] T048 [US6] Add `Breadcrumbs` component to dashboard layout in `src/app/(auth)/dashboard/layout.tsx` (if exists) or to individual dashboard pages — render breadcrumb trail above page content
+- [ ] T049 [US6] Add `Breadcrumbs` component to admin layout or individual admin pages — render trail for Admin > Weddings > [Name] > Floor Plan paths
+- [ ] T050 [P] [US6] Add visual affordances to floor plan editor empty state in `src/components/floor-plan/floor-plan-canvas.tsx` — enhance the welcome message with a clear call-to-action pointing to the item catalog
+- [ ] T051 [P] [US6] Verify and enhance form validation feedback across login, RSVP, and admin forms — ensure inline error messages are visible and consistent with glassmorphism styling
+- [ ] T052 [P] [US6] Add consistent loading indicators to async operations across pages — verify save status indicator in floor plan editor works; add spinners/skeleton states where missing
+- [ ] T053 [US6] Verify all touch interactions work on mobile — test floor plan drag, rotation, zoom, form submission, nav hamburger menu, breadcrumbs on mobile viewport
+
+**Checkpoint**: Navigation is intuitive with icons and sections. Breadcrumbs show location. Forms give clear feedback. Mobile works. First-time users can complete tasks without guidance.
+
+---
+
+## Phase 9: Polish & Cross-Cutting Concerns
+
+**Purpose**: Final validation across all user stories.
+
+- [ ] T054 Run `npm run test` and verify all unit tests pass (US1–US4 tests)
+- [ ] T055 Run `npm run test:e2e --workers=1` and verify all E2E tests pass across all projects (desktop + mobile) — per Constitution §I, E2E failures MUST be fixed, not deferred
+- [ ] T056 Run `npm run lint` and fix any lint errors
+- [ ] T057 Run `npm run build` and verify production build succeeds
+- [ ] T058 [P] Verify glassmorphism performance on mobile — check for frame drops during backdrop-blur rendering; if needed, reduce blur complexity for mobile breakpoints
+- [ ] T059 [P] Verify Konva canvas items with "refined colors" complement the glassmorphism panels — adjust fill/stroke colors if visual clash exists
+- [ ] T060 Run quickstart.md validation — follow each step to verify development guide is accurate
+
+---
+
+## Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Setup (Phase 1)**: No dependencies — start immediately
+- **Foundational (Phase 2)**: Depends on Phase 1 — BLOCKS all user stories
+- **US1–US3 (Phases 3–5)**: Depend on Phase 2; can proceed in parallel (different files)
+- **US4 (Phase 6)**: Depends on Phase 2 (RotationTransformer component)
+- **US5 (Phase 7)**: Depends on Phase 1–2 (glassmorphism tokens + gradient backdrop)
+- **US6 (Phase 8)**: Depends on US5 (glassmorphism must be applied before nav redesign)
+- **Polish (Phase 9)**: Depends on all user stories complete
+
+### User Story Dependencies
+
+- **US1 (Labels)**: Independent — after Phase 2
+- **US2 (Chair Spacing)**: Independent — after Phase 2
+- **US3 (Drag Fix)**: Independent — after Phase 2
+- **US4 (Rotation)**: Independent — after Phase 2
+- **US5 (Glassmorphism)**: Independent — after Phase 2
+- **US6 (Intuitive UX)**: Depends on US5 (nav needs glassmorphism styling)
+
+### Parallel Opportunities
+
+**Phase 1**: T002, T003, T004, T005 can all run in parallel (all in globals.css but different sections)
+
+**Phase 2**: T006, T007, T008 can all run in parallel (different files)
+
+**After Phase 2**: US1, US2, US3, US4, US5 can all start in parallel:
+- US1: T011, T012 (label format changes)
+- US2: T016 (spacing math)
+- US3: T020–T025 (hitFunc on 6 item files — all parallel)
+- US4: T029 (Transformer wiring)
+- US5: T033–T045 (glass on 13 page/component files — most parallel)
+
+**US6**: Must wait for US5 completion
+
+---
+
+## Parallel Example: After Phase 2
+
+```text
+# Launch US1 + US2 + US3 + US4 + US5 in parallel (5 independent tracks):
+
+Track US1: "Change chair label format in use-chair-generation.ts"
+Track US2: "Fix chair spacing math in use-chair-generation.ts"
+Track US3: "Add hitFunc to round-table.tsx, long-table.tsx, stage-item.tsx, pillar-item.tsx, walkway-item.tsx, misc-item.tsx"
+Track US4: "Wire RotationTransformer in floor-plan-canvas.tsx"
+Track US5: "Apply glass-panel to login, dashboard, admin, landing, RSVP, error pages"
+```
+
+Note: US1 and US2 both modify `use-chair-generation.ts` — if parallel, US1 should complete first (T011), then US2 (T016), or combine into one task if same developer.
+
+---
+
+## Implementation Strategy
+
+### MVP First (US1 + US2 + US3)
+
+1. Complete Phase 1: Setup (constants, tokens)
+2. Complete Phase 2: Foundational (components)
+3. Complete Phases 3–5: US1 (labels) + US2 (spacing) + US3 (drag fix)
+4. **STOP and VALIDATE**: Test all three P1 stories independently
+5. Deploy/demo if ready — floor plan editor is now significantly improved
+
+### Incremental Delivery
+
+1. Setup + Foundational → Foundation ready
+2. Add US1 + US2 + US3 → Floor plan bugs fixed (MVP!)
+3. Add US4 → Rotation capability
+4. Add US5 → Glassmorphism across entire app
+5. Add US6 → Navigation redesign + UX polish
+6. Each story adds value without breaking previous stories
+
+---
+
+## Notes
+
+- [P] tasks = different files, no dependencies
+- [Story] label maps task to specific user story for traceability
+- US1 and US2 both touch `use-chair-generation.ts` — coordinate or combine
+- US3 touches 6 item files in parallel — no conflicts between them
+- US5 touches 13 page/component files in parallel — no conflicts between them
+- Commit after each task or logical group
+- Stop at any checkpoint to validate story independently
