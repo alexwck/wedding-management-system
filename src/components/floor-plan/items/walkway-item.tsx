@@ -68,7 +68,6 @@ export function WalkwayItem({
         y={pixelY}
         width={pixelWidth}
         height={pixelHeight}
-        rotation={rotation}
         text={label}
       />
     </>

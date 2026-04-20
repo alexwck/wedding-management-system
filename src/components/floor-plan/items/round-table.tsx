@@ -57,7 +57,7 @@ export function RoundTable({
         onDblClick={onDblClick}
         hitFunc={paddedCircleHitFunc}
       />
-      <ItemLabel x={pixelX} y={pixelY} text={label} rotation={0} />
+      <ItemLabel x={pixelX} y={pixelY} text={label} />
     </>
   );
 }
