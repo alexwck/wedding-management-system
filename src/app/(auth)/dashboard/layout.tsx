@@ -1,4 +1,5 @@
 import { Nav } from "@/components/nav";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -12,6 +13,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         ]}
       />
       <main className="flex-1 p-6 pt-20 md:pt-6">
+        <Breadcrumbs className="mb-4" />
         {children}
       </main>
     </div>

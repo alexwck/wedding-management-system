@@ -814,11 +814,12 @@ export function FloorPlanCanvas({
         >
           {isNewFloorPlan && state.items.length === 0 && (
             <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-              <div className="bg-white/90 rounded-lg shadow-md px-8 py-6 text-center max-w-sm">
+              <div className="glass-panel rounded-xl px-8 py-6 text-center max-w-sm">
                 <p className="text-lg font-medium">Design Your Floor Plan</p>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Set your venue dimensions above, then select items from the
-                  catalog to start designing.
+                  Set your venue dimensions above, then pick tables and items
+                  from the <strong>Item Catalog</strong> on the left to start
+                  designing your layout.
                 </p>
               </div>
             </div>
