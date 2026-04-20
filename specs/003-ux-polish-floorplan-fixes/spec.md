@@ -122,7 +122,7 @@ Adding an item from the catalog to the floor plan does not crash with "Cannot re
 
 ### Edge Cases
 
-- What happens when a user logs out while the auto-save is in progress?
+- What happens when a user logs out while the auto-save is in progress? — Accepted risk: in-progress auto-save may complete or be lost; no data corruption since upsert is atomic
 - What happens when an admin tries to access "/dashboard/floor-plan" directly via URL?
 - What happens when a user uploads a file named "image.JPG" vs "image.jpg" — are both accepted?
 - What happens if a couple user has bookmarked "/admin" and their role changes?
@@ -144,10 +144,10 @@ Adding an item from the catalog to the floor plan does not crash with "Cannot re
 - **FR-009**: System MUST only accept JPG and PNG file formats for template image uploads, rejecting all other formats with a clear error message
 - **FR-010**: System MUST render chairs as circles on the floor plan canvas with a fixed 1x1 ft diameter
 - **FR-011**: System MUST NOT allow users to modify chair dimensions (width/height inputs must not appear for chair items)
-- **FR-012**: System MUST position chairs around tables with sufficient spacing to prevent visual overlap between adjacent chairs
+- **FR-012**: System MUST position chairs around tables with a minimum 0.25 ft gap between adjacent chair edges to prevent visual overlap
 - **FR-013**: System MUST set the maximum chair count for long tables to the recommended (default) chair count for that table size, not the recommended count plus one
-- **FR-014**: System MUST preserve the existing round table maximum chair count behavior (recommended + 1)
-- **FR-015**: System MUST handle null return values from addItem without crashing, ensuring the floor plan editor remains usable
+- **FR-014**: System MUST preserve the round table maximum chair count code behavior of recommended count + 1
+- **FR-015**: System MUST handle null return values from addItem by skipping item selection and keeping the floor plan editor usable (no crash, no error thrown)
 - **FR-016**: System MUST clear existing floor plan data (reset to empty) to ensure consistency with the new 1x1 ft chair dimensions
 
 ### Key Entities
@@ -179,6 +179,6 @@ Adding an item from the catalog to the floor plan does not crash with "Cannot re
 - Logout clears the Supabase session and removes all auth cookies
 - The shared Nav component and FloorPlanCanvas component between admin and couple roles are appropriate shared code (not duplicates) — they render differently based on role context
 - JPG includes both ".jpg" and ".jpeg" extensions, both mapped to "image/jpeg" MIME type
-- Chair spacing should account for the 1x1 ft diameter with at least 0.25 ft gap between chair edges
+- Chair spacing should account for the 1x1 ft diameter with a minimum 0.25 ft gap between chair edges (now specified in FR-012)
 - The null reference error in handleSelectItem is caused by addItem returning null in certain React rendering states — a simple null guard is the fix
 - Client-side file validation (format and size) is sufficient for UX; server-side validation already exists as a safety net

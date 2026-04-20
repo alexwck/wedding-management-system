@@ -71,6 +71,7 @@ src/
 │   │   ├── admin/                     # Admin-only routes (FR-006 blocks couples)
 │   │   └── dashboard/                 # Couple-only routes (FR-007 blocks admins)
 │   ├── actions/
+│   │   ├── auth.ts                   # New: signOut server action
 │   │   ├── upload.ts                  # Update: 5MB limit, JPG/PNG only
 │   │   └── floor-plan.ts             # Floor plan reset action
 │   ├── page.tsx                       # Replace: redirect to dashboard/admin/login
