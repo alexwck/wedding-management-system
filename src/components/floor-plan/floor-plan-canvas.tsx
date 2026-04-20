@@ -560,11 +560,17 @@ export function FloorPlanCanvas({
       <React.Fragment key={item.id}>
         {element}
         {isOutOfBounds && (
-          item.type === "round_table" ? (
+          item.type === "round_table" || item.type === "chair" ? (
             <Circle
-              x={item.x * FEET_TO_PIXELS}
-              y={item.y * FEET_TO_PIXELS}
-              radius={(item.width / 2) * FEET_TO_PIXELS}
+              x={(item.type === "chair"
+                ? (item.x + 0.5)
+                : item.x + item.width / 2) * FEET_TO_PIXELS}
+              y={(item.type === "chair"
+                ? (item.y + 0.5)
+                : item.y + item.width / 2) * FEET_TO_PIXELS}
+              radius={(item.type === "chair"
+                ? item.width / 2
+                : item.width / 2) * FEET_TO_PIXELS}
               fill="transparent"
               stroke="#ef4444"
               strokeWidth={2}

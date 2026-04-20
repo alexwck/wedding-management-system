@@ -1,6 +1,6 @@
 "use client";
 
-import { Rect } from "react-konva";
+import { Circle } from "react-konva";
 import type Konva from "konva";
 import { FEET_TO_PIXELS, DEFAULT_CHAIR_SIZE } from "@/lib/floor-plan/constants";
 import { ItemLabel } from "./item-label";
@@ -36,24 +36,21 @@ export function Chair({
   onClick,
   onDblClick,
 }: ChairProps) {
-  const pixelX = x * FEET_TO_PIXELS;
-  const pixelY = y * FEET_TO_PIXELS;
-  const pixelWidth = width * FEET_TO_PIXELS;
-  const pixelHeight = height * FEET_TO_PIXELS;
+  const pixelX = (x + 0.5) * FEET_TO_PIXELS;
+  const pixelY = (y + 0.5) * FEET_TO_PIXELS;
+  const radius = (width / 2) * FEET_TO_PIXELS;
 
   return (
     <>
-      <Rect
+      <Circle
         id={id}
         x={pixelX}
         y={pixelY}
-        width={pixelWidth}
-        height={pixelHeight}
+        radius={radius}
         rotation={rotation}
         fill="#f3e8ff"
         stroke={isSelected ? "#7c3aed" : "#a78bfa"}
         strokeWidth={isSelected ? 2 : 1}
-        cornerRadius={3}
         draggable={draggable}
         onDragEnd={onDragEnd}
         onDragMove={onDragMove}
@@ -62,10 +59,10 @@ export function Chair({
         onDblClick={onDblClick}
       />
       <ItemLabel
-        x={pixelX}
-        y={pixelY}
-        width={pixelWidth}
-        height={pixelHeight}
+        x={x * FEET_TO_PIXELS}
+        y={y * FEET_TO_PIXELS}
+        width={width * FEET_TO_PIXELS}
+        height={height * FEET_TO_PIXELS}
         rotation={rotation}
         text={label}
       />
