@@ -121,6 +121,7 @@ git config core.hooksPath .githooks
 - Supabase PostgreSQL (floor_plans table), Supabase Storage (wedding-templates bucket) (003-ux-polish-floorplan-fixes)
 - TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, react-hook-form, zod, shadcn/ui, Tailwind CSS v4, lucide-reac (004-app-wide-ux-redesign)
 - Supabase PostgreSQL (existing `floor_plans` table — no new migrations) (004-app-wide-ux-redesign)
+- TypeScript 5.x (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, Tailwind CSS v4, shadcn/ui (Nova theme), react-hook-form, zod (005-fix-coords-ui-layout)
 
 ## Recent Changes
 - 003-ux-polish-floorplan-fixes: Added TypeScript (strict mode) with Next.js 16 (App Router) + React 19, Supabase Auth + Storage, react-konva, Tailwind CSS v4, shadcn/ui, react-hook-form, zod
