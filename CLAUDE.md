@@ -119,6 +119,8 @@ git config core.hooksPath .githooks
 ## Active Technologies
 - TypeScript (strict mode) with Next.js 16 (App Router) + React 19, Supabase Auth + Storage, react-konva, Tailwind CSS v4, shadcn/ui, react-hook-form, zod (003-ux-polish-floorplan-fixes)
 - Supabase PostgreSQL (floor_plans table), Supabase Storage (wedding-templates bucket) (003-ux-polish-floorplan-fixes)
+- TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, react-hook-form, zod, shadcn/ui, Tailwind CSS v4, lucide-reac (004-app-wide-ux-redesign)
+- Supabase PostgreSQL (existing `floor_plans` table — no new migrations) (004-app-wide-ux-redesign)
 
 ## Recent Changes
 - 003-ux-polish-floorplan-fixes: Added TypeScript (strict mode) with Next.js 16 (App Router) + React 19, Supabase Auth + Storage, react-konva, Tailwind CSS v4, shadcn/ui, react-hook-form, zod
