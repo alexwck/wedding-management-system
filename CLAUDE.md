@@ -112,3 +112,10 @@ git config core.hooksPath .githooks
 - **Chair count max is spec-intentional**: `getMaxChairCount` returns `maxChairs + 1` per FR-010 — not a bug
 - **Floor plan server actions**: Use `adminClient` for reads/writes (bypasses RLS); `saveFloorPlan` uses atomic `upsert` on `wedding_id` — no read-then-write
 - **Konva interactive nodes**: Every interactive shape must have `id` (for `findOne` lookups) and `onTap` alongside `onClick` (for mobile touch)
+
+## Active Technologies
+- TypeScript (strict mode) with Next.js 16 (App Router) + React 19, Supabase Auth + Storage, react-konva, Tailwind CSS v4, shadcn/ui, react-hook-form, zod (003-ux-polish-floorplan-fixes)
+- Supabase PostgreSQL (floor_plans table), Supabase Storage (wedding-templates bucket) (003-ux-polish-floorplan-fixes)
+
+## Recent Changes
+- 003-ux-polish-floorplan-fixes: Added TypeScript (strict mode) with Next.js 16 (App Router) + React 19, Supabase Auth + Storage, react-konva, Tailwind CSS v4, shadcn/ui, react-hook-form, zod
