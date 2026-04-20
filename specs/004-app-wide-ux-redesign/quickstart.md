@@ -11,6 +11,8 @@
 
 ## Development Order
 
+> **Note**: Steps 3–7 can be done in parallel after steps 1–2 are complete. The dependency graph in tasks.md shows US5 must complete before US6, but navigation work (step 3) only needs the glassmorphism tokens from step 1.
+
 ### 1. Glassmorphism Design Tokens (start here)
 
 Edit `src/app/globals.css`:
@@ -89,7 +91,7 @@ Verify: Select an item, grab rotation handle, rotate. Item rotates with child ch
 ### 8. App-Wide Glassmorphism Application
 
 Apply `.glass-panel` + gradient backdrop to:
-- `src/app/(auth)/auth/login/page.tsx` — login card
+- `src/app/(public)/auth/login/page.tsx` — login card
 - `src/app/(auth)/dashboard/page.tsx` — RSVP summary cards
 - `src/app/(auth)/dashboard/rsvps/page.tsx` — table container
 - `src/app/(auth)/admin/page.tsx` — admin summary cards
