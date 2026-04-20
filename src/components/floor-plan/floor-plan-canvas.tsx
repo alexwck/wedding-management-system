@@ -39,7 +39,6 @@ const DIMENSION_EDITABLE_TYPES: ItemType[] = [
   "pillar",
   "walkway",
   "misc",
-  "chair",
 ];
 
 export function FloorPlanCanvas({
