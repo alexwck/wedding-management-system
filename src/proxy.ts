@@ -74,7 +74,17 @@ export async function proxy(request: NextRequest) {
     const role = user.app_metadata?.role;
     if (role !== "admin") {
       const url = request.nextUrl.clone();
-      url.pathname = "/auth/login";
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // Dashboard routes are off-limits to admin users
+  if (user && isDashboardRoute) {
+    const role = user.app_metadata?.role;
+    if (role === "admin") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/admin";
       return NextResponse.redirect(url);
     }
   }
