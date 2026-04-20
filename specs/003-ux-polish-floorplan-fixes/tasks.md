@@ -133,13 +133,13 @@
 
 > **Write these FIRST, ensure they FAIL before implementation**
 
-- [ ] T017 [P] [US4] Unit test: verify upload action rejects files >5MB and non-JPG/PNG formats — test in `tests/unit/actions/upload.test.ts`, test both file size and file type rejection with appropriate error messages
-- [ ] T018 [P] [US4] E2E test: verify client-side upload validation shows error for oversized and wrong-format files — test in `tests/e2e/upload.spec.ts`
+- [x] T017 [P] [US4] Unit test: verify upload action rejects files >5MB and non-JPG/PNG formats — test in `tests/unit/actions/upload.test.ts`, test both file size and file type rejection with appropriate error messages
+- [x] T018 [P] [US4] E2E test: verify client-side upload validation shows error for oversized and wrong-format files — test in `tests/e2e/upload.spec.ts`
 
 ### Implementation for User Story 4
 
-- [ ] T019 [US4] Update upload constraints in `src/app/actions/upload.ts` — change `MAX_FILE_SIZE` from `10 * 1024 * 1024` to `5 * 1024 * 1024`, change `ALLOWED_TYPES` from `["image/png", "image/jpeg", "image/jpg"]` to `["image/png", "image/jpeg"]`, update error message to say "5MB"
-- [ ] T020 [P] [US4] Add client-side file validation in the upload form component — add `accept="image/png,image/jpeg"` attribute on the file input, add JS validation for file size (≤5MB) before submitting to server action, show user-friendly error messages matching server-side messages
+- [x] T019 [US4] Update upload constraints in `src/app/actions/upload.ts` — change `MAX_FILE_SIZE` from `10 * 1024 * 1024` to `5 * 1024 * 1024`, change `ALLOWED_TYPES` from `["image/png", "image/jpeg", "image/jpg"]` to `["image/png", "image/jpeg"]`, update error message to say "5MB"
+- [x] T020 [P] [US4] Add client-side file validation in the upload form component — add `accept="image/png,image/jpeg"` attribute on the file input, add JS validation for file size (≤5MB) before submitting to server action, show user-friendly error messages matching server-side messages
 
 **Checkpoint**: Upload constraints enforced on both client and server
 
