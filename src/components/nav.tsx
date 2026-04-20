@@ -39,7 +39,6 @@ function LogoutButton() {
     <button
       data-testid="logout-button"
       onClick={handleLogout}
-      onTap={handleLogout}
       className="block w-full text-left rounded-md px-3 py-2 text-sm text-destructive hover:bg-accent"
     >
       Logout

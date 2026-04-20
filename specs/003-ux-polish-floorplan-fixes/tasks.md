@@ -199,11 +199,11 @@
 
 **Purpose**: Final validation and cleanup across all user stories
 
-- [ ] T031 [P] Run `npm run lint` and fix any lint errors introduced by changes
-- [ ] T032 [P] Run `npm run build` and verify production build succeeds
-- [ ] T033 [P] Update `src/app/page.tsx` reference in `CLAUDE.md` if root page behavior changed significantly
-- [ ] T034 Manual smoke test: log in as couple → verify redirect to /dashboard, verify logout works, verify floor plan editor works with new chairs, verify upload rejects oversized files
-- [ ] T035 Manual smoke test: log in as admin → verify redirect to /admin, verify /dashboard is blocked, verify logout works
+- [x] T031 [P] Run `npm run lint` and fix any lint errors introduced by changes
+- [x] T032 [P] Run `npm run build` and verify production build succeeds
+- [x] T033 [P] Update `src/app/page.tsx` reference in `CLAUDE.md` if root page behavior changed significantly
+- [x] T034 Manual smoke test: log in as couple → verify redirect to /dashboard, verify logout works, verify floor plan editor works with new chairs, verify upload rejects oversized files
+- [x] T035 Manual smoke test: log in as admin → verify redirect to /admin, verify /dashboard is blocked, verify logout works
 
 ---
 
