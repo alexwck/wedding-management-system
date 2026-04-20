@@ -18,6 +18,7 @@ import { Chair } from "./items/chair";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FloorPlanToolbar } from "./floor-plan-toolbar";
+import { RotationTransformer } from "./rotation-transformer";
 import {
   FEET_TO_PIXELS,
   MAX_VENUE_DIMENSION,
@@ -315,6 +316,14 @@ export function FloorPlanCanvas({
       }
     },
     [state],
+  );
+
+  const handleRotationEnd = useCallback(
+    (itemId: string, rotation: number) => {
+      pushHistory();
+      state.updateItem(itemId, { rotation });
+    },
+    [pushHistory, state],
   );
 
   const handleDragMove = useCallback(
@@ -841,6 +850,11 @@ export function FloorPlanCanvas({
                 strokeWidth={1}
               />
               {state.items.map(renderCanvasItem)}
+              <RotationTransformer
+                selectedItemId={selectedItemId}
+                stageRef={stageRef}
+                onRotationEnd={handleRotationEnd}
+              />
             </Layer>
           </Stage>
         </div>
