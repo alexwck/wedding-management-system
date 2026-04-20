@@ -157,17 +157,17 @@
 
 > **Write these FIRST, ensure they FAIL before implementation**
 
-- [ ] T021 [P] [US5] Unit test: verify chair spacing calculations produce >= 0.25 ft gap between adjacent chairs for round tables — test in `tests/unit/floor-plan/use-chair-generation.test.ts`
-- [ ] T022 [P] [US5] Unit test: verify chair spacing calculations produce >= 0.25 ft gap for long tables — test in `tests/unit/floor-plan/use-chair-generation.test.ts`
-- [ ] T023 [P] [US5] Unit test: verify chairs render with Circle geometry (radius = 0.5 * FEET_TO_PIXELS) — test in `tests/unit/floor-plan/chair.test.tsx`
-- [ ] T024 [P] [US5] Unit test: verify chair type is excluded from DIMENSION_EDITABLE_TYPES — test in `tests/unit/floor-plan/floor-plan-canvas.test.tsx`
+- [x] T021 [P] [US5] Unit test: verify chair spacing calculations produce >= 0.25 ft gap between adjacent chairs for round tables — test in `tests/unit/floor-plan/use-chair-generation.test.ts`
+- [x] T022 [P] [US5] Unit test: verify chair spacing calculations produce >= 0.25 ft gap for long tables — test in `tests/unit/floor-plan/use-chair-generation.test.ts`
+- [x] T023 [P] [US5] Unit test: verify chairs render with Circle geometry (radius = 0.5 * FEET_TO_PIXELS) — test in `tests/unit/floor-plan/chair.test.tsx`
+- [x] T024 [P] [US5] Unit test: verify chair type is excluded from DIMENSION_EDITABLE_TYPES — test in `tests/unit/floor-plan/floor-plan-canvas.test.tsx`
 
 ### Implementation for User Story 5
 
-- [ ] T025 [US5] Convert Chair component from Rect to Circle in `src/components/floor-plan/items/chair.tsx` — replace `Rect` with `Circle` from react-konva, use center-anchor positioning: `x={(x + 0.5) * FEET_TO_PIXELS}`, `y={(y + 0.5) * FEET_TO_PIXELS}`, `radius={0.5 * FEET_TO_PIXELS}`, preserve `id`, `fill`, `stroke`, `strokeWidth`, `cornerRadius` removal, keep all event handlers
-- [ ] T026 [US5] Fix round table chair spacing in `src/components/floor-plan/hooks/use-chair-generation.ts` `generateRoundTableChairs()` — increase offset to account for chair radius: `offset = radius + 0.75` to ensure 0.25ft gap between adjacent chairs
-- [ ] T027 [P] [US5] Fix long table chair spacing in `src/components/floor-plan/hooks/use-chair-generation.ts` `generateLongTableChairs()` — change spacing to distribute chairs evenly with gap: position at slot centers `chairX = table.x + (table.width / halfCount) * (i + 0.5) - DEFAULT_CHAIR_SIZE.width / 2`, increase `chairOffset` from `0.5` to `0.75` to create gap between table edge and chair
-- [ ] T028 [US5] Update out-of-bounds rendering for chair items in `src/components/floor-plan/floor-plan-canvas.tsx` — in the `renderCanvasItem` out-of-bounds indicator section, add a Circle variant for `item.type === "chair"` to match the new rendering (currently only has `Circle` for `round_table` and `Rect` for everything else)
+- [x] T025 [US5] Convert Chair component from Rect to Circle in `src/components/floor-plan/items/chair.tsx` — replace `Rect` with `Circle` from react-konva, use center-anchor positioning: `x={(x + 0.5) * FEET_TO_PIXELS}`, `y={(y + 0.5) * FEET_TO_PIXELS}`, `radius={0.5 * FEET_TO_PIXELS}`, preserve `id`, `fill`, `stroke`, `strokeWidth`, `cornerRadius` removal, keep all event handlers
+- [x] T026 [US5] Fix round table chair spacing in `src/components/floor-plan/hooks/use-chair-generation.ts` `generateRoundTableChairs()` — increase offset to account for chair radius: `offset = radius + 0.75` to ensure 0.25ft gap between adjacent chairs
+- [x] T027 [P] [US5] Fix long table chair spacing in `src/components/floor-plan/hooks/use-chair-generation.ts` `generateLongTableChairs()` — change spacing to distribute chairs evenly with gap: position at slot centers `chairX = table.x + (table.width / halfCount) * (i + 0.5) - DEFAULT_CHAIR_SIZE.width / 2`, increase `chairOffset` from `0.5` to `0.75` to create gap between table edge and chair
+- [x] T028 [US5] Update out-of-bounds rendering for chair items in `src/components/floor-plan/floor-plan-canvas.tsx` — in the `renderCanvasItem` out-of-bounds indicator section, add a Circle variant for `item.type === "chair"` to match the new rendering (currently only has `Circle` for `round_table` and `Rect` for everything else)
 
 **Checkpoint**: Chairs render as non-overlapping circles; dimension editor hidden for chairs
 

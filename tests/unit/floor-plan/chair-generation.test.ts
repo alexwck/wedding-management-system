@@ -52,7 +52,7 @@ describe("generateChairsForTable", () => {
       const radius = 3 / 2;
       const cx = 10 + radius;
       const cy = 10 + radius;
-      const offset = radius + 0.5;
+      const offset = radius + 0.75;
 
       chairs.forEach((chair, i) => {
         const angle = (2 * Math.PI * i) / 3 - Math.PI / 2;
@@ -127,7 +127,7 @@ describe("generateChairsForTable", () => {
       expect(chairs[2].label).toBe("Chair 3");
     });
 
-    it("uses default chair dimensions (2x2 ft)", () => {
+    it("uses default chair dimensions (1x1 ft)", () => {
       const table: FloorPlanItem = {
         id: "table-1",
         type: "round_table",
@@ -211,7 +211,7 @@ describe("generateChairsForTable", () => {
       };
 
       const chairs = generateChairsForTable(table);
-      const chairOffset = 0.5;
+      const chairOffset = 0.75;
 
       chairs.forEach((chair) => {
         const chairCenterY = chair.y + chair.height / 2;

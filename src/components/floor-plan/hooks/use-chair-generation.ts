@@ -12,7 +12,7 @@ function generateRoundTableChairs(
   const radius = diameter / 2;
   const cx = table.x + radius;
   const cy = table.y + radius;
-  const offset = radius + 0.5;
+  const offset = radius + 0.75;
 
   return Array.from({ length: count }, (_, i) => {
     const angle = (2 * Math.PI * i) / count - Math.PI / 2;
@@ -38,13 +38,13 @@ function generateLongTableChairs(
   const chairs: FloorPlanItem[] = [];
   const halfCount = Math.ceil(count / 2);
   const bottomCount = count - halfCount;
-  const chairOffset = 0.5;
+  const chairOffset = 0.75;
 
-  const spacing = table.width / (halfCount + 1);
+  const spacing = table.width / halfCount;
 
   for (let i = 0; i < halfCount; i++) {
     const chairX =
-      table.x + spacing * (i + 1) - DEFAULT_CHAIR_SIZE.width / 2;
+      table.x + spacing * (i + 0.5) - DEFAULT_CHAIR_SIZE.width / 2;
     const chairY = table.y - chairOffset - DEFAULT_CHAIR_SIZE.height;
     chairs.push({
       id: crypto.randomUUID(),
@@ -60,10 +60,10 @@ function generateLongTableChairs(
     });
   }
 
-  const bottomSpacing = table.width / (bottomCount + 1);
+  const bottomSpacing = table.width / bottomCount;
   for (let i = 0; i < bottomCount; i++) {
     const chairX =
-      table.x + bottomSpacing * (i + 1) - DEFAULT_CHAIR_SIZE.width / 2;
+      table.x + bottomSpacing * (i + 0.5) - DEFAULT_CHAIR_SIZE.width / 2;
     const chairY = table.y + table.height + chairOffset;
     chairs.push({
       id: crypto.randomUUID(),
