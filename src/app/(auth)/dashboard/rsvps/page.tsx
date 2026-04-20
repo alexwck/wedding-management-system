@@ -29,7 +29,9 @@ export default async function RSVPListPage() {
         </div>
       </div>
 
-      <RSVPTable rsvps={rsvps} />
+      <div className="glass-panel rounded-xl p-4">
+        <RSVPTable rsvps={rsvps} />
+      </div>
 
       <div className="text-center">
         <Link

@@ -23,17 +23,17 @@ export default async function AdminDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-lg border p-4">
+        <div className="glass-panel rounded-lg p-4">
           <p className="text-sm text-muted-foreground">Total Weddings</p>
           <p className="text-2xl font-bold">{weddings.length}</p>
         </div>
-        <div className="rounded-lg border p-4">
+        <div className="glass-panel rounded-lg p-4">
           <p className="text-sm text-muted-foreground">With Template</p>
           <p className="text-2xl font-bold">
             {weddings.filter((w) => w.template_image_url).length}
           </p>
         </div>
-        <div className="rounded-lg border p-4">
+        <div className="glass-panel rounded-lg p-4">
           <p className="text-sm text-muted-foreground">Missing Template</p>
           <p className="text-2xl font-bold">
             {weddings.filter((w) => !w.template_image_url).length}
@@ -51,7 +51,7 @@ export default async function AdminDashboard() {
               <Link
                 key={wedding.id}
                 href={`/admin/weddings/${wedding.id}`}
-                className="block rounded-lg border p-4 hover:bg-accent transition-colors"
+                className="block glass-panel rounded-lg p-4 hover:bg-accent transition-colors"
               >
                 <div className="flex items-center justify-between">
                   <div>

@@ -16,13 +16,15 @@ export default function Error({
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4 text-center">
-      <h1 className="text-4xl font-bold">Something went wrong</h1>
-      <p className="mt-4 text-muted-foreground">
-        An unexpected error occurred. Please try again.
-      </p>
-      <Button onClick={reset} className="mt-6">
-        Try Again
-      </Button>
+      <div className="glass-panel rounded-xl p-8 max-w-md">
+        <h1 className="text-4xl font-bold">Something went wrong</h1>
+        <p className="mt-4 text-muted-foreground">
+          An unexpected error occurred. Please try again.
+        </p>
+        <Button onClick={reset} className="mt-6">
+          Try Again
+        </Button>
+      </div>
     </div>
   );
 }
