@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -9,6 +10,8 @@ import {
   SheetTrigger,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { signOut } from "@/app/actions/auth";
+import { createClient } from "@/lib/supabase/client";
 
 interface NavItem {
   href: string;
@@ -18,6 +21,30 @@ interface NavItem {
 interface NavProps {
   title: string;
   items: NavItem[];
+}
+
+function LogoutButton() {
+  const router = useRouter();
+
+  async function handleLogout() {
+    const supabase = createClient();
+    await Promise.all([
+      supabase.auth.signOut(),
+      signOut(),
+    ]);
+    router.push("/auth/login");
+  }
+
+  return (
+    <button
+      data-testid="logout-button"
+      onClick={handleLogout}
+      onTap={handleLogout}
+      className="block w-full text-left rounded-md px-3 py-2 text-sm text-destructive hover:bg-accent"
+    >
+      Logout
+    </button>
+  );
 }
 
 export function Nav({ title, items }: NavProps) {
@@ -38,6 +65,7 @@ export function Nav({ title, items }: NavProps) {
               {item.label}
             </Link>
           ))}
+          <LogoutButton />
         </nav>
       </aside>
 
@@ -77,6 +105,7 @@ export function Nav({ title, items }: NavProps) {
                   {item.label}
                 </Link>
               ))}
+              <LogoutButton />
             </nav>
           </SheetContent>
         </Sheet>

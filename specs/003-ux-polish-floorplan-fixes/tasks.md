@@ -91,13 +91,13 @@
 
 > **Write these FIRST, ensure they FAIL before implementation**
 
-- [ ] T011 [P] [US2] E2E test: verify couple user can log out and is redirected to `/auth/login`, then cannot access `/dashboard` — test in `tests/e2e/logout.spec.ts`
-- [ ] T012 [P] [US2] E2E test: verify admin user can log out — test in `tests/e2e/logout.spec.ts`
+- [x] T011 [P] [US2] E2E test: verify couple user can log out and is redirected to `/auth/login`, then cannot access `/dashboard` — test in `tests/e2e/logout.spec.ts`
+- [x] T012 [P] [US2] E2E test: verify admin user can log out — test in `tests/e2e/logout.spec.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T013 [US2] Create signOut server action in `src/app/actions/auth.ts` — create Supabase server client, call `supabase.auth.signOut()`, return `{ success: boolean }`. Handle missing session idempotently (return success even if no session).
-- [ ] T014 [US2] Add logout button to `src/components/nav.tsx` — create a client component (or client wrapper) that calls both client-side `supabase.auth.signOut()` and the server action, then redirects to `/auth/login`. Include both `onClick` and `onTap` handlers per Mobile Parity principle. Button should be visible for all authenticated users.
+- [x] T013 [US2] Create signOut server action in `src/app/actions/auth.ts` — create Supabase server client, call `supabase.auth.signOut()`, return `{ success: boolean }`. Handle missing session idempotently (return success even if no session).
+- [x] T014 [US2] Add logout button to `src/components/nav.tsx` — create a client component (or client wrapper) that calls both client-side `supabase.auth.signOut()` and the server action, then redirects to `/auth/login`. Include both `onClick` and `onTap` handlers per Mobile Parity principle. Button should be visible for all authenticated users.
 
 **Checkpoint**: Users can log out from any page via the nav
 
