@@ -150,10 +150,13 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Improvements that affect multiple user stories
 
+- [ ] TXXX Run `npm run test` and verify all unit tests pass
+- [ ] TXXX Run `npm run test:e2e --workers=1` and verify all E2E tests pass across all projects (desktop + mobile) — per Constitution §I, E2E failures MUST be fixed, not deferred
+- [ ] TXXX Run `npm run lint` and fix any lint errors
+- [ ] TXXX Run `npm run build` and verify production build succeeds
 - [ ] TXXX [P] Documentation updates in docs/
 - [ ] TXXX Code cleanup and refactoring
 - [ ] TXXX Performance optimization across all stories
-- [ ] TXXX [P] Additional unit tests (if requested) in tests/unit/
 - [ ] TXXX Security hardening
 - [ ] TXXX Run quickstart.md validation
 
