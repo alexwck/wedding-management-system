@@ -1,6 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+function redirectTo(request: NextRequest, pathname: string) {
+  const url = request.nextUrl.clone();
+  url.pathname = pathname;
+  return NextResponse.redirect(url);
+}
+
 export async function proxy(request: NextRequest) {
   // For server action POST requests, just pass through without touching
   // the Supabase session. The Supabase SSR setAll callback re-creates
@@ -51,42 +57,24 @@ export async function proxy(request: NextRequest) {
 
   // Root redirect based on auth state
   if (request.nextUrl.pathname === "/") {
-    const url = request.nextUrl.clone();
-    if (!user) {
-      url.pathname = "/auth/login";
-    } else if (user.app_metadata?.role === "admin") {
-      url.pathname = "/admin";
-    } else {
-      url.pathname = "/dashboard";
-    }
-    return NextResponse.redirect(url);
+    if (!user) return redirectTo(request, "/auth/login");
+    if (user.app_metadata?.role === "admin") return redirectTo(request, "/admin");
+    return redirectTo(request, "/dashboard");
   }
 
   // Protected routes require authentication
   if (!user && (isDashboardRoute || isAdminRoute)) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/auth/login";
-    return NextResponse.redirect(url);
+    return redirectTo(request, "/auth/login");
   }
 
   // Admin routes require admin role (check app_metadata)
-  if (user && isAdminRoute) {
-    const role = user.app_metadata?.role;
-    if (role !== "admin") {
-      const url = request.nextUrl.clone();
-      url.pathname = "/dashboard";
-      return NextResponse.redirect(url);
-    }
+  if (user && isAdminRoute && user.app_metadata?.role !== "admin") {
+    return redirectTo(request, "/dashboard");
   }
 
   // Dashboard routes are off-limits to admin users
-  if (user && isDashboardRoute) {
-    const role = user.app_metadata?.role;
-    if (role === "admin") {
-      const url = request.nextUrl.clone();
-      url.pathname = "/admin";
-      return NextResponse.redirect(url);
-    }
+  if (user && isDashboardRoute && user.app_metadata?.role === "admin") {
+    return redirectTo(request, "/admin");
   }
 
   return supabaseResponse;

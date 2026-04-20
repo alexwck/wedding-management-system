@@ -41,6 +41,9 @@ export type CatalogEntry =
   | GenericCatalogEntry
   | ChairCatalogEntry;
 
+// Round table maxChairs already includes the "+1 over recommended" convention.
+// E.g. 5ft round: recommended 7, max 8 (not 7+1=8 computed at runtime).
+// Do not add +1 to maxChairs in getMaxChairCount() — the values are final.
 export const ROUND_TABLE_SIZES: Record<RoundTableSize, Omit<RoundTableCatalogEntry, "type">> = {
   3: { diameter: 3, width: 3, height: 3, defaultChairs: 3, maxChairs: 4 },
   4: { diameter: 4, width: 4, height: 4, defaultChairs: 5, maxChairs: 6 },

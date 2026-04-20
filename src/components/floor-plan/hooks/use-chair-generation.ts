@@ -31,6 +31,29 @@ function generateRoundTableChairs(
   });
 }
 
+function addChairRow(
+  chairs: FloorPlanItem[],
+  table: FloorPlanItem,
+  rowCount: number,
+  y: number,
+): void {
+  const spacing = table.width / rowCount;
+  for (let i = 0; i < rowCount; i++) {
+    chairs.push({
+      id: crypto.randomUUID(),
+      type: "chair",
+      label: `Chair ${chairs.length + 1}`,
+      x: table.x + spacing * (i + 0.5) - DEFAULT_CHAIR_SIZE.width / 2,
+      y,
+      width: DEFAULT_CHAIR_SIZE.width,
+      height: DEFAULT_CHAIR_SIZE.height,
+      rotation: 0,
+      parentItemId: table.id,
+      metadata: { chairIndex: chairs.length },
+    });
+  }
+}
+
 function generateLongTableChairs(
   table: FloorPlanItem,
   count: number,
@@ -40,44 +63,8 @@ function generateLongTableChairs(
   const bottomCount = count - halfCount;
   const chairOffset = 0.75;
 
-  const spacing = table.width / halfCount;
-
-  for (let i = 0; i < halfCount; i++) {
-    const chairX =
-      table.x + spacing * (i + 0.5) - DEFAULT_CHAIR_SIZE.width / 2;
-    const chairY = table.y - chairOffset - DEFAULT_CHAIR_SIZE.height;
-    chairs.push({
-      id: crypto.randomUUID(),
-      type: "chair",
-      label: `Chair ${chairs.length + 1}`,
-      x: chairX,
-      y: chairY,
-      width: DEFAULT_CHAIR_SIZE.width,
-      height: DEFAULT_CHAIR_SIZE.height,
-      rotation: 0,
-      parentItemId: table.id,
-      metadata: { chairIndex: chairs.length },
-    });
-  }
-
-  const bottomSpacing = table.width / bottomCount;
-  for (let i = 0; i < bottomCount; i++) {
-    const chairX =
-      table.x + bottomSpacing * (i + 0.5) - DEFAULT_CHAIR_SIZE.width / 2;
-    const chairY = table.y + table.height + chairOffset;
-    chairs.push({
-      id: crypto.randomUUID(),
-      type: "chair",
-      label: `Chair ${chairs.length + 1}`,
-      x: chairX,
-      y: chairY,
-      width: DEFAULT_CHAIR_SIZE.width,
-      height: DEFAULT_CHAIR_SIZE.height,
-      rotation: 0,
-      parentItemId: table.id,
-      metadata: { chairIndex: chairs.length },
-    });
-  }
+  addChairRow(chairs, table, halfCount, table.y - chairOffset - DEFAULT_CHAIR_SIZE.height);
+  addChairRow(chairs, table, bottomCount, table.y + table.height + chairOffset);
 
   return chairs;
 }
