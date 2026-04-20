@@ -11,7 +11,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { signOut } from "@/app/actions/auth";
-import { createClient } from "@/lib/supabase/client";
 
 interface NavItem {
   href: string;
@@ -27,11 +26,7 @@ function LogoutButton() {
   const router = useRouter();
 
   async function handleLogout() {
-    const supabase = createClient();
-    await Promise.all([
-      supabase.auth.signOut(),
-      signOut(),
-    ]);
+    await signOut();
     router.push("/auth/login");
   }
 

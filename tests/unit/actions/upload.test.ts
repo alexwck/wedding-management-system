@@ -1,7 +1,5 @@
 import { describe, it, expect } from "vitest";
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ALLOWED_TYPES = ["image/png", "image/jpeg"];
+import { MAX_FILE_SIZE, ALLOWED_TYPES } from "@/lib/validations/upload";
 
 describe("upload validation", () => {
   describe("file size validation", () => {

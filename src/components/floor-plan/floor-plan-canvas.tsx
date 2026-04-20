@@ -562,15 +562,9 @@ export function FloorPlanCanvas({
         {isOutOfBounds && (
           item.type === "round_table" || item.type === "chair" ? (
             <Circle
-              x={(item.type === "chair"
-                ? (item.x + 0.5)
-                : item.x + item.width / 2) * FEET_TO_PIXELS}
-              y={(item.type === "chair"
-                ? (item.y + 0.5)
-                : item.y + item.width / 2) * FEET_TO_PIXELS}
-              radius={(item.type === "chair"
-                ? item.width / 2
-                : item.width / 2) * FEET_TO_PIXELS}
+              x={(item.x + item.width / 2) * FEET_TO_PIXELS}
+              y={(item.y + item.height / 2) * FEET_TO_PIXELS}
+              radius={(item.width / 2) * FEET_TO_PIXELS}
               fill="transparent"
               stroke="#ef4444"
               strokeWidth={2}
