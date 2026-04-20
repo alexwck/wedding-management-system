@@ -113,11 +113,11 @@
 
 > **Write these FIRST, ensure they FAIL before implementation**
 
-- [ ] T015 [P] [US3] E2E test: verify admin is redirected from `/dashboard` to `/admin`, and couple is redirected from `/admin` to `/dashboard` — test in `tests/e2e/access-control.spec.ts`
+- [x] T015 [P] [US3] E2E test: verify admin is redirected from `/dashboard` to `/admin`, and couple is redirected from `/admin` to `/dashboard` — test in `tests/e2e/access-control.spec.ts`
 
 ### Implementation for User Story 3
 
-- [ ] T016 [US3] Add role-based cross-route blocking to `src/proxy.ts` — after existing auth checks, add: if admin user hits `/dashboard` routes → redirect to `/admin`; if non-admin user hits `/admin` routes → redirect to `/dashboard`
+- [x] T016 [US3] Add role-based cross-route blocking to `src/proxy.ts` — after existing auth checks, add: if admin user hits `/dashboard` routes → redirect to `/admin`; if non-admin user hits `/admin` routes → redirect to `/dashboard`
 
 **Checkpoint**: Cross-role access is fully blocked at the middleware level
 
