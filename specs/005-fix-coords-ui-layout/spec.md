@@ -72,7 +72,7 @@ A user navigates through the wedding management system — from login, through t
 3. **Given** the admin couples page, **When** the user views it on a wide screen, **Then** the form and table appear side by side instead of stacked vertically
 4. **Given** the error or 404 page, **When** the user encounters it, **Then** the message appears compact in the upper portion of the screen, not centered in a vast empty page
 5. **Given** the public RSVP form, **When** a guest views it, **Then** the form is wide enough for comfortable input
-6. **Given** the admin wedding detail page, **When** the user views a wedding, **Then** content sections use a tabbed or compact layout instead of a long vertical scroll
+6. **Given** the admin wedding detail page, **When** the user views a wedding, **Then** content sections use compact layout with visual dividers instead of a long vertical scroll
 
 ---
 
@@ -103,16 +103,16 @@ Before any UI layout changes are implemented, the product designer reviews mocku
 
 ### Functional Requirements
 
-- **FR-001**: Round tables MUST render at the visual center of their bounding box so chairs circle the table correctly on initial placement
+- **FR-001**: Round tables MUST render within 2px of the geometric center of their bounding box so chairs circle the table correctly on initial placement
 - **FR-002**: After dragging any table type, the stored position MUST remain consistent with the bounding-box coordinate convention so subsequent chair generation and rotation calculations are correct
-- **FR-003**: Long tables MUST rotate around their visual center, not their corner, so the rotation feels natural
+- **FR-003**: Long tables MUST rotate within 2px of their geometric center (not their corner) so the rotation feels natural
 - **FR-004**: When any table is rotated, all child chairs MUST rotate with it, maintaining their correct relative positions around the table
 - **FR-005**: The floor plan editor canvas MUST fill all available vertical space below breadcrumbs with no intermediate headings
 - **FR-006**: The floor plan item catalog MUST be collapsible so the canvas can use the full editor width when catalog is hidden
 - **FR-007**: The floor plan editor MUST NOT produce horizontal scrollbars at viewport widths of 768px and above; below 768px, the editor may display a prompt to use a larger screen
 - **FR-008**: Floor plan toolbar controls MUST float as overlays on the canvas instead of consuming vertical space above it
 - **FR-009**: The login page card MUST be wide enough for comfortable form entry (at least 32rem) without excessive surrounding whitespace
-- **FR-010**: Error and 404 pages MUST display their content compactly in the upper portion of the viewport, not vertically centered in the full screen height
+- **FR-010**: Error and 404 pages MUST display their content compactly in the upper 60% of the viewport (using `min-h-[60vh]`), not vertically centered in the full screen height
 - **FR-011**: The admin couples page MUST present the create-couple form and the couples table side by side on wide screens
 - **FR-012**: The public RSVP form MUST be wide enough for comfortable input (at least 36rem)
 - **FR-013**: Dashboard and admin page content MUST be constrained to a maximum width for readability on ultra-wide screens
@@ -130,7 +130,7 @@ Before any UI layout changes are implemented, the product designer reviews mocku
 - **SC-001**: 100% of round tables render with chairs visually centered around the table, both on initial placement and after any number of drag operations
 - **SC-002**: All table types rotate around their visual center with chairs maintaining correct relative positions
 - **SC-003**: The floor plan editor uses at least 95% of available viewport height for the canvas area
-- **SC-004**: Every page uses at least 60% of the available viewport for meaningful content on a 1280x800 screen
+- **SC-004**: Every page uses at least 60% of the available viewport for content (text, forms, tables, interactive elements — excluding decorative whitespace and margins) on a 1280x800 screen
 - **SC-005**: No horizontal scrollbar appears on any page at viewport widths of 768px and above
 - **SC-006**: Users can complete common tasks (place table, rotate, drag, adjust chairs) without encountering visual glitches on any operation
 
@@ -141,6 +141,8 @@ Before any UI layout changes are implemented, the product designer reviews mocku
 - Q: Floor plan editor minimum viewport width — should it support 320px mobile? → A: Floor plan editor minimum is 768px; other pages support down to 320px
 - Q: Should undo/redo after rotation be explicitly required? → A: No special requirement — works automatically if coordinates are correct
 - Q: Do existing saved floor plans need a data migration for corrupted positions? → A: No migration needed — dev-only data, clean up before running tests
+- Q: Admin wedding detail page — "tabbed or compact layout"? → A: Compact sections with visual dividers (not tabs) — simpler to implement, consistent with other admin pages
+- Q: What tolerance for "visual center"? → A: Table rendering position must be within 2px of geometric center of its bounding box
 
 ## Assumptions
 
