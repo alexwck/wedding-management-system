@@ -131,7 +131,7 @@ describe("chair spacing", () => {
   });
 
   describe("max chair count", () => {
-    it("long table 6ft has max = recommended count (7)", () => {
+    it("long table 6ft has max = 8", () => {
       const table: FloorPlanItem = {
         id: "table-2",
         type: "long_table",
@@ -142,12 +142,12 @@ describe("chair spacing", () => {
         height: 2.5,
         rotation: 0,
         parentItemId: null,
-        metadata: { length: 6, chairCount: 7 },
+        metadata: { length: 6, chairCount: 6 },
       };
-      expect(getMaxChairCount(table)).toBe(7);
+      expect(getMaxChairCount(table)).toBe(8);
     });
 
-    it("long table 7ft has max = recommended count (9)", () => {
+    it("long table 7ft has max = 10", () => {
       const table: FloorPlanItem = {
         id: "table-2",
         type: "long_table",
@@ -158,9 +158,9 @@ describe("chair spacing", () => {
         height: 2.5,
         rotation: 0,
         parentItemId: null,
-        metadata: { length: 7, chairCount: 9 },
+        metadata: { length: 7, chairCount: 8 },
       };
-      expect(getMaxChairCount(table)).toBe(9);
+      expect(getMaxChairCount(table)).toBe(10);
     });
 
     it("round table 5ft has max = recommended + 1 (8)", () => {
