@@ -2,7 +2,7 @@
 
 import { Circle } from "react-konva";
 import type Konva from "konva";
-import { FEET_TO_PIXELS } from "@/lib/floor-plan/constants";
+import { FEET_TO_PIXELS, HIT_PADDING } from "@/lib/floor-plan/constants";
 import { ItemLabel } from "./item-label";
 
 interface RoundTableProps {
@@ -55,6 +55,14 @@ export function RoundTable({
         onClick={onClick}
         onTap={onClick}
         onDblClick={onDblClick}
+        hitFunc={(ctx, shape) => {
+          const circleShape = shape as Konva.Circle;
+          const r = circleShape.radius() + HIT_PADDING;
+          ctx.beginPath();
+          ctx.arc(0, 0, r, 0, Math.PI * 2);
+          ctx.closePath();
+          ctx.fillStrokeShape(shape);
+        }}
       />
       <ItemLabel x={pixelX} y={pixelY} text={label} rotation={0} />
     </>

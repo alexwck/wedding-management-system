@@ -17,10 +17,16 @@ import type { RoundTableSize, LongTableLength } from "@/types/floor-plan";
 import { generateChairsForTable } from "./use-chair-generation";
 
 function getNextLabel(items: FloorPlanItem[], type: ItemType): string {
-  const existing = items.filter((i) => i.type === type);
-  const baseName = type
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  const tableTypes: ItemType[] = ["round_table", "long_table"];
+  const baseName =
+    type === "round_table" || type === "long_table"
+      ? "Table"
+      : type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const existing = items.filter((i) =>
+    tableTypes.includes(type)
+      ? tableTypes.includes(i.type)
+      : i.type === type,
+  );
   return `${baseName} ${existing.length + 1}`;
 }
 

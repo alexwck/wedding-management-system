@@ -4,6 +4,8 @@ export const FEET_TO_PIXELS = 20;
 export const MAX_VENUE_DIMENSION = 300;
 export const MAX_HISTORY_SIZE = 20;
 export const AUTO_SAVE_DELAY_MS = 5000;
+export const HIT_PADDING = 8;
+export const ROTATION_SNAPS = Array.from({ length: 24 }, (_, i) => i * 15);
 
 interface RoundTableCatalogEntry {
   type: "round_table";
