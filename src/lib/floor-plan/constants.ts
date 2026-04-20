@@ -50,8 +50,8 @@ export const ROUND_TABLE_SIZES: Record<RoundTableSize, Omit<RoundTableCatalogEnt
 };
 
 export const LONG_TABLE_LENGTHS: Record<LongTableLength, Omit<LongTableCatalogEntry, "type">> = {
-  6: { length: 6, width: 6, height: 2.5, defaultChairs: 7, maxChairs: 7 },
-  7: { length: 7, width: 7, height: 2.5, defaultChairs: 9, maxChairs: 9 },
+  6: { length: 6, width: 6, height: 2.5, defaultChairs: 6, maxChairs: 8 },
+  7: { length: 7, width: 7, height: 2.5, defaultChairs: 8, maxChairs: 10 },
 };
 
 export const DEFAULT_CHAIR_SIZE = { width: 1, height: 1 };
