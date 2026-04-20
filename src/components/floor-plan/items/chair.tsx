@@ -2,7 +2,7 @@
 
 import { Circle } from "react-konva";
 import type Konva from "konva";
-import { FEET_TO_PIXELS, DEFAULT_CHAIR_SIZE } from "@/lib/floor-plan/constants";
+import { FEET_TO_PIXELS, DEFAULT_CHAIR_SIZE, paddedCircleHitFunc } from "@/lib/floor-plan/constants";
 import { ItemLabel } from "./item-label";
 
 interface ChairProps {
@@ -57,13 +57,13 @@ export function Chair({
         onClick={onClick}
         onTap={onClick}
         onDblClick={onDblClick}
+        hitFunc={paddedCircleHitFunc}
       />
       <ItemLabel
         x={x * FEET_TO_PIXELS}
         y={y * FEET_TO_PIXELS}
         width={width * FEET_TO_PIXELS}
         height={height * FEET_TO_PIXELS}
-        rotation={rotation}
         text={label}
       />
     </>

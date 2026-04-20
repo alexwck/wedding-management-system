@@ -66,7 +66,6 @@ export function StageItem({
         y={pixelY}
         width={pixelWidth}
         height={pixelHeight}
-        rotation={rotation}
         text={label}
       />
     </>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, memo } from "react";
+import { useState, useMemo, memo } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +13,7 @@ import {
 import { signOut } from "@/app/actions/auth";
 import {
   LayoutDashboard,
-  Users,
+  UserPlus,
   Grid,
   Heart,
   LogOut,
@@ -27,12 +27,13 @@ const NAV_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   RSVPs: Heart,
   "Floor Plan": Grid,
   Weddings: Grid,
-  Couples: Users,
+  Couples: UserPlus,
 };
 
 interface NavItem {
   href: string;
   label: string;
+  section?: string;
 }
 
 interface NavProps {
@@ -69,27 +70,44 @@ const NavLinks = memo(function NavLinks({
 }) {
   const pathname = usePathname();
 
+  const grouped = useMemo(() => {
+    const result: { showSection: boolean; section?: string; item: NavItem }[] = [];
+    let prevSection: string | undefined;
+    for (const item of items) {
+      const showSection = item.section !== prevSection;
+      prevSection = item.section;
+      result.push({ showSection, section: item.section, item });
+    }
+    return result;
+  }, [items]);
+
   return (
     <nav className="space-y-1">
-      {items.map((item) => {
+      {grouped.map(({ showSection, section, item }) => {
         const Icon = NAV_ICONS[item.label];
         const isActive = pathname === item.href;
 
         return (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={onNavigate}
-            className={cn(
-              "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-              isActive
-                ? "bg-primary/10 text-primary font-medium"
-                : "hover:bg-accent",
+          <div key={item.href}>
+            {showSection && section && (
+              <p className="px-3 pt-3 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {section}
+              </p>
             )}
-          >
-            {Icon && <Icon className="h-4 w-4" />}
-            {item.label}
-          </Link>
+            <Link
+              href={item.href}
+              onClick={onNavigate}
+              className={cn(
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+                isActive
+                  ? "bg-primary/10 text-primary font-medium"
+                  : "hover:bg-accent",
+              )}
+            >
+              {Icon && <Icon className="h-4 w-4" />}
+              {item.label}
+            </Link>
+          </div>
         );
       })}
     </nav>

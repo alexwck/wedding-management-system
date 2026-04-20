@@ -7,9 +7,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <Nav
         title="Admin Panel"
         items={[
-          { href: "/admin", label: "Dashboard" },
-          { href: "/admin/weddings", label: "Weddings" },
-          { href: "/admin/couples", label: "Couples" },
+          { href: "/admin", label: "Dashboard", section: "Overview" },
+          { href: "/admin/weddings", label: "Weddings", section: "Management" },
+          { href: "/admin/couples", label: "Couples", section: "Management" },
         ]}
       />
       <main className="flex-1 p-6 pt-20 md:pt-6">

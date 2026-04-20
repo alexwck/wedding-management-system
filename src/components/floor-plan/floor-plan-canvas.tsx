@@ -323,7 +323,40 @@ export function FloorPlanCanvas({
   const handleRotationEnd = useCallback(
     (itemId: string, rotation: number) => {
       pushHistory();
+      const item = state.items.find((i) => i.id === itemId);
+      if (!item) return;
+
+      const isTable = item.type === "round_table" || item.type === "long_table";
+      if (!isTable) {
+        state.updateItem(itemId, { rotation });
+        return;
+      }
+
+      const prevRotation = item.rotation;
+      const delta = rotation - prevRotation;
       state.updateItem(itemId, { rotation });
+
+      if (delta !== 0) {
+        const tableCx = item.x + item.width / 2;
+        const tableCy = item.y + item.height / 2;
+        const rad = (delta * Math.PI) / 180;
+
+        state.items
+          .filter((i) => i.parentItemId === itemId)
+          .forEach((child) => {
+            const dx = (child.x + child.width / 2) - tableCx;
+            const dy = (child.y + child.height / 2) - tableCy;
+            const rotatedX = dx * Math.cos(rad) - dy * Math.sin(rad);
+            const rotatedY = dx * Math.sin(rad) + dy * Math.cos(rad);
+            const newCx = tableCx + rotatedX - child.width / 2;
+            const newCy = tableCy + rotatedY - child.height / 2;
+            state.updateItem(child.id, {
+              x: newCx,
+              y: newCy,
+              rotation: child.rotation + delta,
+            });
+          });
+      }
     },
     [pushHistory, state],
   );
