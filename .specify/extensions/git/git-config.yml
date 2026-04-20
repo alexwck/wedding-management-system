@@ -43,7 +43,7 @@ auto_commit:
     enabled: true
     message: "docs: clarify specification"
   after_plan:
-    enabled: false
+    enabled: true
     message: "docs: add implementation plan"
   after_tasks:
     enabled: false
