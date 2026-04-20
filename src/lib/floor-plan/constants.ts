@@ -1,4 +1,5 @@
 import type { ItemType, RoundTableSize, LongTableLength } from "@/types/floor-plan";
+import type Konva from "konva";
 
 export const FEET_TO_PIXELS = 20;
 export const MAX_VENUE_DIMENSION = 300;
@@ -6,6 +7,24 @@ export const MAX_HISTORY_SIZE = 20;
 export const AUTO_SAVE_DELAY_MS = 5000;
 export const HIT_PADDING = 8;
 export const ROTATION_SNAPS = Array.from({ length: 24 }, (_, i) => i * 15);
+
+export function paddedRectHitFunc(ctx: Konva.Context, shape: Konva.Shape) {
+  const w = shape.width() + HIT_PADDING * 2;
+  const h = shape.height() + HIT_PADDING * 2;
+  ctx.beginPath();
+  ctx.rect(-HIT_PADDING, -HIT_PADDING, w, h);
+  ctx.closePath();
+  ctx.fillStrokeShape(shape);
+}
+
+export function paddedCircleHitFunc(ctx: Konva.Context, shape: Konva.Shape) {
+  const circleShape = shape as Konva.Circle;
+  const r = circleShape.radius() + HIT_PADDING;
+  ctx.beginPath();
+  ctx.arc(0, 0, r, 0, Math.PI * 2);
+  ctx.closePath();
+  ctx.fillStrokeShape(shape);
+}
 
 interface RoundTableCatalogEntry {
   type: "round_table";

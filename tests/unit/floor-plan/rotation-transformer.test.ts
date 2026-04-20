@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { ROTATION_SNAPS } from "@/lib/floor-plan/constants";
+import { ROTATION_SNAPS, paddedRectHitFunc, paddedCircleHitFunc } from "@/lib/floor-plan/constants";
 
 describe("ROTATION_SNAPS", () => {
   it("contains 24 values from 0 to 345 in 15° increments", () => {
@@ -56,19 +56,14 @@ describe("rotation snap logic", () => {
   });
 });
 
-describe("rotation persistence", () => {
-  it("updateItem receives rotation value from transformEnd", () => {
-    const updates: Array<{ id: string; changes: Record<string, number> }> = [];
-    const mockUpdateItem = (id: string, changes: Record<string, number>) => {
-      updates.push({ id, changes });
-    };
+describe("paddedRectHitFunc", () => {
+  it("is a function", () => {
+    expect(typeof paddedRectHitFunc).toBe("function");
+  });
+});
 
-    const itemId = "table-1";
-    const rotation = 45;
-    mockUpdateItem(itemId, { rotation });
-
-    expect(updates).toHaveLength(1);
-    expect(updates[0].id).toBe("table-1");
-    expect(updates[0].changes.rotation).toBe(45);
+describe("paddedCircleHitFunc", () => {
+  it("is a function", () => {
+    expect(typeof paddedCircleHitFunc).toBe("function");
   });
 });

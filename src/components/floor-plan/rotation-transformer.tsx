@@ -9,34 +9,23 @@ interface RotationTransformerProps {
   selectedItemId: string | null;
   stageRef: React.RefObject<Konva.Stage | null>;
   onRotationEnd: (itemId: string, rotation: number) => void;
-  snapEnabled?: boolean;
 }
 
 export function RotationTransformer({
   selectedItemId,
   stageRef,
   onRotationEnd,
-  snapEnabled = true,
 }: RotationTransformerProps) {
   const transformerRef = useRef<Konva.Transformer>(null);
 
   useEffect(() => {
     const tr = transformerRef.current;
     const stage = stageRef.current;
-    if (!tr || !stage || !selectedItemId) {
-      tr?.nodes([]);
-      tr?.getLayer()?.batchDraw();
-      return;
-    }
+    if (!tr || !stage) return;
 
-    const node = stage.findOne(`#${selectedItemId}`);
-    if (node) {
-      tr.nodes([node]);
-      tr.getLayer()?.batchDraw();
-    } else {
-      tr.nodes([]);
-      tr.getLayer()?.batchDraw();
-    }
+    const node = selectedItemId ? stage.findOne(`#${selectedItemId}`) : null;
+    tr.nodes(node ? [node] : []);
+    tr.getLayer()?.batchDraw();
   }, [selectedItemId, stageRef]);
 
   return (
@@ -45,7 +34,7 @@ export function RotationTransformer({
       rotateEnabled={true}
       resizeEnabled={false}
       enabledAnchors={[]}
-      rotationSnaps={snapEnabled ? ROTATION_SNAPS : undefined}
+      rotationSnaps={ROTATION_SNAPS}
       rotationSnapTolerance={5}
       rotateAnchorOffset={30}
       onTransformEnd={() => {
