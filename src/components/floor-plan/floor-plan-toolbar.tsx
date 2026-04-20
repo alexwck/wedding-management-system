@@ -24,7 +24,7 @@ export function FloorPlanToolbar({
   onFitToScreen,
 }: FloorPlanToolbarProps) {
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1 glass-panel rounded-lg px-2 py-1">
       <Button variant="outline" size="sm" onClick={onUndo} disabled={!canUndo}>
         Undo
       </Button>

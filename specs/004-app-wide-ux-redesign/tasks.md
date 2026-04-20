@@ -139,23 +139,23 @@
 
 ### Implementation for User Story 5
 
-- [ ] T032 [US5] Add `GradientBackdrop` to `src/app/layout.tsx` — render with `variant="default"` behind all content; verify it renders on all pages via dev server
+- [x] T032 [US5] Add `GradientBackdrop` to `src/app/layout.tsx` — render with `variant="default"` behind all content; verify it renders on all pages via dev server
 - [ ] T032a [P] [US5] E2E test: verify `.glass-panel` class is present on login card, dashboard cards, admin cards, error page, floor plan toolbar, and RSVP form in `tests/e2e/glassmorphism.spec.ts`
 - [ ] T032b [P] [US5] E2E test: verify gradient backdrop renders with blobs on authenticated pages, and `variant="landing"` renders gradient fallback on wedding landing page without background image (EC-007) in `tests/e2e/glassmorphism.spec.ts`
-- [ ] T033 [P] [US5] Apply `.glass-panel` to login card in `src/app/(public)/auth/login/page.tsx`
-- [ ] T034 [P] [US5] Apply `.glass-panel` to RSVP summary cards and containers in `src/app/(auth)/dashboard/page.tsx`
-- [ ] T035 [P] [US5] Apply `.glass-panel` to RSVP list table container in `src/app/(auth)/dashboard/rsvps/page.tsx`
-- [ ] T036 [P] [US5] Apply `.glass-panel` to admin dashboard cards in `src/app/(auth)/admin/page.tsx`
-- [ ] T037 [P] [US5] Apply `.glass-panel` to couples form + table containers in `src/app/(auth)/admin/couples/page.tsx`
-- [ ] T038 [P] [US5] Apply `.glass-panel` to weddings table container in `src/app/(auth)/admin/weddings/page.tsx`
-- [ ] T039 [P] [US5] Apply `.glass-panel` to wedding detail cards in `src/app/(auth)/admin/weddings/[id]/page.tsx`
-- [ ] T040 [P] [US5] Apply `.glass-panel` to error display in `src/app/error.tsx`
-- [ ] T041 [P] [US5] Apply `.glass-panel` to not-found display in `src/app/not-found.tsx`
-- [ ] T042 [P] [US5] Apply `.glass-panel` to RSVP button/overlay on wedding landing page in `src/components/landing-page.tsx` — use `GradientBackdrop` with `variant="landing"` so couple's background image replaces gradient; verify fallback to default gradient when no background image is set (EC-007)
-- [ ] T043 [P] [US5] Apply `.glass-panel` to RSVP form card in `src/components/rsvp-form.tsx`
-- [ ] T044 [P] [US5] Apply `.glass-panel` to floor plan toolbar in `src/components/floor-plan/floor-plan-toolbar.tsx`
-- [ ] T045 [P] [US5] Apply `.glass-panel` to floor plan item catalog sidebar in `src/components/floor-plan/item-catalog.tsx`
-- [ ] T046 [US5] Verify glassmorphism renders correctly on all pages via dev server — check login, dashboard, admin pages, landing page, RSVP form, floor plan editor, error pages; verify mobile responsiveness; check fallback on browsers without backdrop-filter support
+- [x] T033 [P] [US5] Apply `.glass-panel` to login card in `src/app/(public)/auth/login/page.tsx`
+- [x] T034 [P] [US5] Apply `.glass-panel` to RSVP summary cards and containers in `src/app/(auth)/dashboard/page.tsx`
+- [x] T035 [P] [US5] Apply `.glass-panel` to RSVP list table container in `src/app/(auth)/dashboard/rsvps/page.tsx`
+- [x] T036 [P] [US5] Apply `.glass-panel` to admin dashboard cards in `src/app/(auth)/admin/page.tsx`
+- [x] T037 [P] [US5] Apply `.glass-panel` to couples form + table containers in `src/app/(auth)/admin/couples/page.tsx`
+- [x] T038 [P] [US5] Apply `.glass-panel` to weddings table container in `src/app/(auth)/admin/weddings/page.tsx`
+- [x] T039 [P] [US5] Apply `.glass-panel` to wedding detail cards in `src/app/(auth)/admin/weddings/[id]/page.tsx`
+- [x] T040 [P] [US5] Apply `.glass-panel` to error display in `src/app/error.tsx`
+- [x] T041 [P] [US5] Apply `.glass-panel` to not-found display in `src/app/not-found.tsx`
+- [x] T042 [P] [US5] Apply `.glass-panel` to RSVP button/overlay on wedding landing page in `src/components/landing-page.tsx` — use `GradientBackdrop` with `variant="landing"` so couple's background image replaces gradient; verify fallback to default gradient when no background image is set (EC-007)
+- [x] T043 [P] [US5] Apply `.glass-panel` to RSVP form card in `src/components/rsvp-form.tsx`
+- [x] T044 [P] [US5] Apply `.glass-panel` to floor plan toolbar in `src/components/floor-plan/floor-plan-toolbar.tsx`
+- [x] T045 [P] [US5] Apply `.glass-panel` to floor plan item catalog sidebar in `src/components/floor-plan/item-catalog.tsx`
+- [x] T046 [US5] Verify glassmorphism renders correctly on all pages via dev server — check login, dashboard, admin pages, landing page, RSVP form, floor plan editor, error pages; verify mobile responsiveness; check fallback on browsers without backdrop-filter support
 
 **Checkpoint**: Every page in the application has consistent frosted-glass panels on a gradient backdrop. Mobile responsive. Graceful degradation.
 

@@ -26,6 +26,7 @@ export default async function WeddingListPage() {
       {weddings.length === 0 ? (
         <p className="text-muted-foreground">No weddings yet.</p>
       ) : (
+        <div className="glass-panel rounded-xl p-4">
         <Table>
           <TableHeader>
             <TableRow>
@@ -63,6 +64,7 @@ export default async function WeddingListPage() {
             ))}
           </TableBody>
         </Table>
+        </div>
       )}
     </div>
   );

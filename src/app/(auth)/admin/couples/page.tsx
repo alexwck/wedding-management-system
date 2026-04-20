@@ -18,7 +18,7 @@ export default async function CouplesPage() {
     <div className="space-y-8">
       <h2 className="text-2xl font-bold">Couples</h2>
 
-      <div className="max-w-md">
+      <div className="max-w-md glass-panel rounded-xl p-4">
         <CreateCoupleForm />
       </div>
 
@@ -28,7 +28,8 @@ export default async function CouplesPage() {
         {couples.length === 0 ? (
           <p className="text-muted-foreground">No couples yet.</p>
         ) : (
-          <Table>
+          <div className="glass-panel rounded-xl p-4">
+            <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Display Name</TableHead>
@@ -48,6 +49,7 @@ export default async function CouplesPage() {
               ))}
             </TableBody>
           </Table>
+          </div>
         )}
       </div>
     </div>

@@ -62,23 +62,23 @@ export default async function ManageWeddingPage({ params }: ManageWeddingPagePro
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">RSVP Summary</h3>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="rounded-lg border p-4 text-center">
+          <div className="glass-panel rounded-lg p-4 text-center">
             <p className="text-2xl font-bold">{summary.total}</p>
             <p className="text-sm text-muted-foreground">Total</p>
           </div>
-          <div className="rounded-lg border p-4 text-center">
+          <div className="glass-panel rounded-lg p-4 text-center">
             <p className="text-2xl font-bold text-green-600">{summary.attending}</p>
             <p className="text-sm text-muted-foreground">Attending</p>
           </div>
-          <div className="rounded-lg border p-4 text-center">
+          <div className="glass-panel rounded-lg p-4 text-center">
             <p className="text-2xl font-bold text-red-600">{summary.declining}</p>
             <p className="text-sm text-muted-foreground">Declining</p>
           </div>
-          <div className="rounded-lg border p-4 text-center">
+          <div className="glass-panel rounded-lg p-4 text-center">
             <p className="text-2xl font-bold">{summary.vegetarian}</p>
             <p className="text-sm text-muted-foreground">Vegetarian</p>
           </div>
-          <div className="rounded-lg border p-4 text-center">
+          <div className="glass-panel rounded-lg p-4 text-center">
             <p className="text-2xl font-bold">{summary.babyChairs}</p>
             <p className="text-sm text-muted-foreground">Baby Chairs</p>
           </div>
@@ -90,7 +90,7 @@ export default async function ManageWeddingPage({ params }: ManageWeddingPagePro
           <h3 className="text-lg font-semibold">RSVP Responses</h3>
           <div className="space-y-2">
             {rsvps.map((rsvp) => (
-              <div key={rsvp.id} className="flex items-center justify-between rounded-lg border p-3">
+              <div key={rsvp.id} className="flex items-center justify-between glass-panel rounded-lg p-3">
                 <div>
                   <p className="font-medium">{rsvp.guestName}</p>
                   <p className="text-sm text-muted-foreground">

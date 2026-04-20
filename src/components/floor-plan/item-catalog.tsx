@@ -49,7 +49,7 @@ export function ItemCatalog({ onSelectItem }: ItemCatalogProps) {
   const otherItems = ITEM_CATALOG.filter(isGenericEntry);
 
   return (
-    <aside className="w-64 border-r p-4 flex flex-col gap-4 overflow-y-auto">
+    <aside className="w-64 border-r p-4 flex flex-col gap-4 overflow-y-auto glass-panel">
       <h2 className="text-lg font-semibold">Item Catalog</h2>
 
       <div className="flex flex-col gap-2 border-b pb-4">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { GradientBackdrop } from "@/components/gradient-backdrop";
 
 interface LandingPageProps {
   coupleName: string;
@@ -9,6 +10,7 @@ interface LandingPageProps {
 export function LandingPage({ coupleName, templateImageUrl, slug }: LandingPageProps) {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center bg-black">
+      <GradientBackdrop variant="landing" className="opacity-30" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={templateImageUrl}
@@ -19,7 +21,7 @@ export function LandingPage({ coupleName, templateImageUrl, slug }: LandingPageP
         <div className="flex justify-center">
           <Link
             href={`/w/${slug}/rsvp`}
-            className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground text-lg px-8 py-6 font-medium hover:bg-primary/80 transition-colors"
+            className="glass-panel inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground text-lg px-8 py-6 font-medium hover:bg-primary/80 transition-colors"
           >
             RSVP Now
           </Link>

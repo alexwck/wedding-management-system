@@ -43,7 +43,9 @@ export default async function CoupleDashboard() {
         </Link>
       </div>
 
-      <RVPSummary summary={summary} />
+      <div className="glass-panel rounded-xl p-6">
+        <RVPSummary summary={summary} />
+      </div>
 
       {summary.total === 0 && (
         <div className="text-center py-8 text-muted-foreground">
