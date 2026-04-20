@@ -105,5 +105,5 @@ export function redistributeChairs(
 
 export function getMaxChairCount(table: FloorPlanItem): number {
   const size = table.metadata.diameter ?? table.metadata.length;
-  return getMaxChairs(table.type, size) + 1;
+  return getMaxChairs(table.type, size);
 }

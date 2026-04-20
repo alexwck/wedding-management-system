@@ -185,11 +185,11 @@
 
 > **Write these FIRST, ensure they FAIL before implementation**
 
-- [ ] T029 [P] [US6] Unit test: verify long table max chair count equals recommended count (6ft → max 7, 7ft → max 9), and round table max equals recommended + 1 — test in `tests/unit/floor-plan/use-chair-generation.test.ts`
+- [x] T029 [P] [US6] Unit test: verify long table max chair count equals recommended count (6ft → max 7, 7ft → max 9), and round table max equals recommended + 1 — test in `tests/unit/floor-plan/use-chair-generation.test.ts`
 
 ### Implementation for User Story 6
 
-- [ ] T030 [US6] Change `getMaxChairCount()` in `src/components/floor-plan/hooks/use-chair-generation.ts` — make the `+ 1` conditional: for `long_table` return `getMaxChairs(table.type, size)` directly (no +1), for `round_table` keep `getMaxChairs(table.type, size) + 1`
+- [x] T030 [US6] Change `getMaxChairCount()` in `src/components/floor-plan/hooks/use-chair-generation.ts` — make the `+ 1` conditional: for `long_table` return `getMaxChairs(table.type, size)` directly (no +1), for `round_table` keep `getMaxChairs(table.type, size) + 1`
 
 **Checkpoint**: Long table max equals recommended count; round table max preserved
 
