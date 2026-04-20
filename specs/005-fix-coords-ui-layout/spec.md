@@ -96,7 +96,7 @@ Before any UI layout changes are implemented, the product designer reviews mocku
 - What happens when a round table is dragged near the venue edge? Chairs must stay attached and the coordinate conversion must not produce NaN or Infinity values.
 - What happens when a long table is rotated 180 degrees — do chairs stay on the correct sides (top/bottom)?
 - What happens when a table is rotated and then dragged — does the coordinate conversion handle the combined transform correctly?
-- What happens on mobile viewports (320px wide) — does the floor plan editor still work without horizontal scrolling?
+- What happens on mobile viewports (320px wide) — the floor plan editor may show a "use a larger screen" prompt; all other pages must remain usable without horizontal scrolling
 - What happens when the floor plan editor's floating controls overlap with canvas content on small screens?
 
 ## Requirements *(mandatory)*
@@ -109,7 +109,7 @@ Before any UI layout changes are implemented, the product designer reviews mocku
 - **FR-004**: When any table is rotated, all child chairs MUST rotate with it, maintaining their correct relative positions around the table
 - **FR-005**: The floor plan editor canvas MUST fill all available vertical space below breadcrumbs with no intermediate headings
 - **FR-006**: The floor plan item catalog MUST be collapsible so the canvas can use the full editor width when catalog is hidden
-- **FR-007**: The floor plan editor MUST NOT produce horizontal scrollbars at any viewport width
+- **FR-007**: The floor plan editor MUST NOT produce horizontal scrollbars at viewport widths of 768px and above; below 768px, the editor may display a prompt to use a larger screen
 - **FR-008**: Floor plan toolbar controls MUST float as overlays on the canvas instead of consuming vertical space above it
 - **FR-009**: The login page card MUST be wide enough for comfortable form entry (at least 32rem) without excessive surrounding whitespace
 - **FR-010**: Error and 404 pages MUST display their content compactly in the upper portion of the viewport, not vertically centered in the full screen height
@@ -134,6 +134,14 @@ Before any UI layout changes are implemented, the product designer reviews mocku
 - **SC-005**: No horizontal scrollbar appears on any page at viewport widths of 768px and above
 - **SC-006**: Users can complete common tasks (place table, rotate, drag, adjust chairs) without encountering visual glitches on any operation
 
+## Clarifications
+
+### Session 2026-04-21
+
+- Q: Floor plan editor minimum viewport width — should it support 320px mobile? → A: Floor plan editor minimum is 768px; other pages support down to 320px
+- Q: Should undo/redo after rotation be explicitly required? → A: No special requirement — works automatically if coordinates are correct
+- Q: Do existing saved floor plans need a data migration for corrupted positions? → A: No migration needed — dev-only data, clean up before running tests
+
 ## Assumptions
 
 - The existing bounding-box coordinate convention (x,y = top-left) in the data model is correct and should be preserved; only the rendering layer needs fixing
@@ -141,4 +149,4 @@ Before any UI layout changes are implemented, the product designer reviews mocku
 - Mockups will be created as HTML files rendered to screenshots, not as design tool exports
 - Mobile viewports below 768px may have different layouts (stacked instead of side-by-side) — this is acceptable
 - The existing glassmorphism design system (`.glass-panel` class) will continue to be used on redesigned pages
-- No new database migrations are needed — this is purely a rendering and UI layout fix
+- No database migrations are needed — existing floor plan data is dev-only and will be cleaned up before testing
