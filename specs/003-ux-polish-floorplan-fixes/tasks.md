@@ -30,8 +30,8 @@
 
 **⚠️ CRITICAL**: US5 and US6 cannot begin until this phase is complete.
 
-- [ ] T003 Update `DEFAULT_CHAIR_SIZE` from `{ width: 2, height: 2 }` to `{ width: 1, height: 1 }` in `src/lib/floor-plan/constants.ts`
-- [ ] T004 Remove `"chair"` from `DIMENSION_EDITABLE_TYPES` array in `src/components/floor-plan/floor-plan-canvas.tsx`
+- [x] T003 Update `DEFAULT_CHAIR_SIZE` from `{ width: 2, height: 2 }` to `{ width: 1, height: 1 }` in `src/lib/floor-plan/constants.ts`
+- [x] T004 Remove `"chair"` from `DIMENSION_EDITABLE_TYPES` array in `src/components/floor-plan/floor-plan-canvas.tsx`
 
 **Checkpoint**: Chair defaults updated — US5 and US6 can now proceed
 

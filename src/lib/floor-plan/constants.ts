@@ -54,7 +54,7 @@ export const LONG_TABLE_LENGTHS: Record<LongTableLength, Omit<LongTableCatalogEn
   7: { length: 7, width: 7, height: 2.5, defaultChairs: 9, maxChairs: 10 },
 };
 
-export const DEFAULT_CHAIR_SIZE = { width: 2, height: 2 };
+export const DEFAULT_CHAIR_SIZE = { width: 1, height: 1 };
 
 export const DEFAULT_STAGE_SIZE = { width: 12, height: 8 };
 export const DEFAULT_PILLAR_SIZE = { width: 2, height: 2 };
