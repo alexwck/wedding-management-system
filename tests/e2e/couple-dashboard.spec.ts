@@ -47,9 +47,9 @@ test.describe("Couple views RSVP dashboard", () => {
     await expect(page).toHaveURL(/\/dashboard/);
 
     // Should only see their own wedding data, not other couples'
-    // Trying to access admin routes should fail
+    // Trying to access admin routes should redirect to dashboard
     await page.goto("/admin");
-    await expect(page).toHaveURL(/\/auth\/login|\/$/);
+    await expect(page).toHaveURL(/\/dashboard/);
   });
 
   test("unauthenticated user cannot access dashboard", async ({ page }) => {

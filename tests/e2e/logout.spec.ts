@@ -1,5 +1,17 @@
 import { test, expect } from "@playwright/test";
 
+async function clickLogout(page) {
+  // Desktop: logout is in the visible sidebar
+  const sidebarLogout = page.locator("aside [data-testid='logout-button']");
+  if (await sidebarLogout.isVisible()) {
+    await sidebarLogout.click();
+    return;
+  }
+  // Mobile: open the hamburger menu, then click logout in the Sheet dialog
+  await page.getByRole("button", { name: "Open menu" }).click();
+  await page.locator("[role='dialog'] [data-testid='logout-button']").click();
+}
+
 test.describe("Logout", () => {
   test("couple user can log out and is redirected to /auth/login", async ({ page }) => {
     await page.goto("/auth/login");
@@ -8,8 +20,7 @@ test.describe("Logout", () => {
     await page.click('button[type="submit"]');
     await page.waitForURL(/\/dashboard/);
 
-    // Click logout
-    await page.click('[data-testid="logout-button"]');
+    await clickLogout(page);
     await expect(page).toHaveURL(/\/auth\/login/);
 
     // Cannot access dashboard after logout
@@ -24,8 +35,7 @@ test.describe("Logout", () => {
     await page.click('button[type="submit"]');
     await page.waitForURL(/\/admin/);
 
-    // Click logout
-    await page.click('[data-testid="logout-button"]');
+    await clickLogout(page);
     await expect(page).toHaveURL(/\/auth\/login/);
   });
 });
