@@ -91,16 +91,16 @@ Chairs on the floor plan display as circles (not rectangles) with a fixed 1x1 ft
 
 ### User Story 6 - Long Table Chair Count Maximum (Priority: P3)
 
-The maximum number of chairs for long tables equals the recommended (default) chair count, not the recommended count plus one. This aligns with the practical seating capacity of each table.
+The maximum number of chairs for long tables is 8 for 6ft tables (6-8 pax) and 10 for 7ft tables (8-10 pax). The default (recommended) chair count when adding a long table to the floor plan is 7 for 6ft and 9 for 7ft.
 
 **Why this priority**: Incorrect chair maximums lead to over-seated tables and unrealistic floor plans.
 
-**Independent Test**: Select a 6ft long table, verify max chairs equals the recommended count (7), not 8.
+**Independent Test**: Select a 6ft long table, verify default chairs is 7 and max is 8. Select a 7ft long table, verify default is 9 and max is 10.
 
 **Acceptance Scenarios**:
 
-1. **Given** a 6ft long table, **When** the user increases chairs, **Then** the maximum allowed is 7 (the recommended count)
-2. **Given** a 7ft long table, **When** the user increases chairs, **Then** the maximum allowed is 9 (the recommended count)
+1. **Given** a 6ft long table, **When** the user adds it to the floor plan, **Then** it has 7 default chairs and a maximum of 8
+2. **Given** a 7ft long table, **When** the user adds it to the floor plan, **Then** it has 9 default chairs and a maximum of 10
 3. **Given** a round table of any size, **When** the user increases chairs, **Then** the maximum allowed remains one more than the recommended count (existing behavior preserved)
 
 ---
@@ -145,7 +145,7 @@ Adding an item from the catalog to the floor plan does not crash with "Cannot re
 - **FR-010**: System MUST render chairs as circles on the floor plan canvas with a fixed 1x1 ft diameter
 - **FR-011**: System MUST NOT allow users to modify chair dimensions (width/height inputs must not appear for chair items)
 - **FR-012**: System MUST position chairs around tables with a minimum 0.25 ft gap between adjacent chair edges to prevent visual overlap
-- **FR-013**: System MUST set the maximum chair count for long tables to the recommended (default) chair count for that table size, not the recommended count plus one
+- **FR-013**: System MUST set the maximum chair count for long tables to 8 for 6ft (6-8 pax) and 10 for 7ft (8-10 pax), with default (recommended) counts of 7 and 9 respectively
 - **FR-014**: System MUST preserve the round table maximum chair count code behavior of recommended count + 1
 - **FR-015**: System MUST handle null return values from addItem by skipping item selection and keeping the floor plan editor usable (no crash, no error thrown)
 - **FR-016**: System MUST clear existing floor plan data (reset to empty) to ensure consistency with the new 1x1 ft chair dimensions

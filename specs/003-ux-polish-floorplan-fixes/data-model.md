@@ -16,14 +16,14 @@
 **Validation**: `DEFAULT_CHAIR_SIZE = { width: 1, height: 1 }` in constants.ts
 **Storage**: Existing floor plan data cleared (FR-016)
 
-### Long Table Max Chair Count
+### Long Table Chair Counts
 
-| Table Size | defaultChairs | maxChairs (before) | maxChairs (after) |
-|------------|---------------|--------------------|-------------------|
-| 6 ft | 7 | 8 | 7 |
-| 7 ft | 9 | 10 | 9 |
+| Table Size | defaultChairs | maxChairs |
+|------------|---------------|-----------|
+| 6 ft | 7 | 8 |
+| 7 ft | 9 | 10 |
 
-**Note**: The `LONG_TABLE_LENGTHS` constants remain unchanged. The `+1` is removed from `getMaxChairCount()` in use-chair-generation.ts for long_table type only.
+**Note**: Long table 6ft seats 6-8 pax (default 7, max 8). Long table 7ft seats 8-10 pax (default 9, max 10). `getMaxChairCount()` returns `getMaxChairs()` directly for both table types.
 
 ### Upload Constraints
 

@@ -175,9 +175,9 @@
 
 ## Phase 9: User Story 6 — Long Table Max Chairs (Priority: P3)
 
-**Goal**: Long table max chairs equals recommended count (not +1); round table max unchanged
+**Goal**: Long table 6ft: default 7 chairs, max 8 (6-8 pax). Long table 7ft: default 9 chairs, max 10 (8-10 pax). Round table max unchanged.
 
-**Independent Test**: Select a 6ft long table → max is 7 (not 8). Select a 5ft round table → max is still 8 (recommended 7 + 1).
+**Independent Test**: Select a 6ft long table → default is 7, max is 8. Select a 7ft long table → default is 9, max is 10. Select a 5ft round table → max is still 8 (recommended 7 + 1).
 
 **Depends on**: Phase 8 (US5 — same file `use-chair-generation.ts`)
 
@@ -185,13 +185,13 @@
 
 > **Write these FIRST, ensure they FAIL before implementation**
 
-- [x] T029 [P] [US6] Unit test: verify long table max chair count equals recommended count (6ft → max 7, 7ft → max 9), and round table max equals recommended + 1 — test in `tests/unit/floor-plan/use-chair-generation.test.ts`
+- [x] T029 [P] [US6] Unit test: verify long table max chair count (6ft → max 8, 7ft → max 10), and round table max equals recommended + 1 — test in `tests/unit/floor-plan/use-chair-generation.test.ts`
 
 ### Implementation for User Story 6
 
 - [x] T030 [US6] Change `getMaxChairCount()` in `src/components/floor-plan/hooks/use-chair-generation.ts` — make the `+ 1` conditional: for `long_table` return `getMaxChairs(table.type, size)` directly (no +1), for `round_table` keep `getMaxChairs(table.type, size) + 1`
 
-**Checkpoint**: Long table max equals recommended count; round table max preserved
+**Checkpoint**: Long table 6ft (default 7, max 8), 7ft (default 9, max 10); round table max preserved
 
 ---
 
