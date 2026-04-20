@@ -188,12 +188,12 @@
 **Purpose**: Final validation across all user stories.
 
 - [x] T054 Run `npm run test` and verify all unit tests pass (US1–US4 tests)
-- [ ] T055 Run `npm run test:e2e --workers=1` and verify all E2E tests pass across all projects (desktop + mobile) — per Constitution §I, E2E failures MUST be fixed, not deferred
+- [x] T055 Run `npm run test:e2e --workers=1` and verify all E2E tests pass across all projects (desktop + mobile) — per Constitution §I, E2E failures MUST be fixed, not deferred
 - [x] T056 Run `npm run lint` and fix any lint errors
 - [x] T057 Run `npm run build` and verify production build succeeds
-- [ ] T058 [P] Verify glassmorphism performance and resilience — (1) check for frame drops during backdrop-blur rendering on mobile; reduce blur complexity for mobile breakpoints if needed; (2) verify floor plan labels remain readable at extreme zoom levels (0.25x and 4x) per FR-013; (3) verify `@supports` fallback renders solid backgrounds on browsers without backdrop-filter support per FR-016; (4) verify panels remain readable at 200% browser zoom (EC-008)
-- [ ] T059 [P] Verify Konva canvas items with "refined colors" complement the glassmorphism panels (FR-008: HTML panels only, canvas items keep solid fills) — adjust fill/stroke colors if visual clash exists
-- [ ] T060 Run quickstart.md validation — follow each step to verify development guide is accurate
+- [x] T058 [P] Verify glassmorphism performance and resilience — (1) check for frame drops during backdrop-blur rendering on mobile; reduce blur complexity for mobile breakpoints if needed; (2) verify floor plan labels remain readable at extreme zoom levels (0.25x and 4x) per FR-013; (3) verify `@supports` fallback renders solid backgrounds on browsers without backdrop-filter support per FR-016; (4) verify panels remain readable at 200% browser zoom (EC-008)
+- [x] T059 [P] Verify Konva canvas items with "refined colors" complement the glassmorphism panels (FR-008: HTML panels only, canvas items keep solid fills) — adjust fill/stroke colors if visual clash exists
+- [x] T060 Run quickstart.md validation — follow each step to verify development guide is accurate
 
 ---
 
