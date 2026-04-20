@@ -50,13 +50,13 @@ src/
 │   ├── floor-plan/         # Floor plan utilities (constants, collision, serializers)
 │   ├── supabase/           # Supabase clients: client.ts, server.ts, admin.ts
 │   ├── utils.ts            # cn() helper and utilities
-│   └── validations/        # Zod schemas (admin.ts, rsvp.ts, floor-plan.ts)
+│   └── validations/        # Zod schemas (admin.ts, rsvp.ts, floor-plan.ts, upload.ts)
 ├── proxy.ts                # Auth middleware (NOT middleware.ts — renamed for Next.js 16 compat)
 ├── types/
 │   └── floor-plan.ts       # Floor plan type definitions
 supabase/
 ├── migrations/             # 5 migrations: users, weddings, rsvps, storage, floor_plans
-├── seed.sql                # Dev seed data (includes sample floor plan for wedding 1)
+├── seed.sql                # Dev seed data (weddings, RSVPs, users — no floor plan data)
 ├── config.toml             # Supabase local config
 ```
 
@@ -113,7 +113,7 @@ git config core.hooksPath .githooks
 - **Floor plan server actions**: Use `adminClient` for reads/writes (bypasses RLS); `saveFloorPlan` uses atomic `upsert` on `wedding_id` — no read-then-write
 - **Konva interactive nodes**: Every interactive shape must have `id` (for `findOne` lookups) and `onTap` alongside `onClick` (for mobile touch) — but `onTap` is Konva-only, not for regular HTML elements
 - **Root page redirects**: `src/app/page.tsx` is a server component that reads auth session and redirects to `/auth/login`, `/dashboard`, or `/admin` — proxy.ts handles the same logic as middleware defense-in-depth
-- **Logout**: Nav component calls both client-side `supabase.auth.signOut()` and server action `signOut()` in `src/app/actions/auth.ts`
+- **Logout**: Nav `LogoutButton` calls server action `signOut()` in `src/app/actions/auth.ts` (signOut is idempotent — no session guard needed)
 
 ## Active Technologies
 - TypeScript (strict mode) with Next.js 16 (App Router) + React 19, Supabase Auth + Storage, react-konva, Tailwind CSS v4, shadcn/ui, react-hook-form, zod (003-ux-polish-floorplan-fixes)
