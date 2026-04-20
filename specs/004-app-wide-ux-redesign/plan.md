@@ -36,6 +36,39 @@ Fix floor plan editor bugs (chair labels, table labels, uneven chair spacing, dr
 
 No violations to justify.
 
+## Post-Analysis Corrections
+
+Applied 2026-04-21 after `/speckit.analyze` (first pass):
+
+- Merged FR-010a into FR-010 with full nav grouping/breadcrumb detail (I1)
+- Added 8px margin to FR-004 (U1)
+- Replaced subjective SC-005 with concrete measurable tokens (A1)
+- Converted 9 edge cases from questions to testable requirements EC-001–EC-009 (A2)
+- Specified spinner type in FR-014 (A3)
+- Removed triplicated "HTML only" clarification (D1)
+- Expanded T049 with explicit deep breadcrumb paths (C1)
+- Expanded T058 with zoom label + fallback verification (C2, C3)
+- Expanded T053 with all form touch testing (C4)
+- Made US1→US2 sequencing explicit: US2 depends on US1 (G1)
+
+Applied 2026-04-21 after `/speckit.analyze` (second pass):
+
+- Added E2E test tasks for US5 (T032a, T032b) — constitution §I compliance (C1)
+- Added E2E test tasks for US6 (T046a, T046b) — constitution §I compliance (C1)
+- Fixed quickstart.md login page path: `(auth)/auth/login` → `(public)/auth/login` (I1)
+- Added T012a for EC-005 label truncation at 15 characters (U1)
+- Expanded T030 with explicit 45° rotated long table near venue edge boundary test (U2)
+- Expanded T042 with no-background-image gradient fallback verification (U3)
+- Defined "readable" in FR-013 as minimum 8px rendered text height (A1)
+- Enumerated specific async operations in T052 (U4)
+- Added note in quickstart.md about parallel step ordering (I2)
+- Added FR-008 reference to T059 for traceability (U5)
+
+Applied 2026-04-21 after `/speckit.analyze` (third pass):
+
+- Expanded T058 with explicit 200% browser zoom verification for EC-008 (U1)
+- Added `item-label.tsx` to plan project structure with EC-005 truncation annotation (I2)
+
 ## Project Structure
 
 ### Documentation (this feature)
@@ -96,6 +129,7 @@ src/
 │       │   ├── round-table.tsx        # MODIFIED — hitFunc + label fix
 │       │   ├── long-table.tsx         # MODIFIED — hitFunc + label fix
 │       │   ├── chair.tsx              # MODIFIED — label display (number only)
+│       │   ├── item-label.tsx         # MODIFIED — label truncation (EC-005)
 │       │   ├── stage-item.tsx         # MODIFIED — hitFunc
 │       │   ├── pillar-item.tsx        # MODIFIED — hitFunc
 │       │   ├── walkway-item.tsx       # MODIFIED — hitFunc

@@ -58,6 +58,7 @@
 
 - [ ] T011 [US1] Change chair label generation from `"Chair ${i + 1}"` to `"${i + 1}"` in `src/components/floor-plan/hooks/use-chair-generation.ts` — update both `generateChairsForRoundTable` and `addChairRow` (long table)
 - [ ] T012 [US1] Change table label generation from `"Round Table ${n}"` / `"Long Table ${n}"` to `"Table ${n}"` — find and update item creation logic in `src/components/floor-plan/hooks/use-floor-plan-state.ts` or wherever new items are created with default labels
+- [ ] T012a [US1] Add label truncation logic in `src/components/floor-plan/items/item-label.tsx` — truncate display text exceeding 15 characters with ellipsis (`…`), preserve full text for editing via double-click (EC-005)
 - [ ] T013 [US1] Green phase: run `npm run test` and confirm US1 tests now pass
 
 **Checkpoint**: Labels are clean — chairs show numbers, tables show "Table N". Custom label editing still works via double-click.
@@ -123,7 +124,7 @@
 ### Implementation for User Story 4
 
 - [ ] T029 [US4] Add `RotationTransformer` to the items Layer in `src/components/floor-plan/floor-plan-canvas.tsx` — wire `selectedItemId` state to Transformer node attachment via `useEffect`; handle `onRotationEnd` to persist `rotation` to item state via `state.updateItem()`; push undo history entry on rotation commit
-- [ ] T030 [US4] Verify existing collision detection in `src/lib/floor-plan/collision.ts` correctly handles rotated items — test with manually rotated item data; fix if collision math doesn't account for rotation angle
+- [ ] T030 [US4] Verify existing collision detection in `src/lib/floor-plan/collision.ts` correctly handles rotated items — test with manually rotated item data; explicitly test a long table rotated 45° near venue edge to verify out-of-bounds detection accounts for rotated bounding box (EC-002); fix if collision math doesn't account for rotation angle
 - [ ] T031 [US4] Green phase: run `npm run test` and confirm US4 rotation tests pass
 
 **Checkpoint**: Any selected item can be rotated. Rotation handle appears above selected shape. Child chairs rotate with parent. Collision detection works with rotated items.
@@ -139,6 +140,8 @@
 ### Implementation for User Story 5
 
 - [ ] T032 [US5] Add `GradientBackdrop` to `src/app/layout.tsx` — render with `variant="default"` behind all content; verify it renders on all pages via dev server
+- [ ] T032a [P] [US5] E2E test: verify `.glass-panel` class is present on login card, dashboard cards, admin cards, error page, floor plan toolbar, and RSVP form in `tests/e2e/glassmorphism.spec.ts`
+- [ ] T032b [P] [US5] E2E test: verify gradient backdrop renders with blobs on authenticated pages, and `variant="landing"` renders gradient fallback on wedding landing page without background image (EC-007) in `tests/e2e/glassmorphism.spec.ts`
 - [ ] T033 [P] [US5] Apply `.glass-panel` to login card in `src/app/(public)/auth/login/page.tsx`
 - [ ] T034 [P] [US5] Apply `.glass-panel` to RSVP summary cards and containers in `src/app/(auth)/dashboard/page.tsx`
 - [ ] T035 [P] [US5] Apply `.glass-panel` to RSVP list table container in `src/app/(auth)/dashboard/rsvps/page.tsx`
@@ -148,7 +151,7 @@
 - [ ] T039 [P] [US5] Apply `.glass-panel` to wedding detail cards in `src/app/(auth)/admin/weddings/[id]/page.tsx`
 - [ ] T040 [P] [US5] Apply `.glass-panel` to error display in `src/app/error.tsx`
 - [ ] T041 [P] [US5] Apply `.glass-panel` to not-found display in `src/app/not-found.tsx`
-- [ ] T042 [P] [US5] Apply `.glass-panel` to RSVP button/overlay on wedding landing page in `src/components/landing-page.tsx` — use `GradientBackdrop` with `variant="landing"` so couple's background image replaces gradient
+- [ ] T042 [P] [US5] Apply `.glass-panel` to RSVP button/overlay on wedding landing page in `src/components/landing-page.tsx` — use `GradientBackdrop` with `variant="landing"` so couple's background image replaces gradient; verify fallback to default gradient when no background image is set (EC-007)
 - [ ] T043 [P] [US5] Apply `.glass-panel` to RSVP form card in `src/components/rsvp-form.tsx`
 - [ ] T044 [P] [US5] Apply `.glass-panel` to floor plan toolbar in `src/components/floor-plan/floor-plan-toolbar.tsx`
 - [ ] T045 [P] [US5] Apply `.glass-panel` to floor plan item catalog sidebar in `src/components/floor-plan/item-catalog.tsx`
@@ -166,13 +169,15 @@
 
 ### Implementation for User Story 6
 
+- [ ] T046a [P] [US6] E2E test: verify nav sidebar shows section headers ("Planning", "Management", "Overview") and each nav item has a lucide-react icon in `tests/e2e/navigation.spec.ts`
+- [ ] T046b [P] [US6] E2E test: verify breadcrumbs render correct segments on admin pages (Admin > Weddings > [Name] > Floor Plan) and active nav item is highlighted in `tests/e2e/navigation.spec.ts`
 - [ ] T047 [US6] Redesign sidebar navigation in `src/components/nav.tsx` — add section grouping with headers ("Planning", "Management", "Overview"), add lucide-react icons (LayoutDashboard, Users, Grid, Heart, UserPlus) to each nav item, add glassmorphism styling via `.glass-panel`, add active-item highlighting based on current pathname; update mobile Sheet menu to match
 - [ ] T048 [US6] Add `Breadcrumbs` component to dashboard layout in `src/app/(auth)/dashboard/layout.tsx` (if exists) or to individual dashboard pages — render breadcrumb trail above page content
-- [ ] T049 [US6] Add `Breadcrumbs` component to admin layout or individual admin pages — render trail for Admin > Weddings > [Name] > Floor Plan paths
+- [ ] T049 [US6] Add `Breadcrumbs` component to admin layout or individual admin pages — render trail for all admin paths: Admin, Admin > Couples, Admin > Weddings, Admin > Weddings > [Wedding Name] (fetch name from data), Admin > Weddings > [Wedding Name] > Floor Plan
 - [ ] T050 [P] [US6] Add visual affordances to floor plan editor empty state in `src/components/floor-plan/floor-plan-canvas.tsx` — enhance the welcome message with a clear call-to-action pointing to the item catalog
 - [ ] T051 [P] [US6] Verify and enhance form validation feedback across login, RSVP, and admin forms — ensure inline error messages are visible and consistent with glassmorphism styling
-- [ ] T052 [P] [US6] Add consistent loading indicators to async operations across pages — verify save status indicator in floor plan editor works; add spinners/skeleton states where missing
-- [ ] T053 [US6] Verify all touch interactions work on mobile — test floor plan drag, rotation, zoom, form submission, nav hamburger menu, breadcrumbs on mobile viewport
+- [ ] T052 [P] [US6] Add consistent loading indicators to async operations — enumerate and verify: floor plan auto-save status, RSVP form submission, admin couple creation, wedding detail data loading; add inline spinners (small animated circle matching glassmorphism theme) where missing (FR-014)
+- [ ] T053 [US6] Verify all touch interactions work on mobile — test floor plan drag, rotation, zoom, nav hamburger menu, breadcrumbs, AND all form submissions (login, RSVP, admin couple creation) on mobile viewport
 
 **Checkpoint**: Navigation is intuitive with icons and sections. Breadcrumbs show location. Forms give clear feedback. Mobile works. First-time users can complete tasks without guidance.
 
@@ -186,8 +191,8 @@
 - [ ] T055 Run `npm run test:e2e --workers=1` and verify all E2E tests pass across all projects (desktop + mobile) — per Constitution §I, E2E failures MUST be fixed, not deferred
 - [ ] T056 Run `npm run lint` and fix any lint errors
 - [ ] T057 Run `npm run build` and verify production build succeeds
-- [ ] T058 [P] Verify glassmorphism performance on mobile — check for frame drops during backdrop-blur rendering; if needed, reduce blur complexity for mobile breakpoints
-- [ ] T059 [P] Verify Konva canvas items with "refined colors" complement the glassmorphism panels — adjust fill/stroke colors if visual clash exists
+- [ ] T058 [P] Verify glassmorphism performance and resilience — (1) check for frame drops during backdrop-blur rendering on mobile; reduce blur complexity for mobile breakpoints if needed; (2) verify floor plan labels remain readable at extreme zoom levels (0.25x and 4x) per FR-013; (3) verify `@supports` fallback renders solid backgrounds on browsers without backdrop-filter support per FR-016; (4) verify panels remain readable at 200% browser zoom (EC-008)
+- [ ] T059 [P] Verify Konva canvas items with "refined colors" complement the glassmorphism panels (FR-008: HTML panels only, canvas items keep solid fills) — adjust fill/stroke colors if visual clash exists
 - [ ] T060 Run quickstart.md validation — follow each step to verify development guide is accurate
 
 ---
@@ -207,7 +212,7 @@
 ### User Story Dependencies
 
 - **US1 (Labels)**: Independent — after Phase 2
-- **US2 (Chair Spacing)**: Independent — after Phase 2
+- **US2 (Chair Spacing)**: Depends on US1 — same file (`use-chair-generation.ts`)
 - **US3 (Drag Fix)**: Independent — after Phase 2
 - **US4 (Rotation)**: Independent — after Phase 2
 - **US5 (Glassmorphism)**: Independent — after Phase 2
@@ -219,9 +224,9 @@
 
 **Phase 2**: T006, T007, T008 can all run in parallel (different files)
 
-**After Phase 2**: US1, US2, US3, US4, US5 can all start in parallel:
-- US1: T011, T012 (label format changes)
-- US2: T016 (spacing math)
+**After Phase 2**: US1, US3, US4, US5 can start in parallel; US2 must wait for US1 (same file):
+- US1: T011, T012 (label format changes) — complete first
+- US2: T016 (spacing math) — after US1 (same file: use-chair-generation.ts)
 - US3: T020–T025 (hitFunc on 6 item files — all parallel)
 - US4: T029 (Transformer wiring)
 - US5: T033–T045 (glass on 13 page/component files — most parallel)
@@ -242,7 +247,7 @@ Track US4: "Wire RotationTransformer in floor-plan-canvas.tsx"
 Track US5: "Apply glass-panel to login, dashboard, admin, landing, RSVP, error pages"
 ```
 
-Note: US1 and US2 both modify `use-chair-generation.ts` — if parallel, US1 should complete first (T011), then US2 (T016), or combine into one task if same developer.
+Note: US1 and US2 both modify `use-chair-generation.ts` — they are NOT truly parallel. **US1 (T011) MUST complete before US2 (T016)** to avoid merge conflicts in the same file. If a single developer, combine T011 + T016 into one pass through the file.
 
 ---
 
