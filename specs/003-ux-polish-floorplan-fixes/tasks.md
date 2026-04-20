@@ -47,11 +47,11 @@
 
 > **Write these FIRST, ensure they FAIL before implementation**
 
-- [ ] T005 [P] [US7] Unit test: verify `handleSelectItem` does not crash when `addItem` returns null — test in `tests/unit/floor-plan/floor-plan-canvas.test.tsx`, mock `addItem` to return null, assert no error thrown and no selection made
+- [x] T005 [P] [US7] Unit test: verify `handleSelectItem` does not crash when `addItem` returns null — test in `tests/unit/floor-plan/floor-plan-canvas.test.tsx`, mock `addItem` to return null, assert no error thrown and no selection made
 
 ### Implementation for User Story 7
 
-- [ ] T006 [US7] Add null guard in `handleSelectItem` callback in `src/components/floor-plan/floor-plan-canvas.tsx` — if `addItem` returns null, skip `setSelectedItemId` and return early
+- [x] T006 [US7] Add null guard in `handleSelectItem` callback in `src/components/floor-plan/floor-plan-canvas.tsx` — if `addItem` returns null, skip `setSelectedItemId` and return early
 
 **Checkpoint**: Floor plan editor no longer crashes when adding items
 

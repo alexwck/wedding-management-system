@@ -264,6 +264,7 @@ export function FloorPlanCanvas({
     (type: ItemType, sizeVariant?: number) => {
       pushHistory();
       const item = state.addItem(type, sizeVariant);
+      if (!item) return;
       setSelectedItemId(item.id);
     },
     [pushHistory, state],
