@@ -76,7 +76,7 @@ The database is automatically seeded on `supabase start` and `supabase db reset`
 | Couple 1 | alex@example.com | couple123 | couple |
 | Couple 2 | jordan@example.com | couple123 | couple |
 
-Seed data includes 2 weddings, 6 sample RSVP responses, and a sample floor plan (for wedding 1).
+Seed data includes 2 weddings and 6 sample RSVP responses.
 
 To reset the database to a clean state:
 
@@ -159,7 +159,7 @@ src/
 ├── app/                    # Next.js App Router pages
 │   ├── (public)/           # Public routes (landing page, RSVP, login)
 │   ├── (auth)/             # Protected routes (admin, dashboard)
-│   └── actions/            # Server actions (rsvp, upload, admin, floor-plan)
+│   └── actions/            # Server actions (rsvp, upload, admin, auth, floor-plan)
 ├── components/
 │   ├── floor-plan/         # Konva canvas floor plan editor
 │   │   ├── items/          # Shape components (round-table, long-table, chair, etc.)
@@ -168,7 +168,7 @@ src/
 ├── lib/
 │   ├── floor-plan/         # Constants, collision detection, serializers
 │   ├── supabase/           # Supabase clients (browser, server, admin)
-│   ├── validations/        # Zod schemas (rsvp, admin, floor-plan)
+│   ├── validations/        # Zod schemas and validation constants (rsvp, admin, floor-plan, upload)
 │   └── utils.ts            # Utilities
 ├── proxy.ts                 # Auth proxy (renamed from middleware.ts for Next.js 16 compat)
 └── types/                  # TypeScript types
@@ -186,8 +186,8 @@ tests/
 - **Server Components by default** — only interactive forms use Client Components
 - **RLS (Row-Level Security)** — couples can only access their own wedding data; admin uses service role to bypass
 - **RSVP deduplication** — unique constraint on `(wedding_id, LOWER(guest_name))` plus application-level check
-- **Image uploads** — stored in Supabase Storage `wedding-templates` bucket; admin-only upload, public read
-- **Auth** — Supabase Auth with `proxy.ts` (not `middleware.ts` — renamed for Next.js 16 compat) protecting `/dashboard/*` and `/admin/*` routes; admin role checked via `app_metadata`
+- **Auth** — Supabase Auth with `proxy.ts` (not `middleware.ts` — renamed for Next.js 16 compat) protecting `/dashboard/*` and `/admin/*` routes; root `/` redirects based on auth state; cross-role blocking (admins can't reach `/dashboard`, couples can't reach `/admin`); logout via server action
+- **Image uploads** — stored in Supabase Storage `wedding-templates` bucket; 5MB max, PNG/JPG only; client + server validation
 - **Floor plan editor** — Interactive 2D canvas built with react-konva; supports drag-and-drop, rotation, collision detection, auto-chair population around tables, pan/zoom, undo/redo, and auto-save
 
 ## Troubleshooting
