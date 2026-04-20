@@ -70,6 +70,13 @@ export function LongTable({
           ctx.fillStrokeShape(shape);
         }}
       />
+      <ItemLabel
+        x={pixelX}
+        y={pixelY}
+        width={pixelWidth}
+        height={pixelHeight}
+        text={label}
+      />
     </>
   );
 }
