@@ -64,7 +64,7 @@ Pages use `min-h-screen` with centered content in narrow containers (`max-w-sm`,
 ### Decision
 Apply Tailwind utility classes for better density:
 - Login card: `max-w-sm` → `max-w-lg`
-- RSVP form: `max-w-md` → `max-w-lg`
+- RSVP form: `max-w-md` → `max-w-xl` (36rem to meet FR-012 minimum width)
 - Error/404: `min-h-screen` → `min-h-[60vh]`
 - Admin couples: `space-y-8` → `grid grid-cols-1 lg:grid-cols-2 gap-6`
 - Floor plan: Remove heading, canvas fills `h-[calc(100vh-3rem)]`
