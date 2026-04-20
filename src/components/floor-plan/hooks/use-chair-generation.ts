@@ -16,12 +16,14 @@ function generateRoundTableChairs(
 
   return Array.from({ length: count }, (_, i) => {
     const angle = (2 * Math.PI * i) / count - Math.PI / 2;
+    const chairCx = cx + Math.cos(angle) * offset;
+    const chairCy = cy + Math.sin(angle) * offset;
     return {
       id: crypto.randomUUID(),
       type: "chair" as const,
-      label: `Chair ${i + 1}`,
-      x: cx + Math.cos(angle) * offset - DEFAULT_CHAIR_SIZE.width / 2,
-      y: cy + Math.sin(angle) * offset - DEFAULT_CHAIR_SIZE.height / 2,
+      label: `${i + 1}`,
+      x: chairCx - DEFAULT_CHAIR_SIZE.width / 2,
+      y: chairCy - DEFAULT_CHAIR_SIZE.height / 2,
       width: DEFAULT_CHAIR_SIZE.width,
       height: DEFAULT_CHAIR_SIZE.height,
       rotation: 0,
@@ -42,7 +44,7 @@ function addChairRow(
     chairs.push({
       id: crypto.randomUUID(),
       type: "chair",
-      label: `Chair ${chairs.length + 1}`,
+      label: `${chairs.length + 1}`,
       x: table.x + spacing * (i + 0.5) - DEFAULT_CHAIR_SIZE.width / 2,
       y,
       width: DEFAULT_CHAIR_SIZE.width,

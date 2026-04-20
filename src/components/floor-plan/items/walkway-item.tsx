@@ -3,7 +3,7 @@
 import { Rect } from "react-konva";
 import type Konva from "konva";
 
-import { FEET_TO_PIXELS } from "@/lib/floor-plan/constants";
+import { FEET_TO_PIXELS, HIT_PADDING } from "@/lib/floor-plan/constants";
 import { ItemLabel } from "./item-label";
 
 interface WalkwayItemProps {
@@ -61,6 +61,14 @@ export function WalkwayItem({
         onClick={onClick}
         onTap={onClick}
         onDblClick={onDblClick}
+        hitFunc={(ctx, shape) => {
+          const w = shape.width() + HIT_PADDING * 2;
+          const h = shape.height() + HIT_PADDING * 2;
+          ctx.beginPath();
+          ctx.rect(-HIT_PADDING, -HIT_PADDING, w, h);
+          ctx.closePath();
+          ctx.fillStrokeShape(shape);
+        }}
       />
       <ItemLabel
         x={pixelX}

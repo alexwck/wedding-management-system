@@ -19,11 +19,11 @@
 
 **Purpose**: Shared constants, glassmorphism tokens, and utility classes needed by multiple user stories.
 
-- [ ] T001 Add HIT_PADDING (8px) and ROTATION_SNAPS (0-345 in 15° increments) constants to `src/lib/floor-plan/constants.ts`
-- [ ] T002 [P] Add glassmorphism CSS custom properties to `:root` in `src/app/globals.css` (--glass-bg, --glass-bg-heavy, --glass-bg-light, --glass-border, --glass-shadow, --glass-blur, --radius-glass)
-- [ ] T003 [P] Add glassmorphism theme tokens to `@theme inline` block in `src/app/globals.css` (--color-glass-*, --blur-glass, --shadow-glass mapping to CSS vars)
-- [ ] T004 [P] Add `.glass-panel` and `.glass-panel-heavy` utility classes with `@supports (backdrop-filter)` fallback in `@layer utilities` in `src/app/globals.css`
-- [ ] T005 [P] Add blob keyframe animations (@keyframes blob, blob-reverse) and animation theme tokens (--animate-blob, --animate-blob-reverse) in `src/app/globals.css`
+- [x] T001 Add HIT_PADDING (8px) and ROTATION_SNAPS (0-345 in 15° increments) constants to `src/lib/floor-plan/constants.ts`
+- [x] T002 [P] Add glassmorphism CSS custom properties to `:root` in `src/app/globals.css` (--glass-bg, --glass-bg-heavy, --glass-bg-light, --glass-border, --glass-shadow, --glass-blur, --radius-glass)
+- [x] T003 [P] Add glassmorphism theme tokens to `@theme inline` block in `src/app/globals.css` (--color-glass-*, --blur-glass, --shadow-glass mapping to CSS vars)
+- [x] T004 [P] Add `.glass-panel` and `.glass-panel-heavy` utility classes with `@supports (backdrop-filter)` fallback in `@layer utilities` in `src/app/globals.css`
+- [x] T005 [P] Add blob keyframe animations (@keyframes blob, blob-reverse) and animation theme tokens (--animate-blob, --animate-blob-reverse) in `src/app/globals.css`
 
 ---
 
@@ -33,9 +33,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T006 Create `src/components/gradient-backdrop.tsx` — fixed-position gradient background (rose-50 → white → violet-50) with 3 semi-transparent blob circles using blur-3xl and blob animations; variant prop for "default" vs "landing" (no blobs)
-- [ ] T007 [P] Create `src/components/breadcrumbs.tsx` — parse `usePathname()` into breadcrumb trail with path-segment-to-label mapping (dashboard, admin, couples, weddings, floor-plan); render Links with `>` separators; glassmorphism styling via `.glass-panel`
-- [ ] T008 [P] Create `src/components/floor-plan/rotation-transformer.tsx` — Konva Transformer wrapper with `rotateEnabled={true}`, `resizeEnabled={false}`, `enabledAnchors={[]}`, `rotationSnaps` from constants, `rotationSnapTolerance={5}`, `rotateAnchorOffset={30}`, `onTransformEnd` callback to persist rotation angle; handles node attachment via `useEffect` watching `selectedItemId`
+- [x] T006 Create `src/components/gradient-backdrop.tsx` — fixed-position gradient background (rose-50 → white → violet-50) with 3 semi-transparent blob circles using blur-3xl and blob animations; variant prop for "default" vs "landing" (no blobs)
+- [x] T007 [P] Create `src/components/breadcrumbs.tsx` — parse `usePathname()` into breadcrumb trail with path-segment-to-label mapping (dashboard, admin, couples, weddings, floor-plan); render Links with `>` separators; glassmorphism styling via `.glass-panel`
+- [x] T008 [P] Create `src/components/floor-plan/rotation-transformer.tsx` — Konva Transformer wrapper with `rotateEnabled={true}`, `resizeEnabled={false}`, `enabledAnchors={[]}`, `rotationSnaps` from constants, `rotationSnapTolerance={5}`, `rotateAnchorOffset={30}`, `onTransformEnd` callback to persist rotation angle; handles node attachment via `useEffect` watching `selectedItemId`
 
 **Checkpoint**: Foundation ready — user story implementation can now begin in parallel.
 
@@ -51,15 +51,15 @@
 
 > **Red phase**: Write tests FIRST, confirm they FAIL before implementation.
 
-- [ ] T009 [P] [US1] Unit test: verify `generateChairsForRoundTable` produces labels as numbers only ("1", "2", etc.) in `tests/unit/use-chair-generation.test.ts`
-- [ ] T010 [P] [US1] Unit test: verify `generateChairsForLongTable` produces labels as numbers only in `tests/unit/use-chair-generation.test.ts`
+- [x] T009 [P] [US1] Unit test: verify `generateChairsForRoundTable` produces labels as numbers only ("1", "2", etc.) in `tests/unit/use-chair-generation.test.ts`
+- [x] T010 [P] [US1] Unit test: verify `generateChairsForLongTable` produces labels as numbers only in `tests/unit/use-chair-generation.test.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Change chair label generation from `"Chair ${i + 1}"` to `"${i + 1}"` in `src/components/floor-plan/hooks/use-chair-generation.ts` — update both `generateChairsForRoundTable` and `addChairRow` (long table)
-- [ ] T012 [US1] Change table label generation from `"Round Table ${n}"` / `"Long Table ${n}"` to `"Table ${n}"` — find and update item creation logic in `src/components/floor-plan/hooks/use-floor-plan-state.ts` or wherever new items are created with default labels
-- [ ] T012a [US1] Add label truncation logic in `src/components/floor-plan/items/item-label.tsx` — truncate display text exceeding 15 characters with ellipsis (`…`), preserve full text for editing via double-click (EC-005)
-- [ ] T013 [US1] Green phase: run `npm run test` and confirm US1 tests now pass
+- [x] T011 [US1] Change chair label generation from `"Chair ${i + 1}"` to `"${i + 1}"` in `src/components/floor-plan/hooks/use-chair-generation.ts` — update both `generateChairsForRoundTable` and `addChairRow` (long table)
+- [x] T012 [US1] Change table label generation from `"Round Table ${n}"` / `"Long Table ${n}"` to `"Table ${n}"` — find and update item creation logic in `src/components/floor-plan/hooks/use-floor-plan-state.ts` or wherever new items are created with default labels
+- [x] T012a [US1] Add label truncation logic in `src/components/floor-plan/items/item-label.tsx` — truncate display text exceeding 15 characters with ellipsis (`…`), preserve full text for editing via double-click (EC-005)
+- [x] T013 [US1] Green phase: run `npm run test` and confirm US1 tests now pass
 
 **Checkpoint**: Labels are clean — chairs show numbers, tables show "Table N". Custom label editing still works via double-click.
 
@@ -73,13 +73,13 @@
 
 ### Tests for User Story 2
 
-- [ ] T014 [P] [US2] Unit test: for each round table size (3ft–7ft) with default and max chairs, verify all angular distances between adjacent chairs are equal in `tests/unit/chair-spacing.test.ts`
-- [ ] T015 [P] [US2] Unit test: verify edge cases — 1 chair, 2 chairs, and max+1 (should clamp) produce valid positions in `tests/unit/chair-spacing.test.ts`
+- [x] T014 [P] [US2] Unit test: for each round table size (3ft–7ft) with default and max chairs, verify all angular distances between adjacent chairs are equal in `tests/unit/chair-spacing.test.ts`
+- [x] T015 [P] [US2] Unit test: verify edge cases — 1 chair, 2 chairs, and max+1 (should clamp) produce valid positions in `tests/unit/chair-spacing.test.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T016 [US2] Refactor `generateChairsForRoundTable` in `src/components/floor-plan/hooks/use-chair-generation.ts` — separate chair center-point calculation (`cx + cos(angle) * offset`, `cy + sin(angle) * offset`) from top-left offset (`- chairWidth/2`, `- chairHeight/2`); ensure the angular formula `(2π * i) / count - π/2` produces even spacing for all table sizes and counts
-- [ ] T017 [US2] Green phase: run `npm run test` and confirm US2 spacing tests pass
+- [x] T016 [US2] Refactor `generateChairsForRoundTable` in `src/components/floor-plan/hooks/use-chair-generation.ts` — separate chair center-point calculation (`cx + cos(angle) * offset`, `cy + sin(angle) * offset`) from top-left offset (`- chairWidth/2`, `- chairHeight/2`); ensure the angular formula `(2π * i) / count - π/2` produces even spacing for all table sizes and counts
+- [x] T017 [US2] Green phase: run `npm run test` and confirm US2 spacing tests pass
 
 **Checkpoint**: All round tables have perfectly symmetrical chair arrangements at every valid count.
 
@@ -93,18 +93,18 @@
 
 ### Tests for User Story 3
 
-- [ ] T018 [P] [US3] Unit test: verify hitFunc for Rect items expands hit region by HIT_PADDING px in `tests/unit/hit-area.test.ts`
-- [ ] T019 [P] [US3] Unit test: verify hitFunc for Circle items expands hit region by HIT_PADDING px in `tests/unit/hit-area.test.ts`
+- [x] T018 [P] [US3] Unit test: verify hitFunc for Rect items expands hit region by HIT_PADDING px in `tests/unit/hit-area.test.ts`
+- [x] T019 [P] [US3] Unit test: verify hitFunc for Circle items expands hit region by HIT_PADDING px in `tests/unit/hit-area.test.ts`
 
 ### Implementation for User Story 3
 
-- [ ] T020 [P] [US3] Add `hitFunc` with 8px padding to `src/components/floor-plan/items/round-table.tsx` — draw expanded circle in hitFunc context
-- [ ] T021 [P] [US3] Add `hitFunc` with 8px padding to `src/components/floor-plan/items/long-table.tsx` — draw expanded rect in hitFunc context
-- [ ] T022 [P] [US3] Add `hitFunc` with 8px padding to `src/components/floor-plan/items/stage-item.tsx`
-- [ ] T023 [P] [US3] Add `hitFunc` with 8px padding to `src/components/floor-plan/items/pillar-item.tsx`
-- [ ] T024 [P] [US3] Add `hitFunc` with 8px padding to `src/components/floor-plan/items/walkway-item.tsx`
-- [ ] T025 [P] [US3] Add `hitFunc` with 8px padding to `src/components/floor-plan/items/misc-item.tsx`
-- [ ] T026 [US3] Green phase: run `npm run test` and confirm US3 hit area tests pass
+- [x] T020 [P] [US3] Add `hitFunc` with 8px padding to `src/components/floor-plan/items/round-table.tsx` — draw expanded circle in hitFunc context
+- [x] T021 [P] [US3] Add `hitFunc` with 8px padding to `src/components/floor-plan/items/long-table.tsx` — draw expanded rect in hitFunc context
+- [x] T022 [P] [US3] Add `hitFunc` with 8px padding to `src/components/floor-plan/items/stage-item.tsx`
+- [x] T023 [P] [US3] Add `hitFunc` with 8px padding to `src/components/floor-plan/items/pillar-item.tsx`
+- [x] T024 [P] [US3] Add `hitFunc` with 8px padding to `src/components/floor-plan/items/walkway-item.tsx`
+- [x] T025 [P] [US3] Add `hitFunc` with 8px padding to `src/components/floor-plan/items/misc-item.tsx`
+- [x] T026 [US3] Green phase: run `npm run test` and confirm US3 hit area tests pass
 
 **Checkpoint**: Items are easy to grab — 8px invisible padding around each shape. Canvas only pans when clicking truly empty space.
 

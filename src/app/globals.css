@@ -46,6 +46,15 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --color-glass-bg: var(--glass-bg);
+  --color-glass-bg-heavy: var(--glass-bg-heavy);
+  --color-glass-bg-light: var(--glass-bg-light);
+  --color-glass-border: var(--glass-border);
+  --blur-glass: var(--glass-blur);
+  --shadow-glass: var(--glass-shadow);
+  --radius-glass: var(--radius-glass);
+  --animate-blob: blob 7s infinite;
+  --animate-blob-reverse: blob-reverse 7s infinite;
 }
 
 :root {
@@ -81,6 +90,13 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --glass-bg: oklch(1 0 0 / 0.3);
+  --glass-bg-heavy: oklch(1 0 0 / 0.5);
+  --glass-bg-light: oklch(1 0 0 / 0.15);
+  --glass-border: oklch(1 0 0 / 0.2);
+  --glass-shadow: 0 8px 32px oklch(0 0 0 / 0.08);
+  --glass-blur: 16px;
+  --radius-glass: 1rem;
 }
 
 .dark {
@@ -126,5 +142,64 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: var(--radius-glass);
+  }
+
+  .glass-panel-heavy {
+    background: var(--glass-bg-heavy);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: var(--radius-glass);
+  }
+
+  @supports not (backdrop-filter: blur(1px)) {
+    .glass-panel,
+    .glass-panel-heavy {
+      background: oklch(1 0 0 / 0.85);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+  }
+}
+
+@keyframes blob {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes blob-reverse {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(-30px, 50px) scale(1.1);
+  }
+  66% {
+    transform: translate(20px, -20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
   }
 }

@@ -14,6 +14,13 @@ interface ItemLabelProps {
   onDoubleClick?: () => void;
 }
 
+const MAX_LABEL_LENGTH = 15;
+
+function truncateLabel(text: string): string {
+  if (text.length <= MAX_LABEL_LENGTH) return text;
+  return text.slice(0, MAX_LABEL_LENGTH - 1) + "…";
+}
+
 export function ItemLabel({
   text,
   x,
@@ -24,6 +31,7 @@ export function ItemLabel({
   onDoubleClick,
 }: ItemLabelProps) {
   const textRef = useRef<KonvaText>(null);
+  const displayText = truncateLabel(text);
 
   const centerX = width !== undefined ? x + width / 2 : x;
   const centerY = height !== undefined ? y + height / 2 : y;
@@ -34,12 +42,12 @@ export function ItemLabel({
       node.offsetX(node.width() / 2);
       node.offsetY(node.height() / 2);
     }
-  }, [text]);
+  }, [displayText]);
 
   return (
     <Text
       ref={textRef}
-      text={text}
+      text={displayText}
       x={centerX}
       y={centerY}
       rotation={rotation}
