@@ -127,6 +127,7 @@ Adding an item from the catalog to the floor plan does not crash with "Cannot re
 - What happens when a user uploads a file named "image.JPG" vs "image.jpg" — are both accepted?
 - What happens if a couple user has bookmarked "/admin" and their role changes?
 - What happens when chair generation produces chairs that would exceed the floor plan boundary?
+- Existing floor plan data with old 2x2 ft chair dimensions will be cleared (acceptable data loss at dev stage)
 
 ## Requirements *(mandatory)*
 
@@ -147,6 +148,7 @@ Adding an item from the catalog to the floor plan does not crash with "Cannot re
 - **FR-013**: System MUST set the maximum chair count for long tables to the recommended (default) chair count for that table size, not the recommended count plus one
 - **FR-014**: System MUST preserve the existing round table maximum chair count behavior (recommended + 1)
 - **FR-015**: System MUST handle null return values from addItem without crashing, ensuring the floor plan editor remains usable
+- **FR-016**: System MUST clear existing floor plan data (reset to empty) to ensure consistency with the new 1x1 ft chair dimensions
 
 ### Key Entities
 
@@ -164,6 +166,12 @@ Adding an item from the catalog to the floor plan does not crash with "Cannot re
 - **SC-004**: Chairs around any table configuration are visually distinct with no overlapping areas
 - **SC-005**: File uploads over 5MB or in non-JPG/PNG formats are rejected before reaching the server
 - **SC-006**: Admin users cannot reach any dashboard page, and couple users cannot reach any admin page
+
+## Clarifications
+
+### Session 2026-04-20
+
+- Q: Existing saved floor plans contain chairs with 2x2 ft dimensions. When chair default changes to 1x1, how should existing data be handled? → A: Reset all floor plans to empty — data loss is acceptable at this dev stage.
 
 ## Assumptions
 
