@@ -75,7 +75,7 @@ Specification-driven development via slash-command skills:
 
 Git hooks in `.specify/extensions.yml` auto-commit at each stage.
 
-Constitution at `.specify/memory/constitution.md` (v1.1.0) defines 8 enforceable principles including Security by Default (atomic upserts, server-side role checks), Mobile Parity (`onTap` + `onClick`), and Data Integrity (validate at serialization boundaries, no blind casts).
+Constitution at `.specify/memory/constitution.md` (v1.2.0) defines 8 enforceable principles including Security by Default (atomic upserts, server-side role checks), Mobile Parity (`onTap` + `onClick`), Data Integrity (validate at serialization boundaries, no blind casts), and Test Verification (Red-Green must be proven by execution, not declaration).
 
 ## Key Technologies
 
@@ -114,6 +114,7 @@ git config core.hooksPath .githooks
 - **Konva interactive nodes**: Every interactive shape must have `id` (for `findOne` lookups) and `onTap` alongside `onClick` (for mobile touch) — but `onTap` is Konva-only, not for regular HTML elements
 - **Root page redirects**: `src/app/page.tsx` is a server component that reads auth session and redirects to `/auth/login`, `/dashboard`, or `/admin` — proxy.ts handles the same logic as middleware defense-in-depth
 - **Logout**: Nav `LogoutButton` calls server action `signOut()` in `src/app/actions/auth.ts` (signOut is idempotent — no session guard needed)
+- **Server action body size limit**: `next.config.ts` sets `serverActions.bodySizeLimit: "6mb"` — required because the default 1MB limit blocks template uploads before the 5MB app-level validation in `upload.ts` can run
 
 ## Active Technologies
 - TypeScript (strict mode) with Next.js 16 (App Router) + React 19, Supabase Auth + Storage, react-konva, Tailwind CSS v4, shadcn/ui, react-hook-form, zod (003-ux-polish-floorplan-fixes)

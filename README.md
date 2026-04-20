@@ -199,3 +199,5 @@ tests/
 **Port conflicts** — Supabase uses ports 54321 (API), 54322 (DB), 54323 (Studio). Make sure they're free.
 
 **E2E tests flaky with duplicate names** — Tests generate unique guest names with timestamps to avoid collisions when running across parallel browser projects.
+
+**"Body exceeded 1 MB limit" on upload** — The Next.js server action body size limit is configured to 6MB in `next.config.ts`. If you see this error after changing the upload size limit, make sure `experimental.serverActions.bodySizeLimit` is set higher than your `MAX_FILE_SIZE` validation constant.
