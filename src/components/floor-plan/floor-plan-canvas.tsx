@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { Stage, Layer, Rect, Circle } from "react-konva";
 import type Konva from "konva";
 import { useFloorPlanState } from "./hooks/use-floor-plan-state";
@@ -100,8 +100,10 @@ export function FloorPlanCanvas({
   const canvasWidth = state.width * FEET_TO_PIXELS;
   const canvasHeight = state.height * FEET_TO_PIXELS;
 
-  const outOfBoundsIds = new Set(
-    state.getOutOfBoundsItems().map((i) => i.id),
+  const outOfBoundsIds = useMemo(
+    () => new Set(state.getOutOfBoundsItems().map((i) => i.id)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [state.items, state.width, state.height],
   );
 
   // Zoom: wheel centered on cursor

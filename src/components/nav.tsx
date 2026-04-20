@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, memo } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,7 +60,7 @@ function LogoutButton() {
   );
 }
 
-function NavLinks({
+const NavLinks = memo(function NavLinks({
   items,
   onNavigate,
 }: {
@@ -94,7 +94,7 @@ function NavLinks({
       })}
     </nav>
   );
-}
+});
 
 export function Nav({ title, items }: NavProps) {
   const [open, setOpen] = useState(false);
