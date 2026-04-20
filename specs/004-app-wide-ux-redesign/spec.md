@@ -52,7 +52,7 @@ A couple is fine-tuning table positions on the floor plan. When they click and d
 1. **Given** an item on the canvas, **When** the user clicks and drags on the item, **Then** only the item moves and the canvas stays in place
 2. **Given** an item on the canvas, **When** the user clicks and drags on empty canvas space, **Then** the canvas pans and items stay in their positions
 3. **Given** a table with attached chairs, **When** the user drags the table, **Then** all child chairs move together with the table
-4. **Given** a densely packed floor plan, **When** the user clicks near an item's edge, **Then** the item (not the canvas) is grabbed and moved
+4. **Given** a densely packed floor plan, **When** the user clicks near an item's edge (within the widened hit area), **Then** the item (not the canvas) is grabbed and moved
 
 ---
 
@@ -110,7 +110,7 @@ A user — whether a guest filling out an RSVP, a couple managing their wedding,
 3. **Given** the user performs any action across the app, **When** feedback is needed (save status, form errors, collision warnings, out-of-bounds), **Then** the feedback is shown inline, unobtrusively, and in a consistent style
 4. **Given** a mobile user on any page, **When** they interact with touch devices, **Then** all interactions (drag, rotate, zoom, form submission, navigation) work with touch gestures
 5. **Given** the couple's dashboard, **When** the user first arrives, **Then** the page clearly communicates what actions are available (view RSVPs, manage floor plan, copy public link)
-6. **Given** the admin panel, **When** the user navigates between sections, **Then** the navigation provides clear context about where they are and how to get to related features
+6. **Given** the admin panel, **When** the user navigates between sections, **Then** the navigation provides clear context about where they are (via breadcrumbs and active-item highlighting) and how to get to related features (via grouped nav sections with icons)
 7. **Given** a public wedding landing page, **When** a guest views the invitation, **Then** the RSVP call-to-action is prominent and the flow to respond is obvious
 8. **Given** the RSVP form, **When** a guest fills out their details, **Then** form validation provides clear, immediate feedback for any errors
 9. **Given** any page in the application, **When** a loading state or async operation is in progress, **Then** the user sees a consistent, unobtrusive loading indicator
@@ -129,6 +129,16 @@ A user — whether a guest filling out an RSVP, a couple managing their wedding,
 - What happens with browser zoom or accessibility settings — do glassmorphism effects degrade gracefully?
 - What happens on the admin couples page when creating a new couple — does the form provide clear feedback on success or error?
 
+## Clarifications
+
+### Session 2026-04-20
+
+- Q: What serves as the visual backdrop for glassmorphism on pages without a natural background image (login, dashboard, admin, error pages)? → A: Layered soft gradient with organic blob accents — diagonal base gradient (soft rose through pale lavender to sky blue) with 2-3 large semi-transparent radial gradient circles for depth. Wedding landing pages use the couple's uploaded background image instead.
+- Q: Should glassmorphism apply to both HTML panels and Konva canvas items? → A: HTML panels only (sidebar, toolbar, overlays) — Konva canvas items keep solid fills with refined colors.
+- Q: How should the system distinguish between item drag and canvas pan? → A: Wider invisible hit areas on items — clicking within a small margin around any item grabs it, only truly empty space pans the canvas.
+- Q: Should the design system include a dark mode variant? → A: Light theme only — no dark mode for now.
+- Q: Should the navigation be visually styled only or structurally redesigned? → A: Full redesign — glassmorphism styling, icons for each nav item, section grouping, and breadcrumbs for context.
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
@@ -136,13 +146,14 @@ A user — whether a guest filling out an RSVP, a couple managing their wedding,
 - **FR-001**: Chair labels MUST display only the chair number (e.g., "1", "2", "3") by default, with no "Chair" prefix
 - **FR-002**: Table labels (both round and long) MUST display only the table name (e.g., "Table 1", "Table 2") with no additional type descriptor
 - **FR-003**: Chairs around round tables MUST be evenly spaced at equal angular intervals around the table circumference
-- **FR-004**: The system MUST distinguish between item drag and canvas pan so that clicking on an item always moves the item, not the canvas
+- **FR-004**: The system MUST distinguish between item drag and canvas pan using widened invisible hit areas on items — clicking within a margin around any item grabs the item, and only truly empty canvas space initiates panning
 - **FR-005**: The system MUST provide a rotation mechanism for selected items, including tables, stages, and other placeable objects
 - **FR-006**: When a table is rotated, all attached chairs MUST rotate with it, maintaining their relative positions
 - **FR-007**: Collision detection MUST correctly account for item rotation when detecting overlaps
-- **FR-008**: All application pages MUST use a consistent glassmorphism design system — login, dashboard, admin, wedding landing pages, RSVP forms, floor plan editor, error pages
+- **FR-008**: All application pages MUST use a consistent glassmorphism design system — login, dashboard, admin, wedding landing pages, RSVP forms, floor plan editor, error pages — with a layered soft gradient backdrop (rose-to-lavender-to-sky-blue diagonal gradient plus 2-3 organic radial gradient blobs) on pages without a natural background image; glassmorphism applies to HTML panels only (sidebar, toolbar, overlays, cards, forms), not to Konva canvas items
 - **FR-009**: The glassmorphism design system MUST define standard tokens for blur intensity, background opacity, border style, and shadow depth, applied uniformly across all pages
-- **FR-010**: Navigation (sidebar, mobile menu) MUST use glassmorphism styling and provide clear visual cues for the user's current location and available actions
+- **FR-010**: Navigation MUST be fully redesigned with glassmorphism styling, icons for each nav item, logical section grouping, and breadcrumbs showing the user's current location in the app hierarchy
+- **FR-010a**: The sidebar MUST group navigation items into sections (e.g., "Planning", "Management") with icons, and a breadcrumb trail MUST appear on interior pages to indicate the user's location
 - **FR-011**: All form interactions (login, RSVP, admin forms) MUST provide immediate, clear validation feedback in a consistent style
 - **FR-012**: Touch interactions MUST work correctly for drag, rotate, zoom, and form interactions on mobile devices across all pages
 - **FR-013**: Labels on floor plan items MUST remain readable at all zoom levels and not overlap with adjacent items
@@ -180,11 +191,14 @@ A user — whether a guest filling out an RSVP, a couple managing their wedding,
 - The existing label editing mechanism (double-click to edit) is preserved
 - Rotation will use 15-degree snap increments by default, with free rotation available
 - Glassmorphism effects use CSS `backdrop-filter: blur()` which is supported in all modern browsers
+- The app-wide glassmorphism backdrop uses a layered soft gradient (soft rose → pale lavender → sky blue) with 2-3 organic radial gradient blobs for visual depth; wedding landing pages use the couple's uploaded background image instead of this gradient
 - The glassmorphism design system will be defined as reusable CSS custom properties/Tailwind theme tokens applied app-wide
 - Existing color coding per item type (blue for round tables, amber for long tables, purple for chairs) will be retained but refined within the glassmorphism system
 - Rotation controls will include both a rotation handle on the selected item and toolbar buttons
-- The canvas background itself will not use glassmorphism — only overlay panels and controls will
+- The canvas background itself will not use glassmorphism — only HTML overlay panels and controls will; Konva canvas items (tables, chairs, shapes) retain solid fills with refined colors
 - The glassmorphism design system will include a fallback (solid backgrounds) for browsers that do not support backdrop-blur
+- Light theme only — no dark mode variant for this iteration
+- The navigation will be fully redesigned: glassmorphism-styled sidebar with icons per nav item, logical section grouping, and breadcrumbs on interior pages for wayfinding
 - Table-based pages (admin couples, weddings, RSVP list) will retain their tabular data layout but cards and containers around them will use glassmorphism
 - The wedding landing page glassmorphism will be designed to complement any background image or a default gradient when no image is provided
 - The existing shadcn/ui component library will be retained; glassmorphism tokens will be applied through theme customization
