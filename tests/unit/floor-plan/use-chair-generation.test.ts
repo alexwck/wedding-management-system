@@ -131,7 +131,7 @@ describe("chair spacing", () => {
   });
 
   describe("max chair count", () => {
-    it("long table 6ft has max = 8", () => {
+    it("long table 6ft has max = 8 (default 7)", () => {
       const table: FloorPlanItem = {
         id: "table-2",
         type: "long_table",
@@ -142,12 +142,12 @@ describe("chair spacing", () => {
         height: 2.5,
         rotation: 0,
         parentItemId: null,
-        metadata: { length: 6, chairCount: 6 },
+        metadata: { length: 6, chairCount: 7 },
       };
       expect(getMaxChairCount(table)).toBe(8);
     });
 
-    it("long table 7ft has max = 10", () => {
+    it("long table 7ft has max = 10 (default 9)", () => {
       const table: FloorPlanItem = {
         id: "table-2",
         type: "long_table",
@@ -158,7 +158,7 @@ describe("chair spacing", () => {
         height: 2.5,
         rotation: 0,
         parentItemId: null,
-        metadata: { length: 7, chairCount: 8 },
+        metadata: { length: 7, chairCount: 9 },
       };
       expect(getMaxChairCount(table)).toBe(10);
     });

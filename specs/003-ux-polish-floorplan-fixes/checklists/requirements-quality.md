@@ -36,7 +36,7 @@
 - [ ] CHK013 Is the chair circle rendering requirement explicit about stroke color, fill color, and border width — or are these left to implementation discretion? [Clarity, Spec §FR-010]
 - [ ] CHK014 Is "sufficient spacing" between chairs quantified with a minimum gap measurement? [Clarity, Spec §FR-012]
 - [ ] CHK015 Are requirements defined for chair positioning behavior when the maximum chair count results in chairs that would exceed the venue boundary? [Coverage, Spec §Edge Cases]
-- [ ] CHK016 Is the long table max chair count requirement (Spec §FR-013) consistent with the stated acceptance scenarios for 6ft (max 7) and 7ft (max 9) tables? [Consistency, Spec §FR-013 vs §US6]
+- [ ] CHK016 Is the long table max chair count requirement (Spec §FR-013) consistent with the stated acceptance scenarios for 6ft (default 7, max 8) and 7ft (default 9, max 10) tables? [Consistency, Spec §FR-013 vs §US6]
 - [ ] CHK017 Is the requirement to preserve round table max behavior (Spec §FR-014) consistent with the clarification that all floor plans will be reset to empty (Spec §FR-016)? [Consistency, Spec §FR-014 vs §FR-016]
 - [ ] CHK018 Are requirements defined for the chair-to-table positioning algorithm — specifically how chairs distribute along long table edges vs. around round table perimeters? [Completeness, Gap]
 

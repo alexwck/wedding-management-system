@@ -109,7 +109,7 @@ git config core.hooksPath .githooks
 - **Server components by default**: Most components are RSCs; only form components and canvas components use `"use client"`
 - **Supabase client variants**: Three separate clients — `client.ts` (browser), `server.ts` (server components), `admin.ts` (service role, bypasses RLS)
 - **Floor plan item IDs**: Arbitrary strings (e.g. `"fp-rt-1"`), not UUIDs — Zod schema validates `z.string().min(1)`
-- **Chair count max**: Round tables use `maxChairs` (already includes +1); long tables use `maxChairs` directly (equals default count) — `getMaxChairCount` returns `getMaxChairs()` for both
+- **Chair count max**: Round tables use `maxChairs` (already includes +1); long tables use `maxChairs` directly — `getMaxChairCount` returns `getMaxChairs()` for both. Long table 6ft: default 7, max 8. Long table 7ft: default 9, max 10.
 - **Floor plan server actions**: Use `adminClient` for reads/writes (bypasses RLS); `saveFloorPlan` uses atomic `upsert` on `wedding_id` — no read-then-write
 - **Konva interactive nodes**: Every interactive shape must have `id` (for `findOne` lookups) and `onTap` alongside `onClick` (for mobile touch) — but `onTap` is Konva-only, not for regular HTML elements
 - **Root page redirects**: `src/app/page.tsx` is a server component that reads auth session and redirects to `/auth/login`, `/dashboard`, or `/admin` — proxy.ts handles the same logic as middleware defense-in-depth
