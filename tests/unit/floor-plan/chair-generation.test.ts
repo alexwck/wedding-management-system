@@ -122,9 +122,9 @@ describe("generateChairsForTable", () => {
       };
 
       const chairs = generateChairsForTable(table);
-      expect(chairs[0].label).toBe("Chair 1");
-      expect(chairs[1].label).toBe("Chair 2");
-      expect(chairs[2].label).toBe("Chair 3");
+      expect(chairs[0].label).toBe("1");
+      expect(chairs[1].label).toBe("2");
+      expect(chairs[2].label).toBe("3");
     });
 
     it("uses default chair dimensions (1x1 ft)", () => {

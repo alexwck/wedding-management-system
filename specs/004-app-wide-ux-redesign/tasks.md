@@ -118,14 +118,14 @@
 
 ### Tests for User Story 4
 
-- [ ] T027 [P] [US4] Unit test: verify rotation persists to item state on transformEnd in `tests/unit/rotation-transformer.test.ts`
-- [ ] T028 [P] [US4] Unit test: verify rotation snap rounds to nearest 15° within tolerance in `tests/unit/rotation-transformer.test.ts`
+- [x] T027 [P] [US4] Unit test: verify rotation persists to item state on transformEnd in `tests/unit/rotation-transformer.test.ts`
+- [x] T028 [P] [US4] Unit test: verify rotation snap rounds to nearest 15° within tolerance in `tests/unit/rotation-transformer.test.ts`
 
 ### Implementation for User Story 4
 
-- [ ] T029 [US4] Add `RotationTransformer` to the items Layer in `src/components/floor-plan/floor-plan-canvas.tsx` — wire `selectedItemId` state to Transformer node attachment via `useEffect`; handle `onRotationEnd` to persist `rotation` to item state via `state.updateItem()`; push undo history entry on rotation commit
-- [ ] T030 [US4] Verify existing collision detection in `src/lib/floor-plan/collision.ts` correctly handles rotated items — test with manually rotated item data; explicitly test a long table rotated 45° near venue edge to verify out-of-bounds detection accounts for rotated bounding box (EC-002); fix if collision math doesn't account for rotation angle
-- [ ] T031 [US4] Green phase: run `npm run test` and confirm US4 rotation tests pass
+- [x] T029 [US4] Add `RotationTransformer` to the items Layer in `src/components/floor-plan/floor-plan-canvas.tsx` — wire `selectedItemId` state to Transformer node attachment via `useEffect`; handle `onRotationEnd` to persist `rotation` to item state via `state.updateItem()`; push undo history entry on rotation commit
+- [x] T030 [US4] Verify existing collision detection in `src/lib/floor-plan/collision.ts` correctly handles rotated items — test with manually rotated item data; explicitly test a long table rotated 45° near venue edge to verify out-of-bounds detection accounts for rotated bounding box (EC-002); fix if collision math doesn't account for rotation angle
+- [x] T031 [US4] Green phase: run `npm run test` and confirm US4 rotation tests pass
 
 **Checkpoint**: Any selected item can be rotated. Rotation handle appears above selected shape. Child chairs rotate with parent. Collision detection works with rotated items.
 
