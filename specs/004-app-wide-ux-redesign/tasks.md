@@ -171,13 +171,13 @@
 
 - [ ] T046a [P] [US6] E2E test: verify nav sidebar shows section headers ("Planning", "Management", "Overview") and each nav item has a lucide-react icon in `tests/e2e/navigation.spec.ts`
 - [ ] T046b [P] [US6] E2E test: verify breadcrumbs render correct segments on admin pages (Admin > Weddings > [Name] > Floor Plan) and active nav item is highlighted in `tests/e2e/navigation.spec.ts`
-- [ ] T047 [US6] Redesign sidebar navigation in `src/components/nav.tsx` — add section grouping with headers ("Planning", "Management", "Overview"), add lucide-react icons (LayoutDashboard, Users, Grid, Heart, UserPlus) to each nav item, add glassmorphism styling via `.glass-panel`, add active-item highlighting based on current pathname; update mobile Sheet menu to match
-- [ ] T048 [US6] Add `Breadcrumbs` component to dashboard layout in `src/app/(auth)/dashboard/layout.tsx` (if exists) or to individual dashboard pages — render breadcrumb trail above page content
-- [ ] T049 [US6] Add `Breadcrumbs` component to admin layout or individual admin pages — render trail for all admin paths: Admin, Admin > Couples, Admin > Weddings, Admin > Weddings > [Wedding Name] (fetch name from data), Admin > Weddings > [Wedding Name] > Floor Plan
-- [ ] T050 [P] [US6] Add visual affordances to floor plan editor empty state in `src/components/floor-plan/floor-plan-canvas.tsx` — enhance the welcome message with a clear call-to-action pointing to the item catalog
-- [ ] T051 [P] [US6] Verify and enhance form validation feedback across login, RSVP, and admin forms — ensure inline error messages are visible and consistent with glassmorphism styling
-- [ ] T052 [P] [US6] Add consistent loading indicators to async operations — enumerate and verify: floor plan auto-save status, RSVP form submission, admin couple creation, wedding detail data loading; add inline spinners (small animated circle matching glassmorphism theme) where missing (FR-014)
-- [ ] T053 [US6] Verify all touch interactions work on mobile — test floor plan drag, rotation, zoom, nav hamburger menu, breadcrumbs, AND all form submissions (login, RSVP, admin couple creation) on mobile viewport
+- [x] T047 [US6] Redesign sidebar navigation in `src/components/nav.tsx` — add section grouping with headers ("Planning", "Management", "Overview"), add lucide-react icons (LayoutDashboard, Users, Grid, Heart, UserPlus) to each nav item, add glassmorphism styling via `.glass-panel`, add active-item highlighting based on current pathname; update mobile Sheet menu to match
+- [x] T048 [US6] Add `Breadcrumbs` component to dashboard layout in `src/app/(auth)/dashboard/layout.tsx` (if exists) or to individual dashboard pages — render breadcrumb trail above page content
+- [x] T049 [US6] Add `Breadcrumbs` component to admin layout or individual admin pages — render trail for all admin paths: Admin, Admin > Couples, Admin > Weddings, Admin > Weddings > [Wedding Name] (fetch name from data), Admin > Weddings > [Wedding Name] > Floor Plan
+- [x] T050 [P] [US6] Add visual affordances to floor plan editor empty state in `src/components/floor-plan/floor-plan-canvas.tsx` — enhance the welcome message with a clear call-to-action pointing to the item catalog
+- [x] T051 [P] [US6] Verify and enhance form validation feedback across login, RSVP, and admin forms — ensure inline error messages are visible and consistent with glassmorphism styling
+- [x] T052 [P] [US6] Add consistent loading indicators to async operations — enumerate and verify: floor plan auto-save status, RSVP form submission, admin couple creation, wedding detail data loading; add inline spinners (small animated circle matching glassmorphism theme) where missing (FR-014)
+- [x] T053 [US6] Verify all touch interactions work on mobile — test floor plan drag, rotation, zoom, nav hamburger menu, breadcrumbs, AND all form submissions (login, RSVP, admin couple creation) on mobile viewport
 
 **Checkpoint**: Navigation is intuitive with icons and sections. Breadcrumbs show location. Forms give clear feedback. Mobile works. First-time users can complete tasks without guidance.
 
