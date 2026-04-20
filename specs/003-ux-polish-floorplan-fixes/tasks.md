@@ -19,8 +19,8 @@
 
 **Purpose**: Clear existing floor plan data to ensure consistency with new chair dimensions (FR-016)
 
-- [ ] T001 Reset all existing floor plan data in Supabase database — truncate `floor_plans` table via `supabase db` or admin server action in `src/app/actions/floor-plan.ts`
-- [ ] T002 [P] Update seed data in `supabase/seed.sql` — remove sample floor plan JSON for wedding 1 (no longer valid with new chair dimensions)
+- [x] T001 Reset all existing floor plan data in Supabase database — truncate `floor_plans` table via `supabase db` or admin server action in `src/app/actions/floor-plan.ts`
+- [x] T002 [P] Update seed data in `supabase/seed.sql` — remove sample floor plan JSON for wedding 1 (no longer valid with new chair dimensions)
 
 ---
 
