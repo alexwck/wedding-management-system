@@ -1,20 +1,17 @@
 <!--
   Sync Impact Report:
-  Version change: 1.0.0 → 1.1.0
+  Version change: 1.1.0 → 1.2.0
   Modified principles:
-    - IV. User Experience First: added undo granularity guidance
-  Added principles:
-    - VI. Security by Default
-    - VII. Mobile Parity
-    - VIII. Data Integrity
+    - I. Spec-Driven Development: added Test Verification principle
   Modified sections:
-    - Technology Constraints: pinned package manager to npm, added
-      minimum testing expectations
+    - Technology Constraints: strengthened E2E testing requirements
+    - Development Workflow: added test execution gates
   Templates requiring updates:
-    - .specify/templates/plan-template.md ✅ no changes needed
-    - .specify/templates/spec-template.md ✅ no changes needed
-    - .specify/templates/tasks-template.md ✅ no changes needed
-  Follow-up TODOs: None
+    - .specify/templates/tasks-template.md — add E2E execution task
+      to Polish phase
+  Follow-up TODOs:
+    - Update tasks-template.md to include "Run full E2E suite" as a
+      mandatory Polish phase task
 -->
 
 # Wedding Management System Constitution
@@ -31,6 +28,23 @@ implementation code is written (Red-Green-Refactor).
 Behavioral tests (BDD) define user-facing acceptance criteria using
 Given/When/Then scenarios from the spec. Unit tests (TDD) cover internal
 logic and edge cases. Both types are non-negotiable for every feature.
+
+#### Test Verification (Red-Green must be proven, not declared)
+
+Writing a test file is not sufficient. Every test MUST be executed to prove
+its lifecycle:
+
+- **Red phase**: The test MUST be run and confirmed to fail for the correct
+  reason (missing feature, wrong assertion) — not a syntax error or missing
+  import. A test that passes before implementation is a false test.
+- **Green phase**: After implementation, the test MUST be run and confirmed
+  to pass. Both unit tests (`npm run test`) and E2E tests (`npm run
+  test:e2e`) MUST pass across all configured projects (desktop and mobile).
+
+E2E tests MUST be run with `--workers=1` to avoid false failures from
+session cookie race conditions across parallel browser contexts. If E2E
+tests cannot be run (Supabase or dev server unavailable), the task MUST be
+marked blocked — not marked complete.
 
 ### II. Type Safety
 
@@ -112,7 +126,9 @@ optimistic locking) to prevent silent data loss.
 - **Testing**: Vitest + React Testing Library (unit/TDD), Playwright
   (E2E/BDD acceptance tests). E2E tests MUST cover each user story in
   the spec, not just the first. Each user story's acceptance scenarios
-  should have at least one corresponding E2E test.
+  should have at least one corresponding E2E test. All E2E tests MUST
+  pass across every configured Playwright project (desktop and mobile)
+  before a feature branch is considered complete.
 - **Package Manager**: npm
 
 ## Development Workflow
@@ -122,10 +138,16 @@ optimistic locking) to prevent silent data loss.
 2. **Plan** — Research technical approach, define data model and API
    contracts
 3. **Test First** — Write BDD acceptance tests for user stories; write
-   TDD unit tests for internal logic. Tests MUST fail (Red).
+   TDD unit tests for internal logic. Run tests and confirm they fail
+   (Red).
 4. **Implement** — Write the minimum code to make tests pass (Green).
+   Run tests to confirm.
 5. **Refactor** — Clean up while keeping tests green.
-6. **Review** — Verify against constitution principles before merge.
+6. **Verify** — Run full test suite: `npm run test` (unit) and
+   `npm run test:e2e --workers=1` (E2E across all projects). All tests
+   MUST pass. E2E failures MUST be investigated and fixed — not
+   deferred.
+7. **Review** — Verify against constitution principles before merge.
 
 Branch naming: `###-feature-name` (sequential numbering from speckit).
 Each feature gets its own branch. Commits are granular and reference the
@@ -143,4 +165,4 @@ All PRs and code reviews MUST verify compliance with these principles.
 When a principle conflicts with a practical need, the principle is
 changed through the amendment process — not ignored.
 
-**Version**: 1.1.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-04-20
+**Version**: 1.2.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-04-20
