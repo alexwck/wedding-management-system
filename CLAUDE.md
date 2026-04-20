@@ -31,7 +31,7 @@ src/
 │   │   │   └── weddings/[id]/floor-plan/  # Admin floor plan editor
 │   │   └── dashboard/      # Couple: manage own RSVPs
 │   │       └── floor-plan/ # Couple floor plan editor
-│   ├── actions/            # Server actions (admin.ts, rsvp.ts, upload.ts, floor-plan.ts)
+│   ├── actions/            # Server actions (admin.ts, auth.ts, rsvp.ts, upload.ts, floor-plan.ts)
 │   ├── layout.tsx          # Root layout
 │   ├── globals.css         # Tailwind v4 via @import
 │   ├── error.tsx / not-found.tsx
@@ -109,9 +109,11 @@ git config core.hooksPath .githooks
 - **Server components by default**: Most components are RSCs; only form components and canvas components use `"use client"`
 - **Supabase client variants**: Three separate clients — `client.ts` (browser), `server.ts` (server components), `admin.ts` (service role, bypasses RLS)
 - **Floor plan item IDs**: Arbitrary strings (e.g. `"fp-rt-1"`), not UUIDs — Zod schema validates `z.string().min(1)`
-- **Chair count max is spec-intentional**: `getMaxChairCount` returns `maxChairs + 1` per FR-010 — not a bug
+- **Chair count max**: Round tables use `maxChairs` (already includes +1); long tables use `maxChairs` directly (equals default count) — `getMaxChairCount` returns `getMaxChairs()` for both
 - **Floor plan server actions**: Use `adminClient` for reads/writes (bypasses RLS); `saveFloorPlan` uses atomic `upsert` on `wedding_id` — no read-then-write
-- **Konva interactive nodes**: Every interactive shape must have `id` (for `findOne` lookups) and `onTap` alongside `onClick` (for mobile touch)
+- **Konva interactive nodes**: Every interactive shape must have `id` (for `findOne` lookups) and `onTap` alongside `onClick` (for mobile touch) — but `onTap` is Konva-only, not for regular HTML elements
+- **Root page redirects**: `src/app/page.tsx` is a server component that reads auth session and redirects to `/auth/login`, `/dashboard`, or `/admin` — proxy.ts handles the same logic as middleware defense-in-depth
+- **Logout**: Nav component calls both client-side `supabase.auth.signOut()` and server action `signOut()` in `src/app/actions/auth.ts`
 
 ## Active Technologies
 - TypeScript (strict mode) with Next.js 16 (App Router) + React 19, Supabase Auth + Storage, react-konva, Tailwind CSS v4, shadcn/ui, react-hook-form, zod (003-ux-polish-floorplan-fixes)
