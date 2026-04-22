@@ -10,6 +10,7 @@ import { useUndoRedo } from "./hooks/use-undo-redo";
 import { useSeatAssignments } from "./hooks/use-seat-assignments";
 import { ItemCatalog } from "./item-catalog";
 import { GuestAssignmentDialog } from "./guest-assignment-dialog";
+import { UnassignedGuestsPanel } from "./unassigned-guests-panel";
 import { RoundTable } from "./items/round-table";
 import { LongTable } from "./items/long-table";
 import { StageItem } from "./items/stage-item";
@@ -742,7 +743,11 @@ export function FloorPlanCanvas({
 
   return (
     <div className="flex h-full overflow-hidden">
-      {/* Left sidebar: reserved for unassigned guests panel (US3) */}
+      {/* Left sidebar: unassigned guests panel */}
+      <UnassignedGuestsPanel
+        guests={seatAssignments.unassignedGuests}
+        isLoading={seatAssignments.isLoading}
+      />
 
       <div
         data-testid="floor-plan-canvas"

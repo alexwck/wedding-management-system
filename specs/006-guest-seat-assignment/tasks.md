@@ -80,8 +80,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Create `unassigned-guests-panel.tsx` in `src/components/floor-plan/` — glass-panel styling using CSS variables (Constitution §IX), receives unassigned guests list from use-seat-assignments hook, displays guest names as scrollable list, shows completion message "All guests are seated!" when empty (US3.3), shows count header (e.g., "12 Unassigned"), responsive for mobile viewports
-- [ ] T027 [US3] Integrate unassigned-guests-panel into `floor-plan-canvas.tsx` — place in left sidebar (research R6), receives data from shared use-seat-assignments hook (already created in T020), panel re-renders within 1 second when assignments change via optimistic state updates (no browser page navigation per US3.2)
+- [x] T026 [US3] Create `unassigned-guests-panel.tsx` in `src/components/floor-plan/` — glass-panel styling using CSS variables (Constitution §IX), receives unassigned guests list from use-seat-assignments hook, displays guest names as scrollable list, shows completion message "All guests are seated!" when empty (US3.3), shows count header (e.g., "12 Unassigned"), responsive for mobile viewports
+- [x] T027 [US3] Integrate unassigned-guests-panel into `floor-plan-canvas.tsx` — place in left sidebar (research R6), receives data from shared use-seat-assignments hook (already created in T020), panel re-renders within 1 second when assignments change via optimistic state updates (no browser page navigation per US3.2)
 
 **Checkpoint**: Unassigned guests panel is visible and updates within 1 second. US1+2+3 all work together.
 
