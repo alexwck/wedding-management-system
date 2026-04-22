@@ -128,13 +128,13 @@
 
 **Purpose**: Verification and cleanup across all user stories.
 
-- [ ] T036 Run `npm run test` and verify all unit tests pass
-- [ ] T037 Run `npm run test:e2e --workers=1` and verify all E2E tests pass across all projects (desktop + mobile) — per Constitution §I, E2E failures MUST be fixed, not deferred
-- [ ] T038 Run `npm run lint` and fix any lint errors
-- [ ] T039 Run `npm run build` and verify production build succeeds
-- [ ] T040 Verify glass-panel styling on all new components (dialog, panel, export buttons) — no hardcoded glass values, uses CSS variables per Constitution §IX
-- [ ] T041 Verify mobile parity — chair tap opens dialog on mobile, dialog is usable on small screens, unassigned panel is responsive, XLSX download works on mobile per Constitution §VII
-- [ ] T042 Run quickstart.md validation — walk through the implementation order and confirm all files exist
+- [x] T036 Run `npm run test` and verify all unit tests pass
+- [x] T037 Run `npm run test:e2e --workers=1` and verify all E2E tests pass across all projects (desktop + mobile) — per Constitution §I, E2E failures MUST be fixed, not deferred
+- [x] T038 Run `npm run lint` and fix any lint errors
+- [x] T039 Run `npm run build` and verify production build succeeds
+- [x] T040 Verify glass-panel styling on all new components (dialog, panel, export buttons) — no hardcoded glass values, uses CSS variables per Constitution §IX
+- [x] T041 Verify mobile parity — chair tap opens dialog on mobile, dialog is usable on small screens, unassigned panel is responsive, XLSX download works on mobile per Constitution §VII
+- [x] T042 Run quickstart.md validation — walk through the implementation order and confirm all files exist
 
 ---
 

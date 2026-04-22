@@ -36,24 +36,25 @@ export function useSeatAssignments(weddingId: number) {
     if (guestsResult.success) {
       setUnassignedGuests(guestsResult.guests);
     }
+
+    setIsLoading(false);
   }, [weddingId]);
 
   useEffect(() => {
     if (weddingId) {
-      fetchAssignments().finally(() => setIsLoading(false));
+      void fetchAssignments();
     }
-  }, [weddingId, fetchAssignments]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [weddingId]);
 
   const handleAssign = useCallback(
     async (rsvpId: number, chairItemId: string, tableItemId: string, guestName: string) => {
-      // Optimistic update
       setAssignmentMap((prev) => ({ ...prev, [chairItemId]: { guestName, rsvpId } }));
       setUnassignedGuests((prev) => prev.filter((g) => g.id !== rsvpId));
 
       const result = await assignSeat({ weddingId, rsvpId, chairItemId, tableItemId });
 
       if (!result.success) {
-        // Rollback
         await fetchAssignments();
       }
 
@@ -67,7 +68,6 @@ export function useSeatAssignments(weddingId: number) {
       const assignment = assignmentMap[chairItemId];
       if (!assignment) return { success: false as const, error: "No assignment found." };
 
-      // Optimistic update
       setAssignmentMap((prev) => {
         const next = { ...prev };
         delete next[chairItemId];
@@ -78,7 +78,6 @@ export function useSeatAssignments(weddingId: number) {
       const result = await unassignSeat({ weddingId, chairItemId });
 
       if (!result.success) {
-        // Rollback
         await fetchAssignments();
       }
 
