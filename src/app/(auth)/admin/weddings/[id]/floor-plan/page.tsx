@@ -38,16 +38,14 @@ export default async function AdminFloorPlanPage({ params }: AdminFloorPlanPageP
 
   if (!result.success) {
     return (
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Floor Plan — {wedding.couple_name}</h2>
+      <div className="p-6">
         <p className="text-destructive">{result.error}</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Floor Plan — {wedding.couple_name}</h2>
+    <div className="h-[calc(100vh-3rem)]">
       <FloorPlanCanvas
         weddingId={weddingId}
         initialFloorPlan={result.floorPlan}

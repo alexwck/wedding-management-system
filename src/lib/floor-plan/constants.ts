@@ -124,3 +124,31 @@ export function getMaxChairs(type: ItemType, size?: number): number {
   }
   return 0;
 }
+
+export function isTableType(type: ItemType): type is "round_table" | "long_table" {
+  return type === "round_table" || type === "long_table";
+}
+
+export function centerPixelsToTopLeftFeet(
+  pixelX: number,
+  pixelY: number,
+  width: number,
+  height: number,
+): { x: number; y: number } {
+  return {
+    x: pixelX / FEET_TO_PIXELS - width / 2,
+    y: pixelY / FEET_TO_PIXELS - height / 2,
+  };
+}
+
+export function topLeftFeetToCenterPixels(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+): { x: number; y: number } {
+  return {
+    x: (x + width / 2) * FEET_TO_PIXELS,
+    y: (y + height / 2) * FEET_TO_PIXELS,
+  };
+}

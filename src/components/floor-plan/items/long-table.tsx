@@ -37,19 +37,23 @@ export function LongTable({
   onClick,
   onDblClick,
 }: LongTableProps) {
-  const pixelX = x * FEET_TO_PIXELS;
-  const pixelY = y * FEET_TO_PIXELS;
   const pixelWidth = width * FEET_TO_PIXELS;
   const pixelHeight = height * FEET_TO_PIXELS;
+  // Rect rotates around (x,y) — use center positioning + offset so rotation
+  // happens around visual center instead of top-left corner
+  const centerX = (x + width / 2) * FEET_TO_PIXELS;
+  const centerY = (y + height / 2) * FEET_TO_PIXELS;
 
   return (
     <>
       <Rect
         id={id}
-        x={pixelX}
-        y={pixelY}
+        x={centerX}
+        y={centerY}
         width={pixelWidth}
         height={pixelHeight}
+        offsetX={pixelWidth / 2}
+        offsetY={pixelHeight / 2}
         rotation={rotation}
         fill="#fef3c7"
         stroke={isSelected ? "#d97706" : "#f59e0b"}
@@ -64,10 +68,9 @@ export function LongTable({
         hitFunc={paddedRectHitFunc}
       />
       <ItemLabel
-        x={pixelX}
-        y={pixelY}
-        width={pixelWidth}
-        height={pixelHeight}
+        id={`${id}-label`}
+        x={centerX}
+        y={centerY}
         text={label}
       />
     </>
