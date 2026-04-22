@@ -101,6 +101,12 @@ As a couple, I want to export my wedding's RSVP responses with seat assignments 
 - What happens when Google OAuth fails or the token expires during export? The system shows an error message and prompts the user to re-authenticate or use the XLSX fallback.
 - What happens when a new RSVP is submitted (guest added) after assignments exist? The new guest appears in the unassigned guests panel automatically — no conflict with existing assignments.
 - What happens when an RSVP is deleted entirely? The CASCADE on rsvp_id deletes the assignment automatically.
+- What happens when two users (couple + admin) attempt to assign the same guest simultaneously? The database unique constraint on rsvp_id prevents double-assignment — the second attempt receives an error message and the dialog refreshes to show current state.
+- What happens when a user clicks a chair while assignments are still loading? The chair click is queued and the dialog opens after assignments finish loading. Chairs are non-interactive during the initial fetch.
+- What happens if the assignment server action fails after an optimistic UI update? The optimistic state is rolled back to match the server state, and an error toast is shown to the user.
+- What happens if a user undoes (ctrl+Z) a floor plan action that added/removed chairs with assignments? The undo restores the canvas state; any removed chair assignments are cleaned up by the orphan cleanup on next save.
+- What happens when a floor plan has no items and the user tries to assign guests? The floor plan has no chairs to click — no assignment interaction is possible until chairs are placed.
+- What happens when a chair item ID is recycled (item deleted then a new item gets the same ID)? Assignments reference the item ID string; if recycled, the new item inherits the old assignment. This is unlikely because IDs are deterministically generated with unique counters.
 
 ## Requirements *(mandatory)*
 
@@ -128,6 +134,9 @@ As a couple, I want to export my wedding's RSVP responses with seat assignments 
 - **FR-020**: System MUST create spreadsheets with columns: Guest Name, Status, Vegetarian, Dietary Notes, Baby Chair, Table, Seat, Submitted At
 - **FR-021**: System MUST enforce the same access controls for export as the RSVP dashboard (couples see their own, admins see any wedding)
 - **FR-022**: System MUST handle Google OAuth failures gracefully with an error message and XLSX fallback prompt
+- **FR-023**: System MUST dismiss the assignment dialog via Escape key, close button, or clicking outside the dialog
+- **FR-024**: System MUST show an error message in the assignment dialog if the server action fails (network error, permission denied)
+- **FR-025**: System MUST display unassigned guests as a dash (—) in the RSVP dashboard and exports
 
 ### Key Entities
 
@@ -168,3 +177,8 @@ As a couple, I want to export my wedding's RSVP responses with seat assignments 
 - Google OAuth tokens are stored in a separate `oauth_tokens` table for cleaner separation from auth metadata
 - Each export creates a new spreadsheet (no update-existing-spreadsheet workflow)
 - XLSX generation uses server-side processing for data privacy
+- The maximum number of assignments per wedding is bounded by the number of attending RSVPs (typically < 500) — no explicit hard cap needed
+- Cleanup of orphaned assignments occurs immediately on floor plan save (not deferred)
+- The assignment dialog search/filter is always present (not optional) to handle weddings with 50+ guests
+- Reassignment is atomic — the guest is removed from the old chair and assigned to the new one in a single operation
+- The "table name" displayed is the floor plan item's label property (e.g., "Round Table 1"), falling back to item type + index if no label is set

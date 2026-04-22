@@ -19,15 +19,15 @@
 
 **Purpose**: Database schema, TypeScript types, Zod validations, and shadcn component installation — the foundation all user stories depend on.
 
-- [ ] T001 Create database migration for `seat_assignments` table in `supabase/migrations/` — table with columns (id, wedding_id, rsvp_id, chair_item_id, table_item_id, created_at, updated_at), unique constraints on rsvp_id and (wedding_id, chair_item_id), foreign keys to weddings and rsvps with CASCADE deletes, indexes on wedding_id and (wedding_id, table_item_id), RLS policies for couple/admin access, updated_at trigger
-- [ ] T002 Create database migration for `oauth_tokens` table in `supabase/migrations/` — table with columns (id, user_id, provider, access_token, refresh_token, scope, expires_at, created_at, updated_at), unique on (user_id, provider), FK to auth.users with CASCADE, RLS policies, updated_at trigger
-- [ ] T003 [P] Run `supabase db reset` to apply migrations and verify both tables created
-- [ ] T004 [P] Create TypeScript types for SeatAssignment, RsvpWithAssignment, and SeatAssignmentMap in `src/types/seat-assignment.ts` — per data-model.md Application Types section
-- [ ] T005 [P] Create TypeScript types for OAuthToken in `src/types/oauth.ts` — per data-model.md oauth_tokens section
-- [ ] T006 [P] Create Zod validation schemas for seat assignment inputs (assignSeat, unassignSeat) in `src/lib/validations/seat-assignment.ts` — validate weddingId (positive int), rsvpId (positive int), chairItemId (non-empty string), tableItemId (non-empty string)
-- [ ] T007 [P] Create Zod validation schemas for export inputs in `src/lib/validations/export.ts` — validate weddingId (positive int)
-- [ ] T008 [P] Install shadcn Command component — run `npx shadcn@latest add command` to add `src/components/ui/command.tsx`
-- [ ] T009 [P] Install `googleapis` and `exceljs` npm packages — `npm install googleapis exceljs`
+- [x] T001 Create database migration for `seat_assignments` table in `supabase/migrations/` — table with columns (id, wedding_id, rsvp_id, chair_item_id, table_item_id, created_at, updated_at), unique constraints on rsvp_id and (wedding_id, chair_item_id), foreign keys to weddings and rsvps with CASCADE deletes, indexes on wedding_id and (wedding_id, table_item_id), RLS policies for couple/admin access, updated_at trigger
+- [x] T002 Create database migration for `oauth_tokens` table in `supabase/migrations/` — table with columns (id, user_id, provider, access_token, refresh_token, scope, expires_at, created_at, updated_at), unique on (user_id, provider), FK to auth.users with CASCADE, RLS policies, updated_at trigger
+- [x] T003 [P] Run `supabase db reset` to apply migrations and verify both tables created
+- [x] T004 [P] Create TypeScript types for SeatAssignment, RsvpWithAssignment, and SeatAssignmentMap in `src/types/seat-assignment.ts` — per data-model.md Application Types section
+- [x] T005 [P] Create TypeScript types for OAuthToken in `src/types/oauth.ts` — per data-model.md oauth_tokens section
+- [x] T006 [P] Create Zod validation schemas for seat assignment inputs (assignSeat, unassignSeat) in `src/lib/validations/seat-assignment.ts` — validate weddingId (positive int), rsvpId (positive int), chairItemId (non-empty string), tableItemId (non-empty string)
+- [x] T007 [P] Create Zod validation schemas for export inputs in `src/lib/validations/export.ts` — validate weddingId (positive int)
+- [x] T008 [P] Install shadcn Command component — run `npx shadcn@latest add command` to add `src/components/ui/command.tsx`
+- [x] T009 [P] Install `googleapis` and `exceljs` npm packages — `npm install googleapis exceljs`
 
 ---
 
