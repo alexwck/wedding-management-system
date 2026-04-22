@@ -31,5 +31,5 @@
 
 ## Notes
 
-- All items pass validation. Spec is ready for `/speckit.clarify` or `/speckit.plan`.
-- Key design decisions (separate table vs columns on RSVPs, dialog UX, visual indicator style) are intentionally deferred to the planning phase — the spec defines WHAT, not HOW.
+- Updated to reflect Google Sheets export integration (US5 expanded, FR-017 through FR-022 added)
+- All items pass validation. Spec is ready for implementation.
