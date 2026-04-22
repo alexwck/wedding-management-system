@@ -188,7 +188,8 @@ tests/
 - **RSVP deduplication** — unique constraint on `(wedding_id, LOWER(guest_name))` plus application-level check
 - **Auth** — Supabase Auth with `proxy.ts` (not `middleware.ts` — renamed for Next.js 16 compat) protecting `/dashboard/*` and `/admin/*` routes; root `/` redirects based on auth state; cross-role blocking (admins can't reach `/dashboard`, couples can't reach `/admin`); logout via server action
 - **Image uploads** — stored in Supabase Storage `wedding-templates` bucket; 5MB max, PNG/JPG only; client + server validation
-- **Floor plan editor** — Interactive 2D canvas built with react-konva; supports drag-and-drop, rotation, collision detection, auto-chair population around tables, pan/zoom, undo/redo, and auto-save
+- **Floor plan editor** — Interactive 2D canvas built with react-konva; supports drag-and-drop, rotation (center-based for both round and long tables), collision detection, auto-chair population around tables, pan/zoom, undo/redo, and auto-save. Compact glass-panel top bar with venue dimensions, toolbar, and save controls. Labels track shapes in real-time during drag via Konva node ID lookups. Canvas auto-centers on load.
+- **Design system** — Glassmorphism UI pattern using `.glass-panel` CSS utility (backdrop-filter blur, semi-transparent backgrounds, subtle borders). All card-like surfaces use this consistent design language.
 
 ## Troubleshooting
 
