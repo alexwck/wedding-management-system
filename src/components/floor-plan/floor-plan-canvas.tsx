@@ -30,6 +30,7 @@ import {
   topLeftFeetToCenterPixels,
 } from "@/lib/floor-plan/constants";
 import { isItemOutOfBounds } from "@/lib/floor-plan/collision";
+import { truncate } from "@/lib/utils";
 import type { FloorPlan, FloorPlanItem, ItemType } from "@/types/floor-plan";
 import { redistributeChairs, getMaxChairCount } from "./hooks/use-chair-generation";
 
@@ -40,10 +41,6 @@ interface FloorPlanCanvasProps {
 
 const DEFAULT_WIDTH = 50;
 const DEFAULT_HEIGHT = 40;
-
-function truncateGuestName(name: string): string {
-  return name.length > 15 ? name.slice(0, 15) : name;
-}
 
 const DIMENSION_EDITABLE_TYPES: ItemType[] = [
   "stage",
@@ -650,7 +647,7 @@ export function FloorPlanCanvas({
       case "chair": {
         const chairAssignment = seatAssignments.assignmentMap[item.id];
         const displayAssignment = chairAssignment
-          ? truncateGuestName(chairAssignment.guestName)
+          ? truncate(chairAssignment.guestName, 15)
           : null;
         element = (
           <Chair
@@ -659,8 +656,9 @@ export function FloorPlanCanvas({
             height={item.height}
             draggable={false}
             assignment={displayAssignment}
+            opacity={seatAssignments.isLoading ? 0.5 : 1}
             onClick={() => {
-              if (item.parentItemId) {
+              if (item.parentItemId && !seatAssignments.isLoading) {
                 setDialogChairId(item.id);
                 setDialogTableId(item.parentItemId);
               }

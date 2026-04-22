@@ -15,6 +15,7 @@ export function resolveSeatLabels(
     return { tableName, seatLabel: `Seat ${chairItem.metadata.chairIndex + 1}` };
   }
 
+  // Fallback: derive ordinal from array position — relies on items array order being stable
   const siblings = items.filter(
     (i) => i.parentItemId === tableItemId && i.type === "chair",
   );
