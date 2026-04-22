@@ -100,6 +100,7 @@ postgresql://postgres:postgres@127.0.0.1:54322/postgres
 | `public.weddings` | Wedding records with shareable slugs | `slug`, `user_id`, `couple_name`, `template_image_url`, `wedding_date` |
 | `public.rsvps` | Guest RSVP submissions per wedding | `wedding_id`, `guest_name`, `status`, `dietary_notes`, `is_vegetarian`, `needs_baby_chair` |
 | `public.floor_plans` | Interactive venue floor plan per wedding | `wedding_id`, `width`, `height`, `items` (JSONB) |
+| `public.seat_assignments` | Guest-to-chair assignments per wedding | `wedding_id`, `rsvp_id`, `chair_item_id`, `table_name`, `seat_label` |
 
 All tables have Row-Level Security (RLS) enabled. Migrations live in `supabase/migrations/`.
 
@@ -144,7 +145,7 @@ npm run test:watch     # watch mode
 E2E tests require the Supabase stack and a Next.js dev server. Playwright starts the dev server automatically via `webServer` config.
 
 ```bash
-npm run test:e2e                              # run all
+npm run test:e2e                              # run all (uses --workers=1 to avoid cookie race conditions)
 npx playwright test --project=chromium         # desktop only
 npx playwright test --project="Mobile Chrome"  # mobile only
 npx playwright test --ui                       # interactive mode
@@ -179,6 +180,10 @@ supabase/
 tests/
 ├── e2e/                    # Playwright E2E tests
 └── unit/                   # Vitest unit tests
+    ├── actions/            # Server action tests
+    ├── components/         # React component tests
+    ├── hooks/              # React hook tests
+    └── helpers/            # Shared mocks (supabase-mock.ts) and factories (factories.ts)
 ```
 
 ## Architecture Notes
