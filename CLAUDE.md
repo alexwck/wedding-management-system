@@ -31,7 +31,7 @@ src/
 │   │   │   └── weddings/[id]/floor-plan/  # Admin floor plan editor
 │   │   └── dashboard/      # Couple: manage own RSVPs
 │   │       └── floor-plan/ # Couple floor plan editor
-│   ├── actions/            # Server actions (admin.ts, auth.ts, rsvp.ts, upload.ts, floor-plan.ts)
+│   ├── actions/            # Server actions (admin.ts, auth.ts, rsvp.ts, upload.ts, floor-plan.ts, export.ts)
 │   ├── layout.tsx          # Root layout
 │   ├── globals.css         # Tailwind v4 via @import
 │   ├── error.tsx / not-found.tsx
@@ -55,7 +55,7 @@ src/
 ├── types/
 │   └── floor-plan.ts       # Floor plan type definitions
 supabase/
-├── migrations/             # 5 migrations: users, weddings, rsvps, storage, floor_plans
+├── migrations/             # 7 migrations: users, weddings, rsvps, storage, floor_plans, seat_assignments, oauth_tokens
 ├── seed.sql                # Dev seed data (weddings, RSVPs, users — no floor plan data)
 ├── config.toml             # Supabase local config
 ```
@@ -75,7 +75,7 @@ Specification-driven development via slash-command skills:
 
 Git hooks in `.specify/extensions.yml` auto-commit at each stage.
 
-Constitution at `.specify/memory/constitution.md` (v1.2.0) defines 8 enforceable principles including Security by Default (atomic upserts, server-side role checks), Mobile Parity (`onTap` + `onClick`), Data Integrity (validate at serialization boundaries, no blind casts), and Test Verification (Red-Green must be proven by execution, not declaration).
+Constitution at `.specify/memory/constitution.md` (v2.0.0) defines 9 enforceable principles including Test Verification (Red-Green proven by execution), Security by Default (atomic upserts), Mobile Parity (`onTap` + `onClick`), Data Integrity (validate at serialization boundaries), and Glassmorphism Design System.
 
 ## Key Technologies
 
@@ -121,6 +121,10 @@ git config core.hooksPath .githooks
 - **Compact top bar**: Floor plan editor uses a single `glass-panel` bar at top (W/H inputs, undo/redo, zoom, save). No floating overlays at top of canvas. `containerRef` is on the inner canvas-area div so Stage dimensions exclude the 40px bar.
 - **Canvas auto-centering**: `handleFitToScreen()` runs once on mount via `useEffect` with `hasFittedRef` guard, triggered when ResizeObserver reports actual container dimensions.
 - **Glassmorphism design system**: The app uses a `.glass-panel` CSS utility class defined in `globals.css` with `backdrop-filter: blur(16px)`, `background: rgba(255,255,255,0.3)`, `border: 1px solid rgba(255,255,255,0.2)`, and `box-shadow: 0 8px 32px rgba(0,0,0,0.08)`. All card-like surfaces (forms, overlays, toolbars, modals) should use this pattern. CSS variables: `--glass-bg`, `--glass-bg-heavy`, `--glass-border`, `--glass-shadow`, `--glass-blur`, `--radius-glass`. Dark backgrounds make glass panels pop.
+- **Turbopack stale routes**: After migrations or route changes, the dev server may serve 404 for routes it hasn't compiled. Fix: touch a file in the route directory (`touch src/app/\(public\)/w/\[slug\]/rsvp/page.tsx`) or restart the dev server. Always `curl` a page before debugging E2E failures.
+- **E2E mobile click interception**: The mobile nav (`md:hidden fixed z-50`) overlays sidebar buttons on small viewports. Use `{ force: true }` on Playwright clicks for floor plan catalog items when targeting Mobile Chrome.
+- **Undo history**: `canUndo` is true only after 2+ pushes (index > 0). Adding one item pushes the pre-add state but index stays at 0. Tests verifying undo must add at least 2 items before asserting `canUndo=true`.
+- **Test infrastructure**: Shared helpers in `tests/unit/helpers/` — `mockFrom()` for Supabase chains, `factories.ts` for test data (`makeFloorPlanItem`, `makeRsvp`, etc.). New tests MUST use these instead of duplicating mocks. Current: 249 unit tests, 16 E2E spec files (90 tests across desktop + mobile).
 
 ## Active Technologies
 - TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, Tailwind CSS v4, shadcn/ui (Nova theme), react-hook-form, zod (005-fix-coords-ui-layout)
