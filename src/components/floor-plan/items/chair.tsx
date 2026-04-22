@@ -16,6 +16,7 @@ interface ChairProps {
   draggable?: boolean;
   isSelected?: boolean;
   assignment?: string | null;
+  opacity?: number;
   onDragEnd?: (e: Konva.KonvaEventObject<DragEvent>) => void;
   onDragMove?: (e: Konva.KonvaEventObject<DragEvent>) => void;
   onClick?: () => void;
@@ -33,6 +34,7 @@ export function Chair({
   draggable = false,
   isSelected = false,
   assignment,
+  opacity = 1,
   onDragEnd,
   onDragMove,
   onClick,
@@ -59,6 +61,7 @@ export function Chair({
         fill={fillColor}
         stroke={strokeColor}
         strokeWidth={isSelected ? 2 : 1}
+        opacity={opacity}
         draggable={draggable}
         onDragEnd={onDragEnd}
         onDragMove={onDragMove}

@@ -49,6 +49,13 @@ export function GuestAssignmentDialog({
 
   async function handleAssign(rsvpId: number, guestName: string) {
     setIsProcessing(true);
+    if (isOccupied) {
+      const unassignResult = await onUnassign(chairItemId);
+      if (!unassignResult.success) {
+        setIsProcessing(false);
+        return;
+      }
+    }
     const result = await onAssign(rsvpId, chairItemId, tableItemId, guestName);
     setIsProcessing(false);
     if (result.success) {

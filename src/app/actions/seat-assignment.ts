@@ -88,7 +88,11 @@ export async function assignSeat(input: {
 
   if (insertError) {
     if (insertError.code === "23505") {
-      return { success: false as const, error: "Seat is already occupied." };
+      const msg = insertError.message ?? "";
+      if (msg.includes("rsvp_id")) {
+        return { success: false as const, error: "This guest is already assigned to a seat." };
+      }
+      return { success: false as const, error: "This seat is already occupied." };
     }
     return { success: false as const, error: "Failed to assign seat." };
   }

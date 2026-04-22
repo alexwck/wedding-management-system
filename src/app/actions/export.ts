@@ -1,8 +1,10 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { getAuthAndVerifyAccess } from "@/lib/auth-guards";
 import { resolveSeatLabels } from "@/lib/seat-resolution";
+import { encrypt, decrypt } from "@/lib/token-crypto";
 import { exportSchema, handleGoogleCallbackSchema } from "@/lib/validations/export";
 import { google } from "googleapis";
 import ExcelJS from "exceljs";
@@ -70,7 +72,7 @@ async function getRsvpsWithAssignments(weddingId: number) {
 // --- Google OAuth ---
 
 export async function getGoogleAuthUrl() {
-  const supabase = await import("@/lib/supabase/server").then((m) => m.createClient());
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -93,12 +95,16 @@ export async function handleGoogleCallback(input: { code: string; state: string 
     return { success: false as const, error: "Invalid callback data." };
   }
 
-  const supabase = await import("@/lib/supabase/server").then((m) => m.createClient());
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
     return { success: false as const, error: "Not authenticated." };
+  }
+
+  if (parsed.data.state !== user.id) {
+    return { success: false as const, error: "Invalid state parameter." };
   }
 
   const { tokens } = await createOAuth2Client().getToken(parsed.data.code);
@@ -112,8 +118,8 @@ export async function handleGoogleCallback(input: { code: string; state: string 
     {
       user_id: user.id,
       provider: "google",
-      access_token: tokens.access_token,
-      refresh_token: tokens.refresh_token,
+      access_token: encrypt(tokens.access_token),
+      refresh_token: encrypt(tokens.refresh_token),
       scope: tokens.scope ?? null,
       expires_at: tokens.expiry_date ? new Date(tokens.expiry_date).toISOString() : null,
     },
@@ -128,7 +134,7 @@ export async function handleGoogleCallback(input: { code: string; state: string 
 }
 
 export async function getGoogleAuthStatus() {
-  const supabase = await import("@/lib/supabase/server").then((m) => m.createClient());
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -184,8 +190,8 @@ export async function exportToGoogleSheets(weddingId: number) {
   const tokenData = tokenResult.data;
   const oauth2Client = createOAuth2Client();
   oauth2Client.setCredentials({
-    access_token: tokenData.access_token,
-    refresh_token: tokenData.refresh_token,
+    access_token: decrypt(tokenData.access_token),
+    refresh_token: decrypt(tokenData.refresh_token),
     scope: tokenData.scope ?? undefined,
     expiry_date: tokenData.expires_at ? new Date(tokenData.expires_at).getTime() : undefined,
   });
@@ -225,11 +231,11 @@ export async function exportToGoogleSheets(weddingId: number) {
   });
 
   const newCredentials = oauth2Client.credentials;
-  if (newCredentials.access_token && newCredentials.access_token !== tokenData.access_token) {
+  if (newCredentials.access_token && newCredentials.access_token !== decrypt(tokenData.access_token)) {
     await adminClient
       .from("oauth_tokens")
       .update({
-        access_token: newCredentials.access_token,
+        access_token: encrypt(newCredentials.access_token),
         expires_at: newCredentials.expiry_date ? new Date(newCredentials.expiry_date).toISOString() : null,
       })
       .eq("id", tokenData.id);
@@ -252,7 +258,10 @@ export async function exportToXlsx(weddingId: number) {
     return { success: false as const, error: auth.error };
   }
 
-  const rsvps = await getRsvpsWithAssignments(weddingId);
+  const [rsvps, weddingResult] = await Promise.all([
+    getRsvpsWithAssignments(weddingId),
+    createAdminClient().from("weddings").select("couple_name").eq("id", weddingId).single(),
+  ]);
 
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("RSVPs");
@@ -290,10 +299,11 @@ export async function exportToXlsx(weddingId: number) {
   }
 
   const buffer = await workbook.xlsx.writeBuffer();
+  const weddingName = weddingResult.data?.couple_name?.replace(/[^a-zA-Z0-9]/g, "-") ?? "wedding";
 
   return {
     success: true as const,
     data: buffer,
-    filename: `rsvp-export-${weddingId}.xlsx`,
+    filename: `rsvp-export-${weddingName}.xlsx`,
   };
 }
