@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getWeddingRSVPs } from "@/app/actions/admin";
 import { TemplateUpload } from "@/components/template-upload";
+import { ExportButtons } from "@/components/export-buttons";
 
 interface ManageWeddingPageProps {
   params: Promise<{ id: string }>;
@@ -87,7 +88,10 @@ export default async function ManageWeddingPage({ params }: ManageWeddingPagePro
 
       {rsvps.length > 0 && (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">RSVP Responses</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">RSVP Responses</h3>
+            <ExportButtons weddingId={wedding.id} />
+          </div>
           <div className="space-y-2">
             {rsvps.map((rsvp) => (
               <div key={rsvp.id} className="flex items-center justify-between glass-panel rounded-lg p-3">
