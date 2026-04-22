@@ -124,6 +124,8 @@ git config core.hooksPath .githooks
 
 ## Active Technologies
 - TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, Tailwind CSS v4, shadcn/ui (Nova theme), react-hook-form, zod (005-fix-coords-ui-layout)
+- TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, shadcn/ui, zod, react-hook-form, @supabase/supabase-js (006-guest-seat-assignment)
+- Supabase PostgreSQL — new `seat_assignments` table + existing `rsvps`, `floor_plans` (006-guest-seat-assignment)
 
 ## Recent Changes
 - 005-fix-coords-ui-layout: Fixed Konva coordinate system (Circle center vs Rect top-left), added compact glass-panel top bar, real-time label tracking during drag, canvas auto-centering on load, chair rotation removal (chairs follow parent table only)
