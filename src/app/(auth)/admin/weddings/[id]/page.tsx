@@ -27,7 +27,7 @@ export default async function ManageWeddingPage({ params }: ManageWeddingPagePro
   const publicUrl = `/w/${wedding.slug}`;
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8">
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-2xl font-bold">{wedding.coupleName}</h2>

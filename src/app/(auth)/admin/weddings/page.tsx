@@ -20,7 +20,7 @@ export default async function WeddingListPage() {
   const weddings = result.weddings ?? [];
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6">
       <h2 className="text-2xl font-bold">Weddings</h2>
 
       {weddings.length === 0 ? (

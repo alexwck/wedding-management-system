@@ -11,7 +11,7 @@ export default async function AdminDashboard() {
   const weddings = result.weddings ?? [];
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Admin Dashboard</h2>
         <Link

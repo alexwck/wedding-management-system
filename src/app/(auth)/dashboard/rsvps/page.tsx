@@ -7,7 +7,7 @@ export default async function RSVPListPage() {
 
   if (!result.success || !result.wedding || !result.rsvps || !result.summary) {
     return (
-      <div className="space-y-6">
+      <div className="max-w-4xl mx-auto space-y-6">
         <h2 className="text-2xl font-bold">RSVPs</h2>
         <p className="text-destructive">
           {result.message || "Failed to load RSVP data."}
@@ -19,7 +19,7 @@ export default async function RSVPListPage() {
   const { wedding, rsvps, summary } = result;
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">
           RSVPs — {wedding.coupleName}

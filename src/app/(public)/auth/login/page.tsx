@@ -47,8 +47,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <Card className="w-full max-w-sm glass-panel">
+    <div className="flex min-h-[80vh] items-center justify-center px-4">
+      <Card className="w-full max-w-lg glass-panel">
         <CardHeader>
           <CardTitle>Sign In</CardTitle>
           <CardDescription>Enter your credentials to access the dashboard</CardDescription>

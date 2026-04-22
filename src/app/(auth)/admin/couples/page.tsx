@@ -15,21 +15,23 @@ export default async function CouplesPage() {
   const couples = result.success ? result.couples ?? [] : [];
 
   return (
-    <div className="space-y-8">
-      <h2 className="text-2xl font-bold">Couples</h2>
+    <div className="max-w-5xl mx-auto">
+      <h2 className="text-2xl font-bold mb-6">Couples</h2>
 
-      <div className="max-w-md glass-panel rounded-xl p-4">
-        <CreateCoupleForm />
-      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="glass-panel rounded-xl p-4">
+          <h3 className="text-lg font-semibold mb-4">Create Couple</h3>
+          <CreateCoupleForm />
+        </div>
 
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Existing Couples</h3>
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Existing Couples</h3>
 
-        {couples.length === 0 ? (
-          <p className="text-muted-foreground">No couples yet.</p>
-        ) : (
-          <div className="glass-panel rounded-xl p-4">
-            <Table>
+          {couples.length === 0 ? (
+            <p className="text-muted-foreground">No couples yet.</p>
+          ) : (
+            <div className="glass-panel rounded-xl p-4">
+              <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Display Name</TableHead>
@@ -49,8 +51,9 @@ export default async function CouplesPage() {
               ))}
             </TableBody>
           </Table>
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
