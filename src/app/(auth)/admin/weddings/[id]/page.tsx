@@ -97,7 +97,7 @@ export default async function ManageWeddingPage({ params }: ManageWeddingPagePro
                     {rsvp.dietaryNotes || "No dietary notes"}
                   </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
                   {rsvp.status === "attending" ? (
                     <span className="text-sm text-green-600">Attending</span>
                   ) : (
@@ -108,6 +108,11 @@ export default async function ManageWeddingPage({ params }: ManageWeddingPagePro
                   )}
                   {rsvp.needsBabyChair && (
                     <span className="text-xs bg-blue-100 text-blue-800 rounded px-2 py-0.5">Baby Chair</span>
+                  )}
+                  {"tableName" in rsvp && rsvp.tableName && (
+                    <span className="text-xs bg-teal-100 text-teal-800 rounded px-2 py-0.5">
+                      {rsvp.tableName} — {rsvp.seatLabel}
+                    </span>
                   )}
                 </div>
               </div>

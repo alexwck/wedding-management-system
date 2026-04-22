@@ -95,8 +95,8 @@
 
 ### Implementation for User Story 4
 
-- [ ] T028 [US4] Modify dashboard RSVP page `src/app/(auth)/dashboard/rsvps/page.tsx` — extend RSVP query to LEFT JOIN seat_assignments, derive tableName from floor plan item label (match table_item_id to items JSONB), derive seatLabel from chair's chairIndex + 1 metadata, add "Table" and "Seat" columns to the RSVP table, show dash (—) for guests without assignment (US4.2)
-- [ ] T029 [P] [US4] Modify admin wedding detail page `src/app/(auth)/admin/weddings/[id]/page.tsx` — same table/seat columns as dashboard (per FR-016 admin parity)
+- [x] T028 [US4] Modify dashboard RSVP page `src/app/(auth)/dashboard/rsvps/page.tsx` — extend RSVP query to LEFT JOIN seat_assignments, derive tableName from floor plan item label (match table_item_id to items JSONB), derive seatLabel from chair's chairIndex + 1 metadata, add "Table" and "Seat" columns to the RSVP table, show dash (—) for guests without assignment (US4.2)
+- [x] T029 [P] [US4] Modify admin wedding detail page `src/app/(auth)/admin/weddings/[id]/page.tsx` — same table/seat columns as dashboard (per FR-016 admin parity)
 
 **Checkpoint**: Both dashboard and admin views show seat assignment data.
 
