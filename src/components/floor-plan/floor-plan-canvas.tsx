@@ -7,7 +7,9 @@ import { useFloorPlanState } from "./hooks/use-floor-plan-state";
 import { useAutoSave } from "./hooks/use-auto-save";
 import { useCollisionDetection } from "./hooks/use-collision-detection";
 import { useUndoRedo } from "./hooks/use-undo-redo";
+import { useSeatAssignments } from "./hooks/use-seat-assignments";
 import { ItemCatalog } from "./item-catalog";
+import { GuestAssignmentDialog } from "./guest-assignment-dialog";
 import { RoundTable } from "./items/round-table";
 import { LongTable } from "./items/long-table";
 import { StageItem } from "./items/stage-item";
@@ -55,6 +57,10 @@ export function FloorPlanCanvas({
   const state = useFloorPlanState(initialWidth, initialHeight);
   const collision = useCollisionDetection();
   const undoRedo = useUndoRedo();
+  const seatAssignments = useSeatAssignments(weddingId);
+
+  const [dialogChairId, setDialogChairId] = useState<string | null>(null);
+  const [dialogTableId, setDialogTableId] = useState<string | null>(null);
 
   const isNewFloorPlan = !initialFloorPlan;
 
@@ -636,15 +642,30 @@ export function FloorPlanCanvas({
           />
         );
         break;
-      case "chair":
+      case "chair": {
+        const chairAssignment = seatAssignments.assignmentMap[item.id];
+        const displayAssignment = chairAssignment
+          ? chairAssignment.guestName.length > 15
+            ? chairAssignment.guestName.slice(0, 15)
+            : chairAssignment.guestName
+          : null;
         element = (
           <Chair
             {...commonProps}
             width={item.width}
             height={item.height}
             draggable={false}
+            assignment={displayAssignment}
+            onClick={() => {
+              if (item.parentItemId) {
+                setDialogChairId(item.id);
+                setDialogTableId(item.parentItemId);
+              }
+            }}
           />
         );
+        break;
+      }
         break;
       default:
         return null;
@@ -721,7 +742,7 @@ export function FloorPlanCanvas({
 
   return (
     <div className="flex h-full overflow-hidden">
-      <ItemCatalog onSelectItem={handleSelectItem} />
+      {/* Left sidebar: reserved for unassigned guests panel (US3) */}
 
       <div
         data-testid="floor-plan-canvas"
@@ -931,7 +952,7 @@ export function FloorPlanCanvas({
               <p className="text-lg font-medium">Design Your Floor Plan</p>
               <p className="text-sm text-muted-foreground mt-2">
                 Set your venue dimensions, then pick tables and items
-                from the <strong>Item Catalog</strong> on the left to start
+                from the <strong>Item Catalog</strong> on the right to start
                 designing your layout.
               </p>
             </div>
@@ -973,6 +994,30 @@ export function FloorPlanCanvas({
         </Stage>
         </div>
       </div>
+
+      {/* Right sidebar: item catalog */}
+      <ItemCatalog onSelectItem={handleSelectItem} />
+
+      {/* Guest assignment dialog */}
+      {dialogChairId && dialogTableId && (
+        <GuestAssignmentDialog
+          open={!!dialogChairId}
+          onOpenChange={(open) => {
+            if (!open) {
+              setDialogChairId(null);
+              setDialogTableId(null);
+            }
+          }}
+          chairItemId={dialogChairId}
+          currentGuestName={
+            seatAssignments.assignmentMap[dialogChairId]?.guestName ?? null
+          }
+          unassignedGuests={seatAssignments.unassignedGuests}
+          onAssign={seatAssignments.assignGuest}
+          onUnassign={seatAssignments.unassignGuest}
+          tableItemId={dialogTableId}
+        />
+      )}
     </div>
   );
 }
