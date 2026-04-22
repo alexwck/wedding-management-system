@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { nanoid } from "nanoid";
 import { createCoupleSchema } from "@/lib/validations/admin";
+import { resolveSeatLabels } from "@/lib/seat-resolution";
 import type { FloorPlanItem } from "@/types/floor-plan";
 
 async function enrichRsvpsWithSeats(
@@ -20,44 +21,29 @@ async function enrichRsvpsWithSeats(
     created_at: string;
   }>,
 ) {
-  const { data: assignments } = await supabase
-    .from("seat_assignments")
-    .select("rsvp_id, chair_item_id, table_item_id")
-    .eq("wedding_id", weddingId);
-
-  const { data: floorPlan } = await supabase
-    .from("floor_plans")
-    .select("items")
-    .eq("wedding_id", weddingId)
-    .maybeSingle();
+  const [assignmentsResult, floorPlanResult] = await Promise.all([
+    supabase
+      .from("seat_assignments")
+      .select("rsvp_id, chair_item_id, table_item_id")
+      .eq("wedding_id", weddingId),
+    supabase
+      .from("floor_plans")
+      .select("items")
+      .eq("wedding_id", weddingId)
+      .maybeSingle(),
+  ]);
 
   const assignmentMap = new Map(
-    (assignments ?? []).map((a) => [a.rsvp_id, { chairItemId: a.chair_item_id, tableItemId: a.table_item_id }]),
+    (assignmentsResult.data ?? []).map((a) => [a.rsvp_id, { chairItemId: a.chair_item_id, tableItemId: a.table_item_id }]),
   );
 
-  const items = (floorPlan?.items ?? []) as FloorPlanItem[];
-  const itemMap = new Map(items.map((i) => [i.id, i]));
+  const items = (floorPlanResult.data?.items ?? []) as FloorPlanItem[];
 
   return rsvpList.map((r) => {
     const assignment = assignmentMap.get(r.id);
-    let tableName: string | null = null;
-    let seatLabel: string | null = null;
-
-    if (assignment) {
-      const tableItem = itemMap.get(assignment.tableItemId);
-      tableName = tableItem?.label ?? null;
-
-      const chairItem = itemMap.get(assignment.chairItemId);
-      if (chairItem?.metadata?.chairIndex != null) {
-        seatLabel = `Seat ${chairItem.metadata.chairIndex + 1}`;
-      } else {
-        const siblings = items.filter(
-          (i) => i.parentItemId === assignment.tableItemId && i.type === "chair",
-        );
-        const idx = siblings.findIndex((i) => i.id === assignment.chairItemId);
-        seatLabel = idx >= 0 ? `Seat ${idx + 1}` : null;
-      }
-    }
+    const { tableName, seatLabel } = assignment
+      ? resolveSeatLabels(items, assignment.chairItemId, assignment.tableItemId)
+      : { tableName: null as string | null, seatLabel: null as string | null };
 
     return {
       id: r.id,

@@ -41,6 +41,10 @@ interface FloorPlanCanvasProps {
 const DEFAULT_WIDTH = 50;
 const DEFAULT_HEIGHT = 40;
 
+function truncateGuestName(name: string): string {
+  return name.length > 15 ? name.slice(0, 15) : name;
+}
+
 const DIMENSION_EDITABLE_TYPES: ItemType[] = [
   "stage",
   "pillar",
@@ -646,9 +650,7 @@ export function FloorPlanCanvas({
       case "chair": {
         const chairAssignment = seatAssignments.assignmentMap[item.id];
         const displayAssignment = chairAssignment
-          ? chairAssignment.guestName.length > 15
-            ? chairAssignment.guestName.slice(0, 15)
-            : chairAssignment.guestName
+          ? truncateGuestName(chairAssignment.guestName)
           : null;
         element = (
           <Chair
@@ -667,7 +669,6 @@ export function FloorPlanCanvas({
         );
         break;
       }
-        break;
       default:
         return null;
     }

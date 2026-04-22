@@ -32,3 +32,8 @@ export type SeatAssignmentMap = Record<
     rsvpId: number;
   }
 >;
+
+export interface UnassignedGuest {
+  id: number;
+  guestName: string;
+}

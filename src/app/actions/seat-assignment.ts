@@ -1,7 +1,7 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthAndVerifyAccess } from "@/lib/auth-guards";
 import {
   assignSeatSchema,
   unassignSeatSchema,
@@ -10,33 +10,6 @@ import {
   cleanupOrphanedAssignmentsSchema,
 } from "@/lib/validations/seat-assignment";
 import type { SeatAssignment } from "@/types/seat-assignment";
-
-async function getAuthAndVerifyAccess(weddingId: number) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { user: null, error: "Not authenticated." } as const;
-  }
-
-  const isAdmin = user.app_metadata?.role === "admin";
-  if (!isAdmin) {
-    const { data } = await supabase
-      .from("weddings")
-      .select("id")
-      .eq("id", weddingId)
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (!data) {
-      return { user: null, error: "Access denied." } as const;
-    }
-  }
-
-  return { user, error: null } as const;
-}
 
 export async function assignSeat(input: {
   weddingId: number;
@@ -72,41 +45,24 @@ export async function assignSeat(input: {
     return { success: false as const, error: "Only attending guests can be assigned." };
   }
 
-  // Check RSVP not already assigned
-  const { data: existingAssignment } = await adminClient
-    .from("seat_assignments")
-    .select("id")
-    .eq("rsvp_id", rsvpId)
-    .maybeSingle();
+  // Parallel check: existing RSVP assignment + chair occupancy + floor plan items
+  const [existingResult, chairResult, floorPlanResult] = await Promise.all([
+    adminClient.from("seat_assignments").select("id").eq("rsvp_id", rsvpId).maybeSingle(),
+    adminClient.from("seat_assignments").select("id").eq("wedding_id", weddingId).eq("chair_item_id", chairItemId).maybeSingle(),
+    adminClient.from("floor_plans").select("items").eq("wedding_id", weddingId).maybeSingle(),
+  ]);
 
-  if (existingAssignment) {
+  if (existingResult.data) {
     return { success: false as const, error: "This guest is already assigned to a seat." };
   }
-
-  // Check chair not already occupied
-  const { data: chairAssignment } = await adminClient
-    .from("seat_assignments")
-    .select("id")
-    .eq("wedding_id", weddingId)
-    .eq("chair_item_id", chairItemId)
-    .maybeSingle();
-
-  if (chairAssignment) {
+  if (chairResult.data) {
     return { success: false as const, error: "This seat is already occupied." };
   }
-
-  // Verify chair/table exist in floor plan items
-  const { data: floorPlan } = await adminClient
-    .from("floor_plans")
-    .select("items")
-    .eq("wedding_id", weddingId)
-    .maybeSingle();
-
-  if (!floorPlan) {
+  if (!floorPlanResult.data) {
     return { success: false as const, error: "Floor plan not found." };
   }
 
-  const items = floorPlan.items as Array<{ id: string; type: string; parentItemId: string | null }>;
+  const items = floorPlanResult.data.items as Array<{ id: string; type: string; parentItemId: string | null }>;
   const chairItem = items.find((i) => i.id === chairItemId);
   if (!chairItem) {
     return { success: false as const, error: "Chair not found in floor plan." };
@@ -229,24 +185,24 @@ export async function getUnassignedGuests(weddingId: number) {
 
   const adminClient = createAdminClient();
 
-  // Get attending RSVPs that have no seat_assignment
-  const { data: rsvps, error } = await adminClient
-    .from("rsvps")
-    .select("id, guest_name, status, wedding_id")
-    .eq("wedding_id", weddingId)
-    .eq("status", "attending");
+  const [rsvpsResult, assignmentsResult] = await Promise.all([
+    adminClient
+      .from("rsvps")
+      .select("id, guest_name")
+      .eq("wedding_id", weddingId)
+      .eq("status", "attending"),
+    adminClient
+      .from("seat_assignments")
+      .select("rsvp_id")
+      .eq("wedding_id", weddingId),
+  ]);
 
-  if (error) {
+  if (rsvpsResult.error) {
     return { success: false as const, error: "Failed to fetch guests." };
   }
 
-  const { data: assignments } = await adminClient
-    .from("seat_assignments")
-    .select("rsvp_id")
-    .eq("wedding_id", weddingId);
-
-  const assignedRsvpIds = new Set((assignments ?? []).map((a) => a.rsvp_id));
-  const unassigned = (rsvps ?? []).filter((r) => !assignedRsvpIds.has(r.id));
+  const assignedRsvpIds = new Set((assignmentsResult.data ?? []).map((a) => a.rsvp_id));
+  const unassigned = (rsvpsResult.data ?? []).filter((r) => !assignedRsvpIds.has(r.id));
 
   return {
     success: true as const,
