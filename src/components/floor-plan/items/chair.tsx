@@ -15,6 +15,7 @@ interface ChairProps {
   label: string;
   draggable?: boolean;
   isSelected?: boolean;
+  assignment?: string | null;
   onDragEnd?: (e: Konva.KonvaEventObject<DragEvent>) => void;
   onDragMove?: (e: Konva.KonvaEventObject<DragEvent>) => void;
   onClick?: () => void;
@@ -31,6 +32,7 @@ export function Chair({
   label,
   draggable = false,
   isSelected = false,
+  assignment,
   onDragEnd,
   onDragMove,
   onClick,
@@ -40,6 +42,12 @@ export function Chair({
   const pixelY = (y + 0.5) * FEET_TO_PIXELS;
   const radius = (width / 2) * FEET_TO_PIXELS;
 
+  const isOccupied = !!assignment;
+  const fillColor = isOccupied ? "#99f6e4" : "#f3e8ff";
+  const strokeColor = isOccupied
+    ? (isSelected ? "#0d9488" : "#2dd4bf")
+    : (isSelected ? "#7c3aed" : "#a78bfa");
+
   return (
     <>
       <Circle
@@ -48,8 +56,8 @@ export function Chair({
         y={pixelY}
         radius={radius}
         rotation={rotation}
-        fill="#f3e8ff"
-        stroke={isSelected ? "#7c3aed" : "#a78bfa"}
+        fill={fillColor}
+        stroke={strokeColor}
         strokeWidth={isSelected ? 2 : 1}
         draggable={draggable}
         onDragEnd={onDragEnd}
@@ -65,7 +73,7 @@ export function Chair({
         y={y * FEET_TO_PIXELS}
         width={width * FEET_TO_PIXELS}
         height={height * FEET_TO_PIXELS}
-        text={label}
+        text={isOccupied && assignment ? assignment : label}
       />
     </>
   );
