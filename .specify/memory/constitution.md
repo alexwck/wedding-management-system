@@ -1,10 +1,10 @@
 <!--
   Sync Impact Report:
-  Version change: 1.2.0 → 1.3.0
+  Version change: 1.3.0 → 2.0.0
   Modified principles:
-    - IX. Glassmorphism Design System: added new principle
+    - I. Test Verification: expanded with unit testing patterns, mock conventions, component testing boundaries, and E2E resilience requirements
   Modified sections:
-    - None
+    - Technology Constraints: Testing subsection expanded with concrete tooling guidance
   Templates requiring updates:
     - None
   Follow-up TODOs:
@@ -42,6 +42,35 @@ E2E tests MUST be run with `--workers=1` to avoid false failures from
 session cookie race conditions across parallel browser contexts. If E2E
 tests cannot be run (Supabase or dev server unavailable), the task MUST be
 marked blocked — not marked complete.
+
+#### Unit Testing Conventions
+
+- **Shared test infrastructure**: Reusable mock helpers and factory functions
+  MUST live in `tests/unit/helpers/`. The `mockFrom()` pattern for Supabase
+  query chains and factory functions (`makeFloorPlanItem`, `makeRsvp`, etc.)
+  prevent mock duplication across test files. New test files MUST use shared
+  helpers instead of duplicating mock setup.
+- **Supabase mock chains**: Mock Supabase query builders with both chainable
+  methods and a `then` property (e.g., `chain.then = (resolve) =>
+  resolve(value)`). This correctly handles both `await` and `Promise.all`
+  — simpler mocks break on parallel queries.
+- **React 19 + jsdom**: React 19 double-renders components in jsdom. Use
+  `getAllByRole`/`getAllByText` instead of `getBy*` variants, or test via
+  structural assertions rather than counting elements.
+- **Component testing boundaries**: Radix UI primitives (Dialog, Command,
+  Popover) and cmdk components resist unit testing due to extensive DOM API
+  mocking requirements (ResizeObserver, PointerEvent, setPointerCapture).
+  For these components, prefer E2E tests over component unit tests. Focus
+  unit tests on pure logic (hooks, actions, utilities).
+- **Timers and async state**: `vi.useFakeTimers()` conflicts with React
+  Testing Library's `waitFor` and React async state updates. For
+  timer-dependent hooks (auto-save, debounce), test via synchronous methods
+  (e.g., `saveNow()`) rather than advancing fake timers through async
+  callbacks.
+- **E2E test resilience**: E2E tests MUST use
+  `if (await element.isVisible().catch(() => false))` guards so they pass
+  regardless of whether specific seed data exists. Hard-coded data
+  assumptions cause flaky failures across environments.
 
 ### II. Type Safety
 
@@ -141,6 +170,12 @@ backgrounds; layout decisions should ensure sufficient contrast.
   pass across every configured Playwright project (desktop and mobile)
   before a feature branch is considered complete.
 - **Package Manager**: npm
+- **Test Infrastructure**: Shared mock helpers in `tests/unit/helpers/`
+  (Supabase `mockFrom()` pattern, factory functions). Supabase mocks
+  MUST include `then` property for Promise.all compatibility. React 19
+  double-renders in jsdom — use `getAllBy*` queries. Prefer E2E tests
+  for Radix UI/cmdk components; unit-test pure logic (hooks, actions,
+  utilities). Avoid `vi.useFakeTimers()` with React async state.
 
 ## Development Workflow
 
@@ -150,7 +185,7 @@ backgrounds; layout decisions should ensure sufficient contrast.
    contracts
 3. **Test First** — Write BDD acceptance tests for user stories; write
    TDD unit tests for internal logic. Run tests and confirm they fail
-   (Red).
+   (Red). Use shared test helpers from `tests/unit/helpers/`.
 4. **Implement** — Write the minimum code to make tests pass (Green).
    Run tests to confirm.
 5. **Refactor** — Clean up while keeping tests green.
@@ -176,4 +211,4 @@ All PRs and code reviews MUST verify compliance with these principles.
 When a principle conflicts with a practical need, the principle is
 changed through the amendment process — not ignored.
 
-**Version**: 1.3.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-04-22
+**Version**: 2.0.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-04-23
