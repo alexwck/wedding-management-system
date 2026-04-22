@@ -37,8 +37,8 @@ src/
 │   ├── error.tsx / not-found.tsx
 ├── components/
 │   ├── floor-plan/         # Konva canvas floor plan editor (all client components)
-│   │   ├── floor-plan-canvas.tsx    # Main canvas wrapper (Stage/Layer, controls)
-│   │   ├── floor-plan-toolbar.tsx   # Undo/redo, zoom controls
+│   │   ├── floor-plan-canvas.tsx    # Main canvas wrapper (Stage/Layer, compact top bar, label tracking)
+│   │   ├── floor-plan-toolbar.tsx   # Undo/redo, zoom controls (inlined into top bar)
 │   │   ├── item-catalog.tsx         # Sidebar of placeable items
 │   │   ├── items/                   # Konva shape components (round-table, long-table, chair, etc.)
 │   │   └── hooks/                   # use-floor-plan-state, use-auto-save, use-collision-detection, etc.
@@ -115,13 +115,17 @@ git config core.hooksPath .githooks
 - **Root page redirects**: `src/app/page.tsx` is a server component that reads auth session and redirects to `/auth/login`, `/dashboard`, or `/admin` — proxy.ts handles the same logic as middleware defense-in-depth
 - **Logout**: Nav `LogoutButton` calls server action `signOut()` in `src/app/actions/auth.ts` (signOut is idempotent — no session guard needed)
 - **Server action body size limit**: `next.config.ts` sets `serverActions.bodySizeLimit: "6mb"` — required because the default 1MB limit blocks template uploads before the 5MB app-level validation in `upload.ts` can run
+- **Konva label tracking**: Labels are siblings (not children) of draggable shapes due to React Fragment wrapping. During drag-move, labels are found via `stage.findOne(`#${itemId}-label`)` and moved by the same pixel delta as the shape. All item components pass `id={`${id}-label`}` to `ItemLabel`.
+- **Konva coordinate conventions**: Circle uses (x,y) as center; Rect uses (x,y) as top-left. The data model stores top-left for all items. Round tables and long tables compute center at render time; drag handlers convert back to top-left for storage. Both use `centerPixelsToTopLeftFeet()`.
+- **Chair rotation**: Chairs (circles) don't independently rotate — only reposition (x/y) when their parent table rotates. `handleRotationEnd` applies rotation delta to chair positions via trig but omits `rotation` from the update.
+- **Compact top bar**: Floor plan editor uses a single `glass-panel` bar at top (W/H inputs, undo/redo, zoom, save). No floating overlays at top of canvas. `containerRef` is on the inner canvas-area div so Stage dimensions exclude the 40px bar.
+- **Canvas auto-centering**: `handleFitToScreen()` runs once on mount via `useEffect` with `hasFittedRef` guard, triggered when ResizeObserver reports actual container dimensions.
+- **Glassmorphism design system**: The app uses a `.glass-panel` CSS utility class defined in `globals.css` with `backdrop-filter: blur(16px)`, `background: rgba(255,255,255,0.3)`, `border: 1px solid rgba(255,255,255,0.2)`, and `box-shadow: 0 8px 32px rgba(0,0,0,0.08)`. All card-like surfaces (forms, overlays, toolbars, modals) should use this pattern. CSS variables: `--glass-bg`, `--glass-bg-heavy`, `--glass-border`, `--glass-shadow`, `--glass-blur`, `--radius-glass`. Dark backgrounds make glass panels pop.
 
 ## Active Technologies
-- TypeScript (strict mode) with Next.js 16 (App Router) + React 19, Supabase Auth + Storage, react-konva, Tailwind CSS v4, shadcn/ui, react-hook-form, zod (003-ux-polish-floorplan-fixes)
-- Supabase PostgreSQL (floor_plans table), Supabase Storage (wedding-templates bucket) (003-ux-polish-floorplan-fixes)
-- TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, react-hook-form, zod, shadcn/ui, Tailwind CSS v4, lucide-reac (004-app-wide-ux-redesign)
-- Supabase PostgreSQL (existing `floor_plans` table — no new migrations) (004-app-wide-ux-redesign)
-- TypeScript 5.x (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, Tailwind CSS v4, shadcn/ui (Nova theme), react-hook-form, zod (005-fix-coords-ui-layout)
+- TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, Tailwind CSS v4, shadcn/ui (Nova theme), react-hook-form, zod (005-fix-coords-ui-layout)
 
 ## Recent Changes
-- 003-ux-polish-floorplan-fixes: Added TypeScript (strict mode) with Next.js 16 (App Router) + React 19, Supabase Auth + Storage, react-konva, Tailwind CSS v4, shadcn/ui, react-hook-form, zod
+- 005-fix-coords-ui-layout: Fixed Konva coordinate system (Circle center vs Rect top-left), added compact glass-panel top bar, real-time label tracking during drag, canvas auto-centering on load, chair rotation removal (chairs follow parent table only)
+- 004-app-wide-ux-redesign: App-wide content density improvements across all pages
+- 003-ux-polish-floorplan-fixes: Floor plan editor UX polish, Supabase Auth + Storage integration

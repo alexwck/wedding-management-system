@@ -2,7 +2,7 @@
 
 **Feature Branch**: `005-fix-coords-ui-layout`
 **Created**: 2026-04-21
-**Status**: Draft
+**Status**: Complete (T030 manual rotation verification, T037 quickstart validation deferred as P3)
 **Input**: User description: "Fix critical coordinate system bugs in floor plan editor where Konva Circle (center-based) and Rect (top-left-based) positioning causes chairs to not circle around round tables, chairs to misalign after table rotation, and long tables to rotate around their corner instead of center. Additionally, overhaul UI layout across all pages to eliminate excessive empty space, remove unnecessary horizontal scrolling, improve content density and visual hierarchy on every page (login, dashboard, RSVPs, floor plan editor, admin pages, wedding detail, landing page, RSVP form, error/404 pages), and create mockups for user review before implementation."
 
 ## User Scenarios & Testing *(mandatory)*
@@ -148,7 +148,7 @@ Before any UI layout changes are implemented, the product designer reviews mocku
 
 - The existing bounding-box coordinate convention (x,y = top-left) in the data model is correct and should be preserved; only the rendering layer needs fixing
 - The floor plan's item catalog should default to expanded but remember collapsed state during the session
-- Mockups will be created as HTML files rendered to screenshots, not as design tool exports
+- Mockups will be created as HTML files rendered to screenshots, not as design tool exports. Mockups use glassmorphism design language (backdrop-filter blur, semi-transparent backgrounds, subtle borders) consistent with the app's `glass-panel` class. At least 2 layout alternatives per high-impact page with UX rationale and conversion-focused recommendations.
 - Mobile viewports below 768px may have different layouts (stacked instead of side-by-side) — this is acceptable
 - The existing glassmorphism design system (`.glass-panel` class) will continue to be used on redesigned pages
 - No database migrations are needed — existing floor plan data is dev-only and will be cleaned up before testing
