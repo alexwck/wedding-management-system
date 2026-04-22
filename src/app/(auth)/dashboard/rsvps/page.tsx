@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getMyWeddingRSVPs } from "@/app/actions/admin";
 import { RSVPTable } from "@/components/rsvp-table";
+import { ExportButtons } from "@/components/export-buttons";
 
 export default async function RSVPListPage() {
   const result = await getMyWeddingRSVPs();
@@ -24,8 +25,11 @@ export default async function RSVPListPage() {
         <h2 className="text-2xl font-bold">
           RSVPs — {wedding.coupleName}
         </h2>
-        <div className="text-sm text-muted-foreground">
-          {summary.total} response{summary.total !== 1 ? "s" : ""}
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-muted-foreground">
+            {summary.total} response{summary.total !== 1 ? "s" : ""}
+          </div>
+          <ExportButtons weddingId={wedding.id} />
         </div>
       </div>
 

@@ -110,15 +110,15 @@
 
 ### Tests for User Story 5
 
-- [ ] T030 [P] [US5] Write unit test for `exportToXlsx` in `tests/unit/actions/export.test.ts` — test XLSX generation with mixed assigned/unassigned guests, column headers, data accuracy. Run `npm run test` and confirm test FAILS (Red phase).
+- [x] T030 [P] [US5] Write unit test for `exportToXlsx` in `tests/unit/actions/export.test.ts` — test XLSX generation with mixed assigned/unassigned guests, column headers, data accuracy. Run `npm run test` and confirm test FAILS (Red phase).
 
 ### Implementation for User Story 5
 
-- [ ] T031 [US5] Implement `exportToGoogleSheets` server action in `src/app/actions/export.ts` — refresh token if expired, query RSVPs with LEFT JOIN seat_assignments, derive tableName/seatLabel from floor plan items, create new spreadsheet via Google Sheets API, populate with columns (Guest Name, Status, Vegetarian, Dietary Notes, Baby Chair, Table, Seat, Submitted At), "Unassigned" for empty Table/Seat, return spreadsheet URL
-- [ ] T032 [US5] Implement `exportToXlsx` server action in `src/app/actions/export.ts` — same query and column structure as Google Sheets export, generate XLSX buffer via exceljs, return buffer and filename
-- [ ] T033 [US5] Add export buttons to RSVP dashboard `src/app/(auth)/dashboard/rsvps/page.tsx` — "Export to Google Sheets" button (calls getGoogleAuthStatus, if connected calls exportToGoogleSheets, if not redirects to OAuth), "Download as XLSX" button (calls exportToXlsx, triggers browser download), glass-panel styling for button container
-- [ ] T034 [P] [US5] Add export button to admin wedding detail page `src/app/(auth)/admin/weddings/[id]/page.tsx` — same export options as dashboard (per FR-021 admin access parity)
-- [ ] T035 [US5] Run `npm run test` and confirm T030 test now PASSES (Green phase)
+- [x] T031 [US5] Implement `exportToGoogleSheets` server action in `src/app/actions/export.ts` — refresh token if expired, query RSVPs with LEFT JOIN seat_assignments, derive tableName/seatLabel from floor plan items, create new spreadsheet via Google Sheets API, populate with columns (Guest Name, Status, Vegetarian, Dietary Notes, Baby Chair, Table, Seat, Submitted At), "Unassigned" for empty Table/Seat, return spreadsheet URL
+- [x] T032 [US5] Implement `exportToXlsx` server action in `src/app/actions/export.ts` — same query and column structure as Google Sheets export, generate XLSX buffer via exceljs, return buffer and filename
+- [x] T033 [US5] Add export buttons to RSVP dashboard `src/app/(auth)/dashboard/rsvps/page.tsx` — "Export to Google Sheets" button (calls getGoogleAuthStatus, if connected calls exportToGoogleSheets, if not redirects to OAuth), "Download as XLSX" button (calls exportToXlsx, triggers browser download), glass-panel styling for button container
+- [x] T034 [P] [US5] Add export button to admin wedding detail page `src/app/(auth)/admin/weddings/[id]/page.tsx` — same export options as dashboard (per FR-021 admin access parity)
+- [x] T035 [US5] Run `npm run test` and confirm T030 test now PASSES (Green phase)
 
 **Checkpoint**: All 5 user stories complete. Google Sheets and XLSX exports work.
 
