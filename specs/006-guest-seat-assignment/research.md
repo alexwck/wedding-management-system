@@ -58,3 +58,31 @@
 - Guests panel below item catalog (left) — rejected because it pushes guests below the fold and makes the left sidebar too tall.
 - Separate tab/page — rejected because it breaks the assign-while-viewing workflow.
 - Floating overlay — rejected because it would overlap the canvas.
+
+## R7: Google Sheets export — OAuth token storage
+
+**Decision**: Separate `oauth_tokens` table.
+
+**Rationale**: Storing Google OAuth tokens in a separate table keeps them independent of the Supabase auth system. The table stores access_token, refresh_token, and provider scope per user. This avoids polluting `auth.users` metadata and allows token rotation without touching auth records.
+
+**Alternatives considered**:
+- Supabase `auth.users` metadata — rejected because mixing Google tokens with auth metadata creates coupling and makes token refresh harder to manage independently.
+
+## R8: Google Sheets export — new spreadsheet vs update existing
+
+**Decision**: Create a new spreadsheet each time.
+
+**Rationale**: Simpler implementation — no need to track spreadsheet IDs, handle stale data, or manage version conflicts. Each export is a fresh snapshot. Users can organize their Drive however they want after creation.
+
+**Alternatives considered**:
+- Update existing spreadsheet — rejected because it requires storing spreadsheet IDs, handling permission changes, and resolving data conflicts. Over-engineering for a wedding RSVP context.
+
+## R9: Google Sheets export — fallback format
+
+**Decision**: XLSX via server-side generation.
+
+**Rationale**: XLSX supports richer formatting than CSV (column widths, header styling, cell formatting). Server-side generation keeps RSVP data off the client for privacy. The `exceljs` npm package is well-maintained and supports streaming for large datasets.
+
+**Alternatives considered**:
+- CSV — rejected because no formatting support, poor handling of special characters in guest names.
+- Client-side generation — rejected because it requires sending all RSVP data to the browser, which is less private.

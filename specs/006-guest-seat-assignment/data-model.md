@@ -86,7 +86,7 @@ New migration file: `supabase/migrations/YYYYMMDDHHMMSS_add_seat_assignments.sql
 ## Application Types
 
 ```typescript
-// src/types/floor-plan.ts — additions
+// src/types/seat-assignment.ts
 
 interface SeatAssignment {
   id: number;
@@ -111,4 +111,58 @@ type SeatAssignmentMap = Record<string, {
   guestName: string;
   rsvpId: number;
 }>;
+```
+
+## New Table: `oauth_tokens`
+
+```
+oauth_tokens
+├── id             BIGINT PRIMARY KEY (auto-increment)
+├── user_id        UUID NOT NULL (FK → auth.users.id, ON DELETE CASCADE)
+├── provider       TEXT NOT NULL DEFAULT 'google'
+├── access_token   TEXT NOT NULL
+├── refresh_token  TEXT NOT NULL
+├── scope          TEXT
+├── expires_at     TIMESTAMPTZ
+├── created_at     TIMESTAMPTZ DEFAULT now()
+├── updated_at     TIMESTAMPTZ DEFAULT now()
+│
+├── UNIQUE (user_id, provider)
+├── INDEX idx_oauth_tokens_user (user_id)
+│
+└── RLS:
+     ├── Users: SELECT/INSERT/UPDATE/DELETE where user_id = auth.uid()
+     └── Service role: full access (for server-side token refresh)
+```
+
+### Field Details
+
+| Field | Type | Constraints | Description |
+|-------|------|------------|-------------|
+| id | BIGINT | PK, auto-increment | Row identifier |
+| user_id | UUID | NOT NULL, FK → auth.users | Which user owns this token |
+| provider | TEXT | NOT NULL, DEFAULT 'google' | OAuth provider name |
+| access_token | TEXT | NOT NULL | Current access token |
+| refresh_token | TEXT | NOT NULL | Long-lived refresh token |
+| scope | TEXT | nullable | Granted scopes |
+| expires_at | TIMESTAMPTZ | nullable | When the access token expires |
+| created_at | TIMESTAMPTZ | DEFAULT now() | Token creation timestamp |
+| updated_at | TIMESTAMPTZ | DEFAULT now() | Last refresh timestamp |
+
+### Application Types
+
+```typescript
+// src/types/oauth.ts
+
+interface OAuthToken {
+  id: number;
+  userId: string;
+  provider: 'google';
+  accessToken: string;
+  refreshToken: string;
+  scope: string | null;
+  expiresAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
 ```

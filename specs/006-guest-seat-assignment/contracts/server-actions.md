@@ -111,6 +111,137 @@ Notes:
   - Deletes assignments where the referenced items no longer exist
 ```
 
+## New Server Action: RSVP Update (`src/app/actions/rsvp.ts`)
+
+### updateRsvpStatus
+
+Changes an RSVP's status (e.g., attending → declining). Triggers seat assignment cleanup.
+
+```
+Input:
+  weddingId: number       — the wedding ID
+  rsvpId: number          — the RSVP to update
+  status: "attending" | "declining"
+
+Output:
+  { success: true, rsvp: Rsvp }
+  | { success: false, error: string }
+
+Validation:
+  - User is authenticated and owns this wedding (or is admin)
+  - RSVP exists and belongs to this wedding
+  - Status is a valid enum value
+
+Side effects:
+  - If status changes to "declining": DELETE from seat_assignments WHERE rsvp_id = rsvpId
+  - Must run AFTER the RSVP update is confirmed (not before)
+
+Atomicity:
+  - Wrap RSVP update + assignment cleanup in a Supabase transaction or sequential queries with error handling
+```
+
+## New Server Actions: Export (`src/app/actions/export.ts`)
+
+### exportToGoogleSheets
+
+Creates a new Google Spreadsheet with RSVP + seat assignment data.
+
+```
+Input:
+  weddingId: number       — the wedding ID
+
+Output:
+  { success: true, spreadsheetUrl: string }
+  | { success: false, error: string }
+
+Validation:
+  - User is authenticated and owns this wedding (or is admin)
+  - User has a valid Google OAuth token in oauth_tokens table
+  - Token is refreshed if expired (using refresh_token)
+
+Behavior:
+  - Refresh token if expired via Google OAuth API
+  - Query RSVPs with LEFT JOIN seat_assignments for this wedding
+  - Derive tableName and seatLabel from floor plan items JSONB
+  - Create new spreadsheet via Google Sheets API
+  - Populate rows with columns: Guest Name, Status, Vegetarian, Dietary Notes, Baby Chair, Table, Seat, Submitted At
+  - "Table" and "Seat" columns: populated from assignment data or "Unassigned"
+  - Return the spreadsheet URL for the confirmation message
+```
+
+### exportToXlsx
+
+Generates and returns an XLSX file with RSVP + seat assignment data.
+
+```
+Input:
+  weddingId: number       — the wedding ID
+
+Output:
+  { success: true, data: ArrayBuffer, filename: string }
+  | { success: false, error: string }
+
+Validation:
+  - User is authenticated and owns this wedding (or is admin)
+
+Behavior:
+  - Query RSVPs with LEFT JOIN seat_assignments for this wedding
+  - Derive tableName and seatLabel from floor plan items JSONB
+  - Generate XLSX buffer with columns: Guest Name, Status, Vegetarian, Dietary Notes, Baby Chair, Table, Seat, Submitted At
+  - "Table" and "Seat" columns: populated from assignment data or "Unassigned"
+  - Return buffer and suggested filename (e.g., "rsvp-export-{wedding-slug}.xlsx")
+```
+
+### getGoogleAuthUrl
+
+Generates a Google OAuth authorization URL.
+
+```
+Input: (none)
+
+Output:
+  { url: string }        — Google OAuth consent screen URL
+
+Behavior:
+  - Generate OAuth URL with scopes: spreadsheets, drive.file
+  - Include state parameter for CSRF protection
+  - Use configured Google OAuth client ID/secret from environment variables
+```
+
+### handleGoogleCallback
+
+Processes the OAuth callback and stores tokens.
+
+```
+Input:
+  code: string           — OAuth authorization code
+  state: string          — CSRF state parameter
+
+Output:
+  { success: true }
+  | { success: false, error: string }
+
+Behavior:
+  - Exchange authorization code for access_token + refresh_token
+  - Upsert oauth_tokens row for the current user
+  - Validate state parameter matches session
+```
+
+### getGoogleAuthStatus
+
+Checks if the current user has valid Google OAuth tokens.
+
+```
+Input: (none)
+
+Output:
+  { isConnected: boolean }
+
+Behavior:
+  - Check if oauth_tokens row exists for current user + provider = 'google'
+  - Check if token is not expired (or refreshable)
+```
+
 ## Modified Existing Server Actions
 
 ### saveFloorPlan (in `actions/floor-plan.ts`)
