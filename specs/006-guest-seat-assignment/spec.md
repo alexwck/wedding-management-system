@@ -88,6 +88,7 @@ As a couple, I want exported Google Sheets data to include seat assignment colum
 ### Edge Cases
 
 - What happens when a floor plan item (table) is deleted while it has assigned seats? Assignments are deleted and those guests return to the unassigned list.
+- What happens when an individual chair item is deleted? Same as table deletion — the assignment is removed and the guest returns to the unassigned list.
 - What happens when an RSVP status changes from "attending" to "declined" after a guest is assigned? The seat assignment is automatically removed and the chair becomes empty.
 - What happens when a guest name is edited on the RSVP? The assignment persists but displays the updated name.
 - What happens when the floor plan is reset (all items cleared)? All seat assignments for that wedding are deleted.
@@ -110,7 +111,7 @@ As a couple, I want exported Google Sheets data to include seat assignment colum
 - **FR-010**: System MUST show each guest's assigned table name and seat position in the RSVP list on the dashboard
 - **FR-011**: System MUST include "Table Name" and "Seat" columns in Google Sheets exports
 - **FR-012**: System MUST automatically remove seat assignments when an RSVP changes from "attending" to "declined"
-- **FR-013**: System MUST delete seat assignments when their parent table item is removed from the floor plan
+- **FR-013**: System MUST delete seat assignments when their parent table item or the assigned chair item itself is removed from the floor plan
 - **FR-014**: System MUST only show attending guests (status = "attending") in the assignment dialog — declined guests are never shown
 - **FR-015**: System MUST prevent assigning the same guest to multiple chairs simultaneously
 - **FR-016**: System MUST support both couple and admin roles for all seat assignment operations
@@ -130,6 +131,12 @@ As a couple, I want exported Google Sheets data to include seat assignment colum
 - **SC-004**: The RSVP dashboard accurately reflects current seat assignments for 100% of guests
 - **SC-005**: Seat assignments survive floor plan save/load cycles without data loss
 - **SC-006**: Google Sheets exports include accurate seat assignment data for every RSVP row
+
+## Clarifications
+
+### Session 2026-04-22
+
+- Q: What happens when an individual chair item is deleted from the floor plan (distinct from parent table deletion)? → A: Assignment is deleted; guest returns to unassigned list (consistent with FR-013 table deletion behavior)
 
 ## Assumptions
 
