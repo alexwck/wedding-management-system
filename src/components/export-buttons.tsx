@@ -14,11 +14,12 @@ interface ExportButtonsProps {
 }
 
 export function ExportButtons({ weddingId }: ExportButtonsProps) {
-  const [isExporting, setIsExporting] = useState(false);
+  const [isGoogleExporting, setIsGoogleExporting] = useState(false);
+  const [isXlsxExporting, setIsXlsxExporting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   async function handleGoogleExport() {
-    setIsExporting(true);
+    setIsGoogleExporting(true);
     setMessage(null);
 
     const status = await getGoogleAuthStatus();
@@ -28,7 +29,7 @@ export function ExportButtons({ weddingId }: ExportButtonsProps) {
         window.open(url, "_blank");
         setMessage("Complete Google authentication in the new tab, then try again.");
       }
-      setIsExporting(false);
+      setIsGoogleExporting(false);
       return;
     }
 
@@ -39,11 +40,11 @@ export function ExportButtons({ weddingId }: ExportButtonsProps) {
     } else {
       setMessage(result.error);
     }
-    setIsExporting(false);
+    setIsGoogleExporting(false);
   }
 
   async function handleXlsxExport() {
-    setIsExporting(true);
+    setIsXlsxExporting(true);
     setMessage(null);
 
     const result = await exportToXlsx(weddingId);
@@ -61,8 +62,10 @@ export function ExportButtons({ weddingId }: ExportButtonsProps) {
     } else if (!result.success) {
       setMessage(result.error);
     }
-    setIsExporting(false);
+    setIsXlsxExporting(false);
   }
+
+  const isExporting = isGoogleExporting || isXlsxExporting;
 
   return (
     <div className="flex items-center gap-2">
@@ -72,7 +75,7 @@ export function ExportButtons({ weddingId }: ExportButtonsProps) {
         onClick={handleGoogleExport}
         disabled={isExporting}
       >
-        {isExporting ? "Exporting..." : "Export to Google Sheets"}
+        {isGoogleExporting ? "Exporting..." : "Export to Google Sheets"}
       </Button>
       <Button
         variant="outline"
@@ -80,7 +83,7 @@ export function ExportButtons({ weddingId }: ExportButtonsProps) {
         onClick={handleXlsxExport}
         disabled={isExporting}
       >
-        Download as XLSX
+        {isXlsxExporting ? "Downloading..." : "Download as XLSX"}
       </Button>
       {message && (
         <span className="text-sm text-muted-foreground">{message}</span>

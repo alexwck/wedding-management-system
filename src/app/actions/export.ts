@@ -1,90 +1,55 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthAndVerifyAccess } from "@/lib/auth-guards";
+import { resolveSeatLabels } from "@/lib/seat-resolution";
 import { exportSchema, handleGoogleCallbackSchema } from "@/lib/validations/export";
 import { google } from "googleapis";
 import ExcelJS from "exceljs";
 import type { RsvpWithAssignment } from "@/types/seat-assignment";
+import type { FloorPlanItem } from "@/types/floor-plan";
 
-async function getAuthAndVerifyAccess(weddingId: number) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { user: null, error: "Not authenticated." } as const;
-  }
-
-  const isAdmin = user.app_metadata?.role === "admin";
-  if (!isAdmin) {
-    const { data } = await supabase
-      .from("weddings")
-      .select("id")
-      .eq("id", weddingId)
-      .eq("user_id", user.id)
-      .maybeSingle();
-    if (!data) {
-      return { user: null, error: "Access denied." } as const;
-    }
-  }
-
-  return { user, error: null } as const;
+function createOAuth2Client() {
+  return new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_REDIRECT_URI,
+  );
 }
 
 async function getRsvpsWithAssignments(weddingId: number) {
   const adminClient = createAdminClient();
 
-  const { data: rsvps, error: rsvpError } = await adminClient
-    .from("rsvps")
-    .select("id, guest_name, status, is_vegetarian, dietary_notes, needs_baby_chair, submitted_at")
-    .eq("wedding_id", weddingId)
-    .order("guest_name");
+  const [rsvpsResult, assignmentsResult, floorPlanResult] = await Promise.all([
+    adminClient
+      .from("rsvps")
+      .select("id, guest_name, status, is_vegetarian, dietary_notes, needs_baby_chair, submitted_at")
+      .eq("wedding_id", weddingId)
+      .order("guest_name"),
+    adminClient
+      .from("seat_assignments")
+      .select("rsvp_id, chair_item_id, table_item_id")
+      .eq("wedding_id", weddingId),
+    adminClient
+      .from("floor_plans")
+      .select("items")
+      .eq("wedding_id", weddingId)
+      .maybeSingle(),
+  ]);
 
-  if (rsvpError || !rsvps) return [];
-
-  const { data: assignments } = await adminClient
-    .from("seat_assignments")
-    .select("rsvp_id, chair_item_id, table_item_id")
-    .eq("wedding_id", weddingId);
+  if (rsvpsResult.error || !rsvpsResult.data) return [];
 
   const assignmentMap = new Map(
-    (assignments ?? []).map((a) => [a.rsvp_id, { chairItemId: a.chair_item_id, tableItemId: a.table_item_id }]),
+    (assignmentsResult.data ?? []).map((a) => [a.rsvp_id, { chairItemId: a.chair_item_id, tableItemId: a.table_item_id }]),
   );
 
-  // Get floor plan for table/seat labels
-  const { data: floorPlan } = await adminClient
-    .from("floor_plans")
-    .select("items")
-    .eq("wedding_id", weddingId)
-    .maybeSingle();
+  const items = (floorPlanResult.data?.items ?? []) as FloorPlanItem[];
 
-  type FloorPlanItem = { id: string; label: string; type: string; parentItemId: string | null; metadata: { chairIndex?: number } };
-  const items = (floorPlan?.items ?? []) as FloorPlanItem[];
-  const itemMap = new Map(items.map((i) => [i.id, i]));
-
-  return rsvps.map((r) => {
+  return rsvpsResult.data.map((r) => {
     const assignment = assignmentMap.get(r.id) ?? null;
-    let tableName: string | null = null;
-    let seatLabel: string | null = null;
-
-    if (assignment) {
-      const tableItem = itemMap.get(assignment.tableItemId);
-      tableName = tableItem?.label ?? null;
-
-      const chairItem = itemMap.get(assignment.chairItemId);
-      if (chairItem?.metadata?.chairIndex != null) {
-        seatLabel = `Seat ${chairItem.metadata.chairIndex + 1}`;
-      } else {
-        // Count siblings (chairs with same parent) to find ordinal position
-        const siblings = items.filter(
-          (i) => i.parentItemId === assignment.tableItemId && i.type === "chair",
-        );
-        const idx = siblings.findIndex((i) => i.id === assignment.chairItemId);
-        seatLabel = idx >= 0 ? `Seat ${idx + 1}` : "Seat ?";
-      }
-    }
+    const { tableName, seatLabel } = assignment
+      ? resolveSeatLabels(items, assignment.chairItemId, assignment.tableItemId)
+      : { tableName: null, seatLabel: null };
 
     return {
       id: r.id,
@@ -105,7 +70,7 @@ async function getRsvpsWithAssignments(weddingId: number) {
 // --- Google OAuth ---
 
 export async function getGoogleAuthUrl() {
-  const supabase = await createClient();
+  const supabase = await import("@/lib/supabase/server").then((m) => m.createClient());
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -113,13 +78,7 @@ export async function getGoogleAuthUrl() {
     return { url: "" };
   }
 
-  const oauth2Client = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    process.env.GOOGLE_REDIRECT_URI,
-  );
-
-  const url = oauth2Client.generateAuthUrl({
+  const url = createOAuth2Client().generateAuthUrl({
     access_type: "offline",
     scope: ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive.file"],
     state: user.id,
@@ -134,7 +93,7 @@ export async function handleGoogleCallback(input: { code: string; state: string 
     return { success: false as const, error: "Invalid callback data." };
   }
 
-  const supabase = await createClient();
+  const supabase = await import("@/lib/supabase/server").then((m) => m.createClient());
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -142,13 +101,7 @@ export async function handleGoogleCallback(input: { code: string; state: string 
     return { success: false as const, error: "Not authenticated." };
   }
 
-  const oauth2Client = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    process.env.GOOGLE_REDIRECT_URI,
-  );
-
-  const { tokens } = await oauth2Client.getToken(parsed.data.code);
+  const { tokens } = await createOAuth2Client().getToken(parsed.data.code);
 
   if (!tokens.access_token || !tokens.refresh_token) {
     return { success: false as const, error: "Failed to obtain tokens." };
@@ -175,7 +128,7 @@ export async function handleGoogleCallback(input: { code: string; state: string 
 }
 
 export async function getGoogleAuthStatus() {
-  const supabase = await createClient();
+  const supabase = await import("@/lib/supabase/server").then((m) => m.createClient());
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -209,25 +162,27 @@ export async function exportToGoogleSheets(weddingId: number) {
 
   const adminClient = createAdminClient();
 
-  // Get user's Google tokens
-  const { data: tokenData } = await adminClient
-    .from("oauth_tokens")
-    .select("*")
-    .eq("user_id", auth.user!.id)
-    .eq("provider", "google")
-    .maybeSingle();
+  const [tokenResult, rsvps, weddingResult] = await Promise.all([
+    adminClient
+      .from("oauth_tokens")
+      .select("*")
+      .eq("user_id", auth.user!.id)
+      .eq("provider", "google")
+      .maybeSingle(),
+    getRsvpsWithAssignments(weddingId),
+    adminClient
+      .from("weddings")
+      .select("title")
+      .eq("id", weddingId)
+      .single(),
+  ]);
 
-  if (!tokenData) {
+  if (!tokenResult.data) {
     return { success: false as const, error: "Google not connected. Please authenticate first." };
   }
 
-  // Refresh token if expired
-  const oauth2Client = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    process.env.GOOGLE_REDIRECT_URI,
-  );
-
+  const tokenData = tokenResult.data;
+  const oauth2Client = createOAuth2Client();
   oauth2Client.setCredentials({
     access_token: tokenData.access_token,
     refresh_token: tokenData.refresh_token,
@@ -235,18 +190,8 @@ export async function exportToGoogleSheets(weddingId: number) {
     expiry_date: tokenData.expires_at ? new Date(tokenData.expires_at).getTime() : undefined,
   });
 
-  // Get RSVP data
-  const rsvps = await getRsvpsWithAssignments(weddingId);
-
-  // Create spreadsheet
   const sheets = google.sheets({ version: "v4", auth: oauth2Client });
-  const { data: wedding } = await adminClient
-    .from("weddings")
-    .select("title")
-    .eq("id", weddingId)
-    .single();
-
-  const spreadsheetTitle = `${wedding?.title ?? "Wedding"} - RSVP Export`;
+  const spreadsheetTitle = `${weddingResult.data?.title ?? "Wedding"} - RSVP Export`;
 
   const { data: spreadsheet } = await sheets.spreadsheets.create({
     requestBody: {
@@ -279,7 +224,6 @@ export async function exportToGoogleSheets(weddingId: number) {
     },
   });
 
-  // Update stored token if refreshed
   const newCredentials = oauth2Client.credentials;
   if (newCredentials.access_token && newCredentials.access_token !== tokenData.access_token) {
     await adminClient
@@ -324,7 +268,6 @@ export async function exportToXlsx(weddingId: number) {
     { header: "Submitted At", key: "submittedAt", width: 18 },
   ];
 
-  // Style header row
   const headerRow = sheet.getRow(1);
   headerRow.font = { bold: true };
   headerRow.fill = {

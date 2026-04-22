@@ -1,7 +1,7 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthAndVerifyAccess } from "@/lib/auth-guards";
 import { rsvpSchema } from "@/lib/validations/rsvp";
 
 export async function submitRSVP(data: {
@@ -95,26 +95,9 @@ export async function updateRsvpStatus(input: {
   rsvpId: number;
   status: "attending" | "declining";
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { success: false as const, error: "Not authenticated." };
-  }
-
-  const isAdmin = user.app_metadata?.role === "admin";
-  if (!isAdmin) {
-    const { data } = await supabase
-      .from("weddings")
-      .select("id")
-      .eq("id", input.weddingId)
-      .eq("user_id", user.id)
-      .maybeSingle();
-    if (!data) {
-      return { success: false as const, error: "Access denied." };
-    }
+  const auth = await getAuthAndVerifyAccess(input.weddingId);
+  if (auth.error) {
+    return { success: false as const, error: auth.error };
   }
 
   const adminClient = createAdminClient();

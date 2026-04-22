@@ -15,13 +15,19 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
+import type { UnassignedGuest } from "@/types/seat-assignment";
+
+function getEmptyMessage(unassignedCount: number, isOccupied: boolean): string {
+  if (unassignedCount > 0) return "No matching guests.";
+  return isOccupied ? "All other guests are seated." : "All guests are seated.";
+}
 
 interface GuestAssignmentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   chairItemId: string;
   currentGuestName: string | null;
-  unassignedGuests: Array<{ id: number; guestName: string }>;
+  unassignedGuests: UnassignedGuest[];
   onAssign: (rsvpId: number, chairItemId: string, tableItemId: string, guestName: string) => Promise<{ success: boolean; error?: string }>;
   onUnassign: (chairItemId: string) => Promise<{ success: boolean; error?: string }>;
   tableItemId: string;
@@ -89,11 +95,7 @@ export function GuestAssignmentDialog({
           <CommandInput placeholder="Search guests..." />
           <CommandList>
             <CommandEmpty>
-              {unassignedGuests.length === 0
-                ? isOccupied
-                  ? "All other guests are seated."
-                  : "All guests are seated."
-                : "No matching guests."}
+              {getEmptyMessage(unassignedGuests.length, isOccupied)}
             </CommandEmpty>
             {unassignedGuests.map((guest) => (
               <CommandItem

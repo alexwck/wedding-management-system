@@ -7,12 +7,7 @@ import {
   getSeatAssignments,
   getUnassignedGuests,
 } from "@/app/actions/seat-assignment";
-import type { SeatAssignmentMap } from "@/types/seat-assignment";
-
-interface UnassignedGuest {
-  id: number;
-  guestName: string;
-}
+import type { SeatAssignmentMap, UnassignedGuest } from "@/types/seat-assignment";
 
 export function useSeatAssignments(weddingId: number) {
   const [assignmentMap, setAssignmentMap] = useState<SeatAssignmentMap>({});
@@ -42,10 +37,10 @@ export function useSeatAssignments(weddingId: number) {
 
   useEffect(() => {
     if (weddingId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- data-fetching effect, not derived state
       void fetchAssignments();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [weddingId]);
+  }, [weddingId, fetchAssignments]);
 
   const handleAssign = useCallback(
     async (rsvpId: number, chairItemId: string, tableItemId: string, guestName: string) => {

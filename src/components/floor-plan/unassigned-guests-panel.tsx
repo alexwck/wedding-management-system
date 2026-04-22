@@ -1,7 +1,9 @@
 "use client";
 
+import type { UnassignedGuest } from "@/types/seat-assignment";
+
 interface UnassignedGuestsPanelProps {
-  guests: Array<{ id: number; guestName: string }>;
+  guests: UnassignedGuest[];
   isLoading: boolean;
 }
 
