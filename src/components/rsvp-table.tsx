@@ -16,6 +16,8 @@ interface RSVPGuest {
   isVegetarian: boolean;
   needsBabyChair: boolean;
   createdAt: string;
+  tableName?: string | null;
+  seatLabel?: string | null;
 }
 
 interface RSVPTableProps {
@@ -40,6 +42,8 @@ export function RSVPTable({ rsvps }: RSVPTableProps) {
           <TableHead className="hidden md:table-cell">Dietary Notes</TableHead>
           <TableHead className="hidden sm:table-cell">Vegetarian</TableHead>
           <TableHead className="hidden sm:table-cell">Baby Chair</TableHead>
+          <TableHead className="hidden md:table-cell">Table</TableHead>
+          <TableHead className="hidden md:table-cell">Seat</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -61,6 +65,12 @@ export function RSVPTable({ rsvps }: RSVPTableProps) {
             </TableCell>
             <TableCell className="hidden sm:table-cell">
               {rsvp.needsBabyChair ? "Yes" : "No"}
+            </TableCell>
+            <TableCell className="hidden md:table-cell">
+              {rsvp.tableName || "—"}
+            </TableCell>
+            <TableCell className="hidden md:table-cell">
+              {rsvp.seatLabel || "—"}
             </TableCell>
           </TableRow>
         ))}

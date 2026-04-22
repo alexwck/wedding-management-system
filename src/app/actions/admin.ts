@@ -5,6 +5,73 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { nanoid } from "nanoid";
 import { createCoupleSchema } from "@/lib/validations/admin";
+import type { FloorPlanItem } from "@/types/floor-plan";
+
+async function enrichRsvpsWithSeats(
+  supabase: ReturnType<typeof createAdminClient>,
+  weddingId: number,
+  rsvpList: Array<{
+    id: number;
+    guest_name: string;
+    status: string;
+    dietary_notes: string | null;
+    is_vegetarian: boolean;
+    needs_baby_chair: boolean;
+    created_at: string;
+  }>,
+) {
+  const { data: assignments } = await supabase
+    .from("seat_assignments")
+    .select("rsvp_id, chair_item_id, table_item_id")
+    .eq("wedding_id", weddingId);
+
+  const { data: floorPlan } = await supabase
+    .from("floor_plans")
+    .select("items")
+    .eq("wedding_id", weddingId)
+    .maybeSingle();
+
+  const assignmentMap = new Map(
+    (assignments ?? []).map((a) => [a.rsvp_id, { chairItemId: a.chair_item_id, tableItemId: a.table_item_id }]),
+  );
+
+  const items = (floorPlan?.items ?? []) as FloorPlanItem[];
+  const itemMap = new Map(items.map((i) => [i.id, i]));
+
+  return rsvpList.map((r) => {
+    const assignment = assignmentMap.get(r.id);
+    let tableName: string | null = null;
+    let seatLabel: string | null = null;
+
+    if (assignment) {
+      const tableItem = itemMap.get(assignment.tableItemId);
+      tableName = tableItem?.label ?? null;
+
+      const chairItem = itemMap.get(assignment.chairItemId);
+      if (chairItem?.metadata?.chairIndex != null) {
+        seatLabel = `Seat ${chairItem.metadata.chairIndex + 1}`;
+      } else {
+        const siblings = items.filter(
+          (i) => i.parentItemId === assignment.tableItemId && i.type === "chair",
+        );
+        const idx = siblings.findIndex((i) => i.id === assignment.chairItemId);
+        seatLabel = idx >= 0 ? `Seat ${idx + 1}` : null;
+      }
+    }
+
+    return {
+      id: r.id,
+      guestName: r.guest_name,
+      status: r.status as "attending" | "declining",
+      dietaryNotes: r.dietary_notes,
+      isVegetarian: r.is_vegetarian,
+      needsBabyChair: r.needs_baby_chair,
+      createdAt: r.created_at,
+      tableName,
+      seatLabel,
+    };
+  });
+}
 
 export async function getWeddingRSVPs(weddingId: number) {
   const supabase = createAdminClient();
@@ -55,15 +122,7 @@ export async function getWeddingRSVPs(weddingId: number) {
       weddingDate: wedding.wedding_date,
       templateImageUrl: wedding.template_image_url,
     },
-    rsvps: rsvpList.map((r) => ({
-      id: r.id,
-      guestName: r.guest_name,
-      status: r.status as "attending" | "declining",
-      dietaryNotes: r.dietary_notes,
-      isVegetarian: r.is_vegetarian,
-      needsBabyChair: r.needs_baby_chair,
-      createdAt: r.created_at,
-    })),
+    rsvps: await enrichRsvpsWithSeats(supabase, weddingId, rsvpList),
     summary,
   };
 }
@@ -265,15 +324,7 @@ export async function getMyWeddingRSVPs() {
       weddingDate: wedding.wedding_date,
       templateImageUrl: wedding.template_image_url,
     },
-    rsvps: rsvpList.map((r) => ({
-      id: r.id,
-      guestName: r.guest_name,
-      status: r.status as "attending" | "declining",
-      dietaryNotes: r.dietary_notes,
-      isVegetarian: r.is_vegetarian,
-      needsBabyChair: r.needs_baby_chair,
-      createdAt: r.created_at,
-    })),
+    rsvps: await enrichRsvpsWithSeats(adminClient, wedding.id, rsvpList),
     summary,
   };
 }
