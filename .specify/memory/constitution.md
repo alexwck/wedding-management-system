@@ -1,17 +1,14 @@
 <!--
   Sync Impact Report:
-  Version change: 1.1.0 → 1.2.0
+  Version change: 1.2.0 → 1.3.0
   Modified principles:
-    - I. Spec-Driven Development: added Test Verification principle
+    - IX. Glassmorphism Design System: added new principle
   Modified sections:
-    - Technology Constraints: strengthened E2E testing requirements
-    - Development Workflow: added test execution gates
+    - None
   Templates requiring updates:
-    - .specify/templates/tasks-template.md — add E2E execution task
-      to Polish phase
+    - None
   Follow-up TODOs:
-    - Update tasks-template.md to include "Run full E2E suite" as a
-      mandatory Polish phase task
+    - None
 -->
 
 # Wedding Management System Constitution
@@ -114,6 +111,20 @@ use Zod schemas to catch malformed data. Concurrent writes to the same
 resource MUST be guarded (in-flight flags, atomic operations, or
 optimistic locking) to prevent silent data loss.
 
+### IX. Glassmorphism Design System
+
+All card-like surfaces (forms, overlays, toolbars, modals, panels)
+MUST use the glassmorphism design system defined in `globals.css`. The
+`.glass-panel` utility class provides the canonical styling: `backdrop-filter:
+blur(16px)`, `background: rgba(255,255,255,0.3)`, `border: 1px solid
+rgba(255,255,255,0.2)`, and `box-shadow: 0 8px 32px rgba(0,0,0,0.08)`.
+
+CSS variables (`--glass-bg`, `--glass-bg-heavy`, `--glass-border`,
+`--glass-shadow`, `--glass-blur`, `--radius-glass`) are the single
+source of truth for glass styling — no hardcoded values in components.
+Glass panels are visually effective against dark or image-rich
+backgrounds; layout decisions should ensure sufficient contrast.
+
 ## Technology Constraints
 
 - **Framework**: Next.js (App Router) with TypeScript (strict mode)
@@ -165,4 +176,4 @@ All PRs and code reviews MUST verify compliance with these principles.
 When a principle conflicts with a practical need, the principle is
 changed through the amendment process — not ignored.
 
-**Version**: 1.2.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-04-20
+**Version**: 1.3.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-04-22
