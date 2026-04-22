@@ -7,7 +7,7 @@ export default async function CoupleDashboard() {
 
   if (!result.success || !result.wedding || !result.summary) {
     return (
-      <div className="space-y-6">
+      <div className="max-w-4xl mx-auto space-y-6">
         <h2 className="text-2xl font-bold">Dashboard</h2>
         <p className="text-destructive">
           {result.message || "Failed to load wedding data."}
@@ -19,7 +19,7 @@ export default async function CoupleDashboard() {
   const { wedding, summary } = result;
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">{wedding.coupleName}</h2>

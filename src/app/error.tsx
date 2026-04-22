@@ -15,7 +15,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-4 text-center">
+    <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
       <div className="glass-panel rounded-xl p-8 max-w-md">
         <h1 className="text-4xl font-bold">Something went wrong</h1>
         <p className="mt-4 text-muted-foreground">
