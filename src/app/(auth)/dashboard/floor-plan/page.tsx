@@ -21,8 +21,7 @@ export default async function CoupleFloorPlanPage() {
 
   if (!wedding) {
     return (
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Floor Plan</h2>
+      <div className="p-6">
         <p className="text-muted-foreground">No wedding found for your account.</p>
       </div>
     );
@@ -32,16 +31,14 @@ export default async function CoupleFloorPlanPage() {
 
   if (!result.success) {
     return (
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Floor Plan</h2>
+      <div className="p-6">
         <p className="text-destructive">{result.error}</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Floor Plan</h2>
+    <div className="h-[calc(100vh-3rem)]">
       <FloorPlanCanvas
         weddingId={wedding.id}
         initialFloorPlan={result.floorPlan}

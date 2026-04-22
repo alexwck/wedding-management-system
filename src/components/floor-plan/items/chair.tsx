@@ -60,6 +60,7 @@ export function Chair({
         hitFunc={paddedCircleHitFunc}
       />
       <ItemLabel
+        id={id ? `${id}-label` : undefined}
         x={x * FEET_TO_PIXELS}
         y={y * FEET_TO_PIXELS}
         width={width * FEET_TO_PIXELS}

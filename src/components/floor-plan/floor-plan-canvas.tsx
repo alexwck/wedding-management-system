@@ -22,6 +22,9 @@ import { RotationTransformer } from "./rotation-transformer";
 import {
   FEET_TO_PIXELS,
   MAX_VENUE_DIMENSION,
+  isTableType,
+  centerPixelsToTopLeftFeet,
+  topLeftFeetToCenterPixels,
 } from "@/lib/floor-plan/constants";
 import { isItemOutOfBounds } from "@/lib/floor-plan/collision";
 import type { FloorPlan, FloorPlanItem, ItemType } from "@/types/floor-plan";
@@ -65,6 +68,7 @@ export function FloorPlanCanvas({
   const [stagePosition, setStagePosition] = useState({ x: 0, y: 0 });
   const lastTouchDist = useRef(0);
   const lastTouchCenter = useRef<{ x: number; y: number } | null>(null);
+  const hasFittedRef = useRef(false);
 
   const stageRef = useRef<Konva.Stage>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -259,6 +263,14 @@ export function FloorPlanCanvas({
     setStagePosition({ x: offsetX, y: offsetY });
   }, [canvasWidth, canvasHeight]);
 
+  // Center canvas on initial load once container dimensions are measured
+  useEffect(() => {
+    if (!hasFittedRef.current && containerWidth > 0 && containerHeight > 0) {
+      hasFittedRef.current = true;
+      handleFitToScreen();
+    }
+  }, [containerWidth, containerHeight, handleFitToScreen]);
+
   const pushHistory = useCallback(() => {
     undoRedo.pushState(state.items, state.width, state.height);
   }, [undoRedo, state.items, state.width, state.height]);
@@ -296,17 +308,19 @@ export function FloorPlanCanvas({
   const handleDragEnd = useCallback(
     (id: string, e: Konva.KonvaEventObject<DragEvent>) => {
       const node = e.target;
-      const newX = node.x() / FEET_TO_PIXELS;
-      const newY = node.y() / FEET_TO_PIXELS;
       const item = state.items.find((i) => i.id === id);
       if (!item) return;
+
+      const table = isTableType(item.type);
+      const { x: newX, y: newY } = table
+        ? centerPixelsToTopLeftFeet(node.x(), node.y(), item.width, item.height)
+        : { x: node.x() / FEET_TO_PIXELS, y: node.y() / FEET_TO_PIXELS };
 
       const dx = newX - item.x;
       const dy = newY - item.y;
       state.updateItem(id, { x: newX, y: newY });
 
-      const isTable = item.type === "round_table" || item.type === "long_table";
-      if (isTable && (dx !== 0 || dy !== 0)) {
+      if (table && (dx !== 0 || dy !== 0)) {
         state.items
           .filter((i) => i.parentItemId === id)
           .forEach((child) => {
@@ -326,7 +340,7 @@ export function FloorPlanCanvas({
       const item = state.items.find((i) => i.id === itemId);
       if (!item) return;
 
-      const isTable = item.type === "round_table" || item.type === "long_table";
+      const isTable = isTableType(item.type);
       if (!isTable) {
         state.updateItem(itemId, { rotation });
         return;
@@ -353,7 +367,6 @@ export function FloorPlanCanvas({
             state.updateItem(child.id, {
               x: newCx,
               y: newCy,
-              rotation: child.rotation + delta,
             });
           });
       }
@@ -364,36 +377,73 @@ export function FloorPlanCanvas({
   const handleDragMove = useCallback(
     (id: string, e: Konva.KonvaEventObject<DragEvent>) => {
       const node = e.target;
-      const newX = node.x() / FEET_TO_PIXELS;
-      const newY = node.y() / FEET_TO_PIXELS;
-
       const movedItem = state.items.find((i) => i.id === id);
       if (!movedItem) return;
+
+      const table = isTableType(movedItem.type);
+      const { x: newX, y: newY } = table
+        ? centerPixelsToTopLeftFeet(node.x(), node.y(), movedItem.width, movedItem.height)
+        : { x: node.x() / FEET_TO_PIXELS, y: node.y() / FEET_TO_PIXELS };
 
       const hypothetical = { ...movedItem, x: newX, y: newY };
       const oob = isItemOutOfBounds(hypothetical, state.width, state.height);
 
+      // Compute label base position (center-based for all types)
+      const labelBaseX = (movedItem.x + movedItem.width / 2) * FEET_TO_PIXELS;
+      const labelBaseY = (movedItem.y + movedItem.height / 2) * FEET_TO_PIXELS;
+
+      const moveLabel = () => {
+        const stage = stageRef.current;
+        if (!stage) return;
+        const label = stage.findOne(`#${id}-label`);
+        if (label) {
+          const shapeBaseX = table
+            ? (movedItem.x + movedItem.width / 2) * FEET_TO_PIXELS
+            : movedItem.x * FEET_TO_PIXELS;
+          const shapeBaseY = table
+            ? (movedItem.y + movedItem.height / 2) * FEET_TO_PIXELS
+            : movedItem.y * FEET_TO_PIXELS;
+          const dx = node.x() - shapeBaseX;
+          const dy = node.y() - shapeBaseY;
+          label.x(labelBaseX + dx);
+          label.y(labelBaseY + dy);
+        }
+      };
+
       if (oob) {
         const saved = collision.getSavedPosition(id);
         if (saved) {
-          node.x(saved.x * FEET_TO_PIXELS);
-          node.y(saved.y * FEET_TO_PIXELS);
+          const restored = table
+            ? topLeftFeetToCenterPixels(saved.x, saved.y, movedItem.width, movedItem.height)
+            : { x: saved.x * FEET_TO_PIXELS, y: saved.y * FEET_TO_PIXELS };
+          node.x(restored.x);
+          node.y(restored.y);
         }
+        moveLabel();
       } else {
         collision.savePosition(id, newX, newY);
-        const isTable = movedItem.type === "round_table" || movedItem.type === "long_table";
-        if (isTable) {
+        moveLabel();
+        if (table) {
           const dx = newX - movedItem.x;
           const dy = newY - movedItem.y;
+          const stage = stageRef.current;
+          if (!stage) return;
           state.items
             .filter((i) => i.parentItemId === id)
             .forEach((child) => {
-              const stage = stageRef.current;
-              if (!stage) return;
               const childNode = stage.findOne(`#${child.id}`);
               if (childNode) {
-                childNode.x((child.x + dx) * FEET_TO_PIXELS);
-                childNode.y((child.y + dy) * FEET_TO_PIXELS);
+                const center = topLeftFeetToCenterPixels(
+                  child.x + dx, child.y + dy,
+                  child.width, child.height,
+                );
+                childNode.x(center.x);
+                childNode.y(center.y);
+                const childLabel = stage.findOne(`#${child.id}-label`);
+                if (childLabel) {
+                  childLabel.x(center.x);
+                  childLabel.y(center.y);
+                }
               }
             });
         }
@@ -603,55 +653,86 @@ export function FloorPlanCanvas({
     return (
       <React.Fragment key={item.id}>
         {element}
-        {isOutOfBounds && (
-          item.type === "round_table" || item.type === "chair" ? (
-            <Circle
-              x={(item.x + item.width / 2) * FEET_TO_PIXELS}
-              y={(item.y + item.height / 2) * FEET_TO_PIXELS}
-              radius={(item.width / 2) * FEET_TO_PIXELS}
-              fill="transparent"
-              stroke="#ef4444"
-              strokeWidth={2}
-              dash={[4, 4]}
-              listening={false}
-            />
-          ) : (
-            <Rect
-              x={item.x * FEET_TO_PIXELS}
-              y={item.y * FEET_TO_PIXELS}
-              width={item.width * FEET_TO_PIXELS}
-              height={item.height * FEET_TO_PIXELS}
-              rotation={item.rotation}
-              fill="transparent"
-              stroke="#ef4444"
-              strokeWidth={2}
-              dash={[4, 4]}
-              listening={false}
-            />
-          )
-        )}
+        {isOutOfBounds && renderOutOfBoundsIndicator(item)}
       </React.Fragment>
     );
   };
 
-  const saveLabel =
-    saveStatus === "saving"
-      ? "Saving..."
-      : saveStatus === "saved"
-        ? "Saved"
-        : saveStatus === "error"
-          ? "Save failed"
-          : "Unsaved";
+  const renderOutOfBoundsIndicator = (item: FloorPlanItem) => {
+    const commonProps = {
+      fill: "transparent" as const,
+      stroke: "#ef4444",
+      strokeWidth: 2,
+      dash: [4, 4] as [number, number],
+      listening: false,
+    };
+
+    if (item.type === "round_table" || item.type === "chair") {
+      const center = topLeftFeetToCenterPixels(item.x, item.y, item.width, item.height);
+      return (
+        <Circle
+          x={center.x}
+          y={center.y}
+          radius={(item.width / 2) * FEET_TO_PIXELS}
+          {...commonProps}
+        />
+      );
+    }
+
+    if (item.type === "long_table") {
+      const center = topLeftFeetToCenterPixels(item.x, item.y, item.width, item.height);
+      return (
+        <Rect
+          x={center.x}
+          y={center.y}
+          width={item.width * FEET_TO_PIXELS}
+          height={item.height * FEET_TO_PIXELS}
+          offsetX={(item.width * FEET_TO_PIXELS) / 2}
+          offsetY={(item.height * FEET_TO_PIXELS) / 2}
+          rotation={item.rotation}
+          {...commonProps}
+        />
+      );
+    }
+
+    return (
+      <Rect
+        x={item.x * FEET_TO_PIXELS}
+        y={item.y * FEET_TO_PIXELS}
+        width={item.width * FEET_TO_PIXELS}
+        height={item.height * FEET_TO_PIXELS}
+        rotation={item.rotation}
+        {...commonProps}
+      />
+    );
+  };
+
+  const SAVE_LABELS: Record<string, string> = {
+    saving: "Saving...",
+    saved: "Saved",
+    error: "Save failed",
+  };
+  const saveLabel = SAVE_LABELS[saveStatus] ?? "Unsaved";
+
+  const selectedTableMaxChairs = selectedItem && isTableType(selectedItem.type)
+    ? getMaxChairCount(selectedItem)
+    : 0;
+  const selectedChairCount = selectedItem?.metadata?.chairCount ?? 0;
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full overflow-hidden">
       <ItemCatalog onSelectItem={handleSelectItem} />
 
-      <div className="flex-1 flex flex-col">
-        <div className="flex flex-wrap items-center gap-4 p-4 border-b">
-          <div className="flex items-center gap-2">
-            <label htmlFor="venue-width" className="text-sm font-medium">
-              Width (ft)
+      <div
+        data-testid="floor-plan-canvas"
+        className="flex-1 min-w-0 flex flex-col bg-muted/30 relative"
+      >
+        {/* Compact top bar */}
+        <div className="h-10 shrink-0 glass-panel border-b flex items-center px-3 gap-3 z-30 rounded-none">
+          {/* Venue dimensions */}
+          <div className="flex items-center gap-1.5">
+            <label htmlFor="venue-width" className="text-xs font-medium">
+              W
             </label>
             <Input
               id="venue-width"
@@ -661,12 +742,10 @@ export function FloorPlanCanvas({
               max={MAX_VENUE_DIMENSION}
               value={state.width}
               onChange={(e) => handleWidthChange(e.target.value)}
-              className="w-24"
+              className="w-14 h-7 text-xs"
             />
-          </div>
-          <div className="flex items-center gap-2">
-            <label htmlFor="venue-height" className="text-sm font-medium">
-              Height (ft)
+            <label htmlFor="venue-height" className="text-xs font-medium">
+              H
             </label>
             <Input
               id="venue-height"
@@ -676,59 +755,75 @@ export function FloorPlanCanvas({
               max={MAX_VENUE_DIMENSION}
               value={state.height}
               onChange={(e) => handleHeightChange(e.target.value)}
-              className="w-24"
+              className="w-14 h-7 text-xs"
             />
+            <span className="text-xs text-muted-foreground">ft</span>
           </div>
 
-          <div className="ml-4">
-            <FloorPlanToolbar
-              canUndo={undoRedo.canUndo()}
-              canRedo={undoRedo.canRedo()}
-              onUndo={handleUndo}
-              onRedo={handleRedo}
-              zoomPercent={stageScale * 100}
-              onZoomIn={handleZoomIn}
-              onZoomOut={handleZoomOut}
-              onFitToScreen={handleFitToScreen}
-            />
-          </div>
+          <div className="w-px h-6 bg-border" />
+
+          {/* Undo / Redo / Zoom */}
+          <FloorPlanToolbar
+            canUndo={undoRedo.canUndo()}
+            canRedo={undoRedo.canRedo()}
+            onUndo={handleUndo}
+            onRedo={handleRedo}
+            zoomPercent={stageScale * 100}
+            onZoomIn={handleZoomIn}
+            onZoomOut={handleZoomOut}
+            onFitToScreen={handleFitToScreen}
+          />
 
           {selectedItemId && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleDelete}
-              className="text-destructive"
-            >
-              Delete
-            </Button>
+            <>
+              <div className="w-px h-6 bg-border" />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDelete}
+                className="text-destructive"
+              >
+                Delete
+              </Button>
+            </>
           )}
 
+          <div className="flex-1" />
+
+          {/* Save status */}
           <span
             data-testid="save-status"
-            className="text-sm text-muted-foreground ml-auto"
+            className="text-sm text-muted-foreground whitespace-nowrap"
           >
             {saveLabel}
           </span>
           <button
             type="button"
+            data-testid="save-now"
             onClick={saveNow}
-            className="text-sm text-primary hover:underline"
+            className="text-sm text-primary hover:underline whitespace-nowrap"
           >
             Save now
           </button>
         </div>
 
+        {/* Canvas area */}
+        <div
+          ref={containerRef}
+          className="flex-1 min-h-0 overflow-hidden relative"
+        >
+
+        {/* Out of bounds warning */}
         {outOfBoundsIds.size > 0 && (
-          <div className="rounded-md border border-yellow-500 bg-yellow-50 px-4 py-2 text-sm text-yellow-800 mx-4 mt-2">
-            {outOfBoundsIds.size} item(s) are outside the floor plan bounds.
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 rounded-md border border-yellow-500 bg-yellow-50 px-3 py-1 text-xs text-yellow-800">
+            {outOfBoundsIds.size} item(s) outside bounds
           </div>
         )}
 
         {/* Inline label editing overlay */}
         {editingLabelId && (
-          <div className="absolute z-50" style={{ top: 60, left: 280 }}>
-            <div className="bg-white border rounded shadow-lg p-2 flex gap-2">
+          <div className="absolute z-50 top-12 left-1/2 -translate-x-1/2">
+            <div className="glass-panel rounded-lg shadow-lg p-2 flex gap-2">
               <input
                 ref={editInputRef}
                 value={editingLabelValue}
@@ -751,13 +846,13 @@ export function FloorPlanCanvas({
           </div>
         )}
 
-        {/* Dimension editing panel for selected configurable item */}
+        {/* Dimension editing overlay for selected configurable item */}
         {selectedItem && DIMENSION_EDITABLE_TYPES.includes(selectedItem.type) && (
-          <div className="flex items-center gap-2 px-4 py-2 border-b bg-muted/30">
-            <span className="text-sm text-muted-foreground">
-              {selectedItem.label} dimensions:
+          <div className="absolute bottom-2 right-2 z-20 glass-panel rounded-lg px-3 py-2 flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">
+              {selectedItem.label}:
             </span>
-            <label className="text-sm">W</label>
+            <label className="text-xs">W</label>
             <Input
               type="number"
               min={1}
@@ -768,9 +863,9 @@ export function FloorPlanCanvas({
                 handleDimChange("width", e.target.value);
               }}
               onBlur={handleDimCommit}
-              className="w-20"
+              className="w-16 h-7 text-xs"
             />
-            <label className="text-sm">H</label>
+            <label className="text-xs">H</label>
             <Input
               type="number"
               min={1}
@@ -781,28 +876,24 @@ export function FloorPlanCanvas({
                 handleDimChange("height", e.target.value);
               }}
               onBlur={handleDimCommit}
-              className="w-20"
+              className="w-16 h-7 text-xs"
             />
             <span className="text-xs text-muted-foreground">ft</span>
           </div>
         )}
 
-        {/* Chair count adjustment for selected table */}
-        {selectedItem &&
-          (selectedItem.type === "round_table" ||
-            selectedItem.type === "long_table") && (
-            <div className="flex items-center gap-2 px-4 py-2 border-b bg-muted/30">
-              <span className="text-sm text-muted-foreground">Chairs:</span>
+        {/* Chair count adjustment overlay for selected table */}
+        {selectedItem && isTableType(selectedItem.type) && (
+            <div className="absolute bottom-2 left-2 z-20 glass-panel rounded-lg px-3 py-2 flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Chairs:</span>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() =>
-                  handleChairCountChange(
-                    selectedItem.id,
-                    (selectedItem.metadata.chairCount ?? 0) - 1,
-                  )
+                  handleChairCountChange(selectedItem.id, selectedChairCount - 1)
                 }
-                disabled={(selectedItem.metadata.chairCount ?? 0) <= 0}
+                disabled={selectedChairCount <= 0}
+                className="h-7 w-7 p-0"
               >
                 -
               </Button>
@@ -810,89 +901,76 @@ export function FloorPlanCanvas({
                 data-testid="chair-count-input"
                 type="number"
                 min={0}
-                max={getMaxChairCount(selectedItem)}
-                value={selectedItem.metadata.chairCount ?? 0}
+                max={selectedTableMaxChairs}
+                value={selectedChairCount}
                 onChange={(e) =>
-                  handleChairCountChange(
-                    selectedItem.id,
-                    Number(e.target.value),
-                  )
+                  handleChairCountChange(selectedItem.id, Number(e.target.value))
                 }
-                className="w-16 text-center"
+                className="w-14 h-7 text-xs text-center"
               />
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() =>
-                  handleChairCountChange(
-                    selectedItem.id,
-                    (selectedItem.metadata.chairCount ?? 0) + 1,
-                  )
+                  handleChairCountChange(selectedItem.id, selectedChairCount + 1)
                 }
-                disabled={
-                  (selectedItem.metadata.chairCount ?? 0) >=
-                  getMaxChairCount(selectedItem)
-                }
+                disabled={selectedChairCount >= selectedTableMaxChairs}
+                className="h-7 w-7 p-0"
               >
                 +
               </Button>
               <span className="text-xs text-muted-foreground">
-                (max {getMaxChairCount(selectedItem)})
+                /{selectedTableMaxChairs}
               </span>
             </div>
           )}
 
-        <div
-          ref={containerRef}
-          data-testid="floor-plan-canvas"
-          className="flex-1 overflow-hidden bg-muted/30 relative"
-        >
-          {isNewFloorPlan && state.items.length === 0 && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-              <div className="glass-panel rounded-xl px-8 py-6 text-center max-w-sm">
-                <p className="text-lg font-medium">Design Your Floor Plan</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Set your venue dimensions above, then pick tables and items
-                  from the <strong>Item Catalog</strong> on the left to start
-                  designing your layout.
-                </p>
-              </div>
+        {isNewFloorPlan && state.items.length === 0 && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+            <div className="glass-panel rounded-xl px-8 py-6 text-center max-w-sm">
+              <p className="text-lg font-medium">Design Your Floor Plan</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Set your venue dimensions, then pick tables and items
+                from the <strong>Item Catalog</strong> on the left to start
+                designing your layout.
+              </p>
             </div>
-          )}
-          <Stage
-            ref={stageRef}
-            width={containerWidth}
-            height={containerHeight}
-            scaleX={stageScale}
-            scaleY={stageScale}
-            x={stagePosition.x}
-            y={stagePosition.y}
-            draggable
-            onClick={handleStageClick}
-            onTap={handleStageClick as unknown as (evt: Konva.KonvaEventObject<TouchEvent>) => void}
-            onDragEnd={handleStageDragEnd}
-            onWheel={handleWheel}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          >
-            <Layer>
-              <Rect
-                x={0}
-                y={0}
-                width={canvasWidth}
-                height={canvasHeight}
-                fill="white"
-                stroke="#e5e7eb"
-                strokeWidth={1}
-              />
-              {state.items.map(renderCanvasItem)}
-              <RotationTransformer
-                selectedItemId={selectedItemId}
-                stageRef={stageRef}
-                onRotationEnd={handleRotationEnd}
-              />
-            </Layer>
-          </Stage>
+          </div>
+        )}
+        <Stage
+          ref={stageRef}
+          width={containerWidth}
+          height={containerHeight}
+          scaleX={stageScale}
+          scaleY={stageScale}
+          x={stagePosition.x}
+          y={stagePosition.y}
+          draggable
+          onClick={handleStageClick}
+          onTap={handleStageClick as unknown as (evt: Konva.KonvaEventObject<TouchEvent>) => void}
+          onDragEnd={handleStageDragEnd}
+          onWheel={handleWheel}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          <Layer>
+            <Rect
+              x={0}
+              y={0}
+              width={canvasWidth}
+              height={canvasHeight}
+              fill="white"
+              stroke="#e5e7eb"
+              strokeWidth={1}
+            />
+            {state.items.map(renderCanvasItem)}
+            <RotationTransformer
+              selectedItemId={selectedItemId}
+              stageRef={stageRef}
+              onRotationEnd={handleRotationEnd}
+            />
+          </Layer>
+        </Stage>
         </div>
       </div>
     </div>

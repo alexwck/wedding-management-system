@@ -64,6 +64,7 @@ export function WalkwayItem({
         hitFunc={paddedRectHitFunc}
       />
       <ItemLabel
+        id={`${id}-label`}
         x={pixelX}
         y={pixelY}
         width={pixelWidth}

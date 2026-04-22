@@ -35,15 +35,16 @@ export function RoundTable({
   onDblClick,
 }: RoundTableProps) {
   const radius = (diameter / 2) * FEET_TO_PIXELS;
-  const pixelX = x * FEET_TO_PIXELS;
-  const pixelY = y * FEET_TO_PIXELS;
+  // Circle uses (x,y) as center — convert from top-left bounding box
+  const centerX = (x + diameter / 2) * FEET_TO_PIXELS;
+  const centerY = (y + diameter / 2) * FEET_TO_PIXELS;
 
   return (
     <>
       <Circle
         id={id}
-        x={pixelX}
-        y={pixelY}
+        x={centerX}
+        y={centerY}
         radius={radius}
         rotation={rotation}
         fill="#dbeafe"
@@ -57,7 +58,7 @@ export function RoundTable({
         onDblClick={onDblClick}
         hitFunc={paddedCircleHitFunc}
       />
-      <ItemLabel x={pixelX} y={pixelY} text={label} />
+      <ItemLabel id={`${id}-label`} x={centerX} y={centerY} text={label} />
     </>
   );
 }

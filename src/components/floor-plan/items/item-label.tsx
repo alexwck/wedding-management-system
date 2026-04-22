@@ -5,6 +5,7 @@ import { Text } from "react-konva";
 import type { Text as KonvaText } from "konva/lib/shapes/Text";
 
 interface ItemLabelProps {
+  id?: string;
   text: string;
   x: number;
   y: number;
@@ -22,6 +23,7 @@ function truncateLabel(text: string): string {
 }
 
 export function ItemLabel({
+  id,
   text,
   x,
   y,
@@ -47,6 +49,8 @@ export function ItemLabel({
   return (
     <Text
       ref={textRef}
+      id={id}
+      name="item-label"
       text={displayText}
       x={centerX}
       y={centerY}
