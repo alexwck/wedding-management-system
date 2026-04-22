@@ -35,15 +35,15 @@
 
 **Purpose**: Server actions that all user stories depend on — must be complete before any UI work begins.
 
-- [ ] T010 Implement `assignSeat` server action in `src/app/actions/seat-assignment.ts` — validates auth + wedding ownership (adminClient), checks RSVP exists with status "attending", checks RSVP not already assigned, checks chair not already occupied, checks chair/table item IDs exist in floor plan JSONB, atomic INSERT with ON CONFLICT handling
-- [ ] T011 Implement `unassignSeat` server action in `src/app/actions/seat-assignment.ts` — validates auth + wedding ownership, single DELETE with WHERE wedding_id AND chair_item_id
-- [ ] T012 Implement `getSeatAssignments` server action in `src/app/actions/seat-assignment.ts` — validates auth + wedding ownership, returns all assignments for wedding as flat array
-- [ ] T013 Implement `getUnassignedGuests` server action in `src/app/actions/seat-assignment.ts` — LEFT JOIN rsvps with seat_assignments, WHERE assignment IS NULL AND status = "attending"
-- [ ] T014 Implement `cleanupOrphanedAssignments` server action in `src/app/actions/seat-assignment.ts` — validates auth + wedding ownership, compares assignment chair_item_id/table_item_id against current floor plan items JSONB, deletes orphans, returns deletedCount
-- [ ] T015 Modify `saveFloorPlan` in `src/app/actions/floor-plan.ts` — after successful upsert, call cleanupOrphanedAssignments to remove assignments for deleted items
-- [ ] T016 Add `updateRsvpStatus` server action in `src/app/actions/rsvp.ts` — validates auth + wedding ownership, updates RSVP status, if status changes to "declining" then deletes the seat_assignment row for that rsvp_id (per FR-012). Run assignment cleanup AFTER the RSVP update is confirmed.
-- [ ] T017 [P] Implement Google OAuth server actions in `src/app/actions/export.ts` — `getGoogleAuthUrl` (generates OAuth consent URL with spreadsheets + drive.file scopes), `handleGoogleCallback` (exchanges code for tokens, upserts oauth_tokens row), `getGoogleAuthStatus` (checks if user has valid Google tokens)
-- [ ] T018 [P] Create Google OAuth callback API route in `src/app/api/auth/google/callback/route.ts` — receives OAuth callback, calls handleGoogleCallback action, redirects back to RSVP dashboard with success/error query param
+- [x] T010 Implement `assignSeat` server action in `src/app/actions/seat-assignment.ts` — validates auth + wedding ownership (adminClient), checks RSVP exists with status "attending", checks RSVP not already assigned, checks chair not already occupied, checks chair/table item IDs exist in floor plan JSONB, atomic INSERT with ON CONFLICT handling
+- [x] T011 Implement `unassignSeat` server action in `src/app/actions/seat-assignment.ts` — validates auth + wedding ownership, single DELETE with WHERE wedding_id AND chair_item_id
+- [x] T012 Implement `getSeatAssignments` server action in `src/app/actions/seat-assignment.ts` — validates auth + wedding ownership, returns all assignments for wedding as flat array
+- [x] T013 Implement `getUnassignedGuests` server action in `src/app/actions/seat-assignment.ts` — LEFT JOIN rsvps with seat_assignments, WHERE assignment IS NULL AND status = "attending"
+- [x] T014 Implement `cleanupOrphanedAssignments` server action in `src/app/actions/seat-assignment.ts` — validates auth + wedding ownership, compares assignment chair_item_id/table_item_id against current floor plan items JSONB, deletes orphans, returns deletedCount
+- [x] T015 Modify `saveFloorPlan` in `src/app/actions/floor-plan.ts` — after successful upsert, call cleanupOrphanedAssignments to remove assignments for deleted items
+- [x] T016 Add `updateRsvpStatus` server action in `src/app/actions/rsvp.ts` — validates auth + wedding ownership, updates RSVP status, if status changes to "declining" then deletes the seat_assignment row for that rsvp_id (per FR-012). Run assignment cleanup AFTER the RSVP update is confirmed.
+- [x] T017 [P] Implement Google OAuth server actions in `src/app/actions/export.ts` — `getGoogleAuthUrl` (generates OAuth consent URL with spreadsheets + drive.file scopes), `handleGoogleCallback` (exchanges code for tokens, upserts oauth_tokens row), `getGoogleAuthStatus` (checks if user has valid Google tokens)
+- [x] T018 [P] Create Google OAuth callback API route in `src/app/api/auth/google/callback/route.ts` — receives OAuth callback, calls handleGoogleCallback action, redirects back to RSVP dashboard with success/error query param
 
 **Checkpoint**: Server actions complete — all assignment CRUD and export operations are functional. User story UI work can now begin.
 

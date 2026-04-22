@@ -6,6 +6,7 @@ import { floorPlanInputSchema } from "@/lib/validations/floor-plan";
 import {
   deserializeFloorPlan,
 } from "@/lib/floor-plan/serializers";
+import { cleanupOrphanedAssignments } from "@/app/actions/seat-assignment";
 import type { FloorPlanItem } from "@/types/floor-plan";
 
 async function getAuthenticatedUser() {
@@ -109,6 +110,8 @@ export async function saveFloorPlan(
   if (upsertError) {
     return { success: false as const, error: "Failed to save floor plan." };
   }
+
+  await cleanupOrphanedAssignments(weddingId);
 
   return {
     success: true as const,

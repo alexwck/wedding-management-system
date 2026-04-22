@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { rsvpSchema } from "@/lib/validations/rsvp";
 
 export async function submitRSVP(data: {
@@ -87,4 +88,56 @@ export async function submitRSVP(data: {
     success: true,
     message: "Your RSVP has been submitted. Thank you!",
   };
+}
+
+export async function updateRsvpStatus(input: {
+  weddingId: number;
+  rsvpId: number;
+  status: "attending" | "declining";
+}) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false as const, error: "Not authenticated." };
+  }
+
+  const isAdmin = user.app_metadata?.role === "admin";
+  if (!isAdmin) {
+    const { data } = await supabase
+      .from("weddings")
+      .select("id")
+      .eq("id", input.weddingId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!data) {
+      return { success: false as const, error: "Access denied." };
+    }
+  }
+
+  const adminClient = createAdminClient();
+
+  const { data: rsvp, error: updateError } = await adminClient
+    .from("rsvps")
+    .update({ status: input.status })
+    .eq("id", input.rsvpId)
+    .eq("wedding_id", input.weddingId)
+    .select("id, status")
+    .single();
+
+  if (updateError || !rsvp) {
+    return { success: false as const, error: "Failed to update RSVP." };
+  }
+
+  // If status changed to declining, remove seat assignment
+  if (input.status === "declining") {
+    await adminClient
+      .from("seat_assignments")
+      .delete()
+      .eq("rsvp_id", input.rsvpId);
+  }
+
+  return { success: true as const, rsvp };
 }
