@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getMyWeddingRSVPs } from "@/app/actions/admin";
 import { RVPSummary } from "@/components/rsvp-summary";
+import { VenueEditor } from "@/components/venue-editor";
 
 export default async function CoupleDashboard() {
   const result = await getMyWeddingRSVPs();
@@ -46,6 +47,15 @@ export default async function CoupleDashboard() {
       <div className="glass-panel rounded-xl p-6">
         <RVPSummary summary={summary} />
       </div>
+
+      <VenueEditor
+        weddingId={wedding.id}
+        initialVenue={wedding.venue}
+        initialAddress={wedding.venueAddress}
+        initialLat={wedding.venueLat}
+        initialLng={wedding.venueLng}
+        initialWelcomeMessage={wedding.welcomeMessage}
+      />
 
       {summary.total === 0 && (
         <div className="text-center py-8 text-muted-foreground">

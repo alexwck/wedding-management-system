@@ -65,7 +65,7 @@ export async function getWeddingRSVPs(weddingId: number) {
 
   const { data: wedding, error: weddingError } = await supabase
     .from("weddings")
-    .select("id, couple_name, slug, wedding_date, template_image_url")
+    .select("id, couple_name, slug, wedding_date, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message")
     .eq("id", weddingId)
     .single();
 
@@ -108,6 +108,11 @@ export async function getWeddingRSVPs(weddingId: number) {
       slug: wedding.slug,
       weddingDate: wedding.wedding_date,
       templateImageUrl: wedding.template_image_url,
+      venue: wedding.venue,
+      venueAddress: wedding.venue_address,
+      venueLat: wedding.venue_lat,
+      venueLng: wedding.venue_lng,
+      welcomeMessage: wedding.welcome_message,
     },
     rsvps: await enrichRsvpsWithSeats(supabase, weddingId, rsvpList),
     summary,
@@ -265,7 +270,7 @@ export async function getMyWeddingRSVPs() {
 
   const { data: wedding, error: weddingError } = await supabase
     .from("weddings")
-    .select("id, couple_name, slug, wedding_date, template_image_url")
+    .select("id, couple_name, slug, wedding_date, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message")
     .eq("user_id", user.id)
     .single();
 
@@ -310,6 +315,11 @@ export async function getMyWeddingRSVPs() {
       slug: wedding.slug,
       weddingDate: wedding.wedding_date,
       templateImageUrl: wedding.template_image_url,
+      venue: wedding.venue,
+      venueAddress: wedding.venue_address,
+      venueLat: wedding.venue_lat,
+      venueLng: wedding.venue_lng,
+      welcomeMessage: wedding.welcome_message,
     },
     rsvps: await enrichRsvpsWithSeats(adminClient, wedding.id, rsvpList),
     summary,
