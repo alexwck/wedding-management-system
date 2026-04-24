@@ -1,10 +1,10 @@
 <!--
   Sync Impact Report:
-  Version change: 2.0.0 → 2.1.0
+  Version change: 2.1.0 → 2.2.0
   Modified principles:
-    - I. Spec-Driven Development: expanded testing tiers from unit+E2E to unit+component+E2E; added component testing conventions; added E2E test data isolation
+    - I. Spec-Driven Development: added React 19 cleanup requirement and fireEvent vs userEvent guidance to Component Testing Conventions
   Modified sections:
-    - Test Verification: added Testing Tiers table and three new subsections (Component Testing Conventions, E2E Testing Conventions)
+    - Component Testing Conventions: added two new conventions
   Templates requiring updates:
     - None
   Follow-up TODOs:
@@ -110,6 +110,14 @@ its primary acceptance scenario.
   setPointerCapture). For these components, prefer E2E tests. Focus
   component tests on application-level components that compose Radix
   primitives, not the primitives themselves.
+- **React 19 cleanup requirement**: Explicit `cleanup()` in
+  `beforeEach`/`afterEach` is required for component tests. RTL's
+  auto-cleanup does NOT handle React 19's double-rendering in jsdom —
+  omitting `cleanup()` causes DOM element leaks between tests.
+- **fireEvent for timer-dependent tests**: When tests use
+  `vi.useFakeTimers()`, use `fireEvent` instead of `userEvent` for DOM
+  interactions. `userEvent`'s internal event loop conflicts with fake
+  timers.
 
 #### E2E Testing Conventions
 
@@ -261,4 +269,4 @@ All PRs and code reviews MUST verify compliance with these principles.
 When a principle conflicts with a practical need, the principle is
 changed through the amendment process — not ignored.
 
-**Version**: 2.1.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-04-24
+**Version**: 2.2.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-04-24
