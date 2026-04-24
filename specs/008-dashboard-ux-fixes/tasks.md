@@ -17,13 +17,13 @@
 
 **Purpose**: Database changes and dead code removal — no UI dependencies
 
-- [ ] T001 Create migration `supabase/migrations/<timestamp>_add_timezone_focal_point.sql` adding `timezone TEXT DEFAULT 'Asia/Kuala_Lumpur'`, `template_focal_x DECIMAL(5,2)`, `template_focal_y DECIMAL(5,2)` columns to `public.weddings` with CHECK constraints per data-model.md
-- [ ] T002 Create migration `supabase/migrations/<timestamp>_drop_oauth_tokens.sql` to `DROP TABLE IF EXISTS public.oauth_tokens CASCADE`
-- [ ] T003 Add `timezone`, `templateFocalX`, `templateFocalY` fields to `weddingUpdateSchema` in `src/lib/validations/wedding.ts` per data-model.md
-- [ ] T004 [P] Add `template_focal_x: number | null`, `template_focal_y: number | null`, `timezone: string | null` to `WeddingRow` interface in `src/types/database.ts`
-- [ ] T005 [P] Delete `src/types/oauth.ts` entirely
-- [ ] T006 Update `supabase/seed.sql` to include `timezone = 'Asia/Kuala_Lumpur'` for all existing wedding records
-- [ ] T007 Run `supabase db reset` and verify migrations apply cleanly with no errors
+- [x] T001 Create migration `supabase/migrations/<timestamp>_add_timezone_focal_point.sql` adding `timezone TEXT DEFAULT 'Asia/Kuala_Lumpur'`, `template_focal_x DECIMAL(5,2)`, `template_focal_y DECIMAL(5,2)` columns to `public.weddings` with CHECK constraints per data-model.md
+- [x] T002 Create migration `supabase/migrations/<timestamp>_drop_oauth_tokens.sql` to `DROP TABLE IF EXISTS public.oauth_tokens CASCADE`
+- [x] T003 Add `timezone`, `templateFocalX`, `templateFocalY` fields to `weddingUpdateSchema` in `src/lib/validations/wedding.ts` per data-model.md
+- [x] T004 [P] Add `template_focal_x: number | null`, `template_focal_y: number | null`, `timezone: string | null` to `WeddingRow` interface in `src/types/database.ts`
+- [x] T005 [P] Delete `src/types/oauth.ts` entirely
+- [x] T006 Update `supabase/seed.sql` to include `timezone = 'Asia/Kuala_Lumpur'` for all existing wedding records
+- [x] T007 Run `supabase db reset` and verify migrations apply cleanly with no errors
 
 ---
 

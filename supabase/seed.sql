@@ -18,9 +18,9 @@ ON CONFLICT (id) DO NOTHING;
 
 -- Insert weddings for couples
 -- test-wedding-1 has a placeholder template image for E2E landing page tests
-INSERT INTO public.weddings (id, slug, user_id, couple_name, template_image_url, wedding_date) OVERRIDING SYSTEM VALUE VALUES
-  (1, 'test-wedding-1', 'a0000000-0000-0000-0000-000000000002', 'Alex & Sam', 'https://placehold.co/800x1200/png', '2026-06-15T14:00:00Z'),
-  (2, 'jordan-taylor-wedding', 'a0000000-0000-0000-0000-000000000003', 'Jordan & Taylor', NULL, '2026-09-20T16:00:00Z')
+INSERT INTO public.weddings (id, slug, user_id, couple_name, template_image_url, wedding_date, timezone) OVERRIDING SYSTEM VALUE VALUES
+  (1, 'test-wedding-1', 'a0000000-0000-0000-0000-000000000002', 'Alex & Sam', 'https://placehold.co/800x1200/png', '2026-06-15T14:00:00Z', 'Asia/Kuala_Lumpur'),
+  (2, 'jordan-taylor-wedding', 'a0000000-0000-0000-0000-000000000003', 'Jordan & Taylor', NULL, '2026-09-20T16:00:00Z', 'Asia/Kuala_Lumpur')
 ON CONFLICT (id) DO NOTHING;
 
 -- Add venue data to test-wedding-1 for E2E venue feature tests
