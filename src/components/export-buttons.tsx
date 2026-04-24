@@ -2,46 +2,15 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  getGoogleAuthUrl,
-  getGoogleAuthStatus,
-  exportToGoogleSheets,
-  exportToXlsx,
-} from "@/app/actions/export";
+import { exportToXlsx } from "@/app/actions/export";
 
 interface ExportButtonsProps {
   weddingId: number;
 }
 
 export function ExportButtons({ weddingId }: ExportButtonsProps) {
-  const [isGoogleExporting, setIsGoogleExporting] = useState(false);
   const [isXlsxExporting, setIsXlsxExporting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-
-  async function handleGoogleExport() {
-    setIsGoogleExporting(true);
-    setMessage(null);
-
-    const status = await getGoogleAuthStatus();
-    if (!status.isConnected) {
-      const { url } = await getGoogleAuthUrl();
-      if (url) {
-        window.open(url, "_blank");
-        setMessage("Complete Google authentication in the new tab, then try again.");
-      }
-      setIsGoogleExporting(false);
-      return;
-    }
-
-    const result = await exportToGoogleSheets(weddingId);
-    if (result.success) {
-      window.open(result.spreadsheetUrl, "_blank");
-      setMessage("Spreadsheet created!");
-    } else {
-      setMessage(result.error);
-    }
-    setIsGoogleExporting(false);
-  }
 
   async function handleXlsxExport() {
     setIsXlsxExporting(true);
@@ -49,7 +18,12 @@ export function ExportButtons({ weddingId }: ExportButtonsProps) {
 
     const result = await exportToXlsx(weddingId);
     if (result.success && result.data) {
-      const blob = new Blob([result.data], {
+      const binary = atob(result.data);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
       const url = URL.createObjectURL(blob);
@@ -65,23 +39,13 @@ export function ExportButtons({ weddingId }: ExportButtonsProps) {
     setIsXlsxExporting(false);
   }
 
-  const isExporting = isGoogleExporting || isXlsxExporting;
-
   return (
     <div className="flex items-center gap-2">
       <Button
         variant="outline"
         size="sm"
-        onClick={handleGoogleExport}
-        disabled={isExporting}
-      >
-        {isGoogleExporting ? "Exporting..." : "Export to Google Sheets"}
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
         onClick={handleXlsxExport}
-        disabled={isExporting}
+        disabled={isXlsxExporting}
       >
         {isXlsxExporting ? "Downloading..." : "Download as XLSX"}
       </Button>
