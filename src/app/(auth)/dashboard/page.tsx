@@ -21,7 +21,7 @@ export default async function CoupleDashboard() {
   const { wedding, summary } = result;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">{wedding.coupleName}</h2>

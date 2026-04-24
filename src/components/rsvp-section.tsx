@@ -19,9 +19,24 @@ interface RSVPGuest {
 interface RSVPSectionProps {
   rsvps: RSVPGuest[];
   title?: string;
+  summary?: {
+    total: number;
+    attending: number;
+    declining: number;
+    vegetarian: number;
+    babyChairs: number;
+  };
 }
 
-export function RSVPSection({ rsvps, title = "RSVP Responses" }: RSVPSectionProps) {
+const SUMMARY_CARDS = [
+  { key: "total" as const, label: "Total", color: "" },
+  { key: "attending" as const, label: "Attending", color: "text-green-600" },
+  { key: "declining" as const, label: "Declining", color: "text-red-600" },
+  { key: "vegetarian" as const, label: "Vegetarian", color: "" },
+  { key: "babyChairs" as const, label: "Baby Chairs", color: "" },
+];
+
+export function RSVPSection({ rsvps, title = "RSVP Responses", summary }: RSVPSectionProps) {
   const [expanded, setExpanded] = useState(true);
 
   return (
@@ -40,6 +55,19 @@ export function RSVPSection({ rsvps, title = "RSVP Responses" }: RSVPSectionProp
           <ChevronDown className="h-5 w-5 text-muted-foreground" />
         )}
       </button>
+
+      {summary && (
+        <div className="px-4 pb-2">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {SUMMARY_CARDS.map(({ key, label, color }) => (
+              <div key={key} className="glass-panel rounded-lg p-4 text-center">
+                <p className={`text-2xl font-bold ${color}`}>{summary[key]}</p>
+                <p className="text-sm text-muted-foreground">{label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {expanded && (
         <div className="px-4 pb-4 max-h-[600px] overflow-y-auto">

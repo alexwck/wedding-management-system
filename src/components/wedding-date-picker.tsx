@@ -4,6 +4,7 @@ import { useState } from "react";
 import { updateWeddingDate, updateWeddingTimezone } from "@/app/actions/admin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TimezoneCombobox } from "@/components/timezone-combobox";
 
 interface WeddingDatePickerProps {
   weddingId: number;
@@ -41,10 +42,6 @@ export function WeddingDatePicker({
     setTimeout(() => setMessage(null), 3000);
   }
 
-  const timezones = typeof Intl !== "undefined" && Intl.supportedValuesOf
-    ? Intl.supportedValuesOf("timeZone")
-    : [];
-
   return (
     <div className="glass-panel rounded-lg p-4 space-y-3">
       <h3 className="text-sm font-medium">Wedding Date & Time</h3>
@@ -63,18 +60,7 @@ export function WeddingDatePicker({
 
       {isAdmin && (
         <div className="flex items-center gap-2">
-          <Input
-            list="iana-timezones"
-            value={tz}
-            onChange={(e) => setTz(e.target.value)}
-            placeholder="Search timezone..."
-            className="flex-1"
-          />
-          <datalist id="iana-timezones">
-            {timezones.map((z) => (
-              <option key={z} value={z} />
-            ))}
-          </datalist>
+          <TimezoneCombobox value={tz} onChange={setTz} />
           <Button size="sm" onClick={handleTimezoneSave} disabled={saving}>
             Save
           </Button>
