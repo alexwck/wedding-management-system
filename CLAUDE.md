@@ -127,7 +127,7 @@ git config core.hooksPath .githooks
 - **Turbopack stale routes**: After migrations or route changes, the dev server may serve 404 for routes it hasn't compiled. Fix: touch a file in the route directory (`touch src/app/\(public\)/w/\[slug\]/rsvp/page.tsx`) or restart the dev server. Always `curl` a page before debugging E2E failures.
 - **E2E mobile click interception**: The mobile nav (`md:hidden fixed z-50`) overlays sidebar buttons on small viewports. Use `{ force: true }` on Playwright clicks for floor plan catalog items when targeting Mobile Chrome.
 - **Undo history**: `canUndo` is true only after 2+ pushes (index > 0). Adding one item pushes the pre-add state but index stays at 0. Tests verifying undo must add at least 2 items before asserting `canUndo=true`.
-- **Test infrastructure**: Shared helpers in `tests/unit/helpers/` — `mockFrom()` for Supabase chains, `factories.ts` for test data (`makeFloorPlanItem`, `makeRsvp`, etc.). New tests MUST use these instead of duplicating mocks. Current: 349 unit tests (40 files), 17 E2E spec files (104 tests across desktop + mobile).
+- **Test infrastructure**: Shared helpers in `tests/unit/helpers/` — `mockFrom()` for Supabase chains, `factories.ts` for test data (`makeFloorPlanItem`, `makeRsvp`, etc.). New tests MUST use these instead of duplicating mocks. Current: 406 unit tests (44 files), 22 E2E spec files.
 - **Playwright workers must be 1**: `playwright.config.ts` uses `workers: 1` unconditionally — parallel workers cause session cookie race conditions and flaky login-redirect failures, not just in CI
 - **React 19 component tests require cleanup()**: Explicit `cleanup()` in `beforeEach`/`afterEach` is mandatory — RTL auto-cleanup doesn't handle React 19's double-renders in jsdom. Without it, DOM elements from previous tests leak and cause false assertion failures
 - **fireEvent for fake timer tests**: Use `fireEvent` (not `userEvent`) in tests that use `vi.useFakeTimers()` — `userEvent`'s internal event loop conflicts with fake timers. Use `userEvent` for non-timer tests
@@ -142,8 +142,17 @@ git config core.hooksPath .githooks
 - **Debounce loading state**: Set loading state inside the `setTimeout` callback, not before it. Setting before causes stale loading indicators when the timer is cancelled by subsequent input.
 - **(0,0) coordinate guard**: When using lat/lng to render maps, guard against `(0,0)` (Null Island) in addition to null checks. `lat != null` is truthy for zero.
 - **Coordinate clearing on address clear**: When a user clears the address field, set lat/lng to null via `setValue` — the Zod schema rejects saving coordinates without an address.
+- **datetime-local for date picking**: Wedding date uses native `<input type="datetime-local">` — the value is a local datetime string (no timezone info). The server action converts to UTC via `new Date(value).toISOString()` before storing as TIMESTAMPTZ. Display uses `toLocaleDateString` with the wedding's `timezone` column for correct conversion.
+- **Base64 buffer transfer for XLSX**: Server actions can't return raw `ArrayBuffer` — `workbook.xlsx.writeBuffer()` result is converted to base64 string via `Buffer.from(buffer).toString("base64")`. Client decodes with `atob()` + `Uint8Array` → `Blob` with MIME type `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`.
+- **object-position for focal point**: Landing page template image uses CSS `object-position: {focalX}% {focalY}%` when focal point is set, defaulting to `50% 50%`. Focal point coordinates are stored as 0-100 percentages. Reset to `NULL` on image replace.
+- **h-[calc(100vh-40px)] for catalog**: Floor plan item catalog uses `h-[calc(100vh-40px)]` alongside `overflow-y-auto` to constrain height to viewport minus the 40px top bar. Without this, catalog overflows on collapse/expand toggling.
+- **UTC+offset display format**: Wedding date on landing page shows `timeZoneName: "shortOffset"` via `Intl.DateTimeFormat` — produces strings like "June 15, 2026 at 2:00 PM GMT+8" rather than abbreviated timezone names.
 
 ## Active Technologies
+- TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, Tailwind CSS v4, shadcn/ui (Nova theme), react-hook-form, zod (008-dashboard-ux-fixes)
+- Supabase PostgreSQL — new `timezone`, `template_focal_x`, `template_focal_y` columns on `weddings`; dropped `oauth_tokens` table (008-dashboard-ux-fixes)
+- XLSX export via `exceljs` with base64 buffer transfer pattern (008-dashboard-ux-fixes)
+- TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, Tailwind CSS v4, shadcn/ui (Nova theme), react-hook-form, zod (005-fix-coords-ui-layout)
 - TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, Tailwind CSS v4, shadcn/ui (Nova theme), react-hook-form, zod (005-fix-coords-ui-layout)
 - TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, shadcn/ui, zod, react-hook-form, @supabase/supabase-js (006-guest-seat-assignment)
 - Supabase PostgreSQL — new `seat_assignments` table + existing `rsvps`, `floor_plans` (006-guest-seat-assignment)
@@ -151,6 +160,8 @@ git config core.hooksPath .githooks
 - Supabase PostgreSQL — new columns on existing `weddings` table (007-venue-details-maps)
 
 ## Recent Changes
+- 008-dashboard-ux-fixes: Side-by-side dashboard layout (template left, details right), wedding date picker with timezone, collapsible sortable RSVP table, template preview with click-to-set focal point, fixed XLSX export (base64 transfer), removed Google Sheets export, fixed floor plan catalog overflow, verified chair count editing works
+- 007-venue-details-maps: Added venue name, address (with Nominatim autocomplete), welcome message, embedded OSM map, and navigation buttons. Venue editor on admin/couple pages, venue info on landing page, venue section with map on RSVP form.
 - 007-venue-details-maps: Added venue name, address (with Nominatim autocomplete), welcome message, embedded OSM map, and navigation buttons. Venue editor on admin/couple pages, venue info on landing page, venue section with map on RSVP form.
 - 005-fix-coords-ui-layout: Fixed Konva coordinate system (Circle center vs Rect top-left), added compact glass-panel top bar, real-time label tracking during drag, canvas auto-centering on load, chair rotation removal (chairs follow parent table only)
 - 004-app-wide-ux-redesign: App-wide content density improvements across all pages
