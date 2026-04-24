@@ -129,10 +129,15 @@ git config core.hooksPath .githooks
 - **Undo history**: `canUndo` is true only after 2+ pushes (index > 0). Adding one item pushes the pre-add state but index stays at 0. Tests verifying undo must add at least 2 items before asserting `canUndo=true`.
 - **Test infrastructure**: Shared helpers in `tests/unit/helpers/` — `mockFrom()` for Supabase chains, `factories.ts` for test data (`makeFloorPlanItem`, `makeRsvp`, etc.). New tests MUST use these instead of duplicating mocks. Current: 282 unit tests, 17 E2E spec files (102 tests across desktop + mobile).
 - **Venue coordinate pair integrity**: `venue_lat` and `venue_lng` must both be present or both null — enforced at DB level (CHECK constraint) and Zod schema level (`.refine()`). Clearing `venue_address` with coordinates set is rejected by validation.
-- **Venue editor autocomplete**: Client-side Nominatim geocoding (`src/lib/geocoding.ts`) with 1000ms debounce, 5000ms timeout, min 3 chars. No API key required. Address field uses `onChange` (not `register`) for debounced search; lat/lng are hidden inputs set on suggestion select.
+- **Venue editor autocomplete**: Client-side Nominatim geocoding (`src/lib/geocoding.ts`) returns `GeocodingResponse` discriminated union — `{ ok, results }` vs `{ ok, error }` (api_error/no_results/timeout). Address field uses `onChange` (not `register`) for debounced search; lat/lng are hidden inputs set on suggestion select. Shows "No results found" and "Unable to search" states per FR-013.
 - **RSVP form layout wrapper**: `rsvp-form.tsx` no longer wraps itself in `min-h-screen` — the RSVP page (`rsvp/page.tsx`) controls the layout so it can render `VenueSection` above the form.
 - **OSM map embed**: Venue section uses OpenStreetMap iframe (free, no API key) with bbox ±0.005 around venue coordinates. No Leaflet dependency needed.
 - **E2E test data isolation**: Admin venue edit tests modify seed data. Read-only venue tests should not assert specific venue names that admin tests change. Assert stable fields (address, welcome message, couple name) instead.
+- **FormData field clearing**: Send all text fields unconditionally in FormData (no `if (data.field)` guards). Server-side code converts empty strings to null. Conditional inclusion silently prevents field clearing.
+- **External API client return types**: Return discriminated unions (`{ ok, results } | { ok, error }`) from external API clients, not flat arrays. Enables callers to distinguish "no results" from "API error" from "timeout."
+- **Debounce loading state**: Set loading state inside the `setTimeout` callback, not before it. Setting before causes stale loading indicators when the timer is cancelled by subsequent input.
+- **(0,0) coordinate guard**: When using lat/lng to render maps, guard against `(0,0)` (Null Island) in addition to null checks. `lat != null` is truthy for zero.
+- **Coordinate clearing on address clear**: When a user clears the address field, set lat/lng to null via `setValue` — the Zod schema rejects saving coordinates without an address.
 
 ## Active Technologies
 - TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, Tailwind CSS v4, shadcn/ui (Nova theme), react-hook-form, zod (005-fix-coords-ui-layout)

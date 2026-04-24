@@ -1,10 +1,10 @@
 <!--
   Sync Impact Report:
-  Version change: 1.3.0 → 2.0.0
+  Version change: 2.0.0 → 2.1.0
   Modified principles:
-    - I. Test Verification: expanded with unit testing patterns, mock conventions, component testing boundaries, and E2E resilience requirements
+    - I. Spec-Driven Development: expanded testing tiers from unit+E2E to unit+component+E2E; added component testing conventions; added E2E test data isolation
   Modified sections:
-    - Technology Constraints: Testing subsection expanded with concrete tooling guidance
+    - Test Verification: added Testing Tiers table and three new subsections (Component Testing Conventions, E2E Testing Conventions)
   Templates requiring updates:
     - None
   Follow-up TODOs:
@@ -43,6 +43,33 @@ session cookie race conditions across parallel browser contexts. If E2E
 tests cannot be run (Supabase or dev server unavailable), the task MUST be
 marked blocked — not marked complete.
 
+#### Testing Tiers
+
+Every feature MUST use all applicable testing tiers. The tiers cover
+different concerns — omitting a tier leaves gaps that code review often
+catches too late.
+
+| Tier | What it covers | Tool | When required |
+|------|----------------|------|---------------|
+| Unit | Pure logic: Zod schemas, server actions, utility functions, API clients | Vitest | Always — every module with logic |
+| Component | UI rendering and interaction: conditional states, loading/error/empty states, user input handling | Vitest + React Testing Library | Every Client Component with 2+ visual states |
+| E2E | Full user flows: page navigation, form submission, cross-page behavior | Playwright | Every user story in the spec |
+
+**Unit tests** verify that logic functions produce correct outputs for given
+inputs. They run in isolation with mocked dependencies. Every Zod schema,
+server action, and utility module MUST have unit tests.
+
+**Component tests** verify that Client Components render the correct UI for
+each visual state and respond correctly to user interactions. A component
+with multiple states (e.g., idle, loading, error, empty, populated) MUST
+have a test for each state. Component tests catch bugs that unit tests
+miss (wrong conditional rendering, missing error states, broken loading
+indicators) and that E2E tests only cover for the happy path.
+
+**E2E tests** verify complete user journeys end-to-end across pages. Every
+user story in the specification MUST have at least one E2E test covering
+its primary acceptance scenario.
+
 #### Unit Testing Conventions
 
 - **Shared test infrastructure**: Reusable mock helpers and factory functions
@@ -57,20 +84,43 @@ marked blocked — not marked complete.
 - **React 19 + jsdom**: React 19 double-renders components in jsdom. Use
   `getAllByRole`/`getAllByText` instead of `getBy*` variants, or test via
   structural assertions rather than counting elements.
-- **Component testing boundaries**: Radix UI primitives (Dialog, Command,
-  Popover) and cmdk components resist unit testing due to extensive DOM API
-  mocking requirements (ResizeObserver, PointerEvent, setPointerCapture).
-  For these components, prefer E2E tests over component unit tests. Focus
-  unit tests on pure logic (hooks, actions, utilities).
 - **Timers and async state**: `vi.useFakeTimers()` conflicts with React
   Testing Library's `waitFor` and React async state updates. For
   timer-dependent hooks (auto-save, debounce), test via synchronous methods
   (e.g., `saveNow()`) rather than advancing fake timers through async
   callbacks.
+
+#### Component Testing Conventions
+
+- **Test every visual state**: If a component has conditional rendering
+  (loading spinner, error message, empty state, populated state), each
+  branch MUST have a test. Untested states are the most common source of
+  UI bugs that survive code review.
+- **Mock external API clients**: When testing components that call external
+  APIs (geocoding, fetch), mock the API module to return controlled
+  responses. Use the API client's return type (e.g., discriminated unions)
+  to simulate success, error, and empty states without mocking `fetch`
+  directly.
+- **Render with `@testing-library/react`**: Use `render()` and
+  `screen.getByRole()` / `screen.getByText()` queries. Prefer role-based
+  queries over test IDs — they verify accessibility as a side effect.
+- **Radix UI and cmdk components**: Radix UI primitives (Dialog, Command,
+  Popover) and cmdk components resist component testing due to extensive
+  DOM API mocking requirements (ResizeObserver, PointerEvent,
+  setPointerCapture). For these components, prefer E2E tests. Focus
+  component tests on application-level components that compose Radix
+  primitives, not the primitives themselves.
+
+#### E2E Testing Conventions
+
 - **E2E test resilience**: E2E tests MUST use
   `if (await element.isVisible().catch(() => false))` guards so they pass
   regardless of whether specific seed data exists. Hard-coded data
   assumptions cause flaky failures across environments.
+- **Test data isolation**: Tests that modify seed data (e.g., admin editing
+  venue name) affect tests running in other Playwright projects. Assert
+  stable fields (couple name, address, welcome message) rather than fields
+  that mutation tests change.
 
 ### II. Type Safety
 
@@ -211,4 +261,4 @@ All PRs and code reviews MUST verify compliance with these principles.
 When a principle conflicts with a practical need, the principle is
 changed through the amendment process — not ignored.
 
-**Version**: 2.0.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-04-23
+**Version**: 2.1.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-04-24

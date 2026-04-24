@@ -76,7 +76,7 @@ The database is automatically seeded on `supabase start` and `supabase db reset`
 | Couple 1 | alex@example.com | couple123 | couple |
 | Couple 2 | jordan@example.com | couple123 | couple |
 
-Seed data includes 2 weddings and 6 sample RSVP responses.
+Seed data includes 2 weddings (test-wedding-1 has venue data), 6 sample RSVP responses, and 3 test users.
 
 To reset the database to a clean state:
 
@@ -97,7 +97,7 @@ postgresql://postgres:postgres@127.0.0.1:54322/postgres
 | Table | Purpose | Key Columns |
 |-------|---------|-------------|
 | `public.users` | App users with roles (admin/couple) | `id` → `auth.users`, `role`, `display_name` |
-| `public.weddings` | Wedding records with shareable slugs | `slug`, `user_id`, `couple_name`, `template_image_url`, `wedding_date` |
+| `public.weddings` | Wedding records with shareable slugs | `slug`, `user_id`, `couple_name`, `template_image_url`, `wedding_date`, `venue`, `venue_address`, `venue_lat`, `venue_lng`, `welcome_message` |
 | `public.rsvps` | Guest RSVP submissions per wedding | `wedding_id`, `guest_name`, `status`, `dietary_notes`, `is_vegetarian`, `needs_baby_chair` |
 | `public.floor_plans` | Interactive venue floor plan per wedding | `wedding_id`, `width`, `height`, `items` (JSONB) |
 | `public.seat_assignments` | Guest-to-chair assignments per wedding | `wedding_id`, `rsvp_id`, `chair_item_id`, `table_name`, `seat_label` |
@@ -166,10 +166,15 @@ src/
 │   │   ├── items/          # Shape components (round-table, long-table, chair, etc.)
 │   │   └── hooks/          # State, auto-save, collision, undo-redo, chair generation
 │   └── ui/                 # shadcn/ui primitives
+│   ├── landing-page.tsx    # Wedding landing page (venue info overlay)
+│   ├── rsvp-form.tsx       # RSVP form with react-hook-form + zod
+│   ├── venue-editor.tsx    # Admin/couple venue editing (client, Nominatim autocomplete)
+│   ├── venue-section.tsx   # Public venue display with OSM map embed (server)
 ├── lib/
 │   ├── floor-plan/         # Constants, collision detection, serializers
+│   ├── geocoding.ts        # Nominatim geocoding client (searchAddress)
 │   ├── supabase/           # Supabase clients (browser, server, admin)
-│   ├── validations/        # Zod schemas and validation constants (rsvp, admin, floor-plan, upload)
+│   ├── validations/        # Zod schemas and validation constants (rsvp, admin, floor-plan, upload, wedding)
 │   └── utils.ts            # Utilities
 ├── proxy.ts                 # Auth proxy (renamed from middleware.ts for Next.js 16 compat)
 └── types/                  # TypeScript types
@@ -195,6 +200,7 @@ tests/
 - **Image uploads** — stored in Supabase Storage `wedding-templates` bucket; 5MB max, PNG/JPG only; client + server validation
 - **Floor plan editor** — Interactive 2D canvas built with react-konva; supports drag-and-drop, rotation (center-based for both round and long tables), collision detection, auto-chair population around tables, pan/zoom, undo/redo, and auto-save. Compact glass-panel top bar with venue dimensions, toolbar, and save controls. Labels track shapes in real-time during drag via Konva node ID lookups. Canvas auto-centers on load.
 - **Design system** — Glassmorphism UI pattern using `.glass-panel` CSS utility (backdrop-filter blur, semi-transparent backgrounds, subtle borders). All card-like surfaces use this consistent design language.
+- **Venue details** — Weddings have optional venue fields (name, address, lat/lng, welcome message). Address autocomplete uses Nominatim (free, client-side, no API key). Public RSVP page shows an OpenStreetMap iframe embed with Google Maps/Waze navigation buttons. Landing page shows venue info overlay in the gradient area above the RSVP button.
 
 ## Troubleshooting
 
