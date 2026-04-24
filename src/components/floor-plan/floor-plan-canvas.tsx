@@ -559,7 +559,9 @@ export function FloorPlanCanvas({
 
   const handleStageClick = useCallback(
     (e: Konva.KonvaEventObject<MouseEvent>) => {
-      if (e.target === e.target.getStage()) {
+      const stage = e.target.getStage();
+      // Deselect when clicking on empty stage or the background Rect
+      if (e.target === stage || e.target.attrs?.name === "background") {
         setSelectedItemId(null);
         setEditingLabelId(null);
         setEditingDimId(null);
@@ -673,9 +675,10 @@ export function FloorPlanCanvas({
         </div>
 
         {/* Canvas area */}
+        <div className="flex-1 min-h-0 relative">
         <div
           ref={containerRef}
-          className="flex-1 min-h-0 overflow-hidden relative"
+          className="absolute inset-0 overflow-hidden"
         >
         <Stage
           ref={stageRef}
@@ -695,6 +698,7 @@ export function FloorPlanCanvas({
         >
           <Layer>
             <Rect
+              name="background"
               x={0}
               y={0}
               width={canvasWidth}
@@ -728,19 +732,21 @@ export function FloorPlanCanvas({
             />
           </Layer>
         </Stage>
+        </div>
 
-        {/* HTML overlays render after Stage so they paint on top of canvas */}
+        {/* HTML overlays in separate stacking layer above canvas */}
+        <div className="absolute inset-0 z-30 pointer-events-none">
 
         {/* Out of bounds warning */}
         {outOfBoundsIds.size > 0 && (
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 rounded-md border border-yellow-500 bg-yellow-50 px-3 py-1 text-xs text-yellow-800 pointer-events-none">
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 rounded-md border border-yellow-500 bg-yellow-50 px-3 py-1 text-xs text-yellow-800">
             {outOfBoundsIds.size} item(s) outside bounds
           </div>
         )}
 
         {/* Inline label editing overlay */}
         {editingLabelId && (
-          <div className="absolute z-50 top-12 left-1/2 -translate-x-1/2">
+          <div className="absolute top-12 left-1/2 -translate-x-1/2 pointer-events-auto">
             <div className="glass-panel rounded-lg shadow-lg p-2 flex gap-2">
               <input
                 ref={editInputRef}
@@ -766,7 +772,7 @@ export function FloorPlanCanvas({
 
         {/* Dimension editing overlay for selected configurable item */}
         {selectedItem && DIMENSION_EDITABLE_TYPES.includes(selectedItem.type) && (
-          <div className="absolute bottom-2 right-2 z-20 glass-panel rounded-lg px-3 py-2 flex items-center gap-2">
+          <div className="absolute bottom-2 right-2 glass-panel rounded-lg px-3 py-2 flex items-center gap-2 pointer-events-auto">
             <span className="text-xs text-muted-foreground">
               {selectedItem.label}:
             </span>
@@ -802,7 +808,7 @@ export function FloorPlanCanvas({
 
         {/* Chair count adjustment overlay for selected table */}
         {selectedItem && isTableType(selectedItem.type) && (
-            <div className="absolute bottom-2 left-2 z-20 glass-panel rounded-lg px-3 py-2 flex items-center gap-2">
+            <div className="absolute bottom-2 left-2 glass-panel rounded-lg px-3 py-2 flex items-center gap-2 pointer-events-auto">
               <span className="text-xs text-muted-foreground">Chairs:</span>
               <Button
                 variant="outline"
@@ -844,7 +850,7 @@ export function FloorPlanCanvas({
           )}
 
         {isNewFloorPlan && state.items.length === 0 && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+          <div className="absolute inset-0 flex items-center justify-center">
             <div className="glass-panel rounded-xl px-8 py-6 text-center max-w-sm">
               <p className="text-lg font-medium">Design Your Floor Plan</p>
               <p className="text-sm text-muted-foreground mt-2">
@@ -855,6 +861,7 @@ export function FloorPlanCanvas({
             </div>
           </div>
         )}
+        </div>
         </div>
       </div>
 
