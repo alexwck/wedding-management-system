@@ -110,8 +110,8 @@ export function VenueEditor({
     formData.set("weddingId", String(weddingId));
     formData.set("venue", data.venue.trim());
     formData.set("venue_address", data.venue_address.trim());
-    if (data.venue_lat != null) formData.set("venue_lat", String(data.venue_lat));
-    if (data.venue_lng != null) formData.set("venue_lng", String(data.venue_lng));
+    formData.set("venue_lat", data.venue_lat != null ? String(data.venue_lat) : "");
+    formData.set("venue_lng", data.venue_lng != null ? String(data.venue_lng) : "");
     formData.set("welcome_message", data.welcome_message.trim());
 
     try {

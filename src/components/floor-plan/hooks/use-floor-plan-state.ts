@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import type { FloorPlanItem, ItemType } from "@/types/floor-plan";
 import {
   getDefaultChairs,
+  isTableType,
   MAX_VENUE_DIMENSION,
   ROUND_TABLE_SIZES,
   LONG_TABLE_LENGTHS,
@@ -17,10 +18,12 @@ import type { RoundTableSize, LongTableLength } from "@/types/floor-plan";
 import { generateChairsForTable } from "./use-chair-generation";
 import { checkItemCollisions, isItemOutOfBounds } from "@/lib/floor-plan/collision";
 
+const PLACEMENT_TEST_ID = "__placement_test__";
+
 function getNextLabel(items: FloorPlanItem[], type: ItemType): string {
   const tableTypes: ItemType[] = ["round_table", "long_table"];
   const baseName =
-    type === "round_table" || type === "long_table"
+    isTableType(type)
       ? "Table"
       : type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   const existing = items.filter((i) =>
@@ -57,6 +60,18 @@ function getDimensionsForType(
   }
 }
 
+function getTableMeta(type: ItemType, sizeVariant?: number): Record<string, unknown> {
+  if (!isTableType(type)) return {};
+  return {
+    ...(type === "round_table" && sizeVariant
+      ? { diameter: sizeVariant as RoundTableSize, chairCount: getDefaultChairs(type, sizeVariant) }
+      : {}),
+    ...(type === "long_table" && sizeVariant
+      ? { length: sizeVariant as LongTableLength, chairCount: getDefaultChairs(type, sizeVariant) }
+      : {}),
+  };
+}
+
 export function useFloorPlanState(initialWidth: number, initialHeight: number) {
   const [items, setItems] = useState<FloorPlanItem[]>([]);
   const [width, setWidth] = useState(initialWidth);
@@ -74,11 +89,11 @@ export function useFloorPlanState(initialWidth: number, initialHeight: number) {
         let placeY = baseY;
 
         // Check if center is collision-free; spiral outward if not
-        const isChair = type === "chair";
-        const isTable = type === "round_table" || type === "long_table";
-        if (!isChair) {
+        const isTable = isTableType(type);
+        if (type !== "chair") {
+          const tableMeta = getTableMeta(type, sizeVariant);
           const testItem: FloorPlanItem = {
-            id: "__placement_test__",
+            id: PLACEMENT_TEST_ID,
             type,
             label: "",
             x: baseX,
@@ -87,26 +102,14 @@ export function useFloorPlanState(initialWidth: number, initialHeight: number) {
             height: dims.height,
             rotation: 0,
             parentItemId: null,
-            metadata: isTable
-              ? {
-                  ...(type === "round_table" && sizeVariant
-                    ? { diameter: sizeVariant as RoundTableSize, chairCount: getDefaultChairs(type, sizeVariant) }
-                    : {}),
-                  ...(type === "long_table" && sizeVariant
-                    ? { length: sizeVariant as LongTableLength, chairCount: getDefaultChairs(type, sizeVariant) }
-                    : {}),
-                }
-              : {},
+            metadata: tableMeta,
           };
 
           const isPositionValid = (x: number, y: number) => {
             const test = { ...testItem, x, y };
-            // Check item itself is in bounds
             if (isItemOutOfBounds(test, width, height)) return false;
-            // Check item-to-item collisions
             const allItems = [...prev, test];
-            if (checkItemCollisions("__placement_test__", allItems).length > 0) return false;
-            // For tables, also check that generated chairs are in bounds and collision-free
+            if (checkItemCollisions(PLACEMENT_TEST_ID, allItems).length > 0) return false;
             if (isTable) {
               const chairs = generateChairsForTable(test);
               for (const chair of chairs) {
@@ -142,6 +145,8 @@ export function useFloorPlanState(initialWidth: number, initialHeight: number) {
           }
         }
 
+        const tableMeta = getTableMeta(type, sizeVariant);
+
         const newItem: FloorPlanItem = {
           id: crypto.randomUUID(),
           type,
@@ -152,18 +157,11 @@ export function useFloorPlanState(initialWidth: number, initialHeight: number) {
           height: dims.height,
           rotation: 0,
           parentItemId: null,
-          metadata: {
-            ...(type === "round_table" && sizeVariant
-              ? { diameter: sizeVariant as RoundTableSize, chairCount: getDefaultChairs(type, sizeVariant) }
-              : {}),
-            ...(type === "long_table" && sizeVariant
-              ? { length: sizeVariant as LongTableLength, chairCount: getDefaultChairs(type, sizeVariant) }
-              : {}),
-          },
+          metadata: tableMeta,
         };
         item = newItem;
         const chairs =
-          type === "round_table" || type === "long_table"
+          isTableType(type)
             ? generateChairsForTable(newItem)
             : [];
         return [...prev, newItem, ...chairs];

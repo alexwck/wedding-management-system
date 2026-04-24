@@ -63,15 +63,13 @@ export function RSVPSection({ rsvps, title = "RSVP Responses", weddingId, summar
       </div>
 
       {summary && (
-        <div className="px-4 pb-2">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {SUMMARY_CARDS.map(({ key, label, color }) => (
-              <div key={key} className="glass-panel rounded-lg p-4 text-center">
-                <p className={`text-2xl font-bold ${color}`}>{summary[key]}</p>
-                <p className="text-sm text-muted-foreground">{label}</p>
-              </div>
-            ))}
-          </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-4 pb-2">
+          {SUMMARY_CARDS.map(({ key, label, color }) => (
+            <div key={key} className="glass-panel rounded-lg p-4 text-center">
+              <p className={`text-2xl font-bold ${color}`}>{summary[key]}</p>
+              <p className="text-sm text-muted-foreground">{label}</p>
+            </div>
+          ))}
         </div>
       )}
 

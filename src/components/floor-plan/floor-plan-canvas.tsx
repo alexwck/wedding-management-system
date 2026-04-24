@@ -42,6 +42,85 @@ const DIMENSION_EDITABLE_TYPES: ItemType[] = [
   "misc",
 ];
 
+function checkDragCollisions(
+  id: string,
+  hypothetical: FloorPlanItem,
+  movedItem: FloorPlanItem,
+  isTable: boolean,
+  allItems: FloorPlanItem[],
+  venueW: number,
+  venueH: number,
+): { blocked: boolean; hypotheticalItems: FloorPlanItem[] } {
+  const hypotheticalItems = allItems.map((i) => (i.id === id ? hypothetical : i));
+  const collisions = checkItemCollisions(id, hypotheticalItems);
+  const oob = isItemOutOfBounds(hypothetical, venueW, venueH);
+
+  if (!isTable || oob || collisions.length > 0) {
+    return { blocked: oob || collisions.length > 0, hypotheticalItems };
+  }
+
+  const dx = hypothetical.x - movedItem.x;
+  const dy = hypothetical.y - movedItem.y;
+  const children = allItems.filter((i) => i.parentItemId === id);
+  const hypotheticalChildren = children.map((c) => ({ ...c, x: c.x + dx, y: c.y + dy }));
+  const childMap = new Map(hypotheticalChildren.map((c) => [c.id, c]));
+  const merged = hypotheticalItems.map((i) => childMap.get(i.id) ?? i);
+
+  for (const hc of hypotheticalChildren) {
+    if (isItemOutOfBounds(hc, venueW, venueH)) return { blocked: true, hypotheticalItems: merged };
+    if (checkItemCollisions(hc.id, merged).length > 0) return { blocked: true, hypotheticalItems: merged };
+  }
+
+  return { blocked: false, hypotheticalItems: merged };
+}
+
+function ChairCountControls({
+  tableId,
+  count,
+  max,
+  onChange,
+}: {
+  tableId: string;
+  count: number;
+  max: number;
+  onChange: (tableId: string, count: number) => void;
+}) {
+  return (
+    <>
+      <div className="w-px h-6 bg-border" />
+      <span className="text-xs text-muted-foreground">Chairs:</span>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => onChange(tableId, count - 1)}
+        disabled={count <= 0}
+        className="h-7 w-7 p-0"
+      >
+        -
+      </Button>
+      <Input
+        data-testid="chair-count-input"
+        type="number"
+        min={0}
+        max={max}
+        value={count}
+        onChange={(e) => onChange(tableId, Number(e.target.value))}
+        className="w-14 h-7 text-xs text-center"
+      />
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => onChange(tableId, count + 1)}
+        disabled={count >= max}
+        className="h-7 w-7 p-0"
+      >
+        +
+      </Button>
+      <span className="text-xs text-muted-foreground">/{max}</span>
+    </>
+  );
+}
+
 export function FloorPlanCanvas({
   weddingId,
   initialFloorPlan,
@@ -116,7 +195,6 @@ export function FloorPlanCanvas({
     [state.items, state.width, state.height],
   );
 
-  // Zoom: wheel centered on cursor
   const handleWheel = useCallback((e: Konva.KonvaEventObject<WheelEvent>) => {
     e.evt.preventDefault();
     const stage = e.target.getStage();
@@ -144,7 +222,6 @@ export function FloorPlanCanvas({
     });
   }, []);
 
-  // Pan: stage drag on empty space
   const handleStageDragEnd = useCallback(
     (e: Konva.KonvaEventObject<DragEvent>) => {
       const stage = e.target.getStage();
@@ -154,7 +231,6 @@ export function FloorPlanCanvas({
     [],
   );
 
-  // Touch: pinch-to-zoom + two-finger pan
   const handleTouchMove = useCallback(
     (e: Konva.KonvaEventObject<TouchEvent>) => {
       const touches = e.evt.touches;
@@ -210,33 +286,14 @@ export function FloorPlanCanvas({
     lastTouchCenter.current = null;
   }, []);
 
-  // Zoom controls
-  const handleZoomIn = useCallback(() => {
+  const handleZoom = useCallback((direction: "in" | "out") => {
     const stage = stageRef.current;
     if (!stage) return;
 
     const oldScale = stage.scaleX();
-    const newScale = Math.min(oldScale * 1.25, 5);
-    const center = { x: stage.width() / 2, y: stage.height() / 2 };
-
-    const mousePointTo = {
-      x: (center.x - stage.x()) / oldScale,
-      y: (center.y - stage.y()) / oldScale,
-    };
-
-    setStageScale(newScale);
-    setStagePosition({
-      x: center.x - mousePointTo.x * newScale,
-      y: center.y - mousePointTo.y * newScale,
-    });
-  }, []);
-
-  const handleZoomOut = useCallback(() => {
-    const stage = stageRef.current;
-    if (!stage) return;
-
-    const oldScale = stage.scaleX();
-    const newScale = Math.max(oldScale / 1.25, 0.1);
+    const newScale = direction === "in"
+      ? Math.min(oldScale * 1.25, 5)
+      : Math.max(oldScale / 1.25, 0.1);
     const center = { x: stage.width() / 2, y: stage.height() / 2 };
 
     const mousePointTo = {
@@ -392,43 +449,11 @@ export function FloorPlanCanvas({
         : { x: node.x() / FEET_TO_PIXELS, y: node.y() / FEET_TO_PIXELS };
 
       const hypothetical = { ...movedItem, x: newX, y: newY };
-      const oob = isItemOutOfBounds(hypothetical, state.width, state.height);
 
-      // Check item-to-item collisions with hypothetical position
-      let hypotheticalItems = state.items.map((i) => (i.id === id ? hypothetical : i));
+      const dragResult = checkDragCollisions(
+        id, hypothetical, movedItem, table, state.items, state.width, state.height,
+      );
 
-      // Also check child chairs for OOB and collisions
-      let chairBlocked = false;
-      if (table) {
-        const dx = newX - movedItem.x;
-        const dy = newY - movedItem.y;
-        const children = state.items.filter((i) => i.parentItemId === id);
-        const hypotheticalChildren = children.map((c) => ({
-          ...c,
-          x: c.x + dx,
-          y: c.y + dy,
-        }));
-        hypotheticalItems = hypotheticalItems.map((i) => {
-          const hc = hypotheticalChildren.find((c) => c.id === i.id);
-          return hc ?? i;
-        });
-
-        for (const hc of hypotheticalChildren) {
-          if (isItemOutOfBounds(hc, state.width, state.height)) {
-            chairBlocked = true;
-            break;
-          }
-          const chairCollisions = checkItemCollisions(hc.id, hypotheticalItems);
-          if (chairCollisions.length > 0) {
-            chairBlocked = true;
-            break;
-          }
-        }
-      }
-
-      const collisions = checkItemCollisions(id, hypotheticalItems);
-
-      // Compute label base position (center-based for all types)
       const labelBaseX = (movedItem.x + movedItem.width / 2) * FEET_TO_PIXELS;
       const labelBaseY = (movedItem.y + movedItem.height / 2) * FEET_TO_PIXELS;
 
@@ -462,7 +487,7 @@ export function FloorPlanCanvas({
         moveLabel();
       };
 
-      if (oob || collisions.length > 0 || chairBlocked) {
+      if (dragResult.blocked) {
         snapBack();
       } else {
         collision.savePosition(id, newX, newY);
@@ -561,23 +586,19 @@ export function FloorPlanCanvas({
     [state, pushHistory],
   );
 
-  const handleUndo = useCallback(() => {
-    const snapshot = undoRedo.undo();
-    if (snapshot) {
+  const restoreSnapshot = useCallback(
+    (snapshot: { items: FloorPlanItem[]; width: number; height: number } | null) => {
+      if (!snapshot) return;
       state.setAllItems(snapshot.items);
       state.updateDimensions(snapshot.width, snapshot.height);
       setSelectedItemId(null);
-    }
-  }, [undoRedo, state]);
+    },
+    [state],
+  );
 
-  const handleRedo = useCallback(() => {
-    const snapshot = undoRedo.redo();
-    if (snapshot) {
-      state.setAllItems(snapshot.items);
-      state.updateDimensions(snapshot.width, snapshot.height);
-      setSelectedItemId(null);
-    }
-  }, [undoRedo, state]);
+  const handleUndo = useCallback(() => restoreSnapshot(undoRedo.undo()), [undoRedo, restoreSnapshot]);
+
+  const handleRedo = useCallback(() => restoreSnapshot(undoRedo.redo()), [undoRedo, restoreSnapshot]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -679,8 +700,8 @@ export function FloorPlanCanvas({
             onUndo={handleUndo}
             onRedo={handleRedo}
             zoomPercent={stageScale * 100}
-            onZoomIn={handleZoomIn}
-            onZoomOut={handleZoomOut}
+            onZoomIn={() => handleZoom("in")}
+            onZoomOut={() => handleZoom("out")}
             onFitToScreen={handleFitToScreen}
           />
 
@@ -699,46 +720,12 @@ export function FloorPlanCanvas({
           )}
 
           {selectedItem && isTableType(selectedItem.type) && (
-            <>
-              <div className="w-px h-6 bg-border" />
-              <span className="text-xs text-muted-foreground">Chairs:</span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  handleChairCountChange(selectedItem.id, selectedChairCount - 1)
-                }
-                disabled={selectedChairCount <= 0}
-                className="h-7 w-7 p-0"
-              >
-                -
-              </Button>
-              <Input
-                data-testid="chair-count-input"
-                type="number"
-                min={0}
-                max={selectedTableMaxChairs}
-                value={selectedChairCount}
-                onChange={(e) =>
-                  handleChairCountChange(selectedItem.id, Number(e.target.value))
-                }
-                className="w-14 h-7 text-xs text-center"
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  handleChairCountChange(selectedItem.id, selectedChairCount + 1)
-                }
-                disabled={selectedChairCount >= selectedTableMaxChairs}
-                className="h-7 w-7 p-0"
-              >
-                +
-              </Button>
-              <span className="text-xs text-muted-foreground">
-                /{selectedTableMaxChairs}
-              </span>
-            </>
+            <ChairCountControls
+              tableId={selectedItem.id}
+              count={selectedChairCount}
+              max={selectedTableMaxChairs}
+              onChange={handleChairCountChange}
+            />
           )}
 
           <div className="flex-1" />
