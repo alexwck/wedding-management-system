@@ -182,14 +182,14 @@
 
 **Purpose**: E2E tests, CLAUDE.md updates, and final verification
 
-- [ ] T050 [P] Write E2E test for wedding date flow in `tests/e2e/wedding-date.spec.ts`: admin sets date/time → landing page shows date in timezone; admin changes timezone → landing page updates; couple dashboard shows date picker without timezone selector
-- [ ] T051 [P] Write E2E test for dashboard layout in `tests/e2e/dashboard-layout.spec.ts`: admin page shows two columns at 1440px; stacks at 768px; couple dashboard same pattern
-- [ ] T052 [P] Write E2E test for RSVP table sorting in `tests/e2e/rsvp-sorting.spec.ts`: default sort is newest first; click guest name header → alphabetical; click status → grouped; click table name → alphabetical; sort indicators visible
-- [ ] T053 [P] Write E2E test for template focal point in `tests/e2e/template-focal-point.spec.ts`: upload image → open preview → set focal point → landing page centers on focal point; replace image → focal point resets
-- [ ] T054 [P] Write E2E test for floor plan fixes in `tests/e2e/floor-plan-fixes.spec.ts`: catalog collapse/expand 20+ times stays in viewport; table selection shows chair controls for round and long tables
-- [ ] T055 Run `npm run test` — all unit and component tests pass
-- [ ] T056 Run `npm run test:e2e` — all E2E tests pass across desktop and mobile projects
-- [ ] T057 Update `CLAUDE.md` Gotchas section with new learnings: datetime-local input for date picking, base64 buffer transfer for XLSX, `object-position` for focal point, `h-[calc(100vh-40px)]` for catalog constraint, UTC+offset display format
+- [x] T050 [P] Write E2E test for wedding date flow in `tests/e2e/wedding-date.spec.ts`: admin sets date/time → landing page shows date in timezone; admin changes timezone → landing page updates; couple dashboard shows date picker without timezone selector
+- [x] T051 [P] Write E2E test for dashboard layout in `tests/e2e/dashboard-layout.spec.ts`: admin page shows two columns at 1440px; stacks at 768px; couple dashboard same pattern
+- [x] T052 [P] Write E2E test for RSVP table sorting in `tests/e2e/rsvp-sorting.spec.ts`: default sort is newest first; click guest name header → alphabetical; click status → grouped; click table name → alphabetical; sort indicators visible
+- [x] T053 [P] Write E2E test for template focal point in `tests/e2e/template-focal-point.spec.ts`: upload image → open preview → set focal point → landing page centers on focal point; replace image → focal point resets
+- [x] T054 [P] Write E2E test for floor plan fixes in `tests/e2e/floor-plan-fixes.spec.ts`: catalog collapse/expand 20+ times stays in viewport; table selection shows chair controls for round and long tables
+- [x] T055 Run `npm run test` — all unit and component tests pass
+- [x] T056 Run `npm run test:e2e` — all E2E tests pass across desktop and mobile projects
+- [x] T057 Update `CLAUDE.md` Gotchas section with new learnings: datetime-local input for date picking, base64 buffer transfer for XLSX, `object-position` for focal point, `h-[calc(100vh-40px)]` for catalog constraint, UTC+offset display format
 
 ---
 
