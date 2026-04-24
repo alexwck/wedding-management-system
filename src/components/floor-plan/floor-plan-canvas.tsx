@@ -23,7 +23,7 @@ import {
   centerPixelsToTopLeftFeet,
   topLeftFeetToCenterPixels,
 } from "@/lib/floor-plan/constants";
-import { isItemOutOfBounds } from "@/lib/floor-plan/collision";
+import { isItemOutOfBounds, checkItemCollisions } from "@/lib/floor-plan/collision";
 import type { FloorPlan, FloorPlanItem, ItemType } from "@/types/floor-plan";
 import { redistributeChairs, getMaxChairCount } from "./hooks/use-chair-generation";
 
@@ -389,6 +389,10 @@ export function FloorPlanCanvas({
       const hypothetical = { ...movedItem, x: newX, y: newY };
       const oob = isItemOutOfBounds(hypothetical, state.width, state.height);
 
+      // Check item-to-item collisions with hypothetical position
+      const hypotheticalItems = state.items.map((i) => (i.id === id ? hypothetical : i));
+      const collisions = checkItemCollisions(id, hypotheticalItems);
+
       // Compute label base position (center-based for all types)
       const labelBaseX = (movedItem.x + movedItem.width / 2) * FEET_TO_PIXELS;
       const labelBaseY = (movedItem.y + movedItem.height / 2) * FEET_TO_PIXELS;
@@ -411,7 +415,7 @@ export function FloorPlanCanvas({
         }
       };
 
-      if (oob) {
+      const snapBack = () => {
         const saved = collision.getSavedPosition(id);
         if (saved) {
           const restored = table
@@ -421,6 +425,10 @@ export function FloorPlanCanvas({
           node.y(restored.y);
         }
         moveLabel();
+      };
+
+      if (oob || collisions.length > 0) {
+        snapBack();
       } else {
         collision.savePosition(id, newX, newY);
         moveLabel();
