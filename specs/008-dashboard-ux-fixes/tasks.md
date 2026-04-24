@@ -106,11 +106,11 @@
 
 ### Implementation for User Story 5
 
-- [ ] T028 [US5] In `src/app/actions/export.ts`: remove functions `createOAuth2Client`, `getGoogleAuthUrl`, `handleGoogleCallback`, `getGoogleAuthStatus`, `exportToGoogleSheets`; remove `import { google } from "googleapis"`; keep only `getRsvpsWithAssignments` and `exportToXlsx`
-- [ ] T029 [US5] In `src/components/export-buttons.tsx`: remove Google Sheets button, `isGoogleExporting` state, `handleGoogleExport` function, Google auth check logic; keep only XLSX download button
-- [ ] T030 [US5] Run `npm uninstall googleapis` to remove the dependency
-- [ ] T031 [US5] Search codebase with `grep -r "google\|oauth_tokens\|googleapis" src/` to confirm zero remaining references
-- [ ] T032 [US5] Verify XLSX download still works after Google Sheets removal (manual test or existing E2E test)
+- [x] T028 [US5] In `src/app/actions/export.ts`: remove functions `createOAuth2Client`, `getGoogleAuthUrl`, `handleGoogleCallback`, `getGoogleAuthStatus`, `exportToGoogleSheets`; remove `import { google } from "googleapis"`; keep only `getRsvpsWithAssignments` and `exportToXlsx`
+- [x] T029 [US5] In `src/components/export-buttons.tsx`: remove Google Sheets button, `isGoogleExporting` state, `handleGoogleExport` function, Google auth check logic; keep only XLSX download button
+- [x] T030 [US5] Run `npm uninstall googleapis` to remove the dependency
+- [x] T031 [US5] Search codebase with `grep -r "google\|oauth_tokens\|googleapis" src/` to confirm zero remaining references (only google.com/maps URL in venue-section and next/font/google)
+- [x] T032 [US5] Verify XLSX download still works after Google Sheets removal (manual test or existing E2E test)
 
 **Checkpoint**: Google Sheets fully removed. XLSX export still functional.
 
