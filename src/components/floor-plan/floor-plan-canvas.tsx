@@ -79,6 +79,11 @@ export function FloorPlanCanvas({
     if (initialFloorPlan?.items) {
       state.setAllItems(initialFloorPlan.items);
     }
+    undoRedo.pushState(
+      initialFloorPlan?.items ?? [],
+      initialWidth,
+      initialHeight,
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
