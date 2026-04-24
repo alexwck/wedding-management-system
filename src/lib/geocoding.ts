@@ -4,11 +4,15 @@ export interface GeocodingResult {
   lon: string;
 }
 
+export type GeocodingResponse =
+  | { ok: true; results: GeocodingResult[] }
+  | { ok: false; error: "no_results" | "api_error" | "timeout" };
+
 const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
 const TIMEOUT_MS = 5000;
 
-export async function searchAddress(query: string): Promise<GeocodingResult[]> {
-  if (query.length < 3) return [];
+export async function searchAddress(query: string): Promise<GeocodingResponse> {
+  if (query.length < 3) return { ok: true, results: [] };
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
@@ -26,18 +30,21 @@ export async function searchAddress(query: string): Promise<GeocodingResult[]> {
       },
     });
 
-    if (!response.ok) return [];
+    if (!response.ok) return { ok: false, error: "api_error" };
 
     const data = await response.json();
-    return data.map(
+    const results = data.map(
       (item: { display_name: string; lat: string; lon: string }) => ({
         display_name: item.display_name,
         lat: item.lat,
         lon: item.lon,
       }),
     );
+
+    if (results.length === 0) return { ok: false, error: "no_results" };
+    return { ok: true, results };
   } catch {
-    return [];
+    return { ok: false, error: "timeout" };
   } finally {
     clearTimeout(timeout);
   }

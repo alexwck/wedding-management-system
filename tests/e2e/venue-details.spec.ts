@@ -94,3 +94,20 @@ test.describe("Admin venue editing (US1)", () => {
     await expect(page.locator("text=Venue details saved!")).toBeVisible();
   });
 });
+
+test.describe("Couple venue editing (US1)", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "alex@example.com");
+    await page.fill('input[id="password"]', "couple123");
+    await page.click('button[type="submit"]');
+    await page.waitForURL("/dashboard");
+  });
+
+  test("couple can see venue editor on dashboard", async ({ page }) => {
+    await page.goto("/dashboard");
+
+    await expect(page.locator("h3", { hasText: "Venue Details" })).toBeVisible();
+    await expect(page.locator('input[id="venue"]')).toBeVisible();
+  });
+});

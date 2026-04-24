@@ -6,7 +6,7 @@ describe("searchAddress", () => {
     vi.restoreAllMocks();
   });
 
-  it("returns formatted results for a valid query", async () => {
+  it("returns ok with results for a valid query", async () => {
     const mockResults = [
       {
         place_id: 123,
@@ -19,30 +19,33 @@ describe("searchAddress", () => {
       new Response(JSON.stringify(mockResults), { status: 200 }),
     );
 
-    const results = await searchAddress("123 Main St");
-    expect(results).toHaveLength(1);
-    expect(results[0]).toEqual({
-      display_name: "123 Main St, Springfield, IL, USA",
-      lat: "39.7817",
-      lon: "-89.6501",
-    });
+    const response = await searchAddress("123 Main St");
+    expect(response.ok).toBe(true);
+    if (response.ok) {
+      expect(response.results).toHaveLength(1);
+      expect(response.results[0]).toEqual({
+        display_name: "123 Main St, Springfield, IL, USA",
+        lat: "39.7817",
+        lon: "-89.6501",
+      });
+    }
   });
 
-  it("returns empty array for query under 3 chars", async () => {
-    const results = await searchAddress("ab");
-    expect(results).toEqual([]);
+  it("returns ok with empty results for query under 3 chars", async () => {
+    const response = await searchAddress("ab");
+    expect(response).toEqual({ ok: true, results: [] });
   });
 
-  it("handles API error response", async () => {
+  it("returns api_error for API error response", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response("Server Error", { status: 500 }),
     );
 
-    const results = await searchAddress("Springfield");
-    expect(results).toEqual([]);
+    const response = await searchAddress("Springfield");
+    expect(response).toEqual({ ok: false, error: "api_error" });
   });
 
-  it("handles fetch timeout", { timeout: 10000 }, async () => {
+  it("returns timeout for fetch timeout", { timeout: 10000 }, async () => {
     vi.spyOn(globalThis, "fetch").mockImplementation((_url, opts) => {
       return new Promise((_, reject) => {
         const signal = (opts as RequestInit)?.signal as AbortSignal;
@@ -54,22 +57,22 @@ describe("searchAddress", () => {
       });
     });
 
-    const results = await searchAddress("Springfield");
-    expect(results).toEqual([]);
+    const response = await searchAddress("Springfield");
+    expect(response).toEqual({ ok: false, error: "timeout" });
   });
 
-  it("handles no results from API", async () => {
+  it("returns no_results when API returns empty array", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(JSON.stringify([]), { status: 200 }),
     );
 
-    const results = await searchAddress("zzznonexistentplace");
-    expect(results).toEqual([]);
+    const response = await searchAddress("zzznonexistentplace");
+    expect(response).toEqual({ ok: false, error: "no_results" });
   });
 
   it("includes User-Agent header in request", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(JSON.stringify([]), { status: 200 }),
+      new Response(JSON.stringify([{ display_name: "x", lat: "0", lon: "0" }]), { status: 200 }),
     );
 
     await searchAddress("Springfield");
@@ -84,10 +87,10 @@ describe("searchAddress", () => {
     );
   });
 
-  it("handles network error gracefully", async () => {
+  it("returns timeout for network error", async () => {
     vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("Network error"));
 
-    const results = await searchAddress("Springfield");
-    expect(results).toEqual([]);
+    const response = await searchAddress("Springfield");
+    expect(response).toEqual({ ok: false, error: "timeout" });
   });
 });
