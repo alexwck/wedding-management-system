@@ -97,7 +97,7 @@ postgresql://postgres:postgres@127.0.0.1:54322/postgres
 | Table | Purpose | Key Columns |
 |-------|---------|-------------|
 | `public.users` | App users with roles (admin/couple) | `id` → `auth.users`, `role`, `display_name` |
-| `public.weddings` | Wedding records with shareable slugs | `slug`, `user_id`, `couple_name`, `template_image_url`, `wedding_date`, `venue`, `venue_address`, `venue_lat`, `venue_lng`, `welcome_message` |
+| `public.weddings` | Wedding records with shareable slugs | `slug`, `user_id`, `couple_name`, `template_image_url`, `wedding_date`, `timezone`, `template_focal_x`, `template_focal_y`, `venue`, `venue_address`, `venue_lat`, `venue_lng`, `welcome_message` |
 | `public.rsvps` | Guest RSVP submissions per wedding | `wedding_id`, `guest_name`, `status`, `dietary_notes`, `is_vegetarian`, `needs_baby_chair` |
 | `public.floor_plans` | Interactive venue floor plan per wedding | `wedding_id`, `width`, `height`, `items` (JSONB) |
 | `public.seat_assignments` | Guest-to-chair assignments per wedding | `wedding_id`, `rsvp_id`, `chair_item_id`, `table_name`, `seat_label` |
@@ -160,14 +160,19 @@ src/
 ├── app/                    # Next.js App Router pages
 │   ├── (public)/           # Public routes (landing page, RSVP, login)
 │   ├── (auth)/             # Protected routes (admin, dashboard)
-│   └── actions/            # Server actions (rsvp, upload, admin, auth, floor-plan)
+│   └── actions/            # Server actions (rsvp, upload, admin, auth, floor-plan, export)
 ├── components/
 │   ├── floor-plan/         # Konva canvas floor plan editor
 │   │   ├── items/          # Shape components (round-table, long-table, chair, etc.)
 │   │   └── hooks/          # State, auto-save, collision, undo-redo, chair generation
 │   └── ui/                 # shadcn/ui primitives
-│   ├── landing-page.tsx    # Wedding landing page (venue info overlay)
+│   ├── landing-page.tsx    # Wedding landing page (venue info overlay, focal point positioning)
 │   ├── rsvp-form.tsx       # RSVP form with react-hook-form + zod
+│   ├── rsvp-table.tsx      # Sortable RSVP response table
+│   ├── rsvp-section.tsx    # Collapsible RSVP section with embedded export
+│   ├── template-preview.tsx # Template preview with focal point picker
+│   ├── wedding-date-picker.tsx # Wedding date/time picker with timezone
+│   ├── timezone-combobox.tsx   # Searchable IANA timezone dropdown
 │   ├── venue-editor.tsx    # Admin/couple venue editing (client, Nominatim autocomplete)
 │   ├── venue-section.tsx   # Public venue display with OSM map embed (server)
 ├── lib/
@@ -198,8 +203,11 @@ tests/
 - **RSVP deduplication** — unique constraint on `(wedding_id, LOWER(guest_name))` plus application-level check
 - **Auth** — Supabase Auth with `proxy.ts` (not `middleware.ts` — renamed for Next.js 16 compat) protecting `/dashboard/*` and `/admin/*` routes; root `/` redirects based on auth state; cross-role blocking (admins can't reach `/dashboard`, couples can't reach `/admin`); logout via server action
 - **Image uploads** — stored in Supabase Storage `wedding-templates` bucket; 5MB max, PNG/JPG only; client + server validation
-- **Floor plan editor** — Interactive 2D canvas built with react-konva; supports drag-and-drop, rotation (center-based for both round and long tables), collision detection, auto-chair population around tables, pan/zoom, undo/redo, and auto-save. Compact glass-panel top bar with venue dimensions, toolbar, and save controls. Labels track shapes in real-time during drag via Konva node ID lookups. Canvas auto-centers on load.
-- **Design system** — Glassmorphism UI pattern using `.glass-panel` CSS utility (backdrop-filter blur, semi-transparent backgrounds, subtle borders). All card-like surfaces use this consistent design language.
+- **Floor plan editor** — Interactive 2D canvas built with react-konva; supports drag-and-drop, rotation (center-based for both round and long tables), collision detection (parent + child chairs), auto-chair population around tables, pan/zoom, undo/redo (initial state pushed on mount), and auto-save. Compact glass-panel top bar with venue dimensions, toolbar, chair count controls, and save status. Labels track shapes in real-time during drag via Konva node ID lookups. Canvas auto-centers on load. Memoized `CanvasItem` component prevents re-renders on selection changes.
+- **Design system** — Glassmorphism UI pattern using `.glass-panel` CSS utility (backdrop-filter blur, semi-transparent backgrounds, subtle borders). All card-like surfaces use this consistent design language. Dropdown overlays use `bg-background shadow-md` for opaque readability.
+- **RSVP management** — Collapsible RSVP section with sortable table, summary cards, and embedded XLSX export (base64 buffer transfer). Google Sheets export removed.
+- **Wedding date/timezone** — Native `datetime-local` input for wedding date with searchable IANA timezone selector (cmdk). Stored as TIMESTAMPTZ with UTC conversion. Displayed with `shortOffset` timezone format.
+- **Template focal point** — Click-to-set focal point on template preview image. Stored as 0-100 percentages (`template_focal_x`, `template_focal_y`). Landing page uses CSS `object-position` for display. Reset to NULL on image replace.
 - **Venue details** — Weddings have optional venue fields (name, address, lat/lng, welcome message). Address autocomplete uses Nominatim (free, client-side, no API key). Public RSVP page shows an OpenStreetMap iframe embed with Google Maps/Waze navigation buttons. Landing page shows venue info overlay in the gradient area above the RSVP button.
 
 ## Troubleshooting
