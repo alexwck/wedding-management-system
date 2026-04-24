@@ -22,6 +22,8 @@ interface VenueFormValues {
   welcome_message: string;
 }
 
+type AddressStatus = "idle" | "loading" | "no_results" | "error";
+
 export function VenueEditor({
   weddingId,
   initialVenue,
@@ -34,7 +36,7 @@ export function VenueEditor({
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [suggestions, setSuggestions] = useState<GeocodingResult[]>([]);
   const [focused, setFocused] = useState(false);
-  const [loadingAddress, setLoadingAddress] = useState(false);
+  const [addressStatus, setAddressStatus] = useState<AddressStatus>("idle");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { register, setValue, watch, handleSubmit } = useForm<VenueFormValues>({
@@ -66,7 +68,7 @@ export function VenueEditor({
 
       if (query.length < 3) {
         setSuggestions([]);
-        setLoadingAddress(false);
+        setAddressStatus("idle");
         if (!query) {
           setValue("venue_lat", null);
           setValue("venue_lng", null);
@@ -75,10 +77,15 @@ export function VenueEditor({
       }
 
       debounceRef.current = setTimeout(async () => {
-        setLoadingAddress(true);
-        const results = await searchAddress(query);
-        setSuggestions(results);
-        setLoadingAddress(false);
+        setAddressStatus("loading");
+        const response = await searchAddress(query);
+        if (response.ok) {
+          setSuggestions(response.results);
+          setAddressStatus(response.results.length > 0 ? "idle" : "no_results");
+        } else {
+          setSuggestions([]);
+          setAddressStatus("error");
+        }
       }, 1000);
     },
     [setValue],
@@ -90,6 +97,7 @@ export function VenueEditor({
       setValue("venue_lat", parseFloat(result.lat));
       setValue("venue_lng", parseFloat(result.lon));
       setSuggestions([]);
+      setAddressStatus("idle");
     },
     [setValue],
   );
@@ -100,11 +108,11 @@ export function VenueEditor({
 
     const formData = new FormData();
     formData.set("weddingId", String(weddingId));
-    formData.set("venue", data.venue);
-    formData.set("venue_address", data.venue_address);
+    formData.set("venue", data.venue.trim());
+    formData.set("venue_address", data.venue_address.trim());
     if (data.venue_lat != null) formData.set("venue_lat", String(data.venue_lat));
     if (data.venue_lng != null) formData.set("venue_lng", String(data.venue_lng));
-    formData.set("welcome_message", data.welcome_message);
+    formData.set("welcome_message", data.welcome_message.trim());
 
     try {
       const result = await updateWeddingDetails(formData);
@@ -153,8 +161,14 @@ export function VenueEditor({
           onFocus={() => setFocused(true)}
           onBlur={() => setTimeout(() => setFocused(false), 200)}
         />
-        {loadingAddress && (
+        {addressStatus === "loading" && (
           <p className="text-xs text-muted-foreground mt-1">Searching...</p>
+        )}
+        {addressStatus === "no_results" && !showSuggestions && (
+          <p className="text-xs text-muted-foreground mt-1">No results found.</p>
+        )}
+        {addressStatus === "error" && !showSuggestions && (
+          <p className="text-xs text-destructive mt-1">Unable to search for addresses.</p>
         )}
         {showSuggestions && (
           <ul className="absolute z-10 w-full mt-1 glass-panel rounded-md border border-input max-h-48 overflow-y-auto">

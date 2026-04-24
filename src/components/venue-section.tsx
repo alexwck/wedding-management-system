@@ -18,7 +18,7 @@ export function VenueSection({
   venueLng,
   welcomeMessage,
 }: VenueSectionProps) {
-  const hasCoordinates = venueLat != null && venueLng != null;
+  const hasCoordinates = venueLat != null && venueLng != null && (venueLat !== 0 || venueLng !== 0);
 
   return (
     <div className="glass-panel rounded-xl p-6 space-y-4">
