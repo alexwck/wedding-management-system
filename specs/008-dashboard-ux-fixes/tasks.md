@@ -82,17 +82,17 @@
 
 ### Tests for User Story 1
 
-- [ ] T020 [P] [US1] Write unit tests in `tests/unit/validations/wedding.test.ts`: valid date strings, invalid dates, null, leap year Feb 29; timezone validation — valid IANA strings accepted, invalid rejected; focal point validation — 0-100 range, null, both-or-neither, edge values
-- [ ] T021 [P] [US1] Write unit tests in `tests/unit/actions/admin.test.ts` for `updateWeddingDate` and `updateWeddingTimezone` server actions — verify auth checks, validation, and DB update calls
+- [x] T020 [P] [US1] Write unit tests in `tests/unit/validations/wedding.test.ts`: valid date strings, invalid dates, null, leap year Feb 29; timezone validation — valid IANA strings accepted, invalid rejected; focal point validation — 0-100 range, null, both-or-neither, edge values
+- [x] T021 [P] [US1] Write unit tests in `tests/unit/actions/admin.test.ts` for `updateWeddingDate` and `updateWeddingTimezone` server actions — verify auth checks, validation, and DB update calls
 
 ### Implementation for User Story 1
 
-- [ ] T022 [US1] Create `src/components/wedding-date-picker.tsx` — client component with native `datetime-local` input styled with Tailwind using `.glass-panel` class per Constitution IX; accepts `weddingId`, `currentDate`, `timezone`, `isAdmin` props; shows timezone selector only when `isAdmin=true` — use a searchable input (e.g., `<input>` + `<datalist>` with IANA zones from `Intl.supportedValuesOf('timeZone')`) so users can type city/region name to filter; calls server action on change
-- [ ] T023 [US1] In `src/app/actions/admin.ts`: add `updateWeddingDate(weddingId, weddingDate)` server action — validates via Zod, converts datetime-local string to UTC TIMESTAMPTZ, atomic UPDATE on `weddings.wedding_date`
-- [ ] T024 [US1] In `src/app/actions/admin.ts`: add `updateWeddingTimezone(weddingId, timezone)` server action — admin-only (role check), validates IANA string, atomic UPDATE on `weddings.timezone`
-- [ ] T025 [US1] In `src/app/actions/admin.ts`: update `getWeddingRSVPs` to return `weddingDate`, `timezone`, `templateFocalX`, `templateFocalY` in the wedding data object
-- [ ] T026 [US1] In `src/app/(public)/w/[slug]/page.tsx`: update wedding date display to use `timezone` column for conversion, format as "Month Day, Year at HH:MM (UTC+offset)" — hide section when `wedding_date` is null
-- [ ] T027 [US1] Run `npm run test` to verify all new unit tests pass (Green)
+- [x] T022 [US1] Create `src/components/wedding-date-picker.tsx` — client component with native `datetime-local` input styled with Tailwind using `.glass-panel` class per Constitution IX; accepts `weddingId`, `currentDate`, `timezone`, `isAdmin` props; shows timezone selector only when `isAdmin=true` — use a searchable input (e.g., `<input>` + `<datalist>` with IANA zones from `Intl.supportedValuesOf('timeZone')`) so users can type city/region name to filter; calls server action on change
+- [x] T023 [US1] In `src/app/actions/admin.ts`: add `updateWeddingDate(weddingId, weddingDate)` server action — validates via Zod, converts datetime-local string to UTC TIMESTAMPTZ, atomic UPDATE on `weddings.wedding_date`
+- [x] T024 [US1] In `src/app/actions/admin.ts`: add `updateWeddingTimezone(weddingId, timezone)` server action — admin-only (role check), validates IANA string, atomic UPDATE on `weddings.timezone`
+- [x] T025 [US1] In `src/app/actions/admin.ts`: update `getWeddingRSVPs` to return `weddingDate`, `timezone`, `templateFocalX`, `templateFocalY` in the wedding data object
+- [x] T026 [US1] In `src/app/(public)/w/[slug]/page.tsx`: update wedding date display to use `timezone` column for conversion, format as "Month Day, Year at HH:MM (UTC+offset)" — hide section when `wedding_date` is null
+- [x] T027 [US1] Run `npm run test` to verify all new unit tests pass (Green)
 
 **Checkpoint**: Wedding date can be set via admin/couple dashboards and displays correctly on landing page.
 

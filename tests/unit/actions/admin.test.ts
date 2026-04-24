@@ -24,6 +24,8 @@ import {
   createCoupleAccount,
   getCouples,
   getMyWeddingRSVPs,
+  updateWeddingDate,
+  updateWeddingTimezone,
 } from "@/app/actions/admin";
 import { mockFrom } from "../helpers/supabase-mock";
 import { makeWedding, makeRsvp } from "../helpers/factories";
@@ -219,5 +221,87 @@ describe("getMyWeddingRSVPs", () => {
     const result = await getMyWeddingRSVPs();
     expect(result.success).toBe(false);
     if (!result.success) expect(result.error).toBe("not_found");
+  });
+});
+
+describe("updateWeddingDate", () => {
+  it("returns error for unauthenticated user", async () => {
+    vi.mocked(createClient).mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null } }) },
+    } as never);
+
+    const result = await updateWeddingDate(1, "2026-06-15T14:00");
+    expect(result.success).toBe(false);
+  });
+
+  it("returns error for invalid date", async () => {
+    vi.mocked(createClient).mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1" } } }) },
+    } as never);
+
+    const result = await updateWeddingDate(1, "not-a-date");
+    expect(result.success).toBe(false);
+  });
+
+  it("updates wedding date on success", async () => {
+    vi.mocked(createClient).mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1" } } }) },
+    } as never);
+
+    const fromMock = vi.fn().mockReturnValue(
+      mockFrom({ data: { slug: "test-wedding" }, error: null }),
+    );
+    vi.mocked(createAdminClient).mockReturnValue({ from: fromMock } as never);
+
+    const result = await updateWeddingDate(1, "2026-06-15T14:00");
+    expect(result.success).toBe(true);
+  });
+
+  it("clears date when null passed", async () => {
+    vi.mocked(createClient).mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1" } } }) },
+    } as never);
+
+    const fromMock = vi.fn().mockReturnValue(
+      mockFrom({ data: { slug: "test-wedding" }, error: null }),
+    );
+    vi.mocked(createAdminClient).mockReturnValue({ from: fromMock } as never);
+
+    const result = await updateWeddingDate(1, null);
+    expect(result.success).toBe(true);
+  });
+});
+
+describe("updateWeddingTimezone", () => {
+  it("returns error for non-admin user", async () => {
+    vi.mocked(createClient).mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1", app_metadata: { role: "couple" } } } }) },
+    } as never);
+
+    const result = await updateWeddingTimezone(1, "Asia/Kuala_Lumpur");
+    expect(result.success).toBe(false);
+  });
+
+  it("returns error for invalid timezone", async () => {
+    vi.mocked(createClient).mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1", app_metadata: { role: "admin" } } } }) },
+    } as never);
+
+    const result = await updateWeddingTimezone(1, "Invalid/Tz");
+    expect(result.success).toBe(false);
+  });
+
+  it("updates timezone on success", async () => {
+    vi.mocked(createClient).mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1", app_metadata: { role: "admin" } } } }) },
+    } as never);
+
+    const fromMock = vi.fn().mockReturnValue(
+      mockFrom({ data: { slug: "test-wedding" }, error: null }),
+    );
+    vi.mocked(createAdminClient).mockReturnValue({ from: fromMock } as never);
+
+    const result = await updateWeddingTimezone(1, "America/New_York");
+    expect(result.success).toBe(true);
   });
 });

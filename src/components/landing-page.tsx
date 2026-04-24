@@ -8,24 +8,30 @@ interface LandingPageProps {
   venueName?: string | null;
   welcomeMessage?: string | null;
   weddingDate?: string | null;
+  timezone?: string | null;
 }
 
-function formatWeddingDate(date: string | null | undefined): string | null {
+function formatWeddingDate(date: string | null | undefined, tz?: string | null): string | null {
   if (!date) return null;
   try {
     const d = new Date(date);
     if (isNaN(d.getTime())) return null;
-    return d.toLocaleDateString("en-US", {
+    const opts: Intl.DateTimeFormatOptions = {
       year: "numeric",
       month: "long",
       day: "numeric",
-    });
+      hour: "numeric",
+      minute: "2-digit",
+      timeZoneName: "shortOffset",
+    };
+    if (tz) opts.timeZone = tz;
+    return d.toLocaleDateString("en-US", opts);
   } catch {
     return null;
   }
 }
 
-export function LandingPage({ coupleName, templateImageUrl, slug, venueName, welcomeMessage, weddingDate }: LandingPageProps) {
+export function LandingPage({ coupleName, templateImageUrl, slug, venueName, welcomeMessage, weddingDate, timezone }: LandingPageProps) {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center bg-black">
       <GradientBackdrop variant="landing" className="opacity-30" />
@@ -41,7 +47,7 @@ export function LandingPage({ coupleName, templateImageUrl, slug, venueName, wel
             <div className="glass-panel rounded-xl p-4 text-center text-white space-y-2">
               <h2 className="text-xl font-bold">{coupleName}</h2>
               {weddingDate && (
-                <p className="text-sm opacity-90">{formatWeddingDate(weddingDate)}</p>
+                <p className="text-sm opacity-90">{formatWeddingDate(weddingDate, timezone)}</p>
               )}
               {venueName && (
                 <p className="text-sm opacity-90">{venueName}</p>

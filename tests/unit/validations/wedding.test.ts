@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { weddingUpdateSchema } from "@/lib/validations/wedding";
+import {
+  weddingUpdateSchema,
+  weddingDateSchema,
+  timezoneSchema,
+  focalPointSchema,
+} from "@/lib/validations/wedding";
 
 describe("weddingUpdateSchema", () => {
   it("accepts empty object (no fields to update)", () => {
@@ -150,5 +155,80 @@ describe("weddingUpdateSchema", () => {
     const r2 = weddingUpdateSchema.safeParse({ venue_lat: 0, venue_lng: 180 });
     expect(r1.success).toBe(true);
     expect(r2.success).toBe(true);
+  });
+});
+
+describe("weddingDateSchema", () => {
+  it("accepts valid ISO date string", () => {
+    expect(weddingDateSchema.safeParse("2026-06-15T14:00:00Z").success).toBe(true);
+  });
+
+  it("accepts null (no date set)", () => {
+    expect(weddingDateSchema.safeParse(null).success).toBe(true);
+  });
+
+  it("accepts datetime-local format", () => {
+    expect(weddingDateSchema.safeParse("2026-12-25T18:30").success).toBe(true);
+  });
+
+  it("accepts leap year Feb 29", () => {
+    expect(weddingDateSchema.safeParse("2028-02-29T10:00").success).toBe(true);
+  });
+
+  it("rejects non-date string", () => {
+    expect(weddingDateSchema.safeParse("not-a-date").success).toBe(false);
+  });
+});
+
+describe("timezoneSchema", () => {
+  it("accepts valid IANA timezone", () => {
+    expect(timezoneSchema.safeParse("Asia/Kuala_Lumpur").success).toBe(true);
+  });
+
+  it("accepts UTC", () => {
+    expect(timezoneSchema.safeParse("UTC").success).toBe(true);
+  });
+
+  it("accepts America/New_York", () => {
+    expect(timezoneSchema.safeParse("America/New_York").success).toBe(true);
+  });
+
+  it("rejects invalid timezone", () => {
+    expect(timezoneSchema.safeParse("Invalid/Timezone").success).toBe(false);
+  });
+
+  it("rejects empty string", () => {
+    expect(timezoneSchema.safeParse("").success).toBe(false);
+  });
+});
+
+describe("focalPointSchema", () => {
+  it("accepts valid focal point pair", () => {
+    expect(focalPointSchema.safeParse({ focalX: 50, focalY: 50 }).success).toBe(true);
+  });
+
+  it("accepts both null", () => {
+    expect(focalPointSchema.safeParse({ focalX: null, focalY: null }).success).toBe(true);
+  });
+
+  it("accepts boundary values (0, 100)", () => {
+    expect(focalPointSchema.safeParse({ focalX: 0, focalY: 0 }).success).toBe(true);
+    expect(focalPointSchema.safeParse({ focalX: 100, focalY: 100 }).success).toBe(true);
+  });
+
+  it("rejects X without Y", () => {
+    expect(focalPointSchema.safeParse({ focalX: 50, focalY: null }).success).toBe(false);
+  });
+
+  it("rejects Y without X", () => {
+    expect(focalPointSchema.safeParse({ focalX: null, focalY: 50 }).success).toBe(false);
+  });
+
+  it("rejects X over 100", () => {
+    expect(focalPointSchema.safeParse({ focalX: 101, focalY: 50 }).success).toBe(false);
+  });
+
+  it("rejects negative X", () => {
+    expect(focalPointSchema.safeParse({ focalX: -1, focalY: 50 }).success).toBe(false);
   });
 });

@@ -5,7 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { nanoid } from "nanoid";
 import { createCoupleSchema } from "@/lib/validations/admin";
-import { weddingUpdateSchema } from "@/lib/validations/wedding";
+import { weddingUpdateSchema, weddingDateSchema, timezoneSchema } from "@/lib/validations/wedding";
 import { resolveSeatLabels } from "@/lib/seat-resolution";
 import type { FloorPlanItem } from "@/types/floor-plan";
 
@@ -65,7 +65,7 @@ export async function getWeddingRSVPs(weddingId: number) {
 
   const { data: wedding, error: weddingError } = await supabase
     .from("weddings")
-    .select("id, couple_name, slug, wedding_date, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message")
+    .select("id, couple_name, slug, wedding_date, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message, timezone, template_focal_x, template_focal_y")
     .eq("id", weddingId)
     .single();
 
@@ -113,6 +113,9 @@ export async function getWeddingRSVPs(weddingId: number) {
       venueLat: wedding.venue_lat,
       venueLng: wedding.venue_lng,
       welcomeMessage: wedding.welcome_message,
+      timezone: wedding.timezone,
+      templateFocalX: wedding.template_focal_x,
+      templateFocalY: wedding.template_focal_y,
     },
     rsvps: await enrichRsvpsWithSeats(supabase, weddingId, rsvpList),
     summary,
@@ -270,7 +273,7 @@ export async function getMyWeddingRSVPs() {
 
   const { data: wedding, error: weddingError } = await supabase
     .from("weddings")
-    .select("id, couple_name, slug, wedding_date, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message")
+    .select("id, couple_name, slug, wedding_date, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message, timezone, template_focal_x, template_focal_y")
     .eq("user_id", user.id)
     .single();
 
@@ -320,6 +323,9 @@ export async function getMyWeddingRSVPs() {
       venueLat: wedding.venue_lat,
       venueLng: wedding.venue_lng,
       welcomeMessage: wedding.welcome_message,
+      timezone: wedding.timezone,
+      templateFocalX: wedding.template_focal_x,
+      templateFocalY: wedding.template_focal_y,
     },
     rsvps: await enrichRsvpsWithSeats(adminClient, wedding.id, rsvpList),
     summary,
@@ -417,4 +423,74 @@ export async function updateWeddingDetails(formData: FormData) {
   revalidatePath("/dashboard");
 
   return { success: true, wedding: data };
+}
+
+export async function updateWeddingDate(weddingId: number, weddingDate: string | null) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false as const, error: "Not authenticated." };
+  }
+
+  const parsed = weddingDateSchema.safeParse(weddingDate);
+  if (!parsed.success) {
+    return { success: false as const, error: "Invalid date format." };
+  }
+
+  const adminClient = createAdminClient();
+  const { data, error } = await adminClient
+    .from("weddings")
+    .update({ wedding_date: weddingDate ? new Date(weddingDate).toISOString() : null })
+    .eq("id", weddingId)
+    .select("slug")
+    .single();
+
+  if (error || !data) {
+    return { success: false as const, error: "Failed to update wedding date." };
+  }
+
+  revalidatePath(`/admin/weddings/${weddingId}`);
+  revalidatePath(`/w/${data.slug}`);
+  revalidatePath(`/w/${data.slug}/rsvp`);
+  revalidatePath("/dashboard");
+
+  return { success: true as const };
+}
+
+export async function updateWeddingTimezone(weddingId: number, timezone: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user || user.app_metadata?.role !== "admin") {
+    return { success: false as const, error: "Admin access required." };
+  }
+
+  const parsed = timezoneSchema.safeParse(timezone);
+  if (!parsed.success) {
+    return { success: false as const, error: "Invalid timezone." };
+  }
+
+  const adminClient = createAdminClient();
+  const { data, error } = await adminClient
+    .from("weddings")
+    .update({ timezone })
+    .eq("id", weddingId)
+    .select("slug")
+    .single();
+
+  if (error || !data) {
+    return { success: false as const, error: "Failed to update timezone." };
+  }
+
+  revalidatePath(`/admin/weddings/${weddingId}`);
+  revalidatePath(`/w/${data.slug}`);
+  revalidatePath(`/w/${data.slug}/rsvp`);
+  revalidatePath("/dashboard");
+
+  return { success: true as const };
 }
