@@ -60,19 +60,16 @@ export function RSVPForm({ slug, coupleName }: RSVPFormProps) {
 
   if (serverMessage?.type === "success") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <div className="max-w-xl w-full text-center space-y-4 glass-panel rounded-xl p-8">
-          <h1 className="text-2xl font-bold text-foreground">Thank You!</h1>
-          <p className="text-muted-foreground">{serverMessage.text}</p>
-        </div>
+      <div className="max-w-xl w-full text-center space-y-4 glass-panel rounded-xl p-8">
+        <h1 className="text-2xl font-bold text-foreground">Thank You!</h1>
+        <p className="text-muted-foreground">{serverMessage.text}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="max-w-xl w-full space-y-6 glass-panel rounded-xl p-6">
-        <div className="text-center space-y-2">
+    <div className="max-w-xl w-full space-y-6 glass-panel rounded-xl p-6">
+      <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold text-foreground">
             RSVP for {coupleName}&apos;s Wedding
           </h1>
@@ -187,7 +184,6 @@ export function RSVPForm({ slug, coupleName }: RSVPFormProps) {
             </Button>
           </form>
         </Form>
-      </div>
     </div>
   );
 }

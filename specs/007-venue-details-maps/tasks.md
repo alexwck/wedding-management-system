@@ -65,8 +65,8 @@
 
 ### Implementation for User Story 2
 
-- [ ] T012 [US2] Update landing page server component to fetch venue columns in `src/app/(public)/w/[slug]/page.tsx` — extend Supabase select to include `venue, welcome_message, wedding_date`. Pass as new props to LandingPage component.
-- [ ] T013 [US2] Add venue info glass-panel section to landing page component in `src/components/landing-page.tsx` — add optional props: venueName, weddingDate, welcomeMessage. When any prop present, render glass-panel section in bottom gradient area above RSVP button showing: couple name, formatted wedding date, venue name, welcome message (plain text per FR-019). Text wraps naturally. When no venue props, render exactly as today.
+- [x] T012 [US2] Update landing page server component to fetch venue columns in `src/app/(public)/w/[slug]/page.tsx` — extend Supabase select to include `venue, welcome_message, wedding_date`. Pass as new props to LandingPage component.
+- [x] T013 [US2] Add venue info glass-panel section to landing page component in `src/components/landing-page.tsx` — add optional props: venueName, weddingDate, welcomeMessage. When any prop present, render glass-panel section in bottom gradient area above RSVP button showing: couple name, formatted wedding date, venue name, welcome message (plain text per FR-019). Text wraps naturally. When no venue props, render exactly as today.
 
 **Checkpoint**: Landing page shows venue info when data exists, hides gracefully when not — US2 complete
 
@@ -80,8 +80,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T014 [US3] Create venue section server component in `src/components/venue-section.tsx` — accepts venueName, venueAddress, venueLat, venueLng, welcomeMessage props. When coordinates present: render OSM iframe embed (computed bbox ±0.005 around point, marker pin), "Open in Maps" button (Google Maps URL), "Navigate with Waze" button (Waze URL). When no coordinates but address present: render address text, hide map and buttons. Welcome message shown as plain text (FR-019). Navigation buttons: side-by-side desktop, stacked mobile (FR-008). Map: responsive width, min 200px height (FR-009). Glass-panel styled.
-- [ ] T015 [US3] Update RSVP page to fetch venue data and render venue section in `src/app/(public)/w/[slug]/rsvp/page.tsx` — extend Supabase select to include `venue, venue_address, venue_lat, venue_lng, welcome_message`. Render VenueSection above RSVPForm when venue data exists.
+- [x] T014 [US3] Create venue section server component in `src/components/venue-section.tsx` — accepts venueName, venueAddress, venueLat, venueLng, welcomeMessage props. When coordinates present: render OSM iframe embed (computed bbox ±0.005 around point, marker pin), "Open in Maps" button (Google Maps URL), "Navigate with Waze" button (Waze URL). When no coordinates but address present: render address text, hide map and buttons. Welcome message shown as plain text (FR-019). Navigation buttons: side-by-side desktop, stacked mobile (FR-008). Map: responsive width, min 200px height (FR-009). Glass-panel styled.
+- [x] T015 [US3] Update RSVP page to fetch venue data and render venue section in `src/app/(public)/w/[slug]/rsvp/page.tsx` — extend Supabase select to include `venue, venue_address, venue_lat, venue_lng, welcome_message`. Render VenueSection above RSVPForm when venue data exists.
 
 **Checkpoint**: RSVP form page shows venue section with map when data exists — US3 complete
 
