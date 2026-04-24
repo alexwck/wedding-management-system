@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getMyWeddingRSVPs } from "@/app/actions/admin";
 import { RVPSummary } from "@/components/rsvp-summary";
 import { VenueEditor } from "@/components/venue-editor";
+import { WeddingDatePicker } from "@/components/wedding-date-picker";
 
 export default async function CoupleDashboard() {
   const result = await getMyWeddingRSVPs();
@@ -20,7 +21,7 @@ export default async function CoupleDashboard() {
   const { wedding, summary } = result;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">{wedding.coupleName}</h2>
@@ -44,24 +45,48 @@ export default async function CoupleDashboard() {
         </Link>
       </div>
 
-      <div className="glass-panel rounded-xl p-6">
-        <RVPSummary summary={summary} />
-      </div>
-
-      <VenueEditor
-        weddingId={wedding.id}
-        initialVenue={wedding.venue}
-        initialAddress={wedding.venueAddress}
-        initialLat={wedding.venueLat}
-        initialLng={wedding.venueLng}
-        initialWelcomeMessage={wedding.welcomeMessage}
-      />
-
-      {summary.total === 0 && (
-        <div className="text-center py-8 text-muted-foreground">
-          No RSVPs yet. Share your wedding link with guests!
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Left column: Template */}
+        <div className="lg:col-span-1">
+          {wedding.templateImageUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={wedding.templateImageUrl}
+              alt={`${wedding.coupleName} template`}
+              className="w-full rounded-lg object-contain"
+            />
+          )}
         </div>
-      )}
+
+        {/* Right column: Date, Venue, Summary */}
+        <div className="lg:col-span-2 space-y-6">
+          <WeddingDatePicker
+            weddingId={wedding.id}
+            currentDate={wedding.weddingDate}
+            timezone={wedding.timezone}
+            isAdmin={false}
+          />
+
+          <VenueEditor
+            weddingId={wedding.id}
+            initialVenue={wedding.venue}
+            initialAddress={wedding.venueAddress}
+            initialLat={wedding.venueLat}
+            initialLng={wedding.venueLng}
+            initialWelcomeMessage={wedding.welcomeMessage}
+          />
+
+          <div className="glass-panel rounded-xl p-6">
+            <RVPSummary summary={summary} />
+          </div>
+
+          {summary.total === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              No RSVPs yet. Share your wedding link with guests!
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
