@@ -23,6 +23,15 @@ INSERT INTO public.weddings (id, slug, user_id, couple_name, template_image_url,
   (2, 'jordan-taylor-wedding', 'a0000000-0000-0000-0000-000000000003', 'Jordan & Taylor', NULL, '2026-09-20T16:00:00Z')
 ON CONFLICT (id) DO NOTHING;
 
+-- Add venue data to test-wedding-1 for E2E venue feature tests
+UPDATE public.weddings SET
+  venue = 'The Grand Ballroom',
+  venue_address = '123 Main St, Springfield, IL, USA',
+  venue_lat = 39.7817,
+  venue_lng = -89.6501,
+  welcome_message = 'We can''t wait to celebrate with you!'
+WHERE id = 1;
+
 -- Reset identity sequences after seeding with explicit IDs
 SELECT setval('public.weddings_id_seq', (SELECT COALESCE(MAX(id), 1) FROM public.weddings));
 SELECT setval('public.rsvps_id_seq', (SELECT COALESCE(MAX(id), 1) FROM public.rsvps));

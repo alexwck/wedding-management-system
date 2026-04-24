@@ -13,7 +13,9 @@ interface LandingPageProps {
 function formatWeddingDate(date: string | null | undefined): string | null {
   if (!date) return null;
   try {
-    return new Date(date + "T00:00:00").toLocaleDateString("en-US", {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return null;
+    return d.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
