@@ -115,6 +115,23 @@ As a user editing a floor plan, I want to edit the number of chairs on a table s
 
 ---
 
+### User Story 8 - Template Image Preview & Focal Point (Priority: P2)
+
+As an admin or couple, I want to preview the uploaded template image at full size and set a focal point so that the most important part of the image is centered and visible on the landing page regardless of the image's original dimensions.
+
+**Why this priority**: In the two-column layout, the template thumbnail may be small. Users need a way to see the full image and ensure the right area is displayed on the public landing page — especially when the image aspect ratio doesn't match the display area.
+
+**Independent Test**: Can be tested by uploading an image, clicking to open the preview, setting a focal point on the image, and verifying the landing page renders the image centered around that focal point.
+
+**Acceptance Scenarios**:
+
+1. **Given** a template image has been uploaded, **When** the user clicks the image or a "Preview" button, **Then** a full-size preview opens showing the entire image.
+2. **Given** the preview is open, **When** the user clicks a point on the image, **Then** that point is marked as the focal point (with a visual indicator) and the position is saved.
+3. **Given** a focal point has been set, **When** the public landing page displays the template image, **Then** the image is cropped/positioned to center on the focal point.
+4. **Given** no focal point has been set, **When** the landing page displays the image, **Then** the image centers on its midpoint as a default.
+
+---
+
 ### Edge Cases
 
 - What happens when a wedding date is cleared (set to empty)? The landing page should hide the date section gracefully.
@@ -126,26 +143,31 @@ As a user editing a floor plan, I want to edit the number of chairs on a table s
 
 ### Functional Requirements
 
-- **FR-001**: System MUST provide a date picker on the admin wedding detail page to set or edit the wedding date.
-- **FR-002**: System MUST provide a date picker on the couple dashboard to view and edit the wedding date.
-- **FR-003**: System MUST display the wedding date on the public landing page when set, and hide the date section when not set.
-- **FR-004**: System MUST render the admin wedding detail page in a two-column layout on desktop: template upload on the left, venue details + RSVP summary + RSVP responses on the right.
-- **FR-005**: System MUST render the couple dashboard in the same two-column layout on desktop.
+- **FR-001**: System MUST provide a datetime picker on the admin wedding detail page to set or edit the wedding date and ceremony time.
+- **FR-002**: System MUST provide a datetime picker on the couple dashboard to view and edit the wedding date and ceremony time.
+- **FR-003**: System MUST display the wedding date and ceremony time on the public landing page when set, and hide the date section when not set.
+- **FR-004**: System MUST render the admin wedding detail page in a two-column layout on desktop: template upload on the left, wedding date + venue details + RSVP summary + RSVP responses on the right.
+- **FR-005**: System MUST render the couple dashboard in the same two-column layout on desktop, with wedding date in the right column above venue details.
 - **FR-006**: System MUST stack the layout vertically on mobile viewports (narrow screens).
-- **FR-007**: System MUST display RSVP responses in a table format with sortable columns: guest name, status, dietary notes, vegetarian, baby chair, table name, seat, and submitted date.
-- **FR-008**: System MUST allow the RSVP responses section to be collapsed and expanded via a toggle on the section header.
+- **FR-007**: System MUST display RSVP responses in a table format with columns for guest name, status, dietary notes, vegetarian, baby chair, table name, seat, and submitted date.
+- **FR-007a**: System MUST allow sorting the RSVP table by guest name (alphabetical), status (attending/declining), submitted date (chronological), and table name (alphabetical).
+- **FR-008**: System MUST allow the RSVP responses section to be collapsed and expanded via a toggle on the section header, with the section expanded by default on page load.
 - **FR-009**: System MUST show the RSVP response count in the collapsed section header.
 - **FR-010**: System MUST generate valid XLSX files that open correctly in spreadsheet applications, with special characters in the filename sanitized (e.g., `&` replaced with `and`).
-- **FR-011**: System MUST remove the Google Sheets export feature entirely: button, OAuth flow, token storage, and API integration code.
+- **FR-011**: System MUST remove the Google Sheets export feature entirely: button, OAuth flow, token storage, API integration code, and the `oauth_tokens` database table.
 - **FR-012**: System MUST constrain the floor plan item catalog to stay within the browser viewport when toggled between collapsed and expanded states.
 - **FR-013**: System MUST provide internal scrolling for the item catalog when its content exceeds the available height.
 - **FR-014**: System MUST display chair count editing controls (+/- buttons and numeric input) when a table is selected in the floor plan editor.
 - **FR-015**: System MUST update chair positions correctly when chair count is changed via the editing controls.
+- **FR-016**: System MUST provide a full-size preview of the uploaded template image, accessible via a click or "Preview" button on the dashboard.
+- **FR-017**: System MUST allow the user to set a focal point on the template image by clicking a position in the preview.
+- **FR-018**: System MUST save the focal point coordinates (x, y as percentages) with the wedding template data.
+- **FR-019**: System MUST render the template image on the public landing page centered on the saved focal point, defaulting to the image midpoint if no focal point is set.
 
 ### Key Entities
 
-- **Wedding Date**: A date/time attribute on the wedding entity, stored as a timestamp. Editable by admin and couple. Displayed on the public landing page.
-- **Dashboard Layout**: Two-column arrangement — left column for template/media management, right column for event details (venue, RSVP summary, RSVP responses). Collapses to single column on mobile.
+- **Wedding Date**: A date and time attribute on the wedding entity, stored as a timestamp. Editable by admin and couple. Displayed on the public landing page as "Month Day, Year at HH:MM".
+- **Dashboard Layout**: Two-column arrangement — left column for template/media management, right column for event details (wedding date, venue, RSVP summary, RSVP responses). Collapses to single column on mobile.
 - **RSVP Table**: Tabular view of all RSVP responses with collapsible section header. Columns include guest name, status, dietary information, seating, and submission metadata.
 
 ## Success Criteria *(mandatory)*
@@ -159,11 +181,22 @@ As a user editing a floor plan, I want to edit the number of chairs on a table s
 - **SC-005**: Chair count editing controls appear within 1 second of selecting a table and respond to increments/decrements immediately.
 - **SC-006**: No Google Sheets export code, UI elements, or OAuth flows remain in the application after removal.
 
+## Clarifications
+
+### Session 2026-04-25
+
+- Q: Should the wedding date picker capture just the date, or date + ceremony time? → A: Date + time — full ceremony start time for guests.
+- Q: Where should the wedding date picker appear in the two-column layout? → A: Right column, with venue details.
+- Q: Should RSVP responses section be expanded or collapsed by default? → A: Expanded by default.
+- Q: Should Google Sheets removal include dropping the oauth_tokens DB table? → A: Full removal — drop the oauth_tokens table via a new migration.
+- Q: Which RSVP table columns should be sortable? → A: Guest name, status (attending/declining), submitted date, and table name. Other columns (vegetarian, baby chair) are better as filters.
+- Q: For template image positioning — focal point picker or crop tool? → A: Focal point picker — click to set center of focus, landing page crops around that point.
+
 ## Assumptions
 
 - The `wedding_date` column already exists in the database (TIMESTAMPTZ type) and is displayed on the landing page — only the editing UI is missing.
 - The RSVP responses are already displayed in a table component (`rsvp-table.tsx`); this spec adds collapsibility and integrates it into the new dashboard layout.
 - The ExcelJS library is already in use for XLSX generation — the bug is likely in filename sanitization or buffer handling, not the library itself.
-- Removing Google Sheets export does not require database migration for the `oauth_tokens` table — the table can remain but all UI and action code referencing it should be removed.
+- Removing Google Sheets export requires both application code removal and a database migration to drop the `oauth_tokens` table.
 - The dashboard layout change applies to both the admin wedding detail page and the couple dashboard page.
 - Mobile breakpoint follows the existing application convention (Tailwind `md:` prefix, 768px).
