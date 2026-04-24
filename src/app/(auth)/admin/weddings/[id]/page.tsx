@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getWeddingRSVPs } from "@/app/actions/admin";
 import { TemplateUpload } from "@/components/template-upload";
 import { ExportButtons } from "@/components/export-buttons";
+import { VenueEditor } from "@/components/venue-editor";
 
 interface ManageWeddingPageProps {
   params: Promise<{ id: string }>;
@@ -59,6 +60,15 @@ export default async function ManageWeddingPage({ params }: ManageWeddingPagePro
           currentImageUrl={wedding.templateImageUrl}
         />
       </div>
+
+      <VenueEditor
+        weddingId={wedding.id}
+        initialVenue={wedding.venue}
+        initialAddress={wedding.venueAddress}
+        initialLat={wedding.venueLat}
+        initialLng={wedding.venueLng}
+        initialWelcomeMessage={wedding.welcomeMessage}
+      />
 
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">RSVP Summary</h3>

@@ -49,9 +49,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Create venue editor client component in `src/components/venue-editor.tsx` — react-hook-form with: venue name input (max 200), address search with Nominatim autocomplete dropdown (debounced via T006, min 3 chars, loading indicator per FR-018, "No results found" state, "Unable to search" error state, manual text entry fallback), welcome message textarea (max 500, char counter), save button calling updateWeddingDetails action. On save success show confirmation toast. Glass-panel styled.
-- [ ] T010 [P] [US1] Integrate venue editor into admin wedding detail page in `src/app/(auth)/admin/weddings/[id]/page.tsx` — add "Venue Details" section with VenueEditor component, pass weddingId and current venue data as props. Fetch venue columns in existing Supabase query.
-- [ ] T011 [P] [US1] Integrate venue editor into couple dashboard in `src/app/(auth)/dashboard/page.tsx` — add venue editor section for the couple's own wedding. Same component as admin (FR-004: couples edit same as admin). Fetch venue columns in existing Supabase query.
+- [x] T009 [US1] Create venue editor client component in `src/components/venue-editor.tsx` — react-hook-form with: venue name input (max 200), address search with Nominatim autocomplete dropdown (debounced via T006, min 3 chars, loading indicator per FR-018, "No results found" state, "Unable to search" error state, manual text entry fallback), welcome message textarea (max 500, char counter), save button calling updateWeddingDetails action. On save success show confirmation toast. Glass-panel styled.
+- [x] T010 [P] [US1] Integrate venue editor into admin wedding detail page in `src/app/(auth)/admin/weddings/[id]/page.tsx` — add "Venue Details" section with VenueEditor component, pass weddingId and current venue data as props. Fetch venue columns in existing Supabase query.
+- [x] T011 [P] [US1] Integrate venue editor into couple dashboard in `src/app/(auth)/dashboard/page.tsx` — add venue editor section for the couple's own wedding. Same component as admin (FR-004: couples edit same as admin). Fetch venue columns in existing Supabase query.
 
 **Checkpoint**: Admin/couple can set all venue fields, autocomplete works, data persists on reload — US1 complete
 
