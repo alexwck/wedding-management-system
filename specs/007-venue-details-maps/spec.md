@@ -83,6 +83,12 @@ An admin or couple interacts with the venue address search field and experiences
 - What happens when a wedding has a venue name but no address or coordinates? Display the venue name text only; hide the map and navigation buttons.
 - What happens when coordinates are near-null (0,0) or obviously invalid? Treat as no coordinates — hide the map and navigation buttons.
 
+## Clarifications
+
+### Session 2026-04-24
+
+- Q: What is the maximum allowed length for the welcome message? → A: 500 characters (~2-3 paragraphs)
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
@@ -90,7 +96,7 @@ An admin or couple interacts with the venue address search field and experiences
 - **FR-001**: System MUST allow admins and couples to set a venue name on each wedding record.
 - **FR-002**: System MUST allow admins and couples to set a venue address with free geocoding autocomplete (provider chosen at implementation time; must be a free API).
 - **FR-003**: System MUST store the selected formatted address and geographic coordinates (latitude/longitude) when a geocoding result is chosen.
-- **FR-004**: System MUST allow admins and couples to set a welcome message on each wedding record.
+- **FR-004**: System MUST allow admins and couples to set a welcome message on each wedding record, with a maximum length of 500 characters.
 - **FR-005**: System MUST debounce geocoding API calls to respect the provider's rate limit.
 - **FR-006**: System MUST require a minimum of 3 characters before triggering address autocomplete search.
 - **FR-007**: System MUST display an info section on the public landing page showing couple name, wedding date, venue name, and welcome message when any of these fields are present. This section creates emotional pull to drive RSVP clicks (top of funnel).
