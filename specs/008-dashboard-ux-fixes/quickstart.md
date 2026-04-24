@@ -53,30 +53,36 @@ Tasks are ordered by dependency and priority. P1 items first, P2 items after.
 | `src/components/floor-plan/item-catalog.tsx` | Fix overflow | Low |
 | `src/components/floor-plan/floor-plan-canvas.tsx` | Fix chair edit | Medium |
 | `src/lib/validations/wedding.ts` | Add fields | Low |
-| `src/types/database.ts` | Add focal point fields | Low |
-| `src/app/(public)/w/[slug]/page.tsx` | Add focal point CSS | Low |
+| `src/types/database.ts` | Add focal point + timezone fields | Low |
+| `src/app/(public)/w/[slug]/page.tsx` | Add focal point CSS + timezone display | Low |
+| `supabase/seed.sql` | Add timezone to seed data | Low |
 
 ## Testing Strategy
 
 ### Unit Tests (Vitest)
-- Wedding date validation schema (valid/invalid dates, null)
-- Focal point validation (0-100 range, null, both-or-neither)
-- XLSX filename sanitization (special chars, ampersand, multiple hyphens)
-- RSVP sorting comparator functions
+- Wedding date validation schema (valid/invalid dates, null, leap year Feb 29)
+- Timezone validation (valid IANA strings, invalid strings rejected)
+- Focal point validation (0-100 range, null, both-or-neither, edge values 0 and 100)
+- XLSX filename sanitization (ampersand, parentheses, spaces, consecutive hyphens, empty name)
+- RSVP sorting comparator functions (name, status, date, table name)
 
 ### Component Tests (Vitest + RTL)
-- WeddingDatePicker: renders with/without date, fires onChange
-- RSVPSection: expanded by default, collapses on click, shows count
-- TemplatePreview: renders image, click sets focal point indicator
+- WeddingDatePicker: renders with/without date, fires onChange, timezone shown/hidden based on role
+- RSVPSection: expanded by default, collapses on click, shows count, empty state
+- TemplatePreview: renders image, click/tap sets focal point indicator, existing focal point shown on reopen
+- RsvpTable sorting: sort indicators, default sort order, ascending/descending toggle
 
 ### E2E Tests (Playwright)
-- Admin sets wedding date → appears on landing page
-- Couple dashboard shows two-column layout on desktop
-- RSVP table sorts by clicking column headers
-- Download XLSX → file opens without errors
-- Floor plan catalog collapse/expand stays in viewport
-- Table selection shows chair count controls
+- Admin sets wedding date with timezone → appears on landing page in correct timezone
+- Admin changes timezone → landing page updates display
+- Couple dashboard shows two-column layout on desktop, stacks on mobile
+- RSVP table sorts by clicking column headers, default sort is newest first
+- Download XLSX → file opens without errors, correct filename
+- Floor plan catalog collapse/expand stays in viewport (20+ toggles)
+- Table selection shows chair count controls (both round and long tables)
 - Template focal point set → landing page centers on focal point
+- Focal point resets when template image is replaced
+- Zero RSVP responses shows empty state, not empty table
 
 ## Run & Verify
 
