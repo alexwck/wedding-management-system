@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
-import { Stage, Layer, Rect, Circle } from "react-konva";
+import { Stage, Layer, Rect } from "react-konva";
 import type Konva from "konva";
 import { useFloorPlanState } from "./hooks/use-floor-plan-state";
 import { useAutoSave } from "./hooks/use-auto-save";
@@ -11,17 +11,11 @@ import { useSeatAssignments } from "./hooks/use-seat-assignments";
 import { ItemCatalog } from "./item-catalog";
 import { GuestAssignmentDialog } from "./guest-assignment-dialog";
 import { UnassignedGuestsPanel } from "./unassigned-guests-panel";
-import { RoundTable } from "./items/round-table";
-import { LongTable } from "./items/long-table";
-import { StageItem } from "./items/stage-item";
-import { PillarItem } from "./items/pillar-item";
-import { WalkwayItem } from "./items/walkway-item";
-import { MiscItem } from "./items/misc-item";
-import { Chair } from "./items/chair";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FloorPlanToolbar } from "./floor-plan-toolbar";
 import { RotationTransformer } from "./rotation-transformer";
+import { CanvasItem } from "./canvas-item";
 import {
   FEET_TO_PIXELS,
   MAX_VENUE_DIMENSION,
@@ -30,7 +24,6 @@ import {
   topLeftFeetToCenterPixels,
 } from "@/lib/floor-plan/constants";
 import { isItemOutOfBounds } from "@/lib/floor-plan/collision";
-import { truncate } from "@/lib/utils";
 import type { FloorPlan, FloorPlanItem, ItemType } from "@/types/floor-plan";
 import { redistributeChairs, getMaxChairCount } from "./hooks/use-chair-generation";
 
@@ -575,159 +568,6 @@ export function FloorPlanCanvas({
     [],
   );
 
-  const renderCanvasItem = (item: FloorPlanItem) => {
-    const isSelected = item.id === selectedItemId;
-    const isOutOfBounds = outOfBoundsIds.has(item.id);
-
-    const commonProps = {
-      id: item.id,
-      x: item.x,
-      y: item.y,
-      rotation: item.rotation,
-      label: item.label,
-      draggable: true,
-      isSelected,
-      onDragEnd: (e: Konva.KonvaEventObject<DragEvent>) =>
-        handleDragEnd(item.id, e),
-      onDragMove: (e: Konva.KonvaEventObject<DragEvent>) =>
-        handleDragMove(item.id, e),
-      onClick: () => setSelectedItemId(item.id),
-      onDblClick: () => handleDblClickItem(item.id),
-    };
-
-    let element: React.ReactNode;
-
-    switch (item.type) {
-      case "round_table":
-        element = (
-          <RoundTable
-            {...commonProps}
-            diameter={item.metadata.diameter ?? item.width}
-          />
-        );
-        break;
-      case "long_table":
-        element = (
-          <LongTable {...commonProps} width={item.width} height={item.height} />
-        );
-        break;
-      case "stage":
-        element = (
-          <StageItem {...commonProps} width={item.width} height={item.height} />
-        );
-        break;
-      case "pillar":
-        element = (
-          <PillarItem
-            {...commonProps}
-            width={item.width}
-            height={item.height}
-          />
-        );
-        break;
-      case "walkway":
-        element = (
-          <WalkwayItem
-            {...commonProps}
-            width={item.width}
-            height={item.height}
-          />
-        );
-        break;
-      case "misc":
-        element = (
-          <MiscItem
-            {...commonProps}
-            width={item.width}
-            height={item.height}
-            customType={item.metadata.customType}
-          />
-        );
-        break;
-      case "chair": {
-        const chairAssignment = seatAssignments.assignmentMap[item.id];
-        const displayAssignment = chairAssignment
-          ? truncate(chairAssignment.guestName, 15)
-          : null;
-        element = (
-          <Chair
-            {...commonProps}
-            width={item.width}
-            height={item.height}
-            draggable={false}
-            assignment={displayAssignment}
-            opacity={seatAssignments.isLoading ? 0.5 : 1}
-            onClick={() => {
-              if (item.parentItemId && !seatAssignments.isLoading) {
-                setDialogChairId(item.id);
-                setDialogTableId(item.parentItemId);
-              }
-            }}
-          />
-        );
-        break;
-      }
-      default:
-        return null;
-    }
-
-    return (
-      <React.Fragment key={item.id}>
-        {element}
-        {isOutOfBounds && renderOutOfBoundsIndicator(item)}
-      </React.Fragment>
-    );
-  };
-
-  const renderOutOfBoundsIndicator = (item: FloorPlanItem) => {
-    const commonProps = {
-      fill: "transparent" as const,
-      stroke: "#ef4444",
-      strokeWidth: 2,
-      dash: [4, 4] as [number, number],
-      listening: false,
-    };
-
-    if (item.type === "round_table" || item.type === "chair") {
-      const center = topLeftFeetToCenterPixels(item.x, item.y, item.width, item.height);
-      return (
-        <Circle
-          x={center.x}
-          y={center.y}
-          radius={(item.width / 2) * FEET_TO_PIXELS}
-          {...commonProps}
-        />
-      );
-    }
-
-    if (item.type === "long_table") {
-      const center = topLeftFeetToCenterPixels(item.x, item.y, item.width, item.height);
-      return (
-        <Rect
-          x={center.x}
-          y={center.y}
-          width={item.width * FEET_TO_PIXELS}
-          height={item.height * FEET_TO_PIXELS}
-          offsetX={(item.width * FEET_TO_PIXELS) / 2}
-          offsetY={(item.height * FEET_TO_PIXELS) / 2}
-          rotation={item.rotation}
-          {...commonProps}
-        />
-      );
-    }
-
-    return (
-      <Rect
-        x={item.x * FEET_TO_PIXELS}
-        y={item.y * FEET_TO_PIXELS}
-        width={item.width * FEET_TO_PIXELS}
-        height={item.height * FEET_TO_PIXELS}
-        rotation={item.rotation}
-        {...commonProps}
-      />
-    );
-  };
-
   const SAVE_LABELS: Record<string, string> = {
     saving: "Saving...",
     saved: "Saved",
@@ -837,10 +677,63 @@ export function FloorPlanCanvas({
           ref={containerRef}
           className="flex-1 min-h-0 overflow-hidden relative"
         >
+        <Stage
+          ref={stageRef}
+          width={containerWidth}
+          height={containerHeight}
+          scaleX={stageScale}
+          scaleY={stageScale}
+          x={stagePosition.x}
+          y={stagePosition.y}
+          draggable
+          onClick={handleStageClick}
+          onTap={handleStageClick as unknown as (evt: Konva.KonvaEventObject<TouchEvent>) => void}
+          onDragEnd={handleStageDragEnd}
+          onWheel={handleWheel}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          <Layer>
+            <Rect
+              x={0}
+              y={0}
+              width={canvasWidth}
+              height={canvasHeight}
+              fill="white"
+              stroke="#e5e7eb"
+              strokeWidth={1}
+            />
+            {state.items.map((item) => (
+              <CanvasItem
+                key={item.id}
+                item={item}
+                isSelected={item.id === selectedItemId}
+                isOutOfBounds={outOfBoundsIds.has(item.id)}
+                chairAssignment={seatAssignments.assignmentMap[item.id] ?? null}
+                isSeatLoading={seatAssignments.isLoading}
+                onDragEnd={handleDragEnd}
+                onDragMove={handleDragMove}
+                onSelect={setSelectedItemId}
+                onDblClick={handleDblClickItem}
+                onChairClick={(chairId, tableId) => {
+                  setDialogChairId(chairId);
+                  setDialogTableId(tableId);
+                }}
+              />
+            ))}
+            <RotationTransformer
+              selectedItemId={selectedItemId}
+              stageRef={stageRef}
+              onRotationEnd={handleRotationEnd}
+            />
+          </Layer>
+        </Stage>
+
+        {/* HTML overlays render after Stage so they paint on top of canvas */}
 
         {/* Out of bounds warning */}
         {outOfBoundsIds.size > 0 && (
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 rounded-md border border-yellow-500 bg-yellow-50 px-3 py-1 text-xs text-yellow-800">
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 rounded-md border border-yellow-500 bg-yellow-50 px-3 py-1 text-xs text-yellow-800 pointer-events-none">
             {outOfBoundsIds.size} item(s) outside bounds
           </div>
         )}
@@ -962,40 +855,6 @@ export function FloorPlanCanvas({
             </div>
           </div>
         )}
-        <Stage
-          ref={stageRef}
-          width={containerWidth}
-          height={containerHeight}
-          scaleX={stageScale}
-          scaleY={stageScale}
-          x={stagePosition.x}
-          y={stagePosition.y}
-          draggable
-          onClick={handleStageClick}
-          onTap={handleStageClick as unknown as (evt: Konva.KonvaEventObject<TouchEvent>) => void}
-          onDragEnd={handleStageDragEnd}
-          onWheel={handleWheel}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          <Layer>
-            <Rect
-              x={0}
-              y={0}
-              width={canvasWidth}
-              height={canvasHeight}
-              fill="white"
-              stroke="#e5e7eb"
-              strokeWidth={1}
-            />
-            {state.items.map(renderCanvasItem)}
-            <RotationTransformer
-              selectedItemId={selectedItemId}
-              stageRef={stageRef}
-              onRotationEnd={handleRotationEnd}
-            />
-          </Layer>
-        </Stage>
         </div>
       </div>
 

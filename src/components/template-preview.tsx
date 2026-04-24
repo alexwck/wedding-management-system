@@ -48,10 +48,8 @@ export function TemplatePreview({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+      <DialogTrigger render={(props) => <Button variant="outline" size="sm" {...props} />}>
           Preview
-        </Button>
       </DialogTrigger>
       <DialogContent className="glass-panel max-w-3xl">
         <DialogHeader>

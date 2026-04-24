@@ -15,7 +15,7 @@ async function getRsvpsWithAssignments(weddingId: number) {
   const [rsvpsResult, assignmentsResult, floorPlanResult] = await Promise.all([
     adminClient
       .from("rsvps")
-      .select("id, guest_name, status, is_vegetarian, dietary_notes, needs_baby_chair, submitted_at")
+      .select("id, guest_name, status, is_vegetarian, dietary_notes, needs_baby_chair, created_at")
       .eq("wedding_id", weddingId)
       .order("guest_name"),
     adminClient
@@ -51,7 +51,7 @@ async function getRsvpsWithAssignments(weddingId: number) {
       vegetarian: r.is_vegetarian,
       dietaryNotes: r.dietary_notes,
       babyChair: r.needs_baby_chair,
-      submittedAt: r.submitted_at,
+      submittedAt: r.created_at,
       seatAssignment: assignment,
       tableName,
       seatLabel,
