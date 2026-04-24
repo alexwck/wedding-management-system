@@ -105,12 +105,12 @@ No separate implementation tasks — autocomplete UX is built into the venue edi
 
 **Purpose**: End-to-end verification and cross-cutting quality checks
 
-- [ ] T016 Write E2E tests for venue feature in `tests/e2e/venue-details.spec.ts` — cover all 4 user stories: (1) admin edits venue with autocomplete and saves, (2) guest sees venue info on landing page, (3) guest sees map + nav buttons on RSVP form, (4) autocomplete shows results after 3+ chars. Test partial data states (name only, name+address no coords). Test empty state (no venue data — sections hidden). Desktop + mobile Chrome projects.
-- [ ] T017 Run `npm run test` and verify all unit tests pass (validation, geocoding, server action)
-- [ ] T018 Run `npm run test:e2e --workers=1` and verify all E2E tests pass across all projects (desktop + mobile) — per Constitution §I, E2E failures MUST be fixed, not deferred
-- [ ] T019 Run `npm run lint` and fix any lint errors
-- [ ] T020 Run `npm run build` and verify production build succeeds
-- [ ] T021 Update CLAUDE.md with venue feature gotchas and architecture notes
+- [x] T016 Write E2E tests for venue feature in `tests/e2e/venue-details.spec.ts` — cover all 4 user stories: (1) admin edits venue with autocomplete and saves, (2) guest sees venue info on landing page, (3) guest sees map + nav buttons on RSVP form, (4) autocomplete shows results after 3+ chars. Test partial data states (name only, name+address no coords). Test empty state (no venue data — sections hidden). Desktop + mobile Chrome projects.
+- [x] T017 Run `npm run test` and verify all unit tests pass (validation, geocoding, server action)
+- [x] T018 Run `npm run test:e2e --workers=1` and verify all E2E tests pass across all projects (desktop + mobile) — per Constitution §I, E2E failures MUST be fixed, not deferred
+- [x] T019 Run `npm run lint` and fix any lint errors
+- [x] T020 Run `npm run build` and verify production build succeeds
+- [x] T021 Update CLAUDE.md with venue feature gotchas and architecture notes
 
 ---
 

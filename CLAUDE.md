@@ -43,20 +43,23 @@ src/
 │   │   ├── items/                   # Konva shape components (round-table, long-table, chair, etc.)
 │   │   └── hooks/                   # use-floor-plan-state, use-auto-save, use-collision-detection, etc.
 │   ├── ui/                 # shadcn/ui components (button, card, dialog, etc.)
-│   ├── landing-page.tsx    # Wedding landing page component
+│   ├── landing-page.tsx    # Wedding landing page component (venue info overlay)
 │   ├── rsvp-form.tsx       # RSVP form with react-hook-form + zod
+│   ├── venue-editor.tsx    # Admin/couple venue editing form (client, Nominatim autocomplete)
+│   ├── venue-section.tsx   # Public venue display with OSM map embed + nav buttons (server)
 │   └── ...                 # Other app components
 ├── lib/
 │   ├── floor-plan/         # Floor plan utilities (constants, collision, serializers)
+│   ├── geocoding.ts        # Nominatim API client (searchAddress)
 │   ├── supabase/           # Supabase clients: client.ts, server.ts, admin.ts
 │   ├── utils.ts            # cn() helper and utilities
-│   └── validations/        # Zod schemas (admin.ts, rsvp.ts, floor-plan.ts, upload.ts)
+│   └── validations/        # Zod schemas (admin.ts, rsvp.ts, floor-plan.ts, upload.ts, wedding.ts)
 ├── proxy.ts                # Auth middleware (NOT middleware.ts — renamed for Next.js 16 compat)
 ├── types/
 │   └── floor-plan.ts       # Floor plan type definitions
 supabase/
-├── migrations/             # 7 migrations: users, weddings, rsvps, storage, floor_plans, seat_assignments, oauth_tokens
-├── seed.sql                # Dev seed data (weddings, RSVPs, users — no floor plan data)
+├── migrations/             # 9 migrations: users, weddings, rsvps, storage, floor_plans, seat_assignments, oauth_tokens, admin_rls_policies, venue_columns
+├── seed.sql                # Dev seed data (weddings, RSVPs, users — venue data on test-wedding-1)
 ├── config.toml             # Supabase local config
 ```
 
@@ -124,7 +127,12 @@ git config core.hooksPath .githooks
 - **Turbopack stale routes**: After migrations or route changes, the dev server may serve 404 for routes it hasn't compiled. Fix: touch a file in the route directory (`touch src/app/\(public\)/w/\[slug\]/rsvp/page.tsx`) or restart the dev server. Always `curl` a page before debugging E2E failures.
 - **E2E mobile click interception**: The mobile nav (`md:hidden fixed z-50`) overlays sidebar buttons on small viewports. Use `{ force: true }` on Playwright clicks for floor plan catalog items when targeting Mobile Chrome.
 - **Undo history**: `canUndo` is true only after 2+ pushes (index > 0). Adding one item pushes the pre-add state but index stays at 0. Tests verifying undo must add at least 2 items before asserting `canUndo=true`.
-- **Test infrastructure**: Shared helpers in `tests/unit/helpers/` — `mockFrom()` for Supabase chains, `factories.ts` for test data (`makeFloorPlanItem`, `makeRsvp`, etc.). New tests MUST use these instead of duplicating mocks. Current: 249 unit tests, 16 E2E spec files (90 tests across desktop + mobile).
+- **Test infrastructure**: Shared helpers in `tests/unit/helpers/` — `mockFrom()` for Supabase chains, `factories.ts` for test data (`makeFloorPlanItem`, `makeRsvp`, etc.). New tests MUST use these instead of duplicating mocks. Current: 282 unit tests, 17 E2E spec files (102 tests across desktop + mobile).
+- **Venue coordinate pair integrity**: `venue_lat` and `venue_lng` must both be present or both null — enforced at DB level (CHECK constraint) and Zod schema level (`.refine()`). Clearing `venue_address` with coordinates set is rejected by validation.
+- **Venue editor autocomplete**: Client-side Nominatim geocoding (`src/lib/geocoding.ts`) with 1000ms debounce, 5000ms timeout, min 3 chars. No API key required. Address field uses `onChange` (not `register`) for debounced search; lat/lng are hidden inputs set on suggestion select.
+- **RSVP form layout wrapper**: `rsvp-form.tsx` no longer wraps itself in `min-h-screen` — the RSVP page (`rsvp/page.tsx`) controls the layout so it can render `VenueSection` above the form.
+- **OSM map embed**: Venue section uses OpenStreetMap iframe (free, no API key) with bbox ±0.005 around venue coordinates. No Leaflet dependency needed.
+- **E2E test data isolation**: Admin venue edit tests modify seed data. Read-only venue tests should not assert specific venue names that admin tests change. Assert stable fields (address, welcome message, couple name) instead.
 
 ## Active Technologies
 - TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, Tailwind CSS v4, shadcn/ui (Nova theme), react-hook-form, zod (005-fix-coords-ui-layout)
@@ -134,6 +142,7 @@ git config core.hooksPath .githooks
 - Supabase PostgreSQL — new columns on existing `weddings` table (007-venue-details-maps)
 
 ## Recent Changes
+- 007-venue-details-maps: Added venue name, address (with Nominatim autocomplete), welcome message, embedded OSM map, and navigation buttons. Venue editor on admin/couple pages, venue info on landing page, venue section with map on RSVP form.
 - 005-fix-coords-ui-layout: Fixed Konva coordinate system (Circle center vs Rect top-left), added compact glass-panel top bar, real-time label tracking during drag, canvas auto-centering on load, chair rotation removal (chairs follow parent table only)
 - 004-app-wide-ux-redesign: App-wide content density improvements across all pages
 - 003-ux-polish-floorplan-fixes: Floor plan editor UX polish, Supabase Auth + Storage integration
