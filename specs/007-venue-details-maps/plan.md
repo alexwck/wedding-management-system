@@ -1,138 +1,104 @@
-# Implementation Plan: Venue Details with Embedded Maps
+# Implementation Plan: [FEATURE]
 
-**Branch**: `007-venue-details-maps` | **Date**: 2026-04-24 | **Spec**: [spec.md](./spec.md)
-**Input**: Feature specification from `/specs/007-venue-details-maps/spec.md`
+**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
+**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+
+**Note**: This template is filled in by the `/speckit-plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
 
 ## Summary
 
-Add venue name, address (with Nominatim geocoding autocomplete), and welcome message fields to weddings. Display emotional content (name, date, welcome message) on the landing page to drive RSVP clicks, and logistics content (address, embedded OSM map, navigation buttons, welcome message) on the RSVP form page to reduce form abandonment.
+[Extract from feature spec: primary requirement + technical approach from research]
 
 ## Technical Context
 
-**Language/Version**: TypeScript (strict mode) with Next.js 16 (App Router) + React 19
-**Primary Dependencies**: react-hook-form, zod, Supabase JS, Tailwind CSS v4, shadcn/ui
-**Storage**: Supabase PostgreSQL — new columns on existing `weddings` table
-**Testing**: Vitest + React Testing Library (unit), Playwright (E2E, desktop + mobile)
-**Target Platform**: Web (responsive, mobile-first)
-**Project Type**: Web application (Next.js App Router)
-**Performance Goals**: <2s page load, autocomplete suggestions within 2s
-**Constraints**: Free geocoding API only, free map embed only, no paid API keys
-**Scale/Scope**: ~10 new files, 3 modified pages, 1 migration
+<!--
+  ACTION REQUIRED: Replace the content in this section with the technical details
+  for the project. The structure here is presented in advisory capacity to guide
+  the iteration process.
+-->
+
+**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
+**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
+**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
+**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
+**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
+**Project Type**: [e.g., library/cli/web-service/mobile-app/compiler/desktop-app or NEEDS CLARIFICATION]  
+**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
+**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
+**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Notes |
-|-----------|--------|-------|
-| I. Spec-Driven Development | PASS | Spec written with 4 user stories, acceptance criteria, and edge cases |
-| II. Type Safety | PASS | Zod validation for wedding update; end-to-end types from DB to UI |
-| III. Component-First Architecture | PASS | New venue-editor (client), venue-section (server); RSC default preserved |
-| IV. User Experience First | PASS | Inline validation, autocomplete with debounce, graceful empty/error states |
-| V. Simplicity | PASS | Two decimal columns over point type; OSM iframe over Leaflet; no new deps |
-| VI. Security by Default | PASS | Server action validates auth + role; Zod validates input; atomic update |
-| VII. Mobile Parity | PASS | E2E tests cover mobile Chrome; venue sections responsive |
-| VIII. Data Integrity | PASS | Zod validates lat/lng ranges; coordinate pair integrity enforced |
-| IX. Glassmorphism Design System | PASS | Venue sections use .glass-panel on dark/image backgrounds |
-
-No violations. Proceeding to Phase 0.
+[Gates determined based on constitution file]
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/007-venue-details-maps/
-├── plan.md              # This file
-├── spec.md              # Feature specification
-├── research.md          # Phase 0: technical decisions
-├── data-model.md        # Phase 1: data model
-├── quickstart.md        # Phase 1: setup guide
-└── tasks.md             # Phase 2: implementation tasks (via /speckit.tasks)
+specs/[###-feature]/
+├── plan.md              # This file (/speckit-plan command output)
+├── research.md          # Phase 0 output (/speckit-plan command)
+├── data-model.md        # Phase 1 output (/speckit-plan command)
+├── quickstart.md        # Phase 1 output (/speckit-plan command)
+├── contracts/           # Phase 1 output (/speckit-plan command)
+└── tasks.md             # Phase 2 output (/speckit-tasks command - NOT created by /speckit-plan)
 ```
 
 ### Source Code (repository root)
+<!--
+  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
+  for this feature. Delete unused options and expand the chosen structure with
+  real paths (e.g., apps/admin, packages/something). The delivered plan must
+  not include Option labels.
+-->
 
 ```text
-supabase/migrations/
-└── 20260424000001_add_venue_columns.sql      # New migration
-
+# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
 src/
-├── app/
-│   ├── actions/
-│   │   └── admin.ts                           # Modified: add updateWeddingDetails
-│   ├── (auth)/
-│   │   ├── admin/weddings/[id]/page.tsx       # Modified: add venue editor section
-│   │   └── dashboard/page.tsx                 # Modified: add venue editor section
-│   └── (public)/
-│       └── w/[slug]/
-│           ├── page.tsx                       # Modified: fetch + pass venue data
-│           └── rsvp/page.tsx                  # Modified: fetch + pass venue data
-├── components/
-│   ├── landing-page.tsx                       # Modified: add venue info overlay
-│   ├── rsvp-form.tsx                          # Modified: add venue section above form
-│   ├── venue-editor.tsx                       # New: admin/couple venue editing form
-│   └── venue-section.tsx                      # New: public venue display with map
-├── lib/
-│   ├── geocoding.ts                           # New: Nominatim client
-│   └── validations/
-│       └── wedding.ts                         # New: Zod schema for wedding update
+├── models/
+├── services/
+├── cli/
+└── lib/
 
 tests/
-├── unit/
-│   ├── lib/geocoding.test.ts                  # New: Nominatim client tests
-│   ├── validations/wedding.test.ts            # New: Zod schema tests
-│   └── actions/admin-wedding-update.test.ts   # New: server action tests
-└── e2e/
-    └── venue-details.spec.ts                  # New: E2E tests for all user stories
+├── contract/
+├── integration/
+└── unit/
+
+# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
+backend/
+├── src/
+│   ├── models/
+│   ├── services/
+│   └── api/
+└── tests/
+
+frontend/
+├── src/
+│   ├── components/
+│   ├── pages/
+│   └── services/
+└── tests/
+
+# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
+api/
+└── [same as backend above]
+
+ios/ or android/
+└── [platform-specific structure: feature modules, UI flows, platform tests]
 ```
 
-**Structure Decision**: Follows existing project conventions — new components in `src/components/`, new lib modules in `src/lib/`, validations in `src/lib/validations/`, migration in `supabase/migrations/`.
-
-## Implementation Phases
-
-### Phase 1: Database + Validation (foundation)
-
-1. Create migration adding `venue`, `venue_address`, `venue_lat`, `venue_lng`, `welcome_message` columns to `weddings` table
-2. Create Zod validation schema in `src/lib/validations/wedding.ts` with coordinate pair integrity check
-3. Write unit tests for validation schema (Red)
-4. Run migration: `supabase db reset`
-
-### Phase 2: Geocoding Client + Autocomplete
-
-1. Create `src/lib/geocoding.ts` — Nominatim fetch function with User-Agent header, response type, error handling
-2. Write unit tests for geocoding client (Red)
-3. Implement geocoding client (Green)
-
-### Phase 3: Venue Editor Component (admin + couple)
-
-1. Create `src/components/venue-editor.tsx` — client component with react-hook-form
-   - Venue name input
-   - Address autocomplete (uses geocoding client, debounced, min 3 chars)
-   - Welcome message textarea (500 char max, with counter)
-2. Add `updateWeddingDetails` server action to `src/app/actions/admin.ts`
-3. Write server action unit tests (Red)
-4. Integrate venue editor into admin wedding detail page
-5. Integrate venue editor into couple dashboard
-
-### Phase 4: Public Venue Display
-
-1. Create `src/components/venue-section.tsx` — server component for RSVP form page
-   - Venue name, address, welcome message
-   - OSM iframe embed (computed bbox from lat/lng)
-   - "Open in Maps" + "Navigate with Waze" buttons
-2. Update `src/components/landing-page.tsx` — add venue info overlay (name, date, welcome message, no map)
-3. Update public page server components to fetch venue columns
-4. Wire props through to components
-
-### Phase 5: Testing
-
-1. Write E2E tests for User Story 1 (admin sets venue details)
-2. Write E2E tests for User Story 2 (guest sees venue on landing page)
-3. Write E2E tests for User Story 3 (guest sees map on RSVP form)
-4. Write E2E tests for User Story 4 (autocomplete UX)
-5. Run full suite: `npm run test && npm run test:e2e -- --workers=1`
+**Structure Decision**: [Document the selected structure and reference the real
+directories captured above]
 
 ## Complexity Tracking
 
-No violations — no entries needed.
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
