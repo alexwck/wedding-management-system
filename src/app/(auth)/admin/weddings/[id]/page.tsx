@@ -5,6 +5,7 @@ import { TemplateUpload } from "@/components/template-upload";
 import { ExportButtons } from "@/components/export-buttons";
 import { VenueEditor } from "@/components/venue-editor";
 import { WeddingDatePicker } from "@/components/wedding-date-picker";
+import { RSVPSection } from "@/components/rsvp-section";
 
 interface ManageWeddingPageProps {
   params: Promise<{ id: string }>;
@@ -110,39 +111,9 @@ export default async function ManageWeddingPage({ params }: ManageWeddingPagePro
           {rsvps.length > 0 && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">RSVP Responses</h3>
-                <ExportButtons weddingId={wedding.id} />
+                <RSVPSection rsvps={rsvps} />
               </div>
-              <div className="space-y-2">
-                {rsvps.map((rsvp) => (
-                  <div key={rsvp.id} className="flex items-center justify-between glass-panel rounded-lg p-3">
-                    <div>
-                      <p className="font-medium">{rsvp.guestName}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {rsvp.dietaryNotes || "No dietary notes"}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {rsvp.status === "attending" ? (
-                        <span className="text-sm text-green-600">Attending</span>
-                      ) : (
-                        <span className="text-sm text-red-600">Declining</span>
-                      )}
-                      {rsvp.isVegetarian && (
-                        <span className="text-xs bg-green-100 text-green-800 rounded px-2 py-0.5">Veg</span>
-                      )}
-                      {rsvp.needsBabyChair && (
-                        <span className="text-xs bg-blue-100 text-blue-800 rounded px-2 py-0.5">Baby Chair</span>
-                      )}
-                      {"tableName" in rsvp && rsvp.tableName && (
-                        <span className="text-xs bg-teal-100 text-teal-800 rounded px-2 py-0.5">
-                          {rsvp.tableName} — {rsvp.seatLabel}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <ExportButtons weddingId={wedding.id} />
             </div>
           )}
         </div>

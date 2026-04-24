@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getMyWeddingRSVPs } from "@/app/actions/admin";
-import { RSVPTable } from "@/components/rsvp-table";
+import { RSVPSection } from "@/components/rsvp-section";
 import { ExportButtons } from "@/components/export-buttons";
 
 export default async function RSVPListPage() {
@@ -33,9 +33,7 @@ export default async function RSVPListPage() {
         </div>
       </div>
 
-      <div className="glass-panel rounded-xl p-4">
-        <RSVPTable rsvps={rsvps} />
-      </div>
+      <RSVPSection rsvps={rsvps} title="All RSVP Responses" />
 
       <div className="text-center">
         <Link

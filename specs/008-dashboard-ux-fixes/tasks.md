@@ -140,16 +140,16 @@
 
 ### Tests for User Story 3
 
-- [ ] T036 [P] [US3] Write component tests in `tests/unit/components/rsvp-section.test.tsx`: expanded by default, collapses on toggle, shows response count, empty state message when zero RSVPs
-- [ ] T037 [P] [US3] Write component tests in `tests/unit/components/rsvp-table.test.tsx`: sort indicators visible on sortable columns, default sort is submitted date descending, clicking column header toggles ascending/descending, null values sort to end
+- [x] T036 [P] [US3] Write component tests in `tests/unit/components/rsvp-section.test.tsx`: expanded by default, collapses on toggle, shows response count, empty state message when zero RSVPs
+- [x] T037 [P] [US3] Write component tests in `tests/unit/components/rsvp-table.test.tsx`: sort indicators visible on sortable columns, default sort is submitted date descending, clicking column header toggles ascending/descending, null values sort to end
 
 ### Implementation for User Story 3
 
-- [ ] T038 [US3] In `src/components/rsvp-table.tsx`: add client-side sort state with `useState` — default sort by `createdAt` descending; add sort click handlers for guest name, status, submitted date, table name columns; add ascending/descending arrow indicators (`↑`/`↓`) on sortable column headers; null/empty values sort to end. Verify table columns match FR-007 exactly (guest name, status, dietary notes, vegetarian, baby chair, table name, seat, submitted date). Sorting performance should be under 200ms for datasets up to 500 rows (SC-007).
-- [ ] T039 [US3] Create `src/components/rsvp-section.tsx` — client component wrapping RSVPTable with collapsible section header showing "RSVP Responses (count)" and chevron toggle; expanded by default; shows empty state "No RSVP responses yet" when `rsvps.length === 0`; applies max height with internal scroll for overflow; use `.glass-panel` class per Constitution IX
-- [ ] T040 [US3] In `src/app/(auth)/admin/weddings/[id]/page.tsx`: replace inline RSVP response cards with `RSVPSection` component containing `RSVPTable`
-- [ ] T041 [US3] In `src/app/(auth)/dashboard/rsvps/page.tsx`: wrap existing `RSVPTable` in `RSVPSection` for collapsibility
-- [ ] T042 [US3] Run `npm run test` to verify RSVP section and table sorting tests pass (Green)
+- [x] T038 [US3] In `src/components/rsvp-table.tsx`: add client-side sort state with `useState` — default sort by `createdAt` descending; add sort click handlers for guest name, status, submitted date, table name columns; add ascending/descending arrow indicators (`↑`/`↓`) on sortable column headers; null/empty values sort to end. Verify table columns match FR-007 exactly (guest name, status, dietary notes, vegetarian, baby chair, table name, seat, submitted date). Sorting performance should be under 200ms for datasets up to 500 rows (SC-007).
+- [x] T039 [US3] Create `src/components/rsvp-section.tsx` — client component wrapping RSVPTable with collapsible section header showing "RSVP Responses (count)" and chevron toggle; expanded by default; shows empty state "No RSVP responses yet" when `rsvps.length === 0`; applies max height with internal scroll for overflow; use `.glass-panel` class per Constitution IX
+- [x] T040 [US3] In `src/app/(auth)/admin/weddings/[id]/page.tsx`: replace inline RSVP response cards with `RSVPSection` component containing `RSVPTable`
+- [x] T041 [US3] In `src/app/(auth)/dashboard/rsvps/page.tsx`: wrap existing `RSVPTable` in `RSVPSection` for collapsibility
+- [x] T042 [US3] Run `npm run test` to verify RSVP section and table sorting tests pass (Green)
 
 **Checkpoint**: RSVP table is sortable, collapsible, shows empty state, and scrolls for large datasets.
 
