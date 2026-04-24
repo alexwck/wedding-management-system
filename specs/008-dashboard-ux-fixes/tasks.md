@@ -56,19 +56,19 @@
 
 ### Tests for User Stories 6 & 7
 
-- [ ] T013 [P] [US6] Write unit test in `tests/unit/components/item-catalog.test.tsx` verifying catalog renders within constrained height after collapse/expand toggle
-- [ ] T014 [P] [US7] Write unit test in `tests/unit/components/floor-plan-canvas.test.tsx` verifying chair count controls render when `selectedItem.type` is `round_table` or `long_table`
+- [x] T013 [P] [US6] Write unit test in `tests/unit/components/item-catalog.test.tsx` verifying catalog renders within constrained height after collapse/expand toggle
+- [x] T014 [P] [US7] Write unit test in `tests/unit/components/floor-plan-canvas-chair-count.test.tsx` verifying chair count controls render when `selectedItem.type` is `round_table` or `long_table`
 
 ### Implementation for User Story 6 (Catalog Overflow)
 
-- [ ] T015 [US6] In `src/components/floor-plan/item-catalog.tsx`: add `h-[calc(100vh-40px)]` to the catalog container div (alongside existing `overflow-y-auto`) to constrain height to viewport minus top bar
-- [ ] T016 [US6] Verify catalog collapse/expand stays within viewport with internal scrolling when items exceed viewport height (FR-013). Run relevant floor plan E2E tests to confirm no regressions.
+- [x] T015 [US6] In `src/components/floor-plan/item-catalog.tsx`: add `h-[calc(100vh-40px)]` to the catalog container div (alongside existing `overflow-y-auto`) to constrain height to viewport minus top bar
+- [x] T016 [US6] Verify catalog collapse/expand stays within viewport with internal scrolling when items exceed viewport height (FR-013). Run relevant floor plan E2E tests to confirm no regressions.
 
 ### Implementation for User Story 7 (Chair Count Editing)
 
-- [ ] T017 [US7] In `src/components/floor-plan/floor-plan-canvas.tsx`: debug why chair count controls don't appear on table selection. Check `selectedItem?.type` string values match the condition at lines ~910. Add temporary console logging if needed to identify the root cause (remove all debug logging in T018).
-- [ ] T018 [US7] In `src/components/floor-plan/floor-plan-canvas.tsx`: apply the fix based on root cause found in T017 — either fix type string match, z-index, or selectedItem state update. Ensure `z-20` is set on the chair count overlay.
-- [ ] T019 [US7] Verify chair count controls appear for both round and long tables, and that chair positions around the table update correctly after increment/decrement (FR-015). Confirm existing table drag, rotation, and selection E2E tests still pass.
+- [x] T017 [US7] In `src/components/floor-plan/floor-plan-canvas.tsx`: debug why chair count controls don't appear on table selection. Root cause: stale Turbopack cache from earlier export.ts compilation error — no code bug found. Chair count logic is correct.
+- [x] T018 [US7] No code fix needed — the chair count overlay code is correct (z-20, isTableType check, proper state management). The issue was a dev server compilation error preventing the page from rendering.
+- [x] T019 [US7] Verify chair count controls appear for both round and long tables, and that chair positions around the table update correctly after increment/decrement (FR-015). Confirmed via Playwright: round table 7→8→7, long table 7 max 8.
 
 **Checkpoint**: Floor plan catalog and chair editing work correctly. No regressions.
 

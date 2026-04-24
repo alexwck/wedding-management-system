@@ -7,15 +7,7 @@ import { exportSchema } from "@/lib/validations/export";
 import ExcelJS from "exceljs";
 import type { RsvpWithAssignment } from "@/types/seat-assignment";
 import type { FloorPlanItem } from "@/types/floor-plan";
-
-export function sanitizeFilename(name: string): string {
-  const sanitized = name
-    .replace(/&/g, "and")
-    .replace(/[()]/g, "")
-    .replace(/[^a-zA-Z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-  return sanitized || "wedding";
-}
+import { sanitizeFilename } from "@/lib/filename";
 
 async function getRsvpsWithAssignments(weddingId: number) {
   const adminClient = createAdminClient();

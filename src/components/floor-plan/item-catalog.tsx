@@ -58,7 +58,7 @@ export function ItemCatalog({ onSelectItem }: ItemCatalogProps) {
     <aside
       className={`${
         collapsed ? "w-12" : "w-64"
-      } border-r p-4 flex flex-col gap-4 overflow-y-auto glass-panel transition-all duration-200`}
+      } border-r p-4 flex flex-col gap-4 overflow-y-auto glass-panel transition-all duration-200 h-[calc(100vh-40px)]`}
     >
       <button
         type="button"
