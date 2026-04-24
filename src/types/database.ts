@@ -103,6 +103,9 @@ export type Database = {
           id: number
           slug: string
           template_image_url: string | null
+          template_focal_x: number | null
+          template_focal_y: number | null
+          timezone: string | null
           updated_at: string
           user_id: string
           wedding_date: string | null
@@ -113,6 +116,9 @@ export type Database = {
           id?: never
           slug: string
           template_image_url?: string | null
+          template_focal_x?: number | null
+          template_focal_y?: number | null
+          timezone?: string | null
           updated_at?: string
           user_id: string
           wedding_date?: string | null
@@ -123,6 +129,9 @@ export type Database = {
           id?: never
           slug?: string
           template_image_url?: string | null
+          template_focal_x?: number | null
+          template_focal_y?: number | null
+          timezone?: string | null
           updated_at?: string
           user_id?: string
           wedding_date?: string | null
