@@ -32,10 +32,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Create Zod validation schema in `src/lib/validations/wedding.ts` — make T002 pass. Export `weddingUpdateSchema` with venue, venue_address, venue_lat, venue_lng, welcome_message. Add `.refine()` for coordinate pair integrity.
-- [ ] T006 Create geocoding client in `src/lib/geocoding.ts` — make T003 pass. Export `searchAddress(query: string)` function using Nominatim API with 1000ms debounce, 5000ms timeout, User-Agent header. Export `GeocodingResult` type with display_name, lat, lon.
-- [ ] T007 Write unit tests for updateWeddingDetails server action (Red) in `tests/unit/actions/admin-wedding-update.test.ts` — test successful update with all fields, update with partial fields (venue name only), authorization check (admin vs couple vs unauthorized), coordinate pair validation, welcome_message length rejection
-- [ ] T008 Add `updateWeddingDetails` server action to `src/app/actions/admin.ts` — make T007 pass. Validate input with weddingUpdateSchema. Verify user is admin or wedding owner (FR-016). Atomic update of all venue fields. Use adminClient. Return updated wedding data.
+- [x] T005 Create Zod validation schema in `src/lib/validations/wedding.ts` — make T002 pass. Export `weddingUpdateSchema` with venue, venue_address, venue_lat, venue_lng, welcome_message. Add `.refine()` for coordinate pair integrity.
+- [x] T006 Create geocoding client in `src/lib/geocoding.ts` — make T003 pass. Export `searchAddress(query: string)` function using Nominatim API with 1000ms debounce, 5000ms timeout, User-Agent header. Export `GeocodingResult` type with display_name, lat, lon.
+- [x] T007 Write unit tests for updateWeddingDetails server action (Red) in `tests/unit/actions/admin-wedding-update.test.ts` — test successful update with all fields, update with partial fields (venue name only), authorization check (admin vs couple vs unauthorized), coordinate pair validation, welcome_message length rejection
+- [x] T008 Add `updateWeddingDetails` server action to `src/app/actions/admin.ts` — make T007 pass. Validate input with weddingUpdateSchema. Verify user is admin or wedding owner (FR-016). Atomic update of all venue fields. Use adminClient. Return updated wedding data.
 
 **Checkpoint**: Foundation ready — venue data can be written to/read from DB via validated server action
 

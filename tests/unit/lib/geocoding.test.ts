@@ -1,13 +1,8 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { searchAddress } from "@/lib/geocoding";
 
 describe("searchAddress", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
   afterEach(() => {
-    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
@@ -47,16 +42,19 @@ describe("searchAddress", () => {
     expect(results).toEqual([]);
   });
 
-  it("handles fetch timeout", async () => {
-    vi.spyOn(globalThis, "fetch").mockImplementation(() => {
+  it("handles fetch timeout", { timeout: 10000 }, async () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation((_url, opts) => {
       return new Promise((_, reject) => {
-        setTimeout(() => reject(new DOMException("Aborted", "AbortError")), 10000);
+        const signal = (opts as RequestInit)?.signal as AbortSignal;
+        if (signal) {
+          signal.addEventListener("abort", () =>
+            reject(new DOMException("Aborted", "AbortError")),
+          );
+        }
       });
     });
 
-    const fetchPromise = searchAddress("Springfield");
-    await vi.advanceTimersByTimeAsync(5000);
-    const results = await fetchPromise;
+    const results = await searchAddress("Springfield");
     expect(results).toEqual([]);
   });
 

@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { nanoid } from "nanoid";
 import { createCoupleSchema } from "@/lib/validations/admin";
+import { weddingUpdateSchema } from "@/lib/validations/wedding";
 import { resolveSeatLabels } from "@/lib/seat-resolution";
 import type { FloorPlanItem } from "@/types/floor-plan";
 
@@ -329,4 +330,82 @@ export async function getCouples() {
   }
 
   return { success: true, couples: users ?? [] };
+}
+
+export async function updateWeddingDetails(formData: FormData) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "unauthorized" as const, message: "Not authenticated." };
+  }
+
+  const weddingId = Number(formData.get("weddingId"));
+  if (!weddingId) {
+    return { success: false, error: "validation" as const, message: "Wedding ID required." };
+  }
+
+  const isAdmin = user.app_metadata?.role === "admin";
+
+  if (!isAdmin) {
+    const adminClient = createAdminClient();
+    const { data: wedding } = await adminClient
+      .from("weddings")
+      .select("user_id")
+      .eq("id", weddingId)
+      .single();
+
+    if (!wedding || wedding.user_id !== user.id) {
+      return { success: false, error: "unauthorized" as const, message: "Not authorized." };
+    }
+  }
+
+  const rawData: Record<string, unknown> = {};
+  const fields = ["venue", "venue_address", "venue_lat", "venue_lng", "welcome_message"] as const;
+
+  for (const field of fields) {
+    const value = formData.get(field);
+    if (value !== null) {
+      if (field === "venue_lat" || field === "venue_lng") {
+        rawData[field] = value === "" ? null : Number(value);
+      } else {
+        rawData[field] = value;
+      }
+    }
+  }
+
+  const parsed = weddingUpdateSchema.safeParse(rawData);
+  if (!parsed.success) {
+    return {
+      success: false,
+      error: "validation" as const,
+      message: parsed.error.issues.map((i) => i.message).join(", "),
+    };
+  }
+
+  const adminClient = createAdminClient();
+  const { data, error } = await adminClient
+    .from("weddings")
+    .update(parsed.data)
+    .eq("id", weddingId)
+    .select()
+    .single();
+
+  if (error) {
+    return {
+      success: false,
+      error: "update_failed" as const,
+      message: "Failed to update wedding details.",
+    };
+  }
+
+  revalidatePath(`/admin/weddings/${weddingId}`);
+  revalidatePath(`/w/${data.slug}`);
+  revalidatePath(`/w/${data.slug}/rsvp`);
+  revalidatePath("/dashboard");
+
+  return { success: true, wedding: data };
 }
