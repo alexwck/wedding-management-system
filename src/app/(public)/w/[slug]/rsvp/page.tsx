@@ -21,7 +21,7 @@ export default async function RSVPPage({ params }: RSVPPageProps) {
     notFound();
   }
 
-  const hasVenueData = wedding.venue || wedding.venue_address || wedding.venue_lat;
+  const hasVenueData = wedding.venue || wedding.venue_address || wedding.venue_lat || wedding.welcome_message;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">

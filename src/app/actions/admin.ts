@@ -359,9 +359,9 @@ export async function updateWeddingDetails(formData: FormData) {
   }
 
   const isAdmin = user.app_metadata?.role === "admin";
+  const adminClient = createAdminClient();
 
   if (!isAdmin) {
-    const adminClient = createAdminClient();
     const { data: wedding } = await adminClient
       .from("weddings")
       .select("user_id")
@@ -382,7 +382,7 @@ export async function updateWeddingDetails(formData: FormData) {
       if (field === "venue_lat" || field === "venue_lng") {
         rawData[field] = value === "" ? null : Number(value);
       } else {
-        rawData[field] = value;
+        rawData[field] = value === "" ? null : value;
       }
     }
   }
@@ -396,12 +396,11 @@ export async function updateWeddingDetails(formData: FormData) {
     };
   }
 
-  const adminClient = createAdminClient();
   const { data, error } = await adminClient
     .from("weddings")
     .update(parsed.data)
     .eq("id", weddingId)
-    .select()
+    .select("slug")
     .single();
 
   if (error) {

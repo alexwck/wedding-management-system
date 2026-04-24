@@ -2,8 +2,8 @@ import { z } from "zod";
 
 export const weddingUpdateSchema = z
   .object({
-    venue: z.string().max(200).optional(),
-    venue_address: z.string().max(500).optional(),
+    venue: z.string().max(200).nullable().optional(),
+    venue_address: z.string().max(500).nullable().optional(),
     venue_lat: z
       .number()
       .min(-90)
@@ -16,7 +16,7 @@ export const weddingUpdateSchema = z
       .max(180)
       .nullable()
       .optional(),
-    welcome_message: z.string().max(500).optional(),
+    welcome_message: z.string().max(500).nullable().optional(),
   })
   .refine(
     (data) => {
@@ -30,11 +30,10 @@ export const weddingUpdateSchema = z
   )
   .refine(
     (data) => {
-      if (data.venue_address === "" && data.venue_lat != null) return false;
+      if (data.venue_address === null && data.venue_lat != null) return false;
       return true;
     },
     {
-      message:
-        "Cannot have coordinates when address is cleared",
+      message: "Cannot have coordinates when address is cleared",
     },
   );
