@@ -62,13 +62,13 @@
 ### Implementation for User Story 6 (Catalog Overflow)
 
 - [ ] T015 [US6] In `src/components/floor-plan/item-catalog.tsx`: add `h-[calc(100vh-40px)]` to the catalog container div (alongside existing `overflow-y-auto`) to constrain height to viewport minus top bar
-- [ ] T016 [US6] Verify catalog collapse/expand stays within viewport. Run relevant floor plan E2E tests to confirm no regressions.
+- [ ] T016 [US6] Verify catalog collapse/expand stays within viewport with internal scrolling when items exceed viewport height (FR-013). Run relevant floor plan E2E tests to confirm no regressions.
 
 ### Implementation for User Story 7 (Chair Count Editing)
 
-- [ ] T017 [US7] In `src/components/floor-plan/floor-plan-canvas.tsx`: debug why chair count controls don't appear on table selection. Check `selectedItem?.type` string values match the condition at lines ~910. Add console logging if needed to identify the root cause.
+- [ ] T017 [US7] In `src/components/floor-plan/floor-plan-canvas.tsx`: debug why chair count controls don't appear on table selection. Check `selectedItem?.type` string values match the condition at lines ~910. Add temporary console logging if needed to identify the root cause (remove all debug logging in T018).
 - [ ] T018 [US7] In `src/components/floor-plan/floor-plan-canvas.tsx`: apply the fix based on root cause found in T017 — either fix type string match, z-index, or selectedItem state update. Ensure `z-20` is set on the chair count overlay.
-- [ ] T019 [US7] Verify chair count controls appear for both round and long tables. Confirm existing table drag, rotation, and selection E2E tests still pass.
+- [ ] T019 [US7] Verify chair count controls appear for both round and long tables, and that chair positions around the table update correctly after increment/decrement (FR-015). Confirm existing table drag, rotation, and selection E2E tests still pass.
 
 **Checkpoint**: Floor plan catalog and chair editing work correctly. No regressions.
 
@@ -87,7 +87,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T022 [US1] Create `src/components/wedding-date-picker.tsx` — client component with native `datetime-local` input styled with Tailwind; accepts `weddingId`, `currentDate`, `timezone`, `isAdmin` props; shows timezone selector (full IANA list via `Intl.supportedValuesOf('timeZone')`) only when `isAdmin=true`; calls server action on change
+- [ ] T022 [US1] Create `src/components/wedding-date-picker.tsx` — client component with native `datetime-local` input styled with Tailwind using `.glass-panel` class per Constitution IX; accepts `weddingId`, `currentDate`, `timezone`, `isAdmin` props; shows timezone selector only when `isAdmin=true` — use a searchable input (e.g., `<input>` + `<datalist>` with IANA zones from `Intl.supportedValuesOf('timeZone')`) so users can type city/region name to filter; calls server action on change
 - [ ] T023 [US1] In `src/app/actions/admin.ts`: add `updateWeddingDate(weddingId, weddingDate)` server action — validates via Zod, converts datetime-local string to UTC TIMESTAMPTZ, atomic UPDATE on `weddings.wedding_date`
 - [ ] T024 [US1] In `src/app/actions/admin.ts`: add `updateWeddingTimezone(weddingId, timezone)` server action — admin-only (role check), validates IANA string, atomic UPDATE on `weddings.timezone`
 - [ ] T025 [US1] In `src/app/actions/admin.ts`: update `getWeddingRSVPs` to return `weddingDate`, `timezone`, `templateFocalX`, `templateFocalY` in the wedding data object
@@ -145,8 +145,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T038 [US3] In `src/components/rsvp-table.tsx`: add client-side sort state with `useState` — default sort by `createdAt` descending; add sort click handlers for guest name, status, submitted date, table name columns; add ascending/descending arrow indicators (`↑`/`↓`) on sortable column headers; null/empty values sort to end
-- [ ] T039 [US3] Create `src/components/rsvp-section.tsx` — client component wrapping RSVPTable with collapsible section header showing "RSVP Responses (count)" and chevron toggle; expanded by default; shows empty state "No RSVP responses yet" when `rsvps.length === 0`; applies max height with internal scroll for overflow
+- [ ] T038 [US3] In `src/components/rsvp-table.tsx`: add client-side sort state with `useState` — default sort by `createdAt` descending; add sort click handlers for guest name, status, submitted date, table name columns; add ascending/descending arrow indicators (`↑`/`↓`) on sortable column headers; null/empty values sort to end. Verify table columns match FR-007 exactly (guest name, status, dietary notes, vegetarian, baby chair, table name, seat, submitted date). Sorting performance should be under 200ms for datasets up to 500 rows (SC-007).
+- [ ] T039 [US3] Create `src/components/rsvp-section.tsx` — client component wrapping RSVPTable with collapsible section header showing "RSVP Responses (count)" and chevron toggle; expanded by default; shows empty state "No RSVP responses yet" when `rsvps.length === 0`; applies max height with internal scroll for overflow; use `.glass-panel` class per Constitution IX
 - [ ] T040 [US3] In `src/app/(auth)/admin/weddings/[id]/page.tsx`: replace inline RSVP response cards with `RSVPSection` component containing `RSVPTable`
 - [ ] T041 [US3] In `src/app/(auth)/dashboard/rsvps/page.tsx`: wrap existing `RSVPTable` in `RSVPSection` for collapsibility
 - [ ] T042 [US3] Run `npm run test` to verify RSVP section and table sorting tests pass (Green)
@@ -167,7 +167,7 @@
 
 ### Implementation for User Story 8
 
-- [ ] T044 [US8] Create `src/components/template-preview.tsx` — client component using shadcn/ui Dialog; shows uploaded image at full size; on click/tap calculates percentage coordinates and displays crosshair indicator; calls `updateTemplateFocalPoint` server action on click; loads existing focal point on open; closes on backdrop click, Escape key, or close button
+- [ ] T044 [US8] Create `src/components/template-preview.tsx` — client component using shadcn/ui Dialog with `.glass-panel` styling per Constitution IX; shows uploaded image at full size; on click/tap calculates percentage coordinates and displays crosshair indicator; calls `updateTemplateFocalPoint` server action on click; loads existing focal point on open; closes on backdrop click, Escape key, or close button
 - [ ] T045 [US8] In `src/app/actions/upload.ts`: update `uploadTemplateImage` to also set `template_focal_x = NULL, template_focal_y = NULL` when saving a new image (reset focal point on image replace)
 - [ ] T046 [US8] In `src/app/actions/admin.ts`: add `updateTemplateFocalPoint(weddingId, focalX, focalY)` server action — validates both are 0-100 decimals via Zod, atomic UPDATE on `weddings.template_focal_x/y`
 - [ ] T047 [US8] In `src/components/template-upload.tsx`: add "Preview" button that opens `TemplatePreview` dialog; show small focal point indicator dot on thumbnail if focal point is set

@@ -60,7 +60,7 @@ src/
 │   │       ├── page.tsx              # MODIFY: two-column layout + wedding date
 │   │       └── rsvps/page.tsx        # MODIFY: collapsible section
 │   ├── actions/
-│   │   ├── admin.ts                  # MODIFY: add updateWeddingDate, getWeddingRSVPs returns wedding_date
+│   │   ├── admin.ts                  # MODIFY: add updateWeddingDate, updateWeddingTimezone, updateTemplateFocalPoint; getWeddingRSVPs returns wedding_date/timezone/focal point
 │   │   ├── export.ts                 # MODIFY: remove Google Sheets code, fix XLSX filename
 │   │   └── upload.ts                 # MODIFY: add focal point save to upload
 │   ├── (public)/w/[slug]/
