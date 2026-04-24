@@ -15,7 +15,7 @@ import {
 } from "@/lib/floor-plan/constants";
 import type { RoundTableSize, LongTableLength } from "@/types/floor-plan";
 import { generateChairsForTable } from "./use-chair-generation";
-import { checkItemCollisions } from "@/lib/floor-plan/collision";
+import { checkItemCollisions, isItemOutOfBounds } from "@/lib/floor-plan/collision";
 
 function getNextLabel(items: FloorPlanItem[], type: ItemType): string {
   const tableTypes: ItemType[] = ["round_table", "long_table"];
@@ -75,6 +75,7 @@ export function useFloorPlanState(initialWidth: number, initialHeight: number) {
 
         // Check if center is collision-free; spiral outward if not
         const isChair = type === "chair";
+        const isTable = type === "round_table" || type === "long_table";
         if (!isChair) {
           const testItem: FloorPlanItem = {
             id: "__placement_test__",
@@ -86,16 +87,38 @@ export function useFloorPlanState(initialWidth: number, initialHeight: number) {
             height: dims.height,
             rotation: 0,
             parentItemId: null,
-            metadata: {},
+            metadata: isTable
+              ? {
+                  ...(type === "round_table" && sizeVariant
+                    ? { diameter: sizeVariant as RoundTableSize, chairCount: getDefaultChairs(type, sizeVariant) }
+                    : {}),
+                  ...(type === "long_table" && sizeVariant
+                    ? { length: sizeVariant as LongTableLength, chairCount: getDefaultChairs(type, sizeVariant) }
+                    : {}),
+                }
+              : {},
           };
 
-          const hasCollisionAt = (x: number, y: number) => {
+          const isPositionValid = (x: number, y: number) => {
             const test = { ...testItem, x, y };
+            // Check item itself is in bounds
+            if (isItemOutOfBounds(test, width, height)) return false;
+            // Check item-to-item collisions
             const allItems = [...prev, test];
-            return checkItemCollisions("__placement_test__", allItems).length > 0;
+            if (checkItemCollisions("__placement_test__", allItems).length > 0) return false;
+            // For tables, also check that generated chairs are in bounds and collision-free
+            if (isTable) {
+              const chairs = generateChairsForTable(test);
+              for (const chair of chairs) {
+                if (isItemOutOfBounds(chair, width, height)) return false;
+                const withChair = [...allItems, chair];
+                if (checkItemCollisions(chair.id, withChair).length > 0) return false;
+              }
+            }
+            return true;
           };
 
-          if (hasCollisionAt(baseX, baseY)) {
+          if (!isPositionValid(baseX, baseY)) {
             const step = 2;
             let found = false;
             for (let r = 1; r <= 10 && !found; r++) {
@@ -108,12 +131,7 @@ export function useFloorPlanState(initialWidth: number, initialHeight: number) {
               for (const [ox, oy] of offsets) {
                 const cx = baseX + ox;
                 const cy = baseY + oy;
-                if (
-                  cx >= 0 && cy >= 0 &&
-                  cx + dims.width <= width &&
-                  cy + dims.height <= height &&
-                  !hasCollisionAt(cx, cy)
-                ) {
+                if (isPositionValid(cx, cy)) {
                   placeX = cx;
                   placeY = cy;
                   found = true;

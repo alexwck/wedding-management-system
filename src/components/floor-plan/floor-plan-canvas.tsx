@@ -390,7 +390,37 @@ export function FloorPlanCanvas({
       const oob = isItemOutOfBounds(hypothetical, state.width, state.height);
 
       // Check item-to-item collisions with hypothetical position
-      const hypotheticalItems = state.items.map((i) => (i.id === id ? hypothetical : i));
+      let hypotheticalItems = state.items.map((i) => (i.id === id ? hypothetical : i));
+
+      // Also check child chairs for OOB and collisions
+      let chairBlocked = false;
+      if (table) {
+        const dx = newX - movedItem.x;
+        const dy = newY - movedItem.y;
+        const children = state.items.filter((i) => i.parentItemId === id);
+        const hypotheticalChildren = children.map((c) => ({
+          ...c,
+          x: c.x + dx,
+          y: c.y + dy,
+        }));
+        hypotheticalItems = hypotheticalItems.map((i) => {
+          const hc = hypotheticalChildren.find((c) => c.id === i.id);
+          return hc ?? i;
+        });
+
+        for (const hc of hypotheticalChildren) {
+          if (isItemOutOfBounds(hc, state.width, state.height)) {
+            chairBlocked = true;
+            break;
+          }
+          const chairCollisions = checkItemCollisions(hc.id, hypotheticalItems);
+          if (chairCollisions.length > 0) {
+            chairBlocked = true;
+            break;
+          }
+        }
+      }
+
       const collisions = checkItemCollisions(id, hypotheticalItems);
 
       // Compute label base position (center-based for all types)
@@ -427,7 +457,7 @@ export function FloorPlanCanvas({
         moveLabel();
       };
 
-      if (oob || collisions.length > 0) {
+      if (oob || collisions.length > 0 || chairBlocked) {
         snapBack();
       } else {
         collision.savePosition(id, newX, newY);
@@ -663,6 +693,49 @@ export function FloorPlanCanvas({
             </>
           )}
 
+          {selectedItem && isTableType(selectedItem.type) && (
+            <>
+              <div className="w-px h-6 bg-border" />
+              <span className="text-xs text-muted-foreground">Chairs:</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  handleChairCountChange(selectedItem.id, selectedChairCount - 1)
+                }
+                disabled={selectedChairCount <= 0}
+                className="h-7 w-7 p-0"
+              >
+                -
+              </Button>
+              <Input
+                data-testid="chair-count-input"
+                type="number"
+                min={0}
+                max={selectedTableMaxChairs}
+                value={selectedChairCount}
+                onChange={(e) =>
+                  handleChairCountChange(selectedItem.id, Number(e.target.value))
+                }
+                className="w-14 h-7 text-xs text-center"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  handleChairCountChange(selectedItem.id, selectedChairCount + 1)
+                }
+                disabled={selectedChairCount >= selectedTableMaxChairs}
+                className="h-7 w-7 p-0"
+              >
+                +
+              </Button>
+              <span className="text-xs text-muted-foreground">
+                /{selectedTableMaxChairs}
+              </span>
+            </>
+          )}
+
           <div className="flex-1" />
 
           {/* Save status */}
@@ -813,49 +886,6 @@ export function FloorPlanCanvas({
             <span className="text-xs text-muted-foreground">ft</span>
           </div>
         )}
-
-        {/* Chair count adjustment overlay for selected table */}
-        {selectedItem && isTableType(selectedItem.type) && (
-            <div className="absolute bottom-2 left-2 glass-panel rounded-lg px-3 py-2 flex items-center gap-2" style={{ pointerEvents: "auto" }}>
-              <span className="text-xs text-muted-foreground">Chairs:</span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  handleChairCountChange(selectedItem.id, selectedChairCount - 1)
-                }
-                disabled={selectedChairCount <= 0}
-                className="h-7 w-7 p-0"
-              >
-                -
-              </Button>
-              <Input
-                data-testid="chair-count-input"
-                type="number"
-                min={0}
-                max={selectedTableMaxChairs}
-                value={selectedChairCount}
-                onChange={(e) =>
-                  handleChairCountChange(selectedItem.id, Number(e.target.value))
-                }
-                className="w-14 h-7 text-xs text-center"
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  handleChairCountChange(selectedItem.id, selectedChairCount + 1)
-                }
-                disabled={selectedChairCount >= selectedTableMaxChairs}
-                className="h-7 w-7 p-0"
-              >
-                +
-              </Button>
-              <span className="text-xs text-muted-foreground">
-                /{selectedTableMaxChairs}
-              </span>
-            </div>
-          )}
 
         {isNewFloorPlan && state.items.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center">
