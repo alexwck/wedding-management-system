@@ -735,7 +735,7 @@ export function FloorPlanCanvas({
         </div>
 
         {/* HTML overlays in separate stacking layer above canvas */}
-        <div className="absolute inset-0 z-30 pointer-events-none">
+        <div className="absolute inset-0 z-30" style={{ pointerEvents: "none" }}>
 
         {/* Out of bounds warning */}
         {outOfBoundsIds.size > 0 && (
@@ -746,7 +746,7 @@ export function FloorPlanCanvas({
 
         {/* Inline label editing overlay */}
         {editingLabelId && (
-          <div className="absolute top-12 left-1/2 -translate-x-1/2 pointer-events-auto">
+          <div className="absolute top-12 left-1/2 -translate-x-1/2" style={{ pointerEvents: "auto" }}>
             <div className="glass-panel rounded-lg shadow-lg p-2 flex gap-2">
               <input
                 ref={editInputRef}
@@ -772,7 +772,7 @@ export function FloorPlanCanvas({
 
         {/* Dimension editing overlay for selected configurable item */}
         {selectedItem && DIMENSION_EDITABLE_TYPES.includes(selectedItem.type) && (
-          <div className="absolute bottom-2 right-2 glass-panel rounded-lg px-3 py-2 flex items-center gap-2 pointer-events-auto">
+          <div className="absolute bottom-2 right-2 glass-panel rounded-lg px-3 py-2 flex items-center gap-2" style={{ pointerEvents: "auto" }}>
             <span className="text-xs text-muted-foreground">
               {selectedItem.label}:
             </span>
@@ -808,7 +808,7 @@ export function FloorPlanCanvas({
 
         {/* Chair count adjustment overlay for selected table */}
         {selectedItem && isTableType(selectedItem.type) && (
-            <div className="absolute bottom-2 left-2 glass-panel rounded-lg px-3 py-2 flex items-center gap-2 pointer-events-auto">
+            <div className="absolute bottom-2 left-2 glass-panel rounded-lg px-3 py-2 flex items-center gap-2" style={{ pointerEvents: "auto" }}>
               <span className="text-xs text-muted-foreground">Chairs:</span>
               <Button
                 variant="outline"
