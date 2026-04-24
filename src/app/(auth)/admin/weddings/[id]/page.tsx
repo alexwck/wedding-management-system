@@ -61,6 +61,8 @@ export default async function ManageWeddingPage({ params }: ManageWeddingPagePro
           <TemplateUpload
             weddingId={wedding.id}
             currentImageUrl={wedding.templateImageUrl}
+            focalX={wedding.templateFocalX}
+            focalY={wedding.templateFocalY}
           />
         </div>
 

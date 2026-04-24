@@ -3,13 +3,16 @@
 import { useState, useRef } from "react";
 import { uploadTemplateImage } from "@/app/actions/upload";
 import { Button } from "@/components/ui/button";
+import { TemplatePreview } from "@/components/template-preview";
 
 interface TemplateUploadProps {
   weddingId: number;
   currentImageUrl: string | null;
+  focalX?: number | null;
+  focalY?: number | null;
 }
 
-export function TemplateUpload({ weddingId, currentImageUrl }: TemplateUploadProps) {
+export function TemplateUpload({ weddingId, currentImageUrl, focalX, focalY }: TemplateUploadProps) {
   const [preview, setPreview] = useState<string | null>(currentImageUrl);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -93,6 +96,15 @@ export function TemplateUpload({ weddingId, currentImageUrl }: TemplateUploadPro
       <Button onClick={handleUpload} disabled={uploading || !hasFile}>
         {uploading ? "Uploading..." : "Upload Template"}
       </Button>
+
+      {currentImageUrl && (
+        <TemplatePreview
+          weddingId={weddingId}
+          imageUrl={currentImageUrl}
+          focalX={focalX ?? null}
+          focalY={focalY ?? null}
+        />
+      )}
     </div>
   );
 }

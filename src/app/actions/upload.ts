@@ -54,7 +54,7 @@ export async function uploadTemplateImage(formData: FormData) {
 
   const { error: updateError } = await supabase
     .from("weddings")
-    .update({ template_image_url: publicUrl, updated_at: new Date().toISOString() })
+    .update({ template_image_url: publicUrl, updated_at: new Date().toISOString(), template_focal_x: null, template_focal_y: null })
     .eq("id", Number(weddingId));
 
   if (updateError) {

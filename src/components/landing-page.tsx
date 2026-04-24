@@ -9,6 +9,8 @@ interface LandingPageProps {
   welcomeMessage?: string | null;
   weddingDate?: string | null;
   timezone?: string | null;
+  focalX?: number | null;
+  focalY?: number | null;
 }
 
 function formatWeddingDate(date: string | null | undefined, tz?: string | null): string | null {
@@ -31,7 +33,7 @@ function formatWeddingDate(date: string | null | undefined, tz?: string | null):
   }
 }
 
-export function LandingPage({ coupleName, templateImageUrl, slug, venueName, welcomeMessage, weddingDate, timezone }: LandingPageProps) {
+export function LandingPage({ coupleName, templateImageUrl, slug, venueName, welcomeMessage, weddingDate, timezone, focalX, focalY }: LandingPageProps) {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center bg-black">
       <GradientBackdrop variant="landing" className="opacity-30" />
@@ -40,6 +42,7 @@ export function LandingPage({ coupleName, templateImageUrl, slug, venueName, wel
         src={templateImageUrl}
         alt={`${coupleName} wedding invitation`}
         className="w-full h-full object-contain max-w-3xl"
+        style={focalX != null && focalY != null ? { objectPosition: `${focalX}% ${focalY}%` } : undefined}
       />
       <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/60 to-transparent">
         {(venueName || welcomeMessage || weddingDate) && (
