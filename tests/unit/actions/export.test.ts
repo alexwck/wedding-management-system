@@ -32,7 +32,8 @@ vi.mock("exceljs", () => ({
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthAndVerifyAccess } from "@/lib/auth-guards";
-import { exportToXlsx, sanitizeFilename } from "@/app/actions/export";
+import { exportToXlsx } from "@/app/actions/export";
+import { sanitizeFilename } from "@/lib/filename";
 import { mockFrom } from "../helpers/supabase-mock";
 
 describe("export validations", () => {
