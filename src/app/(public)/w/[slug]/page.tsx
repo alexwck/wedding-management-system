@@ -12,7 +12,7 @@ export default async function PublicLandingPage({ params }: PublicLandingPagePro
   const supabase = createAdminClient();
   const { data: wedding, error } = await supabase
     .from("weddings")
-    .select("id, couple_name, slug, template_image_url, venue, welcome_message, wedding_date, timezone")
+    .select("id, couple_name, slug, template_image_url, venue, welcome_message, wedding_date, timezone, template_focal_x, template_focal_y")
     .eq("slug", slug)
     .single();
 
@@ -29,6 +29,8 @@ export default async function PublicLandingPage({ params }: PublicLandingPagePro
       welcomeMessage={wedding.welcome_message}
       weddingDate={wedding.wedding_date}
       timezone={wedding.timezone}
+      focalX={wedding.template_focal_x}
+      focalY={wedding.template_focal_y}
     />
   );
 }

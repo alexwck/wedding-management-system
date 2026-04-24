@@ -5,7 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { nanoid } from "nanoid";
 import { createCoupleSchema } from "@/lib/validations/admin";
-import { weddingUpdateSchema, weddingDateSchema, timezoneSchema } from "@/lib/validations/wedding";
+import { weddingUpdateSchema, weddingDateSchema, timezoneSchema, focalPointSchema } from "@/lib/validations/wedding";
 import { resolveSeatLabels } from "@/lib/seat-resolution";
 import type { FloorPlanItem } from "@/types/floor-plan";
 
@@ -494,3 +494,37 @@ export async function updateWeddingTimezone(weddingId: number, timezone: string)
 
   return { success: true as const };
 }
+
+export async function updateTemplateFocalPoint(weddingId: number, focalX: number | null, focalY: number | null) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false as const, error: "Not authenticated." };
+  }
+
+  const parsed = focalPointSchema.safeParse({ focalX, focalY });
+  if (!parsed.success) {
+    return { success: false as const, error: parsed.error.issues[0].message };
+  }
+
+  const adminClient = createAdminClient();
+  const { data, error } = await adminClient
+    .from("weddings")
+    .update({ template_focal_x: focalX, template_focal_y: focalY })
+    .eq("id", weddingId)
+    .select("slug")
+    .single();
+
+  if (error || !data) {
+    return { success: false as const, error: "Failed to update focal point." };
+  }
+
+  revalidatePath(`/admin/weddings/${weddingId}`);
+  revalidatePath(`/w/${data.slug}`);
+
+  return { success: true as const };
+}
+

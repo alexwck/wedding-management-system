@@ -163,16 +163,16 @@
 
 ### Tests for User Story 8
 
-- [ ] T043 [P] [US8] Write component tests in `tests/unit/components/template-preview.test.tsx`: dialog opens on click, crosshair appears on image click, existing focal point shown on reopen, close on Escape/backdrop click
+- [x] T043 [P] [US8] Write component tests in `tests/unit/components/template-preview.test.tsx`: dialog opens on click, crosshair appears on image click, existing focal point shown on reopen, close on Escape/backdrop click
 
 ### Implementation for User Story 8
 
-- [ ] T044 [US8] Create `src/components/template-preview.tsx` — client component using shadcn/ui Dialog with `.glass-panel` styling per Constitution IX; shows uploaded image at full size; on click/tap calculates percentage coordinates and displays crosshair indicator; calls `updateTemplateFocalPoint` server action on click; loads existing focal point on open; closes on backdrop click, Escape key, or close button
-- [ ] T045 [US8] In `src/app/actions/upload.ts`: update `uploadTemplateImage` to also set `template_focal_x = NULL, template_focal_y = NULL` when saving a new image (reset focal point on image replace)
-- [ ] T046 [US8] In `src/app/actions/admin.ts`: add `updateTemplateFocalPoint(weddingId, focalX, focalY)` server action — validates both are 0-100 decimals via Zod, atomic UPDATE on `weddings.template_focal_x/y`
-- [ ] T047 [US8] In `src/components/template-upload.tsx`: add "Preview" button that opens `TemplatePreview` dialog; show small focal point indicator dot on thumbnail if focal point is set
-- [ ] T048 [US8] In `src/app/(public)/w/[slug]/page.tsx`: update template image rendering to use CSS `object-position: {focalX}% {focalY}%` when focal point is set, defaulting to `50% 50%` when null
-- [ ] T049 [US8] Run `npm run test` to verify template preview component tests pass (Green)
+- [x] T044 [US8] Create `src/components/template-preview.tsx` — client component using shadcn/ui Dialog with `.glass-panel` styling per Constitution IX; shows uploaded image at full size; on click/tap calculates percentage coordinates and displays crosshair indicator; calls `updateTemplateFocalPoint` server action on click; loads existing focal point on open; closes on backdrop click, Escape key, or close button
+- [x] T045 [US8] In `src/app/actions/upload.ts`: update `uploadTemplateImage` to also set `template_focal_x = NULL, template_focal_y = NULL` when saving a new image (reset focal point on image replace)
+- [x] T046 [US8] In `src/app/actions/admin.ts`: add `updateTemplateFocalPoint(weddingId, focalX, focalY)` server action — validates both are 0-100 decimals via Zod, atomic UPDATE on `weddings.template_focal_x/y`
+- [x] T047 [US8] In `src/components/template-upload.tsx`: add "Preview" button that opens `TemplatePreview` dialog; show small focal point indicator dot on thumbnail if focal point is set
+- [x] T048 [US8] In `src/app/(public)/w/[slug]/page.tsx`: update template image rendering to use CSS `object-position: {focalX}% {focalY}%` when focal point is set, defaulting to `50% 50%` when null
+- [x] T049 [US8] Run `npm run test` to verify template preview component tests pass (Green)
 
 **Checkpoint**: Template preview with focal point picker works. Landing page renders with correct positioning.
 
