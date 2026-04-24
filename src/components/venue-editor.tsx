@@ -171,7 +171,7 @@ export function VenueEditor({
           <p className="text-xs text-destructive mt-1">Unable to search for addresses.</p>
         )}
         {showSuggestions && (
-          <ul className="absolute z-10 w-full mt-1 glass-panel rounded-md border border-input max-h-48 overflow-y-auto">
+          <ul className="absolute z-10 w-full mt-1 rounded-md border border-input bg-background max-h-48 overflow-y-auto shadow-md">
             {suggestions.map((s, i) => (
               <li
                 key={`${s.lat}-${s.lon}-${i}`}
