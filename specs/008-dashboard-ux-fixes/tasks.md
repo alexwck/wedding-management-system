@@ -124,9 +124,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T033 [US2] In `src/app/(auth)/admin/weddings/[id]/page.tsx`: restructure to two-column grid layout using `lg:grid-cols-3` — left column (`lg:col-span-1`) contains `TemplateUpload` with `object-fit: contain` on preview; right column (`lg:col-span-2`) contains `WeddingDatePicker` → `VenueEditor` → RSVP summary cards → RSVP responses with export button. Right column order: date/timezone → venue → summary → responses.
-- [ ] T034 [US2] In `src/app/(auth)/dashboard/page.tsx`: restructure to same two-column layout — left column contains template upload (add `TemplateUpload` component); right column contains `WeddingDatePicker` → `VenueEditor` → RSVP summary with "View All RSVPs" link. Right column order: date → venue → summary → link.
-- [ ] T035 [US2] Verify layout at 1440px (two columns visible, no scrolling for up to 50 RSVPs), 1024px (breakpoint boundary — no overlap), and 768px (stacked vertically). Check both admin and couple pages.
+- [x] T033 [US2] In `src/app/(auth)/admin/weddings/[id]/page.tsx`: restructure to two-column grid layout using `lg:grid-cols-3` — left column (`lg:col-span-1`) contains `TemplateUpload` with `object-fit: contain` on preview; right column (`lg:col-span-2`) contains `WeddingDatePicker` → `VenueEditor` → RSVP summary cards → RSVP responses with export button. Right column order: date/timezone → venue → summary → responses.
+- [x] T034 [US2] In `src/app/(auth)/dashboard/page.tsx`: restructure to same two-column layout — left column contains template upload (add `TemplateUpload` component); right column contains `WeddingDatePicker` → `VenueEditor` → RSVP summary with "View All RSVPs" link. Right column order: date → venue → summary → link.
+- [x] T035 [US2] Verify layout at 1440px (two columns visible, no scrolling for up to 50 RSVPs), 1024px (breakpoint boundary — no overlap), and 768px (stacked vertically). Check both admin and couple pages.
 
 **Checkpoint**: Both pages display side-by-side on desktop, stacked on mobile. Wedding date picker integrated.
 
