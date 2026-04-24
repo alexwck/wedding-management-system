@@ -92,11 +92,19 @@ ALTER TABLE public.weddings
   ADD CONSTRAINT weddings_focal_y_range CHECK (template_focal_y IS NULL OR (template_focal_y >= 0 AND template_focal_y <= 100));
 ```
 
+**Rollback**: `ALTER TABLE public.weddings DROP COLUMN timezone, DROP COLUMN template_focal_x, DROP COLUMN template_focal_y;`
+
+**Existing data impact**: Existing weddings with `wedding_date` set but no `timezone` will receive `'Asia/Kuala_Lumpur'` via the column default. No additional data migration needed.
+
 ### Migration 2: Drop oauth_tokens table
 
 ```sql
 DROP TABLE IF EXISTS public.oauth_tokens CASCADE;
 ```
+
+**Rollback**: Re-run the original `20260422000002_add_oauth_tokens.sql` migration.
+
+**Deployment order**: This migration runs AFTER code deployment. The code removes all references to `oauth_tokens` first, so the application continues working during the migration window.
 
 ## Data Flow
 
@@ -127,10 +135,28 @@ Admin timezone change:
 ```
 User clicks on template preview image
   → Client calculates click position as % of image dimensions
-  → Visual indicator shows selected focal point
+  → Visual indicator shows selected focal point (crosshair)
   → Server action: updateTemplateFocalPoint(weddingId, x, y)
     → Validate x, y are 0-100 via Zod
     → Atomic UPDATE on weddings.template_focal_x/y
     → Return success/failure
   → Landing page reads focal point and sets CSS object-position
 ```
+
+### Focal Point Reset on Image Replace
+
+```
+User uploads new template image
+  → Server action: uploadTemplateImage(weddingId, file)
+    → Save new image URL
+    → SET template_focal_x = NULL, template_focal_y = NULL
+    → (Resets focal point since old coordinates don't apply to new image)
+  → Dashboard preview shows new image without focal point marker
+  → Landing page renders with default center (50%, 50%)
+```
+
+### Seed Data Updates
+
+Update `supabase/seed.sql` to include `timezone` values for existing wedding records:
+- All existing weddings receive `timezone = 'Asia/Kuala_Lumpur'`
+- Test wedding with venue data retains consistent timezone
