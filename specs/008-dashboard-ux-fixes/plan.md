@@ -67,16 +67,18 @@ src/
 │   │   └── page.tsx                  # MODIFY: use focal point for template display
 ├── components/
 │   ├── wedding-date-picker.tsx       # NEW: datetime picker component
+│   ├── timezone-combobox.tsx         # NEW: searchable IANA timezone dropdown (cmdk)
 │   ├── template-preview.tsx          # NEW: full-size preview + focal point picker
 │   ├── rsvp-table.tsx                # MODIFY: add sorting state and handlers
-│   ├── export-buttons.tsx            # MODIFY: remove Google Sheets button
-│   ├── rsvp-summary.tsx              # KEEP: existing summary cards
-│   ├── rsvp-section.tsx              # NEW: collapsible wrapper for RSVP table
-│   ├── venue-editor.tsx              # KEEP: existing venue editor
+│   ├── export-buttons.tsx            # MODIFY: remove Google Sheets button; now embedded in RSVPSection
+│   ├── rsvp-summary.tsx              # MODIFY: remove Total card (4-card grid)
+│   ├── rsvp-section.tsx              # NEW: collapsible wrapper with embedded ExportButtons
+│   ├── venue-editor.tsx              # MODIFY: opaque bg on address suggestions
 │   ├── template-upload.tsx           # MODIFY: add preview button, focal point indicator
 │   ├── floor-plan/
-│   │   ├── item-catalog.tsx          # MODIFY: fix overflow with max-height constraints
-│   │   └── floor-plan-canvas.tsx     # MODIFY: fix chair count editing visibility
+│   │   ├── item-catalog.tsx          # MODIFY: fix overflow with max-height constraints, no transition
+│   │   ├── floor-plan-canvas.tsx     # MODIFY: chair count in toolbar, collision detection, canvas deselect, undo initial state
+│   │   └── canvas-item.tsx           # NEW: memoized Konva item renderer
 ├── lib/
 │   └── validations/
 │       ├── wedding.ts                # MODIFY: add weddingDate and focalPoint fields
