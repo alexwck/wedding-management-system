@@ -19,7 +19,7 @@
 
 **Purpose**: Schema migration and validation layer — the data foundation for all user stories
 
-- [ ] T001 Create migration adding venue columns to weddings table in `supabase/migrations/20260424000001_add_venue_columns.sql` — add `venue` (text), `venue_address` (text), `venue_lat` (double precision), `venue_lng` (double precision), `welcome_message` (text) with CHECK constraint for welcome_message <= 500 chars
+- [ ] T001 Create migration adding venue columns to weddings table in `supabase/migrations/20260424000001_add_venue_columns.sql` — add `venue` (text), `venue_address` (text), `venue_lat` (double precision), `venue_lng` (double precision), `welcome_message` (text) with CHECK constraint for welcome_message <= 500 chars. Add CHECK constraint ensuring venue_lat and venue_lng are both present or both NULL (coordinate pair integrity per FR-017).
 - [ ] T002 [P] Write unit tests for wedding validation schema (Red) in `tests/unit/validations/wedding.test.ts` — test valid/invalid venue fields, coordinate pair integrity (lat+lng both present or both null), lat range -90/90, lng range -180/180, welcome_message max 500, venue max 200, venue_address max 500, clearing address clears coordinates
 - [ ] T003 [P] Write unit tests for geocoding client (Red) in `tests/unit/lib/geocoding.test.ts` — test searchAddress returns formatted results, handles empty query (< 3 chars returns nothing), handles API error, handles timeout, handles no results, includes User-Agent header
 - [ ] T004 Run `supabase db reset` to apply migration and verify seed data loads

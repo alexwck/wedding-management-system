@@ -3,7 +3,7 @@
 **Feature Branch**: `007-venue-details-maps`
 **Created**: 2026-04-23
 **Status**: Draft
-**Input**: User description: "Add wedding venue details with embedded maps. Admins and couples can set a venue name, venue address, and welcome message on the wedding detail page. Venue address uses Nominatim (OpenStreetMap) geocoding to search and autocomplete — selecting a result stores the formatted address and coordinates. The public RSVP page displays the couple name, wedding date, venue with an embedded Google Maps iframe, "Open in Maps" and "Navigate with Waze" buttons, and the welcome message in a styled section above the RSVP form. The venue details are stored in new columns on the weddings table (venue, venue_address, venue_coordinates, welcome_message)."
+**Input**: User description: "Add wedding venue details with embedded maps. Admins and couples can set a venue name, venue address, and welcome message on the wedding detail page. Venue address uses a free geocoding API to search and autocomplete — selecting a result stores the formatted address and coordinates. The public RSVP page displays the couple name, wedding date, venue with an embedded map, "Open in Maps" and "Navigate with Waze" buttons, and the welcome message in a styled section above the RSVP form. The venue details are stored in new columns on the weddings table (venue, venue_address, venue_lat, venue_lng, welcome_message)."
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -141,7 +141,7 @@ An admin or couple interacts with the venue address search field and experiences
 ## Assumptions
 
 - A free geocoding API is used for address search (e.g., Nominatim/OpenStreetMap, or any free alternative). The specific provider is an implementation choice; the constraint is that it must be free to use.
-- A free map embed method is used for displaying the venue location (e.g., Google Maps iframe, OpenStreetMap embed). No paid API key should be required.
+- A free map embed method is used for displaying the venue location (e.g., OpenStreetMap embed iframe). No paid API key should be required.
 - Venue editing happens inline on the existing wedding detail page, not on a separate settings page.
 - All venue fields are optional — a wedding can exist without any venue information.
 - Coordinates are stored as separate `venue_lat` and `venue_lng` double precision columns (simpler than PostgreSQL `point` type, avoids lon/lat ordering gotchas).
