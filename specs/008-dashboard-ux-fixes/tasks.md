@@ -193,6 +193,30 @@
 
 ---
 
+## Phase 10: Post-Implementation Bug Fixes
+
+**Purpose**: Fix issues discovered during user testing of the 008 implementation
+
+- [x] T058 [P] In `src/app/(auth)/admin/weddings/[id]/page.tsx`: remove `max-w-6xl mx-auto` wrapper; pass `weddingId` prop to `RSVPSection`; remove standalone `<ExportButtons>` import and usage (now embedded in RSVPSection)
+- [x] T059 [P] In `src/app/(auth)/dashboard/page.tsx`: remove `max-w-6xl mx-auto` wrapper for full-width layout
+- [x] T060 In `src/components/floor-plan/floor-plan-canvas.tsx`: restructure canvas area into two independent stacking layers — Konva `<Stage>` in one layer, HTML overlays in a separate `<div>` with `z-30` and inline `style={{ pointerEvents: "none" }}` (Tailwind v4 doesn't reliably generate `pointer-events-none`); interactive overlays use `style={{ pointerEvents: "auto" }}`
+- [x] T061 In `src/components/floor-plan/floor-plan-canvas.tsx`: add `name="background"` to canvas background `<Rect>` and update `handleStageClick` to deselect on background clicks (not just empty Stage clicks)
+- [x] T062 In `src/components/floor-plan/item-catalog.tsx`: remove CSS transition on collapse toggle (was causing overflow during animation), add `shrink-0` to prevent flex shrinkage
+- [x] T063 In `src/components/rsvp-section.tsx`: embed `ExportButtons` in section header alongside collapse toggle; add `weddingId` optional prop; render export button when `weddingId != null && rsvps.length > 0`
+- [x] T064 In `src/components/rsvp-summary.tsx`: remove "Total" card from summary grid (count shown in RSVPSection header), change grid to `md:grid-cols-4`
+- [x] T065 In `src/components/template-preview.tsx`: fix DialogTrigger from `<DialogTrigger asChild>` to `<DialogTrigger render={(props) => <Button {...props} />}>` (shadcn/ui uses @base-ui/react which uses `render` prop, not Radix `asChild`)
+- [x] T066 In `src/components/floor-plan/floor-plan-canvas.tsx`: wire up collision detection — check item-to-item collisions during drag using hypothetical items array; check child chairs for OOB and collisions during table drag; prevent items from being dragged into occupied space or out of bounds (snap back)
+- [x] T067 In `src/components/floor-plan/hooks/use-floor-plan-state.ts`: update `addItem` to find collision-free position when placing items from catalog — spiral outward from center if occupied; also check generated chairs for bounds and collisions before accepting position
+- [x] T068 In `src/components/floor-plan/floor-plan-canvas.tsx`: move chair count controls from bottom-left overlay to top toolbar bar (after Delete button, alongside undo/redo controls)
+- [x] T069 In `src/components/floor-plan/floor-plan-canvas.tsx`: push initial canvas state to undo history on mount so undo works after the very first action
+- [x] T070 In `src/components/venue-editor.tsx`: replace `glass-panel` with opaque `bg-background` + `shadow-md` on address search suggestions dropdown to prevent text readability issues against welcome message field below
+- [x] T071 In `src/components/floor-plan/floor-plan-canvas.tsx`: create memoized `CanvasItem` component (extracted from inline `renderCanvasItem`) to prevent full re-renders on selection changes
+- [x] T072 In `src/components/timezone-combobox.tsx`: create searchable timezone dropdown using shadcn/ui Command component (cmdk) with `Intl.supportedValuesOf("timeZone")`, replacing `<datalist>` in wedding-date-picker
+
+**Checkpoint**: All user-reported issues resolved. Floor plan collision detection active. Chair count in toolbar. Undo works after first action. Venue search suggestions readable.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies

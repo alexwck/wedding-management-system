@@ -2,7 +2,7 @@
 
 **Feature Branch**: `008-dashboard-ux-fixes`
 **Created**: 2026-04-25
-**Status**: Draft
+**Status**: Implemented
 **Input**: User description: "7 items covering wedding date management, dashboard layout redesign, RSVP table improvements, Google Sheets removal, XLSX export fix, floor plan catalog overflow fix, and chair count editing fix"
 
 ## User Scenarios & Testing *(mandatory)*
@@ -132,6 +132,8 @@ As a user editing a floor plan, I want to edit the number of chairs on a table s
 
 **Root Cause**: Investigation needed during implementation. Potential causes: (a) `selectedItem?.type` string mismatch between stored type and the condition check, (b) z-index conflict causing the overlay to render behind other elements, or (c) the `selectedItem` state not being updated on table click. The fix involves debugging the actual cause. FR-014's z-index guidance addresses cause (b) if that is the issue; the other causes require different fixes.
 
+**Post-Implementation Update**: Chair count controls were moved from a floating overlay at bottom-left to the top toolbar bar (alongside undo/redo controls) for better discoverability and consistent UX. The controls appear after the Delete button when a table is selected.
+
 **Independent Test**: Can be tested by selecting a table in the floor plan editor and verifying the chair count controls (+/-) appear and function correctly.
 
 **Acceptance Scenarios**:
@@ -176,6 +178,10 @@ As an admin or couple, I want to preview the uploaded template image at full siz
 - **Concurrent date edits**: If admin and couple edit the wedding date simultaneously, the last write wins (no merge conflict resolution needed for single-field edits — acceptable for this use case).
 - **Focal point on image replace**: When the template image is replaced, the focal point resets to null (50%, 50% default) since the old coordinates may not apply to the new image.
 - **Leap year date (Feb 29)**: February 29 dates are valid and display correctly. No special handling needed — the datetime picker inherently supports leap years.
+- **Collision at canvas edge**: When spiraling outward from center to find a collision-free position for a new item, if no valid position is found within 10 rings (20ft), the item is placed at the last attempted position — the user can then drag it to a free spot.
+- **Undo after save**: Saving the floor plan does not push to undo history. Undo/redo tracks canvas state changes (add, delete, move, rotate, chair count), not save operations.
+- **Collision with chairs**: When dragging a table, child chairs are checked alongside the table. If any chair would go out of bounds or collide with a non-sibling item, the entire table (including chairs) snaps back.
+- **Venue address search overlay**: The address suggestions dropdown uses an opaque background (`bg-background`) instead of glassmorphism to prevent text readability issues when overlaying the welcome message field below.
 
 ## Requirements *(mandatory)*
 
@@ -196,12 +202,17 @@ As an admin or couple, I want to preview the uploaded template image at full siz
 - **FR-011**: System MUST remove the Google Sheets export feature entirely: all Google Sheets/OAuth functions from `export.ts`, the Google button and auth logic from `export-buttons.tsx`, the `oauth.ts` type file, the `googleapis` dependency, and the `oauth_tokens` database table.
 - **FR-012**: System MUST constrain the floor plan item catalog to stay within the browser viewport when toggled between collapsed and expanded states, using `h-[calc(100vh-40px)]` (40px = compact top bar height, matching existing `containerRef` sizing).
 - **FR-013**: System MUST provide internal scrolling for the item catalog when its content exceeds the available height.
-- **FR-014**: System MUST display chair count editing controls (+/- buttons and numeric input) when a table is selected in the floor plan editor, with correct z-index to ensure visibility above other canvas elements.
+- **FR-014**: System MUST display chair count editing controls (+/- buttons and numeric input) in the top toolbar when a table is selected in the floor plan editor, appearing alongside the undo/redo controls after the Delete button.
 - **FR-015**: System MUST update chair positions correctly when chair count is changed via the editing controls.
 - **FR-016**: System MUST provide a full-size preview of the uploaded template image in a shadcn/ui Dialog (modal), accessible via a click or "Preview" button on the dashboard. The dialog closes on backdrop click, Escape key, or a close button in the top-right corner.
 - **FR-017**: System MUST allow the user to set a focal point on the template image by clicking a position in the preview. Both mouse click and touch tap are supported. A crosshair indicator marks the selected focal point.
 - **FR-018**: System MUST save the focal point coordinates as two DECIMAL(5,2) percentage values — meaning up to 3 digits before the decimal and 2 after, range 0.00–100.00 — with the wedding template data. Both coordinates must be present or both null (pair integrity). A focal point at (0.00, 0.00) represents the top-left corner; (100.00, 100.00) represents the bottom-right corner.
 - **FR-019**: System MUST render the template image on the public landing page centered on the saved focal point using CSS `object-position`, defaulting to (50.00, 50.00) if no focal point is set. When the template image is replaced with a new upload, the focal point resets to null.
+- **FR-020**: System MUST prevent floor plan items from overlapping: when placing items from the catalog, the system finds a collision-free position (spiraling outward from center if the center is occupied); when dragging items, the system prevents moving into occupied space and snaps back to the last valid position.
+- **FR-021**: System MUST prevent floor plan items (including child chairs on tables) from being dragged outside the canvas bounds. Items that would go out of bounds snap back to their last valid position.
+- **FR-022**: System MUST support undo/redo in the floor plan editor that works after the very first action (not requiring two actions). The initial canvas state is pushed to history on mount so undo restores to the pre-action state immediately.
+- **FR-023**: System MUST display RSVP export button (Download as XLSX) inside the collapsible RSVP section header, adjacent to the collapse toggle, rather than as a standalone component.
+- **FR-024**: System MUST render venue address search suggestions with an opaque background (not glassmorphism) so that suggestion text is readable against the welcome message field below.
 
 ### Key Entities
 
