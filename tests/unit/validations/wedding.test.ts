@@ -121,9 +121,9 @@ describe("weddingUpdateSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("clearing address clears coordinates", () => {
+  it("clearing address with coordinates still present is rejected", () => {
     const result = weddingUpdateSchema.safeParse({
-      venue_address: "",
+      venue_address: null,
       venue_lat: 40.7128,
       venue_lng: -74.006,
     });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { updateWeddingDetails } from "@/app/actions/admin";
 import { searchAddress, type GeocodingResult } from "@/lib/geocoding";
@@ -33,7 +33,7 @@ export function VenueEditor({
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [suggestions, setSuggestions] = useState<GeocodingResult[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [focused, setFocused] = useState(false);
   const [loadingAddress, setLoadingAddress] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -49,6 +49,14 @@ export function VenueEditor({
 
   const welcomeMessage = watch("welcome_message");
 
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  const showSuggestions = focused && suggestions.length > 0;
+
   const handleAddressInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const query = e.target.value;
@@ -58,15 +66,18 @@ export function VenueEditor({
 
       if (query.length < 3) {
         setSuggestions([]);
-        setShowSuggestions(false);
+        setLoadingAddress(false);
+        if (!query) {
+          setValue("venue_lat", null);
+          setValue("venue_lng", null);
+        }
         return;
       }
 
-      setLoadingAddress(true);
       debounceRef.current = setTimeout(async () => {
+        setLoadingAddress(true);
         const results = await searchAddress(query);
         setSuggestions(results);
-        setShowSuggestions(results.length > 0);
         setLoadingAddress(false);
       }, 1000);
     },
@@ -78,7 +89,6 @@ export function VenueEditor({
       setValue("venue_address", result.display_name);
       setValue("venue_lat", parseFloat(result.lat));
       setValue("venue_lng", parseFloat(result.lon));
-      setShowSuggestions(false);
       setSuggestions([]);
     },
     [setValue],
@@ -90,11 +100,11 @@ export function VenueEditor({
 
     const formData = new FormData();
     formData.set("weddingId", String(weddingId));
-    if (data.venue) formData.set("venue", data.venue);
-    if (data.venue_address) formData.set("venue_address", data.venue_address);
+    formData.set("venue", data.venue);
+    formData.set("venue_address", data.venue_address);
     if (data.venue_lat != null) formData.set("venue_lat", String(data.venue_lat));
     if (data.venue_lng != null) formData.set("venue_lng", String(data.venue_lng));
-    if (data.welcome_message) formData.set("welcome_message", data.welcome_message);
+    formData.set("welcome_message", data.welcome_message);
 
     try {
       const result = await updateWeddingDetails(formData);
@@ -140,17 +150,17 @@ export function VenueEditor({
           placeholder="Start typing to search..."
           onChange={handleAddressInput}
           defaultValue={initialAddress ?? ""}
-          onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-          onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setTimeout(() => setFocused(false), 200)}
         />
         {loadingAddress && (
           <p className="text-xs text-muted-foreground mt-1">Searching...</p>
         )}
-        {showSuggestions && suggestions.length > 0 && (
+        {showSuggestions && (
           <ul className="absolute z-10 w-full mt-1 glass-panel rounded-md border border-input max-h-48 overflow-y-auto">
-            {suggestions.map((s) => (
+            {suggestions.map((s, i) => (
               <li
-                key={s.display_name}
+                key={`${s.lat}-${s.lon}-${i}`}
                 className="px-3 py-2 text-sm cursor-pointer hover:bg-accent/50"
                 onMouseDown={() => handleSuggestionSelect(s)}
               >
