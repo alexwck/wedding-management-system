@@ -25,8 +25,8 @@ test.describe("Dashboard layout (US2)", () => {
       await expect(page.locator("h3", { hasText: "Wedding Date & Time" })).toBeVisible();
       await expect(page.locator("h3", { hasText: "Venue Details" })).toBeVisible();
 
-      // RSVP summary should be visible
-      await expect(page.locator("h3", { hasText: "RSVP Summary" })).toBeVisible();
+      // RSVP section should be visible
+      await expect(page.locator("h3", { hasText: "RSVP Responses" })).toBeVisible();
     });
 
     test("admin page stacks vertically at 768px", async ({ page }) => {

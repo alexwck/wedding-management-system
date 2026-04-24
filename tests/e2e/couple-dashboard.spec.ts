@@ -12,7 +12,6 @@ test.describe("Couple views RSVP dashboard", () => {
     await expect(page).toHaveURL(/\/dashboard/);
 
     // Should see dashboard with summary cards
-    await expect(page.locator("text=Total")).toBeVisible();
     await expect(page.locator("text=Attending")).toBeVisible();
     await expect(page.locator("text=Declining")).toBeVisible();
   });

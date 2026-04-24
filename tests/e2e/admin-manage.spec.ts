@@ -110,8 +110,8 @@ test.describe("Admin manages couple accounts (US4)", () => {
     // Click first wedding to view its details including RSVP data
     await page.locator("table tbody tr td a").first().click();
 
-    // Should see RSVP summary section (admin can see all RSVPs for any wedding)
-    await expect(page.locator("text=RSVP Summary")).toBeVisible();
+    // Should see RSVP section (admin can see all RSVPs for any wedding)
+    await expect(page.locator("h3", { hasText: "RSVP Responses" })).toBeVisible();
   });
 
   test("couple creation form validates required fields", async ({ page }) => {

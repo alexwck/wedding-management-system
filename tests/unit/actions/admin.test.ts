@@ -245,7 +245,7 @@ describe("updateWeddingDate", () => {
 
   it("updates wedding date on success", async () => {
     vi.mocked(createClient).mockResolvedValue({
-      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1" } } }) },
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1", app_metadata: { role: "admin" } } } }) },
     } as never);
 
     const fromMock = vi.fn().mockReturnValue(
@@ -259,7 +259,7 @@ describe("updateWeddingDate", () => {
 
   it("clears date when null passed", async () => {
     vi.mocked(createClient).mockResolvedValue({
-      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1" } } }) },
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1", app_metadata: { role: "admin" } } } }) },
     } as never);
 
     const fromMock = vi.fn().mockReturnValue(
@@ -269,6 +269,39 @@ describe("updateWeddingDate", () => {
 
     const result = await updateWeddingDate(1, null);
     expect(result.success).toBe(true);
+  });
+
+  it("allows couple to update their own wedding date", async () => {
+    vi.mocked(createClient).mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1", app_metadata: { role: "couple" } } } }) },
+    } as never);
+
+    let callCount = 0;
+    const fromMock = vi.fn().mockImplementation(() => {
+      callCount++;
+      if (callCount === 1) {
+        return mockFrom({ data: { user_id: "u1" }, error: null });
+      }
+      return mockFrom({ data: { slug: "test-wedding" }, error: null });
+    });
+    vi.mocked(createAdminClient).mockReturnValue({ from: fromMock } as never);
+
+    const result = await updateWeddingDate(1, "2026-06-15T14:00");
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects couple updating another wedding's date", async () => {
+    vi.mocked(createClient).mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1", app_metadata: { role: "couple" } } } }) },
+    } as never);
+
+    const fromMock = vi.fn().mockReturnValue(
+      mockFrom({ data: { user_id: "different-user" }, error: null }),
+    );
+    vi.mocked(createAdminClient).mockReturnValue({ from: fromMock } as never);
+
+    const result = await updateWeddingDate(1, "2026-06-15T14:00");
+    expect(result.success).toBe(false);
   });
 });
 
