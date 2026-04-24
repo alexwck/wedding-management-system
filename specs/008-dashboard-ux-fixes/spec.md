@@ -143,9 +143,10 @@ As an admin or couple, I want to preview the uploaded template image at full siz
 
 ### Functional Requirements
 
-- **FR-001**: System MUST provide a datetime picker on the admin wedding detail page to set or edit the wedding date and ceremony time.
-- **FR-002**: System MUST provide a datetime picker on the couple dashboard to view and edit the wedding date and ceremony time.
-- **FR-003**: System MUST display the wedding date and ceremony time on the public landing page when set, and hide the date section when not set.
+- **FR-001**: System MUST provide a datetime picker on the admin wedding detail page to set or edit the wedding date and ceremony time, with a timezone selector that defaults to Asia/Kuala_Lumpur (MYT, UTC+8).
+- **FR-002**: System MUST provide a datetime picker on the couple dashboard to view and edit the wedding date and ceremony time, displayed in the wedding's configured timezone. Couples cannot change the timezone.
+- **FR-003**: System MUST display the wedding date and ceremony time on the public landing page in the wedding's configured timezone when set, and hide the date section when not set.
+- **FR-003a**: System MUST default the wedding timezone to Asia/Kuala_Lumpur (UTC+8) for all new weddings. Only admins can change the timezone via the admin wedding detail page. All dates are stored as UTC in the database; the timezone is used only for display conversion on the landing page and dashboards.
 - **FR-004**: System MUST render the admin wedding detail page in a two-column layout on desktop: template upload on the left, wedding date + venue details + RSVP summary + RSVP responses on the right.
 - **FR-005**: System MUST render the couple dashboard in the same two-column layout on desktop, with wedding date in the right column above venue details.
 - **FR-006**: System MUST stack the layout vertically on mobile viewports (narrow screens).
@@ -166,7 +167,7 @@ As an admin or couple, I want to preview the uploaded template image at full siz
 
 ### Key Entities
 
-- **Wedding Date**: A date and time attribute on the wedding entity, stored as a timestamp. Editable by admin and couple. Displayed on the public landing page as "Month Day, Year at HH:MM".
+- **Wedding Date**: A date and time attribute on the wedding entity, stored as UTC (TIMESTAMPTZ). A separate timezone field (IANA string, defaults to Asia/Kuala_Lumpur) controls display conversion only. Editable by admin and couple (date/time); timezone is admin-only. Displayed on the public landing page in the wedding's timezone as "Month Day, Year at HH:MM (TZ)".
 - **Dashboard Layout**: Two-column arrangement — left column for template/media management, right column for event details (wedding date, venue, RSVP summary, RSVP responses). Collapses to single column on mobile.
 - **RSVP Table**: Tabular view of all RSVP responses with collapsible section header. Columns include guest name, status, dietary information, seating, and submission metadata.
 
@@ -191,6 +192,7 @@ As an admin or couple, I want to preview the uploaded template image at full siz
 - Q: Should Google Sheets removal include dropping the oauth_tokens DB table? → A: Full removal — drop the oauth_tokens table via a new migration.
 - Q: Which RSVP table columns should be sortable? → A: Guest name, status (attending/declining), submitted date, and table name. Other columns (vegetarian, baby chair) are better as filters.
 - Q: For template image positioning — focal point picker or crop tool? → A: Focal point picker — click to set center of focus, landing page crops around that point.
+- Q: What timezone should the wedding date default to? → A: Asia/Kuala_Lumpur (MYT, UTC+8) by default. Only admins can change each wedding's timezone. Dates stored as UTC in DB; timezone is a display-only setting.
 
 ## Assumptions
 
