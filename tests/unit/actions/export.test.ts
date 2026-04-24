@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { exportSchema, handleGoogleCallbackSchema } from "@/lib/validations/export";
+import { exportSchema } from "@/lib/validations/export";
 
 vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: vi.fn(),
@@ -13,41 +13,6 @@ vi.mock("@/lib/auth-guards", () => ({
   getAuthAndVerifyAccess: vi.fn(),
 }));
 
-vi.mock("@/lib/token-crypto", () => ({
-  encrypt: vi.fn((s: string) => `enc:${s}`),
-  decrypt: vi.fn((s: string) => s.replace("enc:", "")),
-}));
-
-vi.mock("googleapis", () => {
-  const mockOAuth2Instance = {
-    generateAuthUrl: vi.fn().mockReturnValue("https://accounts.google.com/o/oauth2/auth"),
-    getToken: vi.fn().mockResolvedValue({
-      tokens: { access_token: "at", refresh_token: "rt", scope: "scope" },
-    }),
-    setCredentials: vi.fn(),
-    credentials: { access_token: "at" },
-  };
-  return {
-    google: {
-      auth: {
-        OAuth2: class {
-          constructor() { return mockOAuth2Instance; }
-        },
-      },
-      sheets: vi.fn().mockReturnValue({
-        spreadsheets: {
-          create: vi.fn().mockResolvedValue({
-            data: { spreadsheetId: "sheet-1" },
-          }),
-          values: {
-            update: vi.fn().mockResolvedValue({}),
-          },
-        },
-      }),
-    },
-  };
-});
-
 vi.mock("exceljs", () => ({
   default: {
     Workbook: class {
@@ -59,16 +24,15 @@ vi.mock("exceljs", () => ({
         };
       }
       xlsx = {
-        writeBuffer: vi.fn().mockResolvedValue(Buffer.from("xlsx-data")),
+        writeBuffer: vi.fn().mockResolvedValue(new Uint8Array([1, 2, 3, 4]).buffer),
       };
     },
   },
 }));
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 import { getAuthAndVerifyAccess } from "@/lib/auth-guards";
-import { handleGoogleCallback, exportToXlsx } from "@/app/actions/export";
+import { exportToXlsx, sanitizeFilename } from "@/app/actions/export";
 import { mockFrom } from "../helpers/supabase-mock";
 
 describe("export validations", () => {
@@ -98,71 +62,43 @@ describe("export validations", () => {
       expect(result.success).toBe(false);
     });
   });
-
-  describe("handleGoogleCallbackSchema", () => {
-    it("accepts valid callback data", () => {
-      const result = handleGoogleCallbackSchema.safeParse({
-        code: "auth-code-123",
-        state: "user-uuid",
-      });
-      expect(result.success).toBe(true);
-    });
-
-    it("rejects missing code", () => {
-      const result = handleGoogleCallbackSchema.safeParse({
-        state: "user-uuid",
-      });
-      expect(result.success).toBe(false);
-    });
-
-    it("rejects empty state", () => {
-      const result = handleGoogleCallbackSchema.safeParse({
-        code: "auth-code",
-        state: "",
-      });
-      expect(result.success).toBe(false);
-    });
-  });
 });
 
-describe("handleGoogleCallback action", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
+describe("sanitizeFilename", () => {
+  it("replaces ampersand with 'and'", () => {
+    expect(sanitizeFilename("Alex & Sam")).toBe("Alex-and-Sam");
   });
 
-  it("returns error for unauthenticated user", async () => {
-    vi.mocked(createClient).mockResolvedValue({
-      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null } }) },
-    } as never);
-
-    const result = await handleGoogleCallback({ code: "code", state: "state" });
-    expect(result.success).toBe(false);
+  it("removes parentheses", () => {
+    expect(sanitizeFilename("Wedding (June)")).toBe("Wedding-June");
   });
 
-  it("returns error when state does not match user id", async () => {
-    vi.mocked(createClient).mockResolvedValue({
-      auth: {
-        getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1" } } }),
-      },
-    } as never);
-
-    const result = await handleGoogleCallback({ code: "code", state: "wrong-state" });
-    expect(result.success).toBe(false);
-    if (!result.success) expect(result.error).toBe("Invalid state parameter.");
+  it("replaces spaces with hyphens", () => {
+    expect(sanitizeFilename("My Wedding")).toBe("My-Wedding");
   });
 
-  it("returns success on valid callback", async () => {
-    vi.mocked(createClient).mockResolvedValue({
-      auth: {
-        getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1" } } }),
-      },
-    } as never);
+  it("collapses consecutive hyphens", () => {
+    expect(sanitizeFilename("Alex -- Sam")).toBe("Alex-Sam");
+  });
 
-    const fromMock = vi.fn().mockReturnValue(mockFrom({ error: null }));
-    vi.mocked(createAdminClient).mockReturnValue({ from: fromMock } as never);
+  it("trims leading and trailing hyphens", () => {
+    expect(sanitizeFilename("-Alex Sam-")).toBe("Alex-Sam");
+  });
 
-    const result = await handleGoogleCallback({ code: "code", state: "u1" });
-    expect(result.success).toBe(true);
+  it("returns 'wedding' for empty name", () => {
+    expect(sanitizeFilename("")).toBe("wedding");
+  });
+
+  it("returns 'wedding' for name that becomes empty after sanitization", () => {
+    expect(sanitizeFilename("!!!")).toBe("wedding");
+  });
+
+  it("handles full couple name with ampersand and spaces", () => {
+    expect(sanitizeFilename("Alex & Sam")).toBe("Alex-and-Sam");
+  });
+
+  it("handles name with special characters", () => {
+    expect(sanitizeFilename("O'Brien & Co. (Ltd)")).toBe("O-Brien-and-Co-Ltd");
   });
 });
 
@@ -181,18 +117,16 @@ describe("exportToXlsx action", () => {
     expect(result.success).toBe(false);
   });
 
-  it("returns success with buffer and filename", async () => {
+  it("returns success with base64 data and sanitized filename", async () => {
     vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({
       user: { id: "u1" } as never,
       error: null,
     } as const);
 
     const fromMock = vi.fn();
-    // getRsvpsWithAssignments: 3 parallel calls
-    fromMock.mockReturnValueOnce(mockFrom({ data: [], error: null })); // rsvps
-    fromMock.mockReturnValueOnce(mockFrom({ data: [], error: null })); // seat_assignments
-    fromMock.mockReturnValueOnce(mockFrom({ data: null, error: null })); // floor_plans
-    // wedding name query
+    fromMock.mockReturnValueOnce(mockFrom({ data: [], error: null }));
+    fromMock.mockReturnValueOnce(mockFrom({ data: [], error: null }));
+    fromMock.mockReturnValueOnce(mockFrom({ data: null, error: null }));
     fromMock.mockReturnValueOnce(
       mockFrom({ data: { couple_name: "Alice & Bob" }, error: null }),
     );
@@ -202,8 +136,31 @@ describe("exportToXlsx action", () => {
     const result = await exportToXlsx(1);
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.filename).toContain("Alice---Bob");
-      expect(result.data).toBeInstanceOf(Buffer);
+      expect(result.filename).toBe("rsvp-export-Alice-and-Bob.xlsx");
+      expect(typeof result.data).toBe("string");
+    }
+  });
+
+  it("defaults filename to 'wedding' when couple name is empty", async () => {
+    vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({
+      user: { id: "u1" } as never,
+      error: null,
+    } as const);
+
+    const fromMock = vi.fn();
+    fromMock.mockReturnValueOnce(mockFrom({ data: [], error: null }));
+    fromMock.mockReturnValueOnce(mockFrom({ data: [], error: null }));
+    fromMock.mockReturnValueOnce(mockFrom({ data: null, error: null }));
+    fromMock.mockReturnValueOnce(
+      mockFrom({ data: { couple_name: null }, error: null }),
+    );
+
+    vi.mocked(createAdminClient).mockReturnValue({ from: fromMock } as never);
+
+    const result = await exportToXlsx(1);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.filename).toBe("rsvp-export-wedding.xlsx");
     }
   });
 });

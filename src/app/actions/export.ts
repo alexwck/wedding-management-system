@@ -1,22 +1,20 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 import { getAuthAndVerifyAccess } from "@/lib/auth-guards";
 import { resolveSeatLabels } from "@/lib/seat-resolution";
-import { encrypt, decrypt } from "@/lib/token-crypto";
-import { exportSchema, handleGoogleCallbackSchema } from "@/lib/validations/export";
-import { google } from "googleapis";
+import { exportSchema } from "@/lib/validations/export";
 import ExcelJS from "exceljs";
 import type { RsvpWithAssignment } from "@/types/seat-assignment";
 import type { FloorPlanItem } from "@/types/floor-plan";
 
-function createOAuth2Client() {
-  return new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    process.env.GOOGLE_REDIRECT_URI,
-  );
+export function sanitizeFilename(name: string): string {
+  const sanitized = name
+    .replace(/&/g, "and")
+    .replace(/[()]/g, "")
+    .replace(/[^a-zA-Z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return sanitized || "wedding";
 }
 
 async function getRsvpsWithAssignments(weddingId: number) {
@@ -67,184 +65,6 @@ async function getRsvpsWithAssignments(weddingId: number) {
       seatLabel,
     } satisfies RsvpWithAssignment;
   });
-}
-
-// --- Google OAuth ---
-
-export async function getGoogleAuthUrl() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return { url: "" };
-  }
-
-  const url = createOAuth2Client().generateAuthUrl({
-    access_type: "offline",
-    scope: ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive.file"],
-    state: user.id,
-  });
-
-  return { url };
-}
-
-export async function handleGoogleCallback(input: { code: string; state: string }) {
-  const parsed = handleGoogleCallbackSchema.safeParse(input);
-  if (!parsed.success) {
-    return { success: false as const, error: "Invalid callback data." };
-  }
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return { success: false as const, error: "Not authenticated." };
-  }
-
-  if (parsed.data.state !== user.id) {
-    return { success: false as const, error: "Invalid state parameter." };
-  }
-
-  const { tokens } = await createOAuth2Client().getToken(parsed.data.code);
-
-  if (!tokens.access_token || !tokens.refresh_token) {
-    return { success: false as const, error: "Failed to obtain tokens." };
-  }
-
-  const adminClient = createAdminClient();
-  const { error } = await adminClient.from("oauth_tokens").upsert(
-    {
-      user_id: user.id,
-      provider: "google",
-      access_token: encrypt(tokens.access_token),
-      refresh_token: encrypt(tokens.refresh_token),
-      scope: tokens.scope ?? null,
-      expires_at: tokens.expiry_date ? new Date(tokens.expiry_date).toISOString() : null,
-    },
-    { onConflict: "user_id,provider" },
-  );
-
-  if (error) {
-    return { success: false as const, error: "Failed to store tokens." };
-  }
-
-  return { success: true as const };
-}
-
-export async function getGoogleAuthStatus() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return { isConnected: false };
-  }
-
-  const adminClient = createAdminClient();
-  const { data } = await adminClient
-    .from("oauth_tokens")
-    .select("expires_at")
-    .eq("user_id", user.id)
-    .eq("provider", "google")
-    .maybeSingle();
-
-  return { isConnected: !!data };
-}
-
-// --- Export ---
-
-export async function exportToGoogleSheets(weddingId: number) {
-  const parsed = exportSchema.safeParse({ weddingId });
-  if (!parsed.success) {
-    return { success: false as const, error: "Invalid input." };
-  }
-
-  const auth = await getAuthAndVerifyAccess(weddingId);
-  if (auth.error) {
-    return { success: false as const, error: auth.error };
-  }
-
-  const adminClient = createAdminClient();
-
-  const [tokenResult, rsvps, weddingResult] = await Promise.all([
-    adminClient
-      .from("oauth_tokens")
-      .select("*")
-      .eq("user_id", auth.user!.id)
-      .eq("provider", "google")
-      .maybeSingle(),
-    getRsvpsWithAssignments(weddingId),
-    adminClient
-      .from("weddings")
-      .select("title")
-      .eq("id", weddingId)
-      .single(),
-  ]);
-
-  if (!tokenResult.data) {
-    return { success: false as const, error: "Google not connected. Please authenticate first." };
-  }
-
-  const tokenData = tokenResult.data;
-  const oauth2Client = createOAuth2Client();
-  oauth2Client.setCredentials({
-    access_token: decrypt(tokenData.access_token),
-    refresh_token: decrypt(tokenData.refresh_token),
-    scope: tokenData.scope ?? undefined,
-    expiry_date: tokenData.expires_at ? new Date(tokenData.expires_at).getTime() : undefined,
-  });
-
-  const sheets = google.sheets({ version: "v4", auth: oauth2Client });
-  const spreadsheetTitle = `${weddingResult.data?.title ?? "Wedding"} - RSVP Export`;
-
-  const { data: spreadsheet } = await sheets.spreadsheets.create({
-    requestBody: {
-      properties: { title: spreadsheetTitle },
-    },
-  });
-
-  if (!spreadsheet?.spreadsheetId) {
-    return { success: false as const, error: "Failed to create spreadsheet." };
-  }
-
-  const headers = ["Guest Name", "Status", "Vegetarian", "Dietary Notes", "Baby Chair", "Table", "Seat", "Submitted At"];
-  const rows = rsvps.map((r) => [
-    r.guestName,
-    r.status,
-    r.vegetarian ? "Yes" : "No",
-    r.dietaryNotes ?? "",
-    r.babyChair ? "Yes" : "No",
-    r.tableName ?? "Unassigned",
-    r.seatLabel ?? "Unassigned",
-    r.submittedAt ? new Date(r.submittedAt).toLocaleDateString() : "",
-  ]);
-
-  await sheets.spreadsheets.values.update({
-    spreadsheetId: spreadsheet.spreadsheetId,
-    range: "A1",
-    valueInputOption: "RAW",
-    requestBody: {
-      values: [headers, ...rows],
-    },
-  });
-
-  const newCredentials = oauth2Client.credentials;
-  if (newCredentials.access_token && newCredentials.access_token !== decrypt(tokenData.access_token)) {
-    await adminClient
-      .from("oauth_tokens")
-      .update({
-        access_token: encrypt(newCredentials.access_token),
-        expires_at: newCredentials.expiry_date ? new Date(newCredentials.expiry_date).toISOString() : null,
-      })
-      .eq("id", tokenData.id);
-  }
-
-  return {
-    success: true as const,
-    spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${spreadsheet.spreadsheetId}`,
-  };
 }
 
 export async function exportToXlsx(weddingId: number) {
@@ -299,11 +119,12 @@ export async function exportToXlsx(weddingId: number) {
   }
 
   const buffer = await workbook.xlsx.writeBuffer();
-  const weddingName = weddingResult.data?.couple_name?.replace(/[^a-zA-Z0-9]/g, "-") ?? "wedding";
+  const base64 = Buffer.from(buffer).toString("base64");
+  const weddingName = sanitizeFilename(weddingResult.data?.couple_name ?? "");
 
   return {
     success: true as const,
-    data: buffer,
+    data: base64,
     filename: `rsvp-export-${weddingName}.xlsx`,
   };
 }

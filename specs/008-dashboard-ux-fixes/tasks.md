@@ -35,14 +35,14 @@
 
 ### Tests for User Story 4
 
-- [ ] T008 [US4] Write unit test for filename sanitization in `tests/unit/actions/export.test.ts`: test `&` → "and", parentheses removal, consecutive hyphens collapse, leading/trailing trim, empty name fallback to "wedding"
+- [x] T008 [US4] Write unit test for filename sanitization in `tests/unit/actions/export.test.ts`: test `&` → "and", parentheses removal, consecutive hyphens collapse, leading/trailing trim, empty name fallback to "wedding"
 
 ### Implementation for User Story 4
 
-- [ ] T009 [US4] In `src/app/actions/export.ts`: convert `workbook.xlsx.writeBuffer()` result to base64 string before returning; update return type to `{ success: true, data: string (base64), filename: string }`
-- [ ] T010 [US4] In `src/app/actions/export.ts`: implement filename sanitization function — `&` → "and", remove `()`, spaces → hyphens, collapse consecutive hyphens, trim leading/trailing hyphens, fallback to "wedding" if empty
-- [ ] T011 [US4] In `src/components/export-buttons.tsx`: convert base64 response to Blob with MIME type `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` and trigger download
-- [ ] T012 [US4] Run `npm run test` to verify filename sanitization tests pass (Green)
+- [x] T009 [US4] In `src/app/actions/export.ts`: convert `workbook.xlsx.writeBuffer()` result to base64 string before returning; update return type to `{ success: true, data: string (base64), filename: string }`
+- [x] T010 [US4] In `src/app/actions/export.ts`: implement filename sanitization function — `&` → "and", remove `()`, spaces → hyphens, collapse consecutive hyphens, trim leading/trailing hyphens, fallback to "wedding" if empty
+- [x] T011 [US4] In `src/components/export-buttons.tsx`: convert base64 response to Blob with MIME type `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` and trigger download
+- [x] T012 [US4] Run `npm run test` to verify filename sanitization tests pass (Green)
 
 **Checkpoint**: XLSX downloads are valid. Download and open in Excel to verify.
 
