@@ -15,6 +15,7 @@ import {
 } from "@/lib/floor-plan/constants";
 import type { RoundTableSize, LongTableLength } from "@/types/floor-plan";
 import { generateChairsForTable } from "./use-chair-generation";
+import { checkItemCollisions } from "@/lib/floor-plan/collision";
 
 function getNextLabel(items: FloorPlanItem[], type: ItemType): string {
   const tableTypes: ItemType[] = ["round_table", "long_table"];
@@ -66,12 +67,69 @@ export function useFloorPlanState(initialWidth: number, initialHeight: number) {
       const dims = getDimensionsForType(type, sizeVariant);
       let item: FloorPlanItem | null = null;
       setItems((prev) => {
+        const baseX = width / 2 - dims.width / 2;
+        const baseY = height / 2 - dims.height / 2;
+
+        let placeX = baseX;
+        let placeY = baseY;
+
+        // Check if center is collision-free; spiral outward if not
+        const isChair = type === "chair";
+        if (!isChair) {
+          const testItem: FloorPlanItem = {
+            id: "__placement_test__",
+            type,
+            label: "",
+            x: baseX,
+            y: baseY,
+            width: dims.width,
+            height: dims.height,
+            rotation: 0,
+            parentItemId: null,
+            metadata: {},
+          };
+
+          const hasCollisionAt = (x: number, y: number) => {
+            const test = { ...testItem, x, y };
+            const allItems = [...prev, test];
+            return checkItemCollisions("__placement_test__", allItems).length > 0;
+          };
+
+          if (hasCollisionAt(baseX, baseY)) {
+            const step = 2;
+            let found = false;
+            for (let r = 1; r <= 10 && !found; r++) {
+              const offsets = [
+                [r * step, 0],
+                [-r * step, 0],
+                [0, r * step],
+                [0, -r * step],
+              ] as const;
+              for (const [ox, oy] of offsets) {
+                const cx = baseX + ox;
+                const cy = baseY + oy;
+                if (
+                  cx >= 0 && cy >= 0 &&
+                  cx + dims.width <= width &&
+                  cy + dims.height <= height &&
+                  !hasCollisionAt(cx, cy)
+                ) {
+                  placeX = cx;
+                  placeY = cy;
+                  found = true;
+                  break;
+                }
+              }
+            }
+          }
+        }
+
         const newItem: FloorPlanItem = {
           id: crypto.randomUUID(),
           type,
           label: getNextLabel(prev, type),
-          x: width / 2 - dims.width / 2,
-          y: height / 2 - dims.height / 2,
+          x: placeX,
+          y: placeY,
           width: dims.width,
           height: dims.height,
           rotation: 0,

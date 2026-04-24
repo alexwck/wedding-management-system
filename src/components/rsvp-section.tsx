@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { RSVPTable } from "@/components/rsvp-table";
+import { ExportButtons } from "@/components/export-buttons";
 
 interface RSVPGuest {
   id: number;
@@ -19,6 +20,7 @@ interface RSVPGuest {
 interface RSVPSectionProps {
   rsvps: RSVPGuest[];
   title?: string;
+  weddingId?: number;
   summary?: {
     total: number;
     attending: number;
@@ -35,25 +37,30 @@ const SUMMARY_CARDS = [
   { key: "babyChairs" as const, label: "Baby Chairs", color: "" },
 ];
 
-export function RSVPSection({ rsvps, title = "RSVP Responses", summary }: RSVPSectionProps) {
+export function RSVPSection({ rsvps, title = "RSVP Responses", weddingId, summary }: RSVPSectionProps) {
   const [expanded, setExpanded] = useState(true);
 
   return (
     <div className="glass-panel rounded-lg overflow-hidden">
-      <button
-        type="button"
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors"
-      >
-        <h3 className="text-lg font-semibold">
-          {title} ({rsvps.length})
-        </h3>
-        {expanded ? (
-          <ChevronUp className="h-5 w-5 text-muted-foreground" />
-        ) : (
-          <ChevronDown className="h-5 w-5 text-muted-foreground" />
+      <div className="flex items-center justify-between p-4">
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className="flex items-center gap-2 hover:bg-accent/50 transition-colors"
+        >
+          <h3 className="text-lg font-semibold">
+            {title} ({rsvps.length})
+          </h3>
+          {expanded ? (
+            <ChevronUp className="h-5 w-5 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="h-5 w-5 text-muted-foreground" />
+          )}
+        </button>
+        {weddingId != null && rsvps.length > 0 && (
+          <ExportButtons weddingId={weddingId} />
         )}
-      </button>
+      </div>
 
       {summary && (
         <div className="px-4 pb-2">

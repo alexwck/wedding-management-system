@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getWeddingRSVPs } from "@/app/actions/admin";
 import { TemplateUpload } from "@/components/template-upload";
-import { ExportButtons } from "@/components/export-buttons";
 import { VenueEditor } from "@/components/venue-editor";
 import { WeddingDatePicker } from "@/components/wedding-date-picker";
 import { RSVPSection } from "@/components/rsvp-section";
@@ -84,14 +83,7 @@ export default async function ManageWeddingPage({ params }: ManageWeddingPagePro
             initialWelcomeMessage={wedding.welcomeMessage}
           />
 
-          {rsvps.length > 0 ? (
-            <div className="space-y-4">
-              <RSVPSection rsvps={rsvps} summary={summary} />
-              <ExportButtons weddingId={wedding.id} />
-            </div>
-          ) : (
-            <RSVPSection rsvps={rsvps} summary={summary} />
-          )}
+          <RSVPSection rsvps={rsvps} summary={summary} weddingId={wedding.id} />
         </div>
       </div>
     </div>
