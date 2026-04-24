@@ -39,12 +39,21 @@ src/
 │   ├── floor-plan/         # Konva canvas floor plan editor (all client components)
 │   │   ├── floor-plan-canvas.tsx    # Main canvas wrapper (Stage/Layer, compact top bar, label tracking)
 │   │   ├── floor-plan-toolbar.tsx   # Undo/redo, zoom controls (inlined into top bar)
+│   │   ├── canvas-item.tsx          # Memoized Konva item renderer
 │   │   ├── item-catalog.tsx         # Sidebar of placeable items
 │   │   ├── items/                   # Konva shape components (round-table, long-table, chair, etc.)
 │   │   └── hooks/                   # use-floor-plan-state, use-auto-save, use-collision-detection, etc.
 │   ├── ui/                 # shadcn/ui components (button, card, dialog, etc.)
-│   ├── landing-page.tsx    # Wedding landing page component (venue info overlay)
+│   ├── landing-page.tsx    # Wedding landing page component (venue info overlay, focal point positioning)
 │   ├── rsvp-form.tsx       # RSVP form with react-hook-form + zod
+│   ├── rsvp-table.tsx      # Sortable RSVP response table
+│   ├── rsvp-section.tsx    # Collapsible RSVP section with embedded export buttons
+│   ├── rsvp-summary.tsx    # RSVP summary cards (attending, declining, vegetarian, baby chairs)
+│   ├── export-buttons.tsx  # XLSX export button
+│   ├── template-preview.tsx # Template preview with click-to-set focal point picker
+│   ├── template-upload.tsx # Template image upload with preview button
+│   ├── wedding-date-picker.tsx # Wedding date/time picker with timezone selector
+│   ├── timezone-combobox.tsx   # Searchable IANA timezone dropdown (cmdk)
 │   ├── venue-editor.tsx    # Admin/couple venue editing form (client, Nominatim autocomplete)
 │   ├── venue-section.tsx   # Public venue display with OSM map embed + nav buttons (server)
 │   └── ...                 # Other app components
@@ -58,7 +67,7 @@ src/
 ├── types/
 │   └── floor-plan.ts       # Floor plan type definitions
 supabase/
-├── migrations/             # 9 migrations: users, weddings, rsvps, storage, floor_plans, seat_assignments, oauth_tokens, admin_rls_policies, venue_columns
+├── migrations/             # 11 migrations: users, weddings, rsvps, storage, floor_plans, seat_assignments, oauth_tokens, admin_rls_policies, venue_columns, timezone_focal_point, drop_oauth_tokens
 ├── seed.sql                # Dev seed data (weddings, RSVPs, users — venue data on test-wedding-1)
 ├── config.toml             # Supabase local config
 ```
@@ -78,7 +87,7 @@ Specification-driven development via slash-command skills:
 
 Git hooks in `.specify/extensions.yml` auto-commit at each stage.
 
-Constitution at `.specify/memory/constitution.md` (v2.0.0) defines 9 enforceable principles including Test Verification (Red-Green proven by execution), Security by Default (atomic upserts), Mobile Parity (`onTap` + `onClick`), Data Integrity (validate at serialization boundaries), and Glassmorphism Design System.
+Constitution at `.specify/memory/constitution.md` (v2.2.0) defines 9 enforceable principles including Test Verification (Red-Green proven by execution), Security by Default (atomic upserts), Mobile Parity (`onTap` + `onClick`), Data Integrity (validate at serialization boundaries), and Glassmorphism Design System.
 
 ## Key Technologies
 
@@ -147,22 +156,23 @@ git config core.hooksPath .githooks
 - **object-position for focal point**: Landing page template image uses CSS `object-position: {focalX}% {focalY}%` when focal point is set, defaulting to `50% 50%`. Focal point coordinates are stored as 0-100 percentages. Reset to `NULL` on image replace.
 - **h-[calc(100vh-40px)] for catalog**: Floor plan item catalog uses `h-[calc(100vh-40px)]` alongside `overflow-y-auto` to constrain height to viewport minus the 40px top bar. Without this, catalog overflows on collapse/expand toggling.
 - **UTC+offset display format**: Wedding date on landing page shows `timeZoneName: "shortOffset"` via `Intl.DateTimeFormat` — produces strings like "June 15, 2026 at 2:00 PM GMT+8" rather than abbreviated timezone names.
+- **Undo initial state**: `useUndoRedo.pushState()` must be called on mount with initial items/dimensions — otherwise `canUndo` stays false after the first action because the history index never moves past 0.
+- **Chair collision on drag**: When dragging a table, child chairs must also be checked for OOB and collisions (not just the parent table). The `checkDragCollisions` helper handles this — it early-exits on parent collision before computing child positions.
+- **Venue suggestion dropdown styling**: Address autocomplete suggestions must use `bg-background shadow-md` (not `glass-panel`) because the transparent glass-panel background makes text unreadable over page content beneath.
+- **Canvas item memoization**: `CanvasItem` is a memoized component wrapping each Konva shape. It prevents full canvas re-renders on selection changes — always use it instead of rendering shapes directly in the `Stage`.
 
 ## Active Technologies
-- TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, Tailwind CSS v4, shadcn/ui (Nova theme), react-hook-form, zod (008-dashboard-ux-fixes)
-- Supabase PostgreSQL — new `timezone`, `template_focal_x`, `template_focal_y` columns on `weddings`; dropped `oauth_tokens` table (008-dashboard-ux-fixes)
+- TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, Tailwind CSS v4, shadcn/ui (Nova theme), react-hook-form, zod, exceljs, cmdk (008-dashboard-ux-fixes)
+- Supabase PostgreSQL — `timezone`, `template_focal_x`, `template_focal_y` columns on `weddings`; dropped `oauth_tokens` table (008-dashboard-ux-fixes)
 - XLSX export via `exceljs` with base64 buffer transfer pattern (008-dashboard-ux-fixes)
-- TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, Tailwind CSS v4, shadcn/ui (Nova theme), react-hook-form, zod (005-fix-coords-ui-layout)
-- TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, Tailwind CSS v4, shadcn/ui (Nova theme), react-hook-form, zod (005-fix-coords-ui-layout)
 - TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, shadcn/ui, zod, react-hook-form, @supabase/supabase-js (006-guest-seat-assignment)
-- Supabase PostgreSQL — new `seat_assignments` table + existing `rsvps`, `floor_plans` (006-guest-seat-assignment)
+- Supabase PostgreSQL — `seat_assignments` table + existing `rsvps`, `floor_plans` (006-guest-seat-assignment)
 - TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-hook-form, zod, Supabase JS, Tailwind CSS v4, shadcn/ui (007-venue-details-maps)
-- Supabase PostgreSQL — new columns on existing `weddings` table (007-venue-details-maps)
 
 ## Recent Changes
-- 008-dashboard-ux-fixes: Side-by-side dashboard layout (template left, details right), wedding date picker with timezone, collapsible sortable RSVP table, template preview with click-to-set focal point, fixed XLSX export (base64 transfer), removed Google Sheets export, fixed floor plan catalog overflow, verified chair count editing works
+- 008-dashboard-ux-fixes: Side-by-side dashboard layout (template left, details right), wedding date picker with timezone, collapsible sortable RSVP table, template preview with click-to-set focal point, fixed XLSX export (base64 transfer), removed Google Sheets export, fixed floor plan catalog overflow, chair count controls in top toolbar, collision detection for child chairs during drag, undo initial state fix, venue suggestion dropdown styling, memoized CanvasItem component, extracted checkDragCollisions and ChairCountControls helpers
 - 007-venue-details-maps: Added venue name, address (with Nominatim autocomplete), welcome message, embedded OSM map, and navigation buttons. Venue editor on admin/couple pages, venue info on landing page, venue section with map on RSVP form.
-- 007-venue-details-maps: Added venue name, address (with Nominatim autocomplete), welcome message, embedded OSM map, and navigation buttons. Venue editor on admin/couple pages, venue info on landing page, venue section with map on RSVP form.
+- 006-guest-seat-assignment: Guest-to-chair seat assignments with drag-and-drop, unassigned guests panel, assignment dialog
 - 005-fix-coords-ui-layout: Fixed Konva coordinate system (Circle center vs Rect top-left), added compact glass-panel top bar, real-time label tracking during drag, canvas auto-centering on load, chair rotation removal (chairs follow parent table only)
 - 004-app-wide-ux-redesign: App-wide content density improvements across all pages
 - 003-ux-polish-floorplan-fixes: Floor plan editor UX polish, Supabase Auth + Storage integration
