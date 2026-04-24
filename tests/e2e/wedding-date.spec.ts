@@ -34,8 +34,8 @@ test.describe("Wedding date flow (US1)", () => {
     test("admin can see timezone selector", async ({ page }) => {
       await page.goto("/admin/weddings/1");
 
-      // Should see timezone input with datalist
-      const tzInput = page.locator('input[list="iana-timezones"]');
+      // Should see timezone search input
+      const tzInput = page.locator('input[placeholder="Search timezone..."]');
       await expect(tzInput).toBeVisible();
     });
 

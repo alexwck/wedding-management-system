@@ -6,8 +6,9 @@ import { createClient } from "@/lib/supabase/server";
 import { nanoid } from "nanoid";
 import { createCoupleSchema } from "@/lib/validations/admin";
 import { weddingUpdateSchema, weddingDateSchema, timezoneSchema, focalPointSchema } from "@/lib/validations/wedding";
-import { resolveSeatLabels } from "@/lib/seat-resolution";
+import type { User } from "@supabase/supabase-js";
 import type { FloorPlanItem } from "@/types/floor-plan";
+import { resolveSeatLabels } from "@/lib/seat-resolution";
 
 async function enrichRsvpsWithSeats(
   supabase: ReturnType<typeof createAdminClient>,
@@ -348,6 +349,23 @@ export async function getCouples() {
   return { success: true, couples: users ?? [] };
 }
 
+async function verifyWeddingAccess(
+  user: User,
+  weddingId: number,
+  adminClient: ReturnType<typeof createAdminClient>,
+): Promise<{ success: false; error: string } | null> {
+  if (user.app_metadata?.role === "admin") return null;
+  const { data: wedding } = await adminClient
+    .from("weddings")
+    .select("user_id")
+    .eq("id", weddingId)
+    .single();
+  if (!wedding || wedding.user_id !== user.id) {
+    return { success: false, error: "Not authorized." };
+  }
+  return null;
+}
+
 export async function updateWeddingDetails(formData: FormData) {
   const supabase = await createClient();
 
@@ -364,20 +382,9 @@ export async function updateWeddingDetails(formData: FormData) {
     return { success: false, error: "validation" as const, message: "Wedding ID required." };
   }
 
-  const isAdmin = user.app_metadata?.role === "admin";
   const adminClient = createAdminClient();
-
-  if (!isAdmin) {
-    const { data: wedding } = await adminClient
-      .from("weddings")
-      .select("user_id")
-      .eq("id", weddingId)
-      .single();
-
-    if (!wedding || wedding.user_id !== user.id) {
-      return { success: false, error: "unauthorized" as const, message: "Not authorized." };
-    }
-  }
+  const authCheck = await verifyWeddingAccess(user, weddingId, adminClient);
+  if (authCheck) return { ...authCheck, error: "unauthorized" as const, message: authCheck.error };
 
   const rawData: Record<string, unknown> = {};
   const fields = ["venue", "venue_address", "venue_lat", "venue_lng", "welcome_message"] as const;
@@ -441,6 +448,8 @@ export async function updateWeddingDate(weddingId: number, weddingDate: string |
   }
 
   const adminClient = createAdminClient();
+  const authCheck = await verifyWeddingAccess(user, weddingId, adminClient);
+  if (authCheck) return authCheck;
   const { data, error } = await adminClient
     .from("weddings")
     .update({ wedding_date: weddingDate ? new Date(weddingDate).toISOString() : null })
@@ -511,6 +520,8 @@ export async function updateTemplateFocalPoint(weddingId: number, focalX: number
   }
 
   const adminClient = createAdminClient();
+  const authCheck = await verifyWeddingAccess(user, weddingId, adminClient);
+  if (authCheck) return authCheck;
   const { data, error } = await adminClient
     .from("weddings")
     .update({ template_focal_x: focalX, template_focal_y: focalY })
