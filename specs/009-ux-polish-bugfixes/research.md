@@ -21,19 +21,27 @@ Replace click-to-set focal point with drag-to-crop interaction. The preview fram
 - `landing-page.tsx`: Change from `object-position: ${focalX}% ${focalY}%` to `object-position: ${cropX}% ${cropY}%` with `object-cover` instead of `object-contain` to fill the frame.
 - The image should use `object-cover` (fills frame, crops overflow) instead of `object-contain` (fits image, may leave blank space). This is the key change — `object-cover` + crop offset = user controls which part fills the frame.
 
-## 2. Undo Bug Fix
+## 2. Undo Bug Fix & Assignment Tracking
 
 ### Decision
-The bug is in `floor-plan-canvas.tsx`, not in the `use-undo-redo` hook itself. The `handleSelectItem` function calls `pushHistory()` before adding the item, but there may be duplicate state pushes happening.
+The double-undo bug was in `floor-plan-canvas.tsx` (a duplicate `pushState` in the mount useEffect), not in the `use-undo-redo` hook. Fix: remove the duplicate push.
+
+Additionally, the undo system was extended to track ALL canvas state, not just item positions. Every snapshot now includes items, venue dimensions, guest assignment map, and unassigned guests list.
 
 ### Root Cause Analysis
-Research found that `handleSelectItem` at line ~341 calls `pushHistory()` (which calls `pushState`) before `state.addItem()`. The initial state is also pushed on mount via useEffect. The double-undo happens because:
-1. `pushHistory()` saves current state (pre-item)
-2. `state.addItem()` adds the item
-3. A subsequent state change or re-render may trigger another push
+Research found multiple undo-related bugs during implementation:
+1. **Double-undo on item add**: `handleSelectItem` called `pushHistory()` before `state.addItem()`, plus a mount `useEffect` pushed initial state, creating duplicate entries
+2. **Number input keystroke spam**: Venue dimension and chair count inputs pushed one history entry per keystroke
+3. **Double-undo on resize+rotate**: Separate `onRotationEnd` and `onResizeEnd` handlers each pushed history — a single transform gesture created two entries
+4. **Missing assignment tracking**: Undo only restored items and dimensions, not guest seat assignments
 
 ### Fix
-Remove the separate `pushHistory()` call from `handleSelectItem`. Instead, have `addItem` in `use-floor-plan-state.ts` return the new state, and push the pre-add state once within the same callback. Alternatively, push state inside `addItem` itself so it's atomic.
+1. Removed duplicate `pushState` from mount useEffect (initial push already happens via `useUndoRedo`)
+2. Added edit-started ref guards for number inputs — `pushHistory` fires on first keystroke, skips subsequent, resets on blur
+3. Merged rotation and resize into single `onTransformEnd` handler — one push per gesture
+4. Extended `Snapshot` type to include `assignmentMap` and `unassignedGuests`
+5. Added `restoreAssignments` to `useSeatAssignments` — diffs old vs new maps, parallelizes server calls (unassignes first, then assigns)
+6. Used refs to read assignment state in `pushHistory` — prevents callback cascade that would recreate all handlers and defeat CanvasItem memoization
 
 ## 3. Guest Panel with Assigned Guests
 
@@ -78,15 +86,28 @@ Add `confirmPassword` field to `create-couple-form.tsx` and update Zod schema wi
 ## 6. Item Resize (Non-Table Items Only)
 
 ### Decision
-Add Konva `Transformer` resize handles for non-table items (Stage, Pillar, Walkway, Misc). Round tables and long tables show no resize handles.
+Add Konva `Transformer` resize handles for non-table items (Stage, Pillar, Walkway, Misc). Round tables and long tables show no resize handles. All items use center-based rendering with offsetX/Y for correct rotation behavior.
 
 ### Rationale
 - Konva's `Transformer` component already supports resize handles natively — just need to conditionally enable it.
 - Current `RotationTransformer` already wraps selected items. Extend it to show resize handles when item type is not a table.
-- Min/max dimension limits enforced in the `transformend` handler.
+- Min/max dimension limits enforced in the `boundBoxFunc` callback.
 
 ### Implementation Approach
-- Modify `canvas-item.tsx` or the Transformer component to conditionally enable resize based on item type.
-- Add `minWidth`/`maxWidth`/`minHeight`/`maxHeight` to item constants in `constants.ts`.
-- Convert resize delta from pixels to feet for storage (using `FEET_TO_PIXELS = 20`).
-- Include resize in undo history by pushing state before resize starts.
+- Modify `rotation-transformer.tsx` to conditionally enable resize anchors based on item type via `isResizable()`.
+- Add `RESIZE_BOUNDS` to `constants.ts` with per-item min/max width/height in feet.
+- `boundBoxFunc` clamps pixel dimensions to bounds and venue limits.
+- On transform end: reset `scaleX/Y` to 1, compute new width/height from `node.width() * scaleX`, convert center pixel position to top-left feet via `centerPixelsToTopLeftFeet`, and emit single `TransformResult`.
+
+### Center-Based Rendering
+All items now use center-based Konva positioning with `offsetX = pixelWidth / 2` and `offsetY = pixelHeight / 2`. This ensures:
+- Rotation pivots around the visual center (not top-left)
+- Labels stay centered after rotation and resize
+- The Transformer reports center pixel positions, converted to top-left feet for storage
+
+Items affected: Stage, Pillar, Walkway, Misc (changed from top-left to center). RoundTable and LongTable already used center positioning.
+
+### Performance Considerations
+- `pushHistory` reads assignment state via refs (not deps) to prevent callback cascade on seat changes
+- `onChairClick` uses stable `useCallback` instead of inline arrow function to avoid defeating `CanvasItem.memo()`
+- `handleDragMove` doesn't trigger React state updates during drag (collision uses refs, labels use Konva imperative API)

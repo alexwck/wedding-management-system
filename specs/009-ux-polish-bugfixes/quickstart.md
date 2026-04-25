@@ -23,12 +23,12 @@ Tasks should be implemented in this order (dependencies):
 
 | Feature | Primary Files | Test Files |
 |---------|--------------|------------|
-| Undo fix | `floor-plan-canvas.tsx`, `use-floor-plan-state.ts` | `use-undo-redo.test.ts` |
+| Undo fix + assignment tracking | `floor-plan-canvas.tsx`, `use-undo-redo.ts`, `use-seat-assignments.ts` | `use-undo-redo.test.ts` |
 | Password confirm | `create-couple-form.tsx`, `validations/admin.ts` | `create-couple-form.test.tsx` |
 | Template crop | `template-preview.tsx`, `landing-page.tsx` | `template-crop.test.tsx`, `template-crop.spec.ts` |
-| Guest panel | `unassigned-guests-panel.tsx` → `guest-panel.tsx` | `guest-panel.test.tsx`, `guest-panel.spec.ts` |
+| Guest panel | `guest-panel.tsx` (replaces `unassigned-guests-panel.tsx`) | `guest-panel.test.tsx`, `guest-panel.spec.ts` |
 | Canvas stats | `canvas-stats.tsx` (new) | `canvas-stats.test.tsx` |
-| Item resize | `canvas-item.tsx`, `constants.ts` | `item-resize.spec.ts` |
+| Item resize + center rendering | `rotation-transformer.tsx`, `items/*.tsx`, `constants.ts` | `item-resize.spec.ts` |
 
 ## Verification
 

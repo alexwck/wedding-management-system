@@ -64,14 +64,16 @@ src/
 │   │       └── page.tsx                   # No change
 ├── components/
 │   ├── floor-plan/
-│   │   ├── floor-plan-canvas.tsx          # Modify: fix undo bug, pass assigned guests to panel
-│   │   ├── canvas-item.tsx               # Modify: add resize handles for non-table items
-│   │   ├── unassigned-guests-panel.tsx    # Refactor: rename to guest-panel.tsx, add collapsible sections
+│   │   ├── floor-plan-canvas.tsx          # Modify: fix undo bug, pass assigned guests to panel, refs for callback stability, merged transform handler, number input dedup
+│   │   ├── canvas-item.tsx               # Modify: add resize handles, center-based OutOfBoundsIndicator
+│   │   ├── rotation-transformer.tsx      # Modify: merged onTransformEnd, center-pixels-to-top-left conversion
+│   │   ├── guest-panel.tsx              # NEW: replaces unassigned-guests-panel.tsx, collapsible sections
 │   │   ├── canvas-stats.tsx              # NEW: always-visible stats component
 │   │   ├── hooks/
 │   │   │   ├── use-floor-plan-state.ts   # Modify: expose computed stats
-│   │   │   └── use-undo-redo.ts          # No change (bug is in caller, not hook)
-│   │   └── items/                        # Modify: round-table, long-table disable resize
+│   │   │   ├── use-undo-redo.ts          # Modify: extended Snapshot type with assignmentMap + unassignedGuests
+│   │   │   └── use-seat-assignments.ts   # Modify: added restoreAssignments for undo/redo, structuredClone diffing
+│   │   └── items/                        # Modify: all items use center-based rendering (offsetX/Y), resize for non-table
 │   ├── template-preview.tsx              # Refactor: replace focal point click with drag-to-crop
 │   ├── template-upload.tsx               # Modify: update preview integration
 │   ├── landing-page.tsx                  # Modify: use crop offsets instead of object-position
@@ -104,6 +106,18 @@ tests/
 ```
 
 **Structure Decision**: Single web application following existing Next.js App Router conventions. All changes are in-place modifications to existing components with 3 new components (canvas-stats, guest-panel refactor, template-crop refactor).
+
+## Implementation Decisions
+
+**Center-based rendering for all items**: All Konva items (RoundTable, LongTable, Stage, Pillar, Walkway, Misc) render using center-based positioning with `offsetX/Y`. This ensures rotation pivots around the visual center. The data model still stores top-left coordinates in feet; conversion happens at render time via `topLeftFeetToCenterPixels` and back via `centerPixelsToTopLeftFeet`.
+
+**Merged rotation+resize handler**: The Konva Transformer uses a single `onTransformEnd` callback instead of separate rotation and resize handlers. This prevents duplicate undo entries when both rotation and resize occur in the same gesture.
+
+**Undo snapshot includes assignments**: The `useUndoRedo.pushState()` captures 5 values: items, width, height, assignmentMap, unassignedGuests. On undo/redo, `restoreAssignments` diffs old vs new maps and parallelizes server calls (unassignes first, then assigns).
+
+**Callback stability via refs**: `pushHistory` reads `assignmentMap` and `unassignedGuests` via refs instead of listing them as useCallback dependencies. This prevents callback cascade when seat assignments change, which would otherwise recreate all dependent callbacks and defeat `CanvasItem.memo()`. Similarly, `handleChairClick` uses a stable `useCallback` instead of an inline arrow function.
+
+**Number input deduplication**: Venue dimension and chair count inputs use `useRef` edit-started guards — `pushHistory` fires on first keystroke, subsequent keystrokes skip the push, guard resets on blur. This prevents one undo entry per keystroke.
 
 ## Complexity Tracking
 

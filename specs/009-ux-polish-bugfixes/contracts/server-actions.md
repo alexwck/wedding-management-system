@@ -38,3 +38,20 @@ function computeStats(items: FloorPlanItem[], assignmentMap: Map<string, GuestAs
 ```typescript
 function getAssignedGuests(assignmentMap: Map<string, GuestAssignment>, items: FloorPlanItem[]): AssignedGuest[]
 ```
+
+### Assignment Restoration (Undo/Redo)
+
+**Not a server action** — client-side coordination of existing server actions.
+
+```typescript
+async function restoreAssignments(
+  newMap: SeatAssignmentMap,
+  newGuests: UnassignedGuest[],
+  items: FloorPlanItem[],
+): Promise<void>
+```
+
+- Diffs old map (from closure) against new map (from undo/redo snapshot)
+- Identifies 3 cases: removed chairs (unassign), new chairs (assign), same-chair-different-guest (unassign + reassign)
+- Server calls parallelized: all unassignes via `Promise.all`, then all assigns via `Promise.all`
+- Optimistically updates local state; re-fetches full state on any server failure
