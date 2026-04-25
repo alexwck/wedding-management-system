@@ -86,8 +86,8 @@ export function useSeatAssignments(weddingId: number) {
     async (newMap: SeatAssignmentMap, newGuests: UnassignedGuest[], items: FloorPlanItem[]) => {
       const oldMap = { ...assignmentMap };
 
-      setAssignmentMap(structuredClone(newMap));
-      setUnassignedGuests(structuredClone(newGuests));
+      setAssignmentMap(newMap);
+      setUnassignedGuests(newGuests);
 
       const oldKeys = new Set(Object.keys(oldMap));
       const newKeys = new Set(Object.keys(newMap));
