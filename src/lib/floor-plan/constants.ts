@@ -85,6 +85,21 @@ export const DEFAULT_PILLAR_SIZE = { width: 2, height: 2 };
 export const DEFAULT_WALKWAY_SIZE = { width: 6, height: 3 };
 export const DEFAULT_MISC_SIZE = { width: 4, height: 4 };
 
+export const RESIZE_BOUNDS: Record<string, { minWidth: number; maxWidth: number; minHeight: number; maxHeight: number }> = {
+  stage: { minWidth: 4, maxWidth: 20, minHeight: 3, maxHeight: 20 },
+  pillar: { minWidth: 1, maxWidth: 6, minHeight: 1, maxHeight: 6 },
+  walkway: { minWidth: 2, maxWidth: 20, minHeight: 1, maxHeight: 10 },
+  misc: { minWidth: 1, maxWidth: 15, minHeight: 1, maxHeight: 15 },
+};
+
+export function isResizable(type: ItemType): boolean {
+  return type in RESIZE_BOUNDS;
+}
+
+export function getResizeBounds(type: ItemType) {
+  return RESIZE_BOUNDS[type] ?? null;
+}
+
 export const ITEM_CATALOG: CatalogEntry[] = [
   ...([3, 4, 5, 6, 7] as RoundTableSize[]).map(
     (d): RoundTableCatalogEntry => ({

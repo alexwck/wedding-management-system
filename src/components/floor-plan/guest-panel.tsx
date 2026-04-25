@@ -97,19 +97,17 @@ export function GuestPanel({
 
       {/* Unassigned section */}
       <Collapsible open={unassignedOpen} onOpenChange={setUnassignedOpen}>
-        <CollapsibleTrigger asChild>
-          <button
-            className="w-full flex items-center justify-between p-3 hover:bg-white/10 transition-colors text-left"
-            aria-expanded={unassignedOpen}
-            aria-label={`Unassigned guests, ${unassignedCount} guests`}
-          >
-            <span className="text-sm font-semibold">
-              Unassigned ({unassignedCount})
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {unassignedOpen ? "▾" : "▸"}
-            </span>
-          </button>
+        <CollapsibleTrigger
+          className="w-full flex items-center justify-between p-3 hover:bg-white/10 transition-colors text-left"
+          aria-expanded={unassignedOpen}
+          aria-label={`Unassigned guests, ${unassignedCount} guests`}
+        >
+          <span className="text-sm font-semibold">
+            Unassigned ({unassignedCount})
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {unassignedOpen ? "▾" : "▸"}
+          </span>
         </CollapsibleTrigger>
         <CollapsibleContent>
           <div className="px-3 pb-3 max-h-60 overflow-y-auto">
@@ -137,19 +135,17 @@ export function GuestPanel({
 
       {/* Assigned section */}
       <Collapsible open={assignedOpen} onOpenChange={setAssignedOpen}>
-        <CollapsibleTrigger asChild>
-          <button
-            className="w-full flex items-center justify-between p-3 hover:bg-white/10 transition-colors text-left border-t"
-            aria-expanded={assignedOpen}
-            aria-label={`Assigned guests, ${assignedCount} guests`}
-          >
-            <span className="text-sm font-semibold">
-              Assigned ({assignedCount})
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {assignedOpen ? "▾" : "▸"}
-            </span>
-          </button>
+        <CollapsibleTrigger
+          className="w-full flex items-center justify-between p-3 hover:bg-white/10 transition-colors text-left border-t"
+          aria-expanded={assignedOpen}
+          aria-label={`Assigned guests, ${assignedCount} guests`}
+        >
+          <span className="text-sm font-semibold">
+            Assigned ({assignedCount})
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {assignedOpen ? "▾" : "▸"}
+          </span>
         </CollapsibleTrigger>
         <CollapsibleContent>
           <div className="px-3 pb-3 max-h-60 overflow-y-auto">

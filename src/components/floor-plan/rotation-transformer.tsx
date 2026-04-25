@@ -3,20 +3,31 @@
 import React, { useRef, useEffect } from "react";
 import { Transformer } from "react-konva";
 import type Konva from "konva";
-import { ROTATION_SNAPS } from "@/lib/floor-plan/constants";
+import { ROTATION_SNAPS, isResizable, getResizeBounds, FEET_TO_PIXELS } from "@/lib/floor-plan/constants";
+import type { ItemType } from "@/types/floor-plan";
 
 interface RotationTransformerProps {
   selectedItemId: string | null;
+  selectedItemType: ItemType | null;
   stageRef: React.RefObject<Konva.Stage | null>;
   onRotationEnd: (itemId: string, rotation: number) => void;
+  onResizeEnd?: (itemId: string, width: number, height: number) => void;
+  venueWidth?: number;
+  venueHeight?: number;
 }
 
 export function RotationTransformer({
   selectedItemId,
+  selectedItemType,
   stageRef,
   onRotationEnd,
+  onResizeEnd,
+  venueWidth,
+  venueHeight,
 }: RotationTransformerProps) {
   const transformerRef = useRef<Konva.Transformer>(null);
+
+  const canResize = selectedItemType ? isResizable(selectedItemType) : false;
 
   useEffect(() => {
     const tr = transformerRef.current;
@@ -32,15 +43,63 @@ export function RotationTransformer({
     <Transformer
       ref={transformerRef}
       rotateEnabled={true}
-      resizeEnabled={false}
-      enabledAnchors={[]}
+      resizeEnabled={canResize}
+      enabledAnchors={canResize ? [
+        "top-left",
+        "top-right",
+        "bottom-left",
+        "bottom-right",
+        "middle-left",
+        "middle-right",
+        "top-center",
+        "bottom-center",
+      ] : []}
+      boundBoxFunc={(oldBox, newBox) => {
+        if (!canResize || !selectedItemType) return newBox;
+
+        const bounds = getResizeBounds(selectedItemType);
+        if (!bounds) return newBox;
+
+        const newWidthFt = newBox.width / FEET_TO_PIXELS;
+        const newHeightFt = newBox.height / FEET_TO_PIXELS;
+
+        const clampedWidth = Math.min(Math.max(newWidthFt, bounds.minWidth), bounds.maxWidth);
+        const clampedHeight = Math.min(Math.max(newHeightFt, bounds.minHeight), bounds.maxHeight);
+
+        // Snap to venue boundary if exceeding
+        const maxW = venueWidth ? Math.min(clampedWidth, venueWidth) : clampedWidth;
+        const maxH = venueHeight ? Math.min(clampedHeight, venueHeight) : clampedHeight;
+
+        return {
+          ...newBox,
+          width: maxW * FEET_TO_PIXELS,
+          height: maxH * FEET_TO_PIXELS,
+        };
+      }}
       rotationSnaps={ROTATION_SNAPS}
       rotationSnapTolerance={5}
       rotateAnchorOffset={30}
       onTransformEnd={() => {
         const node = transformerRef.current?.nodes()[0];
         if (node && selectedItemId) {
-          onRotationEnd(selectedItemId, node.rotation());
+          const newRotation = node.rotation();
+          const scaleX = node.scaleX();
+          const scaleY = node.scaleY();
+
+          // Reset scale and apply as dimensions
+          if (canResize && (scaleX !== 1 || scaleY !== 1)) {
+            const nodeWidth = (node.width() * scaleX) / FEET_TO_PIXELS;
+            const nodeHeight = (node.height() * scaleY) / FEET_TO_PIXELS;
+
+            node.scaleX(1);
+            node.scaleY(1);
+
+            if (onResizeEnd) {
+              onResizeEnd(selectedItemId, Math.round(nodeWidth * 100) / 100, Math.round(nodeHeight * 100) / 100);
+            }
+          }
+
+          onRotationEnd(selectedItemId, newRotation);
         }
       }}
     />

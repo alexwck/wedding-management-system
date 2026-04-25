@@ -20,6 +20,7 @@ import {
   FEET_TO_PIXELS,
   MAX_VENUE_DIMENSION,
   isTableType,
+  isResizable,
   centerPixelsToTopLeftFeet,
   topLeftFeetToCenterPixels,
 } from "@/lib/floor-plan/constants";
@@ -432,6 +433,14 @@ export function FloorPlanCanvas({
     [pushHistory, state],
   );
 
+  const handleResizeEnd = useCallback(
+    (itemId: string, newWidth: number, newHeight: number) => {
+      pushHistory();
+      state.updateItem(itemId, { width: newWidth, height: newHeight });
+    },
+    [pushHistory, state],
+  );
+
   const handleDragMove = useCallback(
     (id: string, e: Konva.KonvaEventObject<DragEvent>) => {
       const node = e.target;
@@ -808,8 +817,12 @@ export function FloorPlanCanvas({
             ))}
             <RotationTransformer
               selectedItemId={selectedItemId}
+              selectedItemType={selectedItem?.type ?? null}
               stageRef={stageRef}
               onRotationEnd={handleRotationEnd}
+              onResizeEnd={handleResizeEnd}
+              venueWidth={state.width}
+              venueHeight={state.height}
             />
           </Layer>
         </Stage>
