@@ -150,12 +150,12 @@
 
 ### Implementation for User Story 5
 
-- [ ] T034 [US5] Audit all 10 canvas actions against `pushHistory()` calls in `src/components/floor-plan/floor-plan-canvas.tsx` and state restoration in `src/components/floor-plan/hooks/use-undo-redo.ts` — verify: catalog placement, delete, drag, rotate/resize, canvas dims, chair count, guest assign/unassign, label edit, dimension edit per research.md R8
-- [ ] T035 [US5] Fix any undo/redo gaps found during audit — ensure one entry per gesture (not per intermediate state), full state restoration (items + dims + assignmentMap + unassignedGuests), 20-entry cap per FR-022/FR-023/FR-024
+- [x] T034 [US5] Audit all 10 canvas actions against `pushHistory()` calls in `src/components/floor-plan/floor-plan-canvas.tsx` and state restoration in `src/components/floor-plan/hooks/use-undo-redo.ts` — verify: catalog placement, delete, drag, rotate/resize, canvas dims, chair count, guest assign/unassign, label edit, dimension edit per research.md R8
+- [x] T035 [US5] Fix any undo/redo gaps found during audit — ensure one entry per gesture (not per intermediate state), full state restoration (items + dims + assignmentMap + unassignedGuests), 20-entry cap per FR-022/FR-023/FR-024
 
 ### E2E Verification for User Story 5
 
-- [ ] T036 [US5] E2E test for undo/redo state restoration in `tests/e2e/undo-redo-audit.spec.ts` — place item, drag, rotate, change chair count → undo each step → verify exact state at each point → redo all → verify final state
+- [x] T036 [US5] E2E test for undo/redo state restoration in `tests/e2e/undo-redo-audit.spec.ts` — place item, drag, rotate, change chair count → undo each step → verify exact state at each point → redo all → verify final state
 
 **Checkpoint**: All canvas actions produce exactly one undo entry and restore complete state correctly.
 
