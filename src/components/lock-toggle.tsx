@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toggleWeddingLock } from "@/app/actions/admin";
+import { Lock, Unlock } from "lucide-react";
 
 interface LockToggleProps {
   weddingId: number;
@@ -35,12 +36,12 @@ export function LockToggle({ weddingId, isLocked: initialLocked }: LockTogglePro
     >
       {isLocked ? (
         <>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <Lock className="h-4 w-4" />
           Locked
         </>
       ) : (
         <>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+          <Unlock className="h-4 w-4" />
           Unlocked
         </>
       )}

@@ -76,8 +76,10 @@ export function useAutoSave({
     if (!enabled) return;
 
     if (oobCount > 0) {
-      setBlockedCount(oobCount);
-      setSaveStatus("blocked");
+      if (saveStatus !== "blocked" || blockedCount !== oobCount) {
+        setBlockedCount(oobCount);
+        setSaveStatus("blocked");
+      }
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }

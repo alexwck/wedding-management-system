@@ -8,24 +8,32 @@ export async function getAuthAndVerifyAccess(weddingId: number) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { user: null, error: "Not authenticated." } as const;
+    return { user: null, isLocked: null, error: "Not authenticated." } as const;
   }
 
   const isAdmin = user.app_metadata?.role === "admin";
   if (!isAdmin) {
     const { data } = await supabase
       .from("weddings")
-      .select("id")
+      .select("id, is_locked")
       .eq("id", weddingId)
       .eq("user_id", user.id)
       .maybeSingle();
 
     if (!data) {
-      return { user: null, error: "Access denied." } as const;
+      return { user: null, isLocked: null, error: "Access denied." } as const;
     }
+
+    return { user, isLocked: data.is_locked, error: null } as const;
   }
 
-  return { user, error: null } as const;
+  const { data } = await supabase
+    .from("weddings")
+    .select("is_locked")
+    .eq("id", weddingId)
+    .maybeSingle();
+
+  return { user, isLocked: data?.is_locked ?? false, error: null } as const;
 }
 
 export async function verifyWeddingNotLocked(weddingId: number): Promise<{ ok: true } | { ok: false; error: string }> {
