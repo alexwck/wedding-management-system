@@ -41,7 +41,7 @@ export function LandingPage({ coupleName, templateImageUrl, slug, venueName, wel
       <img
         src={templateImageUrl}
         alt={`${coupleName} wedding invitation`}
-        className="w-full h-full object-contain max-w-3xl"
+        className="w-full h-full object-cover max-w-3xl"
         style={focalX != null && focalY != null ? { objectPosition: `${focalX}% ${focalY}%` } : undefined}
       />
       <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/60 to-transparent">

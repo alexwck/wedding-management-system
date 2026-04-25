@@ -68,12 +68,12 @@
 
 ### Tests for User Story 1
 
-- [ ] T006 [US1] Write failing component tests in `tests/unit/components/template-crop.test.tsx` for: portrait image drag (vertical only), landscape image drag (horizontal only), exact-match image (no drag needed), save triggers action, new image resets crop
+- [x] T006 [US1] Write failing component tests in `tests/unit/components/template-crop.test.tsx` for: portrait image drag (vertical only), landscape image drag (horizontal only), exact-match image (no drag needed), save triggers action, new image resets crop
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Refactor `src/components/template-preview.tsx` — replace click-to-set focal point handler with mouse and touch drag handler (touchstart/touchmove/touchend for mobile parity) that computes percentage offset (0–100) from drag delta, clamped to 0–100 bounds; save via existing `updateTemplateFocalPoint` action; handle browser resize during drag by preserving crop position relative to image; show error toast on save failure with retry option
-- [ ] T008 [US1] Update `src/components/landing-page.tsx` — change template image from `object-contain` to `object-cover` with `object-position: ${focalX}% ${focalY}%`; add graceful fallback when image is deleted from storage (ignore crop offset, show default no-image state)
+- [x] T007 [US1] Refactor `src/components/template-preview.tsx` — replace click-to-set focal point handler with mouse and touch drag handler (touchstart/touchmove/touchend for mobile parity) that computes percentage offset (0–100) from drag delta, clamped to 0–100 bounds; save via existing `updateTemplateFocalPoint` action; handle browser resize during drag by preserving crop position relative to image; show error toast on save failure with retry option
+- [x] T008 [US1] Update `src/components/landing-page.tsx` — change template image from `object-contain` to `object-cover` with `object-position: ${focalX}% ${focalY}%`; add graceful fallback when image is deleted from storage (ignore crop offset, show default no-image state)
 - [ ] T009 [US1] Add E2E test in `tests/e2e/template-crop.spec.ts` for the full flow: upload image → drag to crop position → save → verify landing page renders crop
 
 **Checkpoint**: Template images can be repositioned via drag (mouse + touch), and the landing page shows the exact crop the user chose.
