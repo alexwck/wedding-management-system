@@ -6,6 +6,7 @@ import { VenueEditor } from "@/components/venue-editor";
 import { WeddingDatePicker } from "@/components/wedding-date-picker";
 import { RSVPSection } from "@/components/rsvp-section";
 import { LockToggle } from "@/components/lock-toggle";
+import { EditableCoupleName } from "@/components/editable-couple-name";
 
 interface ManageWeddingPageProps {
   params: Promise<{ id: string }>;
@@ -34,7 +35,7 @@ export default async function ManageWeddingPage({ params }: ManageWeddingPagePro
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-2xl font-bold">{wedding.coupleName}</h2>
+          <EditableCoupleName weddingId={wedding.id} coupleName={wedding.coupleName} isLocked={wedding.isLocked} />
           <p className="text-muted-foreground">
             Public link:{" "}
             <a

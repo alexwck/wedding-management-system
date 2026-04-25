@@ -169,13 +169,13 @@
 
 ### Implementation for User Story 6
 
-- [ ] T037 [US6] Create inline editable couple name component in `src/components/editable-couple-name.tsx` — click to edit, blur/Enter to save, Escape to cancel, calls `updateCoupleName`, read-only when locked per FR-017/FR-018
-- [ ] T038 [P] [US6] Add `<EditableCoupleName>` above date/time picker in `src/app/(auth)/admin/weddings/[id]/page.tsx`
-- [ ] T039 [P] [US6] Add `<EditableCoupleName>` above date/time picker in `src/app/(auth)/dashboard/page.tsx`
+- [x] T037 [US6] Create inline editable couple name component in `src/components/editable-couple-name.tsx` — click to edit, blur/Enter to save, Escape to cancel, calls `updateCoupleName`, read-only when locked per FR-017/FR-018
+- [x] T038 [P] [US6] Add `<EditableCoupleName>` above date/time picker in `src/app/(auth)/admin/weddings/[id]/page.tsx`
+- [x] T039 [P] [US6] Add `<EditableCoupleName>` above date/time picker in `src/app/(auth)/dashboard/page.tsx`
 
 ### E2E Verification for User Story 6
 
-- [ ] T040 [US6] E2E test for editable couple name in `tests/e2e/editable-couple-name.spec.ts` — edit couple name → save → verify updated name on public landing page
+- [x] T040 [US6] E2E test for editable couple name in `tests/e2e/editable-couple-name.spec.ts` — edit couple name → save → verify updated name on public landing page
 
 **Checkpoint**: Couple name is editable on both admin and couple pages, reflected on public landing page.
 
