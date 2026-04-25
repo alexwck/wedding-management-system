@@ -110,12 +110,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement 5-state save model (`unsaved`/`saving`/`saved`/`error`/`blocked`) in `src/components/floor-plan/hooks/use-auto-save.ts` — add OOB guard using `isItemOutOfBounds`, block save with item count when OOB per FR-009/FR-010/FR-011/FR-012 and research.md R4. Builds on `enabled` prop from T018 (lock-aware).
-- [ ] T027 [US3] Update save status UI in `src/components/floor-plan/floor-plan-canvas.tsx` — replace ambiguous labels with clear states: "Unsaved changes" + save button, "Saving...", "All changes saved" + timestamp, "Save failed — try again", "N item(s) outside canvas" per FR-009 and research.md R4. Add ARIA live region for status announcements per FR-029
+- [x] T026 [US3] Implement 5-state save model (`unsaved`/`saving`/`saved`/`error`/`blocked`) in `src/components/floor-plan/hooks/use-auto-save.ts` — add OOB guard using `isItemOutOfBounds`, block save with item count when OOB per FR-009/FR-010/FR-011/FR-012 and research.md R4. Builds on `enabled` prop from T018 (lock-aware).
+- [x] T027 [US3] Update save status UI in `src/components/floor-plan/floor-plan-canvas.tsx` — replace ambiguous labels with clear states: "Unsaved changes" + save button, "Saving...", "All changes saved" + timestamp, "Save failed — try again", "N item(s) outside canvas" per FR-009 and research.md R4. Add ARIA live region for status announcements per FR-029
 
 ### E2E Verification for User Story 3
 
-- [ ] T028 [US3] E2E test for OOB save blocking in `tests/e2e/floor-plan-save-oob.spec.ts` — drag item OOB → save blocked with message → move in bounds → save succeeds
+- [x] T028 [US3] E2E test for OOB save blocking in `tests/e2e/floor-plan-save-oob.spec.ts` — drag item OOB → save blocked with message → move in bounds → save succeeds
 
 **Checkpoint**: Save states are clear and unambiguous. OOB items block save with actionable message.
 
