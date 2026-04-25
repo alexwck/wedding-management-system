@@ -15,6 +15,7 @@ export function EditableCoupleName({ weddingId, coupleName, isLocked }: Editable
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(coupleName);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -29,6 +30,7 @@ export function EditableCoupleName({ weddingId, coupleName, isLocked }: Editable
   }, [editing]);
 
   async function save() {
+    setError(null);
     const trimmed = value.trim();
     if (!trimmed || trimmed === coupleName) {
       setValue(coupleName);
@@ -42,10 +44,12 @@ export function EditableCoupleName({ weddingId, coupleName, isLocked }: Editable
 
     if (result.success) {
       setValue(result.coupleName);
+      setEditing(false);
     } else {
+      setError(result.error ?? "Failed to save couple name.");
       setValue(coupleName);
+      setEditing(false);
     }
-    setEditing(false);
   }
 
   if (editing) {
@@ -88,6 +92,9 @@ export function EditableCoupleName({ weddingId, coupleName, isLocked }: Editable
       <p className="text-xs text-muted-foreground mt-0.5">
         This name is shown to guests on the wedding page
       </p>
+      {error && (
+        <p className="text-xs text-destructive mt-0.5">{error}</p>
+      )}
     </div>
   );
 }

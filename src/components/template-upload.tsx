@@ -89,7 +89,7 @@ export function TemplateUpload({ weddingId, currentImageUrl, focalX, focalY }: T
           <img
             src={preview}
             alt="Template preview"
-            className="w-full h-full object-contain"
+            className="w-full h-full object-cover"
           />
         </div>
       )}

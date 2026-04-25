@@ -6,6 +6,7 @@ import { VenueEditor } from "@/components/venue-editor";
 import { WeddingDatePicker } from "@/components/wedding-date-picker";
 import { RSVPSection } from "@/components/rsvp-section";
 import { EditableCoupleName } from "@/components/editable-couple-name";
+import { LockToggle } from "@/components/lock-toggle";
 
 interface ManageWeddingPageProps {
   params: Promise<{ id: string }>;
@@ -48,6 +49,7 @@ export default async function ManageWeddingPage({ params }: ManageWeddingPagePro
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <LockToggle weddingId={wedding.id} isLocked={wedding.isLocked} />
           <Link
             href={`/admin/weddings/${wedding.id}/floor-plan`}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
