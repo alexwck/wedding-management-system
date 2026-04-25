@@ -44,4 +44,16 @@ describe("LandingPage", () => {
     const img = screen.getAllByRole("img").find((i) => i.getAttribute("src") === "/template.jpg")!;
     expect(img).toBeDefined();
   });
+
+  it("uses object-cover for image display", () => {
+    render(
+      <LandingPage
+        coupleName="Alice & Bob"
+        templateImageUrl="/template.jpg"
+        slug="test"
+      />,
+    );
+    const img = screen.getAllByRole("img").find((i) => i.getAttribute("src") === "/template.jpg")!;
+    expect(img.className).toContain("object-cover");
+  });
 });

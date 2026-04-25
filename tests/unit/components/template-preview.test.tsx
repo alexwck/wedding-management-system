@@ -39,7 +39,7 @@ describe("TemplatePreview", () => {
     );
 
     await userEvent.click(screen.getByText("Preview"));
-    expect(screen.getByText(/Click to set focal point/)).toBeInTheDocument();
+    expect(screen.getByText(/drag the image/i)).toBeInTheDocument();
   });
 
   it("shows existing focal point on open", async () => {
@@ -67,6 +67,6 @@ describe("TemplatePreview", () => {
     );
 
     await userEvent.click(screen.getByText("Preview"));
-    expect(screen.getByText("Save Focal Point")).toBeInTheDocument();
+    expect(screen.getByText("Save Crop")).toBeInTheDocument();
   });
 });
