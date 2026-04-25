@@ -29,10 +29,13 @@
 
 **Independent Test**: Add 3 items to the canvas, click undo once, verify exactly 1 item is removed (2 remain)
 
+### Tests for User Story 4
+
+- [ ] T001 [US4] Write failing unit test assertions in `tests/unit/hooks/use-undo-redo.test.ts` verifying that a single undo after adding one item returns to the pre-add state (not two steps back)
+
 ### Implementation for User Story 4
 
-- [ ] T001 [US4] Fix duplicate `pushState` in `handleSelectItem` in `src/components/floor-plan/floor-plan-canvas.tsx` — remove the separate `pushHistory()` call before `state.addItem()` and ensure state is pushed atomically within `addItem` in `src/components/floor-plan/hooks/use-floor-plan-state.ts`
-- [ ] T002 [US4] Add unit test assertions in `tests/unit/hooks/use-undo-redo.test.ts` verifying that a single undo after adding one item returns to the pre-add state (not two steps back)
+- [ ] T002 [US4] Fix duplicate `pushState` in `handleSelectItem` in `src/components/floor-plan/floor-plan-canvas.tsx` — remove the separate `pushHistory()` call before `state.addItem()` and ensure state is pushed atomically within `addItem` in `src/components/floor-plan/hooks/use-floor-plan-state.ts`
 
 **Checkpoint**: Undo button reverts exactly one action. Add 3 items, undo once → 2 items remain.
 
@@ -44,11 +47,14 @@
 
 **Independent Test**: Fill couple creation form with mismatched passwords → form rejects with "Passwords do not match". Matching passwords → account created.
 
+### Tests for User Story 5
+
+- [ ] T003 [US5] Write failing unit tests in `tests/unit/components/create-couple-form.test.tsx` for password mismatch error, empty confirm field error, and matching passwords success
+
 ### Implementation for User Story 5
 
-- [ ] T003 [P] [US5] Add `confirmPassword` field with `.refine()` match validation to `createCoupleSchema` in `src/lib/validations/admin.ts` — strip `confirmPassword` from the data before submitting to the server action
-- [ ] T004 [US5] Add confirm password input field to `src/components/create-couple-form.tsx` with `autoComplete="new-password"`, wire into react-hook-form, and display "Passwords do not match" error inline below the field
-- [ ] T005 [US5] Add unit tests in `tests/unit/components/create-couple-form.test.tsx` for password mismatch error, empty confirm field error, and matching passwords success
+- [ ] T004 [P] [US5] Add `confirmPassword` field with `.refine()` match validation to `createCoupleSchema` in `src/lib/validations/admin.ts` — strip `confirmPassword` from the data before submitting to the server action
+- [ ] T005 [US5] Add confirm password input field to `src/components/create-couple-form.tsx` with `autoComplete="new-password"`, wire into react-hook-form, and display "Passwords do not match" error inline below the field
 
 **Checkpoint**: Admin cannot submit couple creation form with mismatched passwords.
 
@@ -60,15 +66,17 @@
 
 **Independent Test**: Upload a portrait photo (800x1200), drag to choose visible portion, save → landing page shows the same crop position.
 
+### Tests for User Story 1
+
+- [ ] T006 [US1] Write failing component tests in `tests/unit/components/template-crop.test.tsx` for: portrait image drag (vertical only), landscape image drag (horizontal only), exact-match image (no drag needed), save triggers action, new image resets crop
+
 ### Implementation for User Story 1
 
-- [ ] T006 [US1] Refactor `src/components/template-preview.tsx` — replace click-to-set focal point handler with mouse/touch drag handler that computes percentage offset (0–100) from drag delta, clamped to 0–100 bounds, and saves via existing `updateTemplateFocalPoint` action
-- [ ] T007 [US1] Update `src/components/landing-page.tsx` — change template image from `object-contain` to `object-cover` with `object-position: ${focalX}% ${focalY}%` (same CSS property, new semantic meaning: crop offset instead of focal point)
-- [ ] T008 [P] [US1] Add touch drag support (touchstart/touchmove/touchend) alongside mouse drag in `src/components/template-preview.tsx` for mobile parity
-- [ ] T009 [US1] Add component tests in `tests/unit/components/template-crop.test.tsx` for: portrait image drag (vertical only), landscape image drag (horizontal only), exact-match image (no drag needed), save triggers action, new image resets crop
-- [ ] T010 [US1] Add E2E test in `tests/e2e/template-crop.spec.ts` for the full flow: upload image → drag to crop position → save → verify landing page renders crop
+- [ ] T007 [US1] Refactor `src/components/template-preview.tsx` — replace click-to-set focal point handler with mouse and touch drag handler (touchstart/touchmove/touchend for mobile parity) that computes percentage offset (0–100) from drag delta, clamped to 0–100 bounds; save via existing `updateTemplateFocalPoint` action; handle browser resize during drag by preserving crop position relative to image; show error toast on save failure with retry option
+- [ ] T008 [US1] Update `src/components/landing-page.tsx` — change template image from `object-contain` to `object-cover` with `object-position: ${focalX}% ${focalY}%`; add graceful fallback when image is deleted from storage (ignore crop offset, show default no-image state)
+- [ ] T009 [US1] Add E2E test in `tests/e2e/template-crop.spec.ts` for the full flow: upload image → drag to crop position → save → verify landing page renders crop
 
-**Checkpoint**: Template images can be repositioned via drag, and the landing page shows the exact crop the user chose.
+**Checkpoint**: Template images can be repositioned via drag (mouse + touch), and the landing page shows the exact crop the user chose.
 
 ---
 
@@ -78,17 +86,21 @@
 
 **Independent Test**: Assign a guest → guest moves from unassigned to assigned section. Collapse/expand both sections. Unassigned starts expanded, assigned starts collapsed.
 
+### Tests for User Story 2
+
+- [ ] T010 [US2] Write failing component tests in `tests/unit/components/floor-plan/guest-panel.test.tsx` for: default expand/collapse state, toggle behavior, guest moves on assign/unassign, loading state, empty states, table number display
+
 ### Implementation for User Story 2
 
-- [ ] T011 [P] [US2] Create `src/components/floor-plan/guest-panel.tsx` with two collapsible sections using shadcn/ui `Collapsible` — unassigned section (expanded by default) and assigned section (collapsed by default), each with chevron toggle and guest count in header
-- [ ] T012 [US2] Add table number derivation logic: compute sequential table numbers from table-type items on canvas (first table = Table 1, etc.), map each assigned guest to their parent table's number — implement as a computed function in `src/components/floor-plan/guest-panel.tsx`
+- [ ] T011 [US2] Create `src/components/floor-plan/guest-panel.tsx` with two collapsible sections using shadcn/ui `Collapsible` — unassigned section (expanded by default) and assigned section (collapsed by default), each with chevron toggle and guest count in header
+- [ ] T012 [US2] Add table number derivation logic: compute sequential table numbers from table-type items on canvas (first table = Table 1, etc.), map each assigned guest to their parent table's number — implement as a computed function in `src/components/floor-plan/guest-panel.tsx` (depends on T011)
 - [ ] T013 [US2] Update `src/components/floor-plan/floor-plan-canvas.tsx` to replace `UnassignedGuestsPanel` import with new `GuestPanel`, passing both `unassignedGuests` and `assignmentMap`/`items` props
 - [ ] T014 [US2] Add loading state to guest panel sections (spinner while fetching), independent scroll per section (`overflow-y-auto` with max-height), and "No guests yet" / "All guests are seated!" empty states
 - [ ] T015 [US2] Add keyboard accessibility (Enter/Space to toggle collapse) and ARIA attributes to collapsible section headers
-- [ ] T016 [US2] Add component tests in `tests/unit/components/floor-plan/guest-panel.test.tsx` for: default expand/collapse state, toggle behavior, guest moves on assign/unassign, loading state, empty states, table number display
-- [ ] T017 [US2] Add E2E test in `tests/e2e/guest-panel.spec.ts` for: load floor plan, verify unassigned expanded, assign guest, verify guest in assigned section with table number
+- [ ] T016 [US2] Handle guest-to-unassigned cascade: when a table item is deleted from the canvas, return all guests assigned to that table's chairs back to the unassigned section
+- [ ] T017 [US2] Add E2E test in `tests/e2e/guest-panel.spec.ts` for: load floor plan, verify unassigned expanded, assign guest, verify guest in assigned section with table number, delete table → verify guests return to unassigned
 
-**Checkpoint**: Both assigned and unassigned guests visible in collapsible sections. Assignment changes update lists in real-time.
+**Checkpoint**: Both assigned and unassigned guests visible in collapsible sections. Assignment changes update lists in real-time. Table deletion cascades guests back to unassigned.
 
 ---
 
@@ -98,12 +110,15 @@
 
 **Independent Test**: Place 2 round tables + 1 long table on canvas, assign 7 of 10 guests → stats show "2 Round Tables, 1 Long Table", "10 chairs", "7 assigned, 3 empty".
 
+### Tests for User Story 3
+
+- [ ] T018 [US3] Write failing component tests in `tests/unit/components/floor-plan/canvas-stats.test.tsx` for: mixed tables, all assigned with surplus chairs, empty canvas, stats update on item add/remove
+
 ### Implementation for User Story 3
 
-- [ ] T018 [P] [US3] Add `computeStats(items, assignmentMap)` function in `src/components/floor-plan/hooks/use-floor-plan-state.ts` (or a new `src/lib/floor-plan/stats.ts`) that returns `{ roundTableCount, longTableCount, totalChairs, assignedChairs, emptyChairs }`
-- [ ] T019 [US3] Create `src/components/floor-plan/canvas-stats.tsx` component — glass-panel styled, always visible, showing "Round Tables: N | Long Tables: N" and "Chairs: N total | N assigned | N empty", with zero-state for empty canvas
-- [ ] T020 [US3] Integrate `canvas-stats.tsx` into `src/components/floor-plan/guest-panel.tsx` pinned at top of panel (above collapsible sections), passing computed stats as props
-- [ ] T021 [US3] Add component tests in `tests/unit/components/floor-plan/canvas-stats.test.tsx` for: mixed tables, all assigned with surplus chairs, empty canvas, stats update on item add/remove
+- [ ] T019 [US3] Add `computeStats(items, assignmentMap)` function in `src/lib/floor-plan/stats.ts` that returns `{ roundTableCount, longTableCount, totalChairs, assignedChairs, emptyChairs }`
+- [ ] T020 [US3] Create `src/components/floor-plan/canvas-stats.tsx` component — glass-panel styled, always visible, showing "Round Tables: N | Long Tables: N" and "Chairs: N total | N assigned | N empty", with zero-state for empty canvas
+- [ ] T021 [US3] Integrate `canvas-stats.tsx` into `src/components/floor-plan/guest-panel.tsx` pinned at top of panel (above collapsible sections), passing computed stats as props
 
 **Checkpoint**: Canvas statistics visible at top of guest panel, updating in real-time as items change.
 
@@ -115,14 +130,15 @@
 
 **Independent Test**: Select a Stage → drag resize handle → dimensions change. Select a round table → no resize handles visible.
 
+### Tests for User Story 6
+
+- [ ] T022 [US6] Write failing E2E test in `tests/e2e/item-resize.spec.ts` for: resize a Stage via dimension inputs, verify round table shows no resize handles, undo a resize, verify collision indicator on resize into another item
+
 ### Implementation for User Story 6
 
-- [ ] T022 [P] [US6] Add per-item resize bounds (`minWidth`, `maxWidth`, `minHeight`, `maxHeight`) to `FLOOR_PLAN_ITEMS` entries in `src/lib/floor-plan/constants.ts` for Stage, Pillar, Walkway, and Misc types (per spec table)
-- [ ] T023 [US6] Modify `src/components/floor-plan/canvas-item.tsx` (or the Transformer wrapper) to conditionally enable resize handles via Konva `Transformer` only when item type is Stage, Pillar, Walkway, or Misc — round tables and long tables must not show resize anchors
-- [ ] T024 [US6] Implement `transformend` handler in `src/components/floor-plan/canvas-item.tsx` that clamps new dimensions to per-type min/max bounds, converts pixel delta to feet, updates item `width`/`height`, and pushes pre-resize state to undo history
-- [ ] T025 [US6] Add `onTap` alongside `onClick` for resize handle interactions in `src/components/floor-plan/canvas-item.tsx` for mobile parity (Konva nodes)
-- [ ] T026 [US6] Handle boundary clamping in resize: if new dimensions extend beyond venue limits, snap to boundary and show out-of-bounds indicator
-- [ ] T027 [US6] Add E2E test in `tests/e2e/item-resize.spec.ts` for: resize a Stage via dimension inputs, verify round table shows no resize handles, undo a resize, verify collision indicator on resize into another item
+- [ ] T023 [P] [US6] Add per-item resize bounds (`minWidth`, `maxWidth`, `minHeight`, `maxHeight`) to `FLOOR_PLAN_ITEMS` entries in `src/lib/floor-plan/constants.ts` for Stage, Pillar, Walkway, and Misc types (per spec table in US6)
+- [ ] T024 [US6] Modify `src/components/floor-plan/canvas-item.tsx` (or the Transformer wrapper) to conditionally enable resize handles via Konva `Transformer` only when item type is Stage, Pillar, Walkway, or Misc — round tables and long tables must not show resize anchors; Konva `Transformer` provides built-in touch support for resize handles (no separate `onTap`/`onClick` needed on individual handles)
+- [ ] T025 [US6] Implement `transformend` handler in `src/components/floor-plan/canvas-item.tsx` that clamps new dimensions to per-type min/max bounds, converts pixel delta to feet using `FEET_TO_PIXELS`, updates item `width`/`height`, pushes pre-resize state to undo history, and snaps to venue boundary if dimensions exceed canvas limits
 
 **Checkpoint**: Non-table items can be resized on the canvas. Tables are fixed. Resize is undoable and respects bounds.
 
@@ -132,9 +148,9 @@
 
 **Purpose**: Final validation, documentation, and cleanup
 
-- [ ] T028 Update `CLAUDE.md` with new components (guest-panel, canvas-stats), updated file paths, and new gotchas (crop offset semantics, table numbering rule, per-item resize bounds)
-- [ ] T029 Delete `src/components/floor-plan/unassigned-guests-panel.tsx` if fully replaced by `guest-panel.tsx` and no imports remain
-- [ ] T030 Run full verification: `npm run build && npm run lint && npm run test && npm run test:e2e` — all pass across desktop and mobile projects
+- [ ] T026 Update `CLAUDE.md` with new components (guest-panel, canvas-stats), updated file paths, and new gotchas (crop offset semantics, table numbering rule, per-item resize bounds, guest cascade on table deletion)
+- [ ] T027 Delete `src/components/floor-plan/unassigned-guests-panel.tsx` if fully replaced by `guest-panel.tsx` and no imports remain
+- [ ] T028 Run full verification: `npm run build && npm run lint && npm run test && npm run test:e2e` — all pass across desktop and mobile projects
 
 ---
 
@@ -161,16 +177,15 @@
 
 ### Within Each User Story
 
-- Implementation before tests (tests verify correctness)
+- **Tests first (Red-Green-Refactor per constitution)**: Write test → confirm it fails → implement → confirm it passes
 - Core logic before UI integration
 - Commit after each task or logical group
 
 ### Parallel Opportunities
 
 - **Phases 1, 2, 3, 4, 6** can all run in parallel (completely independent stories, different files)
-- Within Phase 3: T006 and T008 can run in parallel (both modify template-preview.tsx but T006 is the core refactor, T008 adds touch — can be combined)
-- Within Phase 4: T011 and T012 can run in parallel (different concerns in guest-panel.tsx)
-- Within Phase 6: T022 is independent of T023 (constants vs canvas-item)
+- Within Phase 4: T011 must complete before T012 (T012 adds logic to the file T011 creates)
+- Within Phase 6: T023 is independent of T024 (constants vs canvas-item)
 - **Phase 5 must wait for Phase 4**
 
 ---
@@ -214,4 +229,6 @@ Developer E: Phase 6 (US6 Item Resize)
 - Template crop repurposes `template_focal_x`/`template_focal_y` columns — no schema change
 - Guest panel refactor replaces `unassigned-guests-panel.tsx` with `guest-panel.tsx`
 - All new UI surfaces use `.glass-panel` class per glassmorphism design system
-- Konva interactive nodes need both `onTap` and `onClick` per mobile parity principle
+- Konva Transformer provides built-in touch support for resize handles — no separate `onTap`/`onClick` handlers needed on individual resize anchors
+- Stats computation lives in `src/lib/floor-plan/stats.ts` as a pure function (separate from hooks for clean separation)
+- Deleting a table from the canvas must cascade assigned guests back to the unassigned section
