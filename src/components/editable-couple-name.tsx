@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { updateCoupleName } from "@/app/actions/admin";
 import { Pencil } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 interface EditableCoupleNameProps {
   weddingId: number;
@@ -50,7 +51,7 @@ export function EditableCoupleName({ weddingId, coupleName, isLocked }: Editable
   if (editing) {
     return (
       <div className="flex items-center gap-2">
-        <input
+        <Input
           ref={inputRef}
           type="text"
           value={value}
@@ -65,7 +66,7 @@ export function EditableCoupleName({ weddingId, coupleName, isLocked }: Editable
           }}
           disabled={saving}
           maxLength={100}
-          className="text-2xl font-bold bg-transparent border-b-2 border-primary outline-none w-full max-w-md"
+          className="text-2xl font-bold bg-transparent border-0 border-b-2 border-primary rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary w-full max-w-md"
         />
         {saving && <span className="text-sm text-muted-foreground">Saving...</span>}
       </div>

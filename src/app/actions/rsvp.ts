@@ -104,10 +104,8 @@ export async function updateRsvpStatus(input: {
   if (auth.error) {
     return { success: false as const, error: auth.error };
   }
-
-  const lockCheck = await verifyWeddingNotLocked(input.weddingId);
-  if (!lockCheck.ok) {
-    return { success: false as const, error: lockCheck.error };
+  if (auth.isLocked) {
+    return { success: false as const, error: "This wedding has been locked. No edits are permitted." };
   }
 
   const adminClient = createAdminClient();

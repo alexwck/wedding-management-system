@@ -50,10 +50,6 @@ function getTableMeta(type: ItemType, sizeVariant?: number): Record<string, unkn
   };
 }
 
-/**
- * Checks whether an item of the given type can be placed on the canvas
- * without overlapping existing items or going out of bounds.
- */
 export function canPlaceItem(
   type: ItemType,
   existingItems: FloorPlanItem[],
@@ -81,16 +77,16 @@ export function canPlaceItem(
   };
 
   const isPositionValid = (x: number, y: number) => {
-    const test = { ...testItem, x, y };
-    if (isItemOutOfBounds(test, venueWidth, venueHeight)) return false;
-    const allItems = [...existingItems, test];
+    testItem.x = x;
+    testItem.y = y;
+    if (isItemOutOfBounds(testItem, venueWidth, venueHeight)) return false;
+    const allItems = [...existingItems, testItem];
     if (checkItemCollisions(PLACEMENT_TEST_ID, allItems).length > 0) return false;
     if (isTable) {
-      const chairs = generateChairsForTable(test);
+      const chairs = generateChairsForTable(testItem);
       for (const chair of chairs) {
         if (isItemOutOfBounds(chair, venueWidth, venueHeight)) return false;
-        const withChair = [...allItems, chair];
-        if (checkItemCollisions(chair.id, withChair).length > 0) return false;
+        if (checkItemCollisions(chair.id, [...allItems, chair]).length > 0) return false;
       }
     }
     return true;

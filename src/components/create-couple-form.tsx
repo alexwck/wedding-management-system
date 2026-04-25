@@ -63,14 +63,14 @@ export function CreateCoupleForm() {
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">Create Couple Account</h3>
 
-      {serverMessage?.type === "success" && (
-        <div className="rounded-lg border border-green-500/50 bg-green-500/10 p-3 text-sm text-green-700">
-          {serverMessage.text}
-        </div>
-      )}
-
-      {serverMessage?.type === "error" && (
-        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+      {serverMessage && (
+        <div
+          className={`rounded-lg border p-3 text-sm ${
+            serverMessage.type === "success"
+              ? "border-green-500/50 bg-green-500/10 text-green-700"
+              : "border-destructive/50 bg-destructive/10 text-destructive"
+          }`}
+        >
           {serverMessage.text}
         </div>
       )}

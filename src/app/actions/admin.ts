@@ -374,17 +374,25 @@ async function verifyWeddingAccess(
   user: User,
   weddingId: number,
   adminClient: ReturnType<typeof createAdminClient>,
-): Promise<{ success: false; error: string } | null> {
-  if (user.app_metadata?.role === "admin") return null;
+): Promise<{ success: false; error: string } | { success: true; isLocked: boolean }> {
+  if (user.app_metadata?.role === "admin") {
+    const { data: wedding } = await adminClient
+      .from("weddings")
+      .select("is_locked")
+      .eq("id", weddingId)
+      .single();
+    if (!wedding) return { success: false, error: "Wedding not found." };
+    return { success: true, isLocked: wedding.is_locked };
+  }
   const { data: wedding } = await adminClient
     .from("weddings")
-    .select("user_id")
+    .select("user_id, is_locked")
     .eq("id", weddingId)
     .single();
   if (!wedding || wedding.user_id !== user.id) {
     return { success: false, error: "Not authorized." };
   }
-  return null;
+  return { success: true, isLocked: wedding.is_locked };
 }
 
 export async function updateWeddingDetails(formData: FormData) {
@@ -405,10 +413,8 @@ export async function updateWeddingDetails(formData: FormData) {
 
   const adminClient = createAdminClient();
   const authCheck = await verifyWeddingAccess(user, weddingId, adminClient);
-  if (authCheck) return { ...authCheck, error: "unauthorized" as const, message: authCheck.error };
-
-  const lockCheck = await verifyWeddingNotLocked(weddingId);
-  if (!lockCheck.ok) return { success: false, error: "locked" as const, message: lockCheck.error };
+  if (!authCheck.success) return { success: false, error: "unauthorized" as const, message: authCheck.error };
+  if (authCheck.isLocked) return { success: false, error: "locked" as const, message: "This wedding has been locked. No edits are permitted." };
 
   const rawData: Record<string, unknown> = {};
   const fields = ["venue", "venue_address", "venue_lat", "venue_lng", "welcome_message"] as const;
@@ -473,10 +479,8 @@ export async function updateWeddingDate(weddingId: number, weddingDate: string |
 
   const adminClient = createAdminClient();
   const authCheck = await verifyWeddingAccess(user, weddingId, adminClient);
-  if (authCheck) return authCheck;
-
-  const lockCheck = await verifyWeddingNotLocked(weddingId);
-  if (!lockCheck.ok) return { success: false as const, error: lockCheck.error };
+  if (!authCheck.success) return { success: false as const, error: authCheck.error };
+  if (authCheck.isLocked) return { success: false as const, error: "This wedding has been locked. No edits are permitted." };
 
   const { data, error } = await adminClient
     .from("weddings")
@@ -553,10 +557,8 @@ export async function updateTemplateFocalPoint(weddingId: number, focalX: number
 
   const adminClient = createAdminClient();
   const authCheck = await verifyWeddingAccess(user, weddingId, adminClient);
-  if (authCheck) return authCheck;
-
-  const lockCheck = await verifyWeddingNotLocked(weddingId);
-  if (!lockCheck.ok) return { success: false as const, error: lockCheck.error };
+  if (!authCheck.success) return { success: false as const, error: authCheck.error };
+  if (authCheck.isLocked) return { success: false as const, error: "This wedding has been locked. No edits are permitted." };
 
   const { data, error } = await adminClient
     .from("weddings")
@@ -635,10 +637,8 @@ export async function updateCoupleName(weddingId: number, coupleName: string) {
 
   const adminClient = createAdminClient();
   const authCheck = await verifyWeddingAccess(user, weddingId, adminClient);
-  if (authCheck) return { ...authCheck, error: "unauthorized" as const, message: authCheck.error };
-
-  const lockCheck = await verifyWeddingNotLocked(weddingId);
-  if (!lockCheck.ok) return { success: false as const, error: lockCheck.error };
+  if (!authCheck.success) return { success: false, error: "unauthorized" as const, message: authCheck.error };
+  if (authCheck.isLocked) return { success: false as const, error: "This wedding has been locked. No edits are permitted." };
 
   const { data, error } = await adminClient
     .from("weddings")

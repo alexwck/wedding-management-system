@@ -141,6 +141,10 @@ describe("updateWeddingDetails", () => {
       venue_lat: "40.7128",
     });
 
+    const fromMock = vi.fn().mockReturnValue(
+      mockFrom({ data: { is_locked: false }, error: null }),
+    );
+    vi.mocked(createAdminClient).mockReturnValue({ from: fromMock } as never);
     vi.mocked(createClient).mockResolvedValue({
       auth: {
         getUser: vi.fn().mockResolvedValue({
@@ -161,6 +165,10 @@ describe("updateWeddingDetails", () => {
       welcome_message: "a".repeat(501),
     });
 
+    const fromMock = vi.fn().mockReturnValue(
+      mockFrom({ data: { is_locked: false }, error: null }),
+    );
+    vi.mocked(createAdminClient).mockReturnValue({ from: fromMock } as never);
     vi.mocked(createClient).mockResolvedValue({
       auth: {
         getUser: vi.fn().mockResolvedValue({

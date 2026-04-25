@@ -7,7 +7,6 @@ import {
   deserializeFloorPlan,
 } from "@/lib/floor-plan/serializers";
 import { isItemOutOfBounds } from "@/lib/floor-plan/collision";
-import { verifyWeddingNotLocked } from "@/lib/auth-guards";
 import { cleanupOrphanedAssignments } from "@/app/actions/seat-assignment";
 import type { FloorPlanItem } from "@/types/floor-plan";
 
@@ -22,15 +21,19 @@ async function getAuthenticatedUser() {
 async function verifyWeddingAccess(
   weddingId: number,
   userId: string,
-): Promise<boolean> {
+): Promise<{ ok: false; error: string } | { ok: true; isLocked: boolean }> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("weddings")
-    .select("id")
+    .select("user_id, is_locked")
     .eq("id", weddingId)
-    .eq("user_id", userId)
     .maybeSingle();
-  return !!data;
+
+  if (!data || data.user_id !== userId) {
+    return { ok: false, error: "Access denied." };
+  }
+
+  return { ok: true, isLocked: data.is_locked };
 }
 
 export async function getFloorPlan(weddingId: number) {
@@ -41,9 +44,9 @@ export async function getFloorPlan(weddingId: number) {
 
   const isAdmin = user.app_metadata?.role === "admin";
   if (!isAdmin) {
-    const hasAccess = await verifyWeddingAccess(weddingId, user.id);
-    if (!hasAccess) {
-      return { success: false as const, error: "Access denied." };
+    const access = await verifyWeddingAccess(weddingId, user.id);
+    if (!access.ok) {
+      return { success: false as const, error: access.error };
     }
   }
 
@@ -79,9 +82,12 @@ export async function saveFloorPlan(
 
   const isAdmin = user.app_metadata?.role === "admin";
   if (!isAdmin) {
-    const hasAccess = await verifyWeddingAccess(weddingId, user.id);
-    if (!hasAccess) {
-      return { success: false as const, error: "Access denied." };
+    const access = await verifyWeddingAccess(weddingId, user.id);
+    if (!access.ok) {
+      return { success: false as const, error: access.error };
+    }
+    if (access.isLocked) {
+      return { success: false as const, error: "This wedding has been locked. No edits are permitted." };
     }
   }
 
@@ -91,11 +97,6 @@ export async function saveFloorPlan(
       success: false as const,
       error: "Validation failed: " + parsed.error.issues.map((i) => i.message).join(", "),
     };
-  }
-
-  const lockCheck = await verifyWeddingNotLocked(weddingId);
-  if (!lockCheck.ok) {
-    return { success: false as const, error: lockCheck.error };
   }
 
   const oobCount = (parsed.data.items as FloorPlanItem[]).filter((item) =>
