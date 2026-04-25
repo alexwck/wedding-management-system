@@ -116,8 +116,7 @@ All tables have Row-Level Security (RLS) enabled. Migrations live in `supabase/m
 | `/dashboard` | Couple dashboard |
 | `/dashboard/rsvps` | View RSVP responses |
 | `/dashboard/floor-plan` | Couple floor plan editor |
-| `/w/{slug}` | Public landing page |
-| `/w/{slug}/rsvp` | Public RSVP form |
+| `/w/{slug}` | Public landing page (hero + venue + RSVP in single scrollable page) |
 
 ## Git Hooks
 
@@ -167,16 +166,19 @@ src/
 │   │   ├── guest-panel.tsx     # Collapsible unassigned + assigned guests
 │   │   ├── items/          # Shape components (round-table, long-table, chair, etc.)
 │   │   └── hooks/          # State, auto-save, collision, undo-redo, seat assignments, chair generation
-│   └── ui/                 # shadcn/ui primitives
 │   ├── landing-page.tsx    # Wedding landing page (venue info overlay, object-cover crop display)
-│   ├── rsvp-form.tsx       # RSVP form with react-hook-form + zod
+│   ├── lock-toggle.tsx     # Admin lock/unlock toggle for weddings
+│   ├── rsvp-form.tsx       # RSVP form with react-hook-form + zod (isLocked prop shows "RSVP is closed")
 │   ├── rsvp-table.tsx      # Sortable RSVP response table
 │   ├── rsvp-section.tsx    # Collapsible RSVP section with embedded export
 │   ├── template-preview.tsx # Template preview with drag-to-crop repositioning
+│   ├── template-upload.tsx # Template image upload with preview button
 │   ├── wedding-date-picker.tsx # Wedding date/time picker with timezone
-│   ├── timezone-combobox.tsx   # Searchable IANA timezone dropdown
+│   ├── timezone-combobox.tsx   # Searchable IANA timezone dropdown (cmdk)
 │   ├── venue-editor.tsx    # Admin/couple venue editing (client, Nominatim autocomplete)
-│   ├── venue-section.tsx   # Public venue display with OSM map embed (server)
+│   ├── venue-section.tsx   # Public venue display with OSM map embed + nav buttons (server)
+│   ├── editable-couple-name.tsx # Click-to-edit inline couple name component
+│   └── ui/                 # shadcn/ui primitives
 ├── lib/
 │   ├── floor-plan/         # Constants, collision detection, serializers
 │   ├── geocoding.ts        # Nominatim geocoding client (searchAddress)
@@ -205,7 +207,7 @@ tests/
 - **RSVP deduplication** — unique constraint on `(wedding_id, LOWER(guest_name))` plus application-level check
 - **Auth** — Supabase Auth with `proxy.ts` (not `middleware.ts` — renamed for Next.js 16 compat) protecting `/dashboard/*` and `/admin/*` routes; root `/` redirects based on auth state; cross-role blocking (admins can't reach `/dashboard`, couples can't reach `/admin`); logout via server action
 - **Image uploads** — stored in Supabase Storage `wedding-templates` bucket; 5MB max, PNG/JPG only; client + server validation
-- **Floor plan editor** — Interactive 2D canvas built with react-konva; supports drag-and-drop, rotation/resize (center-based rendering with `offsetX/Y` for all items), collision detection (parent + child chairs), auto-chair population around tables, pan/zoom, undo/redo (tracks items + dimensions + seat assignments), and auto-save. Compact glass-panel top bar with venue dimensions, toolbar, chair count controls, and save status. Labels track shapes in real-time during drag via Konva node ID lookups. Canvas auto-centers on load. Memoized `CanvasItem` component with stable callbacks prevents re-renders on selection changes.
+- **Floor plan editor** — Interactive 2D canvas with react-konva. Supports drag-and-drop, rotation/resize, collision detection, chair generation, pan/zoom, undo/redo, auto-save, and guest-to-chair seat assignments. Compact glass-panel top bar.
 - **Design system** — Glassmorphism UI pattern using `.glass-panel` CSS utility (backdrop-filter blur, semi-transparent backgrounds, subtle borders). All card-like surfaces use this consistent design language. Dropdown overlays use `bg-background shadow-md` for opaque readability.
 - **RSVP management** — Collapsible RSVP section with sortable table, summary cards, and embedded XLSX export (base64 buffer transfer). Google Sheets export removed.
 - **Wedding date/timezone** — Native `datetime-local` input for wedding date with searchable IANA timezone selector (cmdk). Stored as TIMESTAMPTZ with UTC conversion. Displayed with `shortOffset` timezone format.
