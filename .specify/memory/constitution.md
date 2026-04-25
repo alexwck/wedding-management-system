@@ -1,16 +1,3 @@
-<!--
-  Sync Impact Report:
-  Version change: 2.1.0 → 2.2.0
-  Modified principles:
-    - I. Spec-Driven Development: added React 19 cleanup requirement and fireEvent vs userEvent guidance to Component Testing Conventions
-  Modified sections:
-    - Component Testing Conventions: added two new conventions
-  Templates requiring updates:
-    - None
-  Follow-up TODOs:
-    - None
--->
-
 # Wedding Management System Constitution
 
 ## Core Principles
