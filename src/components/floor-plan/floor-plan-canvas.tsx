@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FloorPlanToolbar } from "./floor-plan-toolbar";
 import { RotationTransformer } from "./rotation-transformer";
+import type { TransformResult } from "./rotation-transformer";
 import { CanvasItem } from "./canvas-item";
 import {
   FEET_TO_PIXELS,
@@ -408,21 +409,29 @@ export function FloorPlanCanvas({
     [pushHistory, state],
   );
 
-  const handleRotationEnd = useCallback(
-    (itemId: string, rotation: number) => {
-      pushHistory();
+  const handleTransformEnd = useCallback(
+    (itemId: string, result: TransformResult) => {
       const item = state.items.find((i) => i.id === itemId);
       if (!item) return;
 
+      pushHistory();
+
       const isTable = isTableType(item.type);
+
       if (!isTable) {
-        state.updateItem(itemId, { rotation });
+        state.updateItem(itemId, {
+          x: result.x,
+          y: result.y,
+          width: result.width,
+          height: result.height,
+          rotation: result.rotation,
+        });
         return;
       }
 
       const prevRotation = item.rotation;
-      const delta = rotation - prevRotation;
-      state.updateItem(itemId, { rotation });
+      const delta = result.rotation - prevRotation;
+      state.updateItem(itemId, { rotation: result.rotation });
 
       if (delta !== 0) {
         const tableCx = item.x + item.width / 2;
@@ -444,14 +453,6 @@ export function FloorPlanCanvas({
             });
           });
       }
-    },
-    [pushHistory, state],
-  );
-
-  const handleResizeEnd = useCallback(
-    (itemId: string, newWidth: number, newHeight: number) => {
-      pushHistory();
-      state.updateItem(itemId, { width: newWidth, height: newHeight });
     },
     [pushHistory, state],
   );
@@ -879,8 +880,7 @@ export function FloorPlanCanvas({
               selectedItemId={selectedItemId}
               selectedItemType={selectedItem?.type ?? null}
               stageRef={stageRef}
-              onRotationEnd={handleRotationEnd}
-              onResizeEnd={handleResizeEnd}
+              onTransformEnd={handleTransformEnd}
               venueWidth={state.width}
               venueHeight={state.height}
             />
