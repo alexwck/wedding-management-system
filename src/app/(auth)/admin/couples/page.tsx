@@ -20,7 +20,6 @@ export default async function CouplesPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="glass-panel rounded-xl p-4">
-          <h3 className="text-lg font-semibold mb-4">Create Couple</h3>
           <CreateCoupleForm />
         </div>
 
