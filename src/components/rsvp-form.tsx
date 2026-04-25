@@ -20,9 +20,10 @@ import {
 interface RSVPFormProps {
   slug: string;
   coupleName: string;
+  isLocked?: boolean;
 }
 
-export function RSVPForm({ slug, coupleName }: RSVPFormProps) {
+export function RSVPForm({ slug, coupleName, isLocked }: RSVPFormProps) {
   const [serverMessage, setServerMessage] = useState<{
     type: "success" | "error";
     text: string;
@@ -56,6 +57,17 @@ export function RSVPForm({ slug, coupleName }: RSVPFormProps) {
     } else {
       setServerMessage({ type: "error", text: result.message });
     }
+  }
+
+  if (isLocked) {
+    return (
+      <div className="max-w-xl w-full text-center space-y-4 glass-panel rounded-xl p-8">
+        <h1 className="text-2xl font-bold text-foreground">RSVP is now closed</h1>
+        <p className="text-muted-foreground">
+          {coupleName}&apos;s wedding is no longer accepting RSVPs.
+        </p>
+      </div>
+    );
   }
 
   if (serverMessage?.type === "success") {
