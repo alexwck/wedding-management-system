@@ -28,6 +28,7 @@ describe("CreateCoupleForm", () => {
 
     expect(screen.getByPlaceholderText(/couple@example\.com/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/min\. 8 characters/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Confirm Password")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Jane Doe")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Jane & John")).toBeInTheDocument();
     expect(
@@ -42,7 +43,8 @@ describe("CreateCoupleForm", () => {
     await user.click(screen.getByRole("button", { name: /create couple/i }));
 
     expect(await screen.findByText(/please enter a valid email/i)).toBeInTheDocument();
-    expect(screen.getByText(/password must be at least 8 characters/i)).toBeInTheDocument();
+    // Password and confirmPassword both show "Password must be at least 8 characters"
+    expect(screen.getAllByText(/password must be at least 8 characters/i).length).toBeGreaterThanOrEqual(2);
     expect(screen.getAllByText(/is required/i).length).toBeGreaterThanOrEqual(2);
     expect(mockedCreateCoupleAccount).not.toHaveBeenCalled();
   });
@@ -59,6 +61,7 @@ describe("CreateCoupleForm", () => {
 
     await user.type(screen.getByPlaceholderText(/couple@example\.com/i), "test@example.com");
     await user.type(screen.getByPlaceholderText(/min\. 8 characters/i), "password123");
+    await user.type(screen.getByPlaceholderText("Confirm Password"), "password123");
     await user.type(screen.getByPlaceholderText("Jane Doe"), "Jane Doe");
     await user.type(screen.getByPlaceholderText("Jane & John"), "Jane & John");
     await user.click(screen.getByRole("button", { name: /create couple/i }));
@@ -79,6 +82,7 @@ describe("CreateCoupleForm", () => {
 
     await user.type(screen.getByPlaceholderText(/couple@example\.com/i), "test@example.com");
     await user.type(screen.getByPlaceholderText(/min\. 8 characters/i), "password123");
+    await user.type(screen.getByPlaceholderText("Confirm Password"), "password123");
     await user.type(screen.getByPlaceholderText("Jane Doe"), "Jane Doe");
     await user.type(screen.getByPlaceholderText("Jane & John"), "Jane & John");
     await user.click(screen.getByRole("button", { name: /create couple/i }));
@@ -102,6 +106,7 @@ describe("CreateCoupleForm", () => {
 
     await user.type(screen.getByPlaceholderText(/couple@example\.com/i), "test@example.com");
     await user.type(screen.getByPlaceholderText(/min\. 8 characters/i), "password123");
+    await user.type(screen.getByPlaceholderText("Confirm Password"), "password123");
     await user.type(screen.getByPlaceholderText("Jane Doe"), "Jane Doe");
     await user.type(screen.getByPlaceholderText("Jane & John"), "Jane & John");
     await user.click(screen.getByRole("button", { name: /create couple/i }));
@@ -125,6 +130,7 @@ describe("CreateCoupleForm", () => {
     const emailInput = screen.getByPlaceholderText(/couple@example\.com/i) as HTMLInputElement;
     await user.type(emailInput, "test@example.com");
     await user.type(screen.getByPlaceholderText(/min\. 8 characters/i), "password123");
+    await user.type(screen.getByPlaceholderText("Confirm Password"), "password123");
     await user.type(screen.getByPlaceholderText("Jane Doe"), "Jane Doe");
     await user.type(screen.getByPlaceholderText("Jane & John"), "Jane & John");
     await user.click(screen.getByRole("button", { name: /create couple/i }));
@@ -132,5 +138,58 @@ describe("CreateCoupleForm", () => {
     await screen.findByText(/couple account created/i);
 
     expect(emailInput).toHaveValue("");
+  });
+
+  it("shows error when passwords do not match", async () => {
+    const user = userEvent.setup();
+    render(<CreateCoupleForm />);
+
+    await user.type(screen.getByPlaceholderText(/couple@example\.com/i), "test@example.com");
+    await user.type(screen.getByPlaceholderText(/min\. 8 characters/i), "password123");
+    await user.type(screen.getByPlaceholderText("Confirm Password"), "different456");
+    await user.type(screen.getByPlaceholderText("Jane Doe"), "Jane Doe");
+    await user.type(screen.getByPlaceholderText("Jane & John"), "Jane & John");
+    await user.click(screen.getByRole("button", { name: /create couple/i }));
+
+    expect(await screen.findByText("Passwords do not match")).toBeInTheDocument();
+    expect(mockedCreateCoupleAccount).not.toHaveBeenCalled();
+  });
+
+  it("shows error when confirm password is empty on submit", async () => {
+    const user = userEvent.setup();
+    render(<CreateCoupleForm />);
+
+    await user.type(screen.getByPlaceholderText(/couple@example\.com/i), "test@example.com");
+    await user.type(screen.getByPlaceholderText(/min\. 8 characters/i), "password123");
+    // intentionally skip confirm password
+    await user.type(screen.getByPlaceholderText("Jane Doe"), "Jane Doe");
+    await user.type(screen.getByPlaceholderText("Jane & John"), "Jane & John");
+    await user.click(screen.getByRole("button", { name: /create couple/i }));
+
+    expect(await screen.findByText(/password must be at least 8 characters/i)).toBeInTheDocument();
+    expect(mockedCreateCoupleAccount).not.toHaveBeenCalled();
+  });
+
+  it("does not show mismatch error when passwords match", async () => {
+    const user = userEvent.setup();
+    mockedCreateCoupleAccount.mockResolvedValueOnce({
+      success: true,
+      userId: "user-123",
+      weddingId: 1,
+      slug: "test-slug",
+    });
+
+    render(<CreateCoupleForm />);
+
+    await user.type(screen.getByPlaceholderText(/couple@example\.com/i), "test@example.com");
+    await user.type(screen.getByPlaceholderText(/min\. 8 characters/i), "password123");
+    await user.type(screen.getByPlaceholderText("Confirm Password"), "password123");
+    await user.type(screen.getByPlaceholderText("Jane Doe"), "Jane Doe");
+    await user.type(screen.getByPlaceholderText("Jane & John"), "Jane & John");
+    await user.click(screen.getByRole("button", { name: /create couple/i }));
+
+    await screen.findByText(/couple account created/i);
+
+    expect(screen.queryByText("Passwords do not match")).not.toBeInTheDocument();
   });
 });
