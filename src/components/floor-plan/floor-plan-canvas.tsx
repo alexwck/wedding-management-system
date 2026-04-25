@@ -80,11 +80,13 @@ function ChairCountControls({
   count,
   max,
   onChange,
+  onCommit,
 }: {
   tableId: string;
   count: number;
   max: number;
-  onChange: (tableId: string, count: number) => void;
+  onChange: (tableId: string, count: number, isButton: boolean) => void;
+  onCommit: () => void;
 }) {
   return (
     <>
@@ -93,7 +95,7 @@ function ChairCountControls({
       <Button
         variant="outline"
         size="sm"
-        onClick={() => onChange(tableId, count - 1)}
+        onClick={() => onChange(tableId, count - 1, true)}
         disabled={count <= 0}
         className="h-7 w-7 p-0"
       >
@@ -105,13 +107,14 @@ function ChairCountControls({
         min={0}
         max={max}
         value={count}
-        onChange={(e) => onChange(tableId, Number(e.target.value))}
+        onChange={(e) => onChange(tableId, Number(e.target.value), false)}
+        onBlur={onCommit}
         className="w-14 h-7 text-xs text-center"
       />
       <Button
         variant="outline"
         size="sm"
-        onClick={() => onChange(tableId, count + 1)}
+        onClick={() => onChange(tableId, count + 1, true)}
         disabled={count >= max}
         className="h-7 w-7 p-0"
       >
@@ -143,6 +146,8 @@ export function FloorPlanCanvas({
   const [editingLabelId, setEditingLabelId] = useState<string | null>(null);
   const [editingLabelValue, setEditingLabelValue] = useState("");
   const [editingDimId, setEditingDimId] = useState<string | null>(null);
+  const venueEditStarted = useRef(false);
+  const chairCountEditStarted = useRef(false);
   const [containerWidth, setContainerWidth] = useState(800);
   const [containerHeight, setContainerHeight] = useState(600);
   const [stageScale, setStageScale] = useState(1);
@@ -355,7 +360,10 @@ export function FloorPlanCanvas({
       const num = Number(value);
       if (isNaN(num)) return;
       const clamped = Math.min(Math.max(num, 1), MAX_VENUE_DIMENSION);
-      pushHistory();
+      if (!venueEditStarted.current) {
+        pushHistory();
+        venueEditStarted.current = true;
+      }
       state.updateDimensions(clamped, state.height);
     },
     [pushHistory, state],
@@ -366,11 +374,18 @@ export function FloorPlanCanvas({
       const num = Number(value);
       if (isNaN(num)) return;
       const clamped = Math.min(Math.max(num, 1), MAX_VENUE_DIMENSION);
-      pushHistory();
+      if (!venueEditStarted.current) {
+        pushHistory();
+        venueEditStarted.current = true;
+      }
       state.updateDimensions(state.width, clamped);
     },
     [pushHistory, state],
   );
+
+  const handleVenueEditCommit = useCallback(() => {
+    venueEditStarted.current = false;
+  }, []);
 
   const handleDragEnd = useCallback(
     (id: string, e: Konva.KonvaEventObject<DragEvent>) => {
@@ -597,12 +612,15 @@ export function FloorPlanCanvas({
   }, []);
 
   const handleChairCountChange = useCallback(
-    (tableId: string, newCount: number) => {
+    (tableId: string, newCount: number, isButton: boolean) => {
       const table = state.items.find((i) => i.id === tableId);
       if (!table) return;
       const max = getMaxChairCount(table);
       const clamped = Math.min(Math.max(newCount, 0), max);
-      pushHistory();
+      if (isButton || !chairCountEditStarted.current) {
+        pushHistory();
+        chairCountEditStarted.current = true;
+      }
 
       // Cascade: unassign guests from chairs being regenerated
       const currentChairs = state.items.filter(
@@ -627,6 +645,10 @@ export function FloorPlanCanvas({
     },
     [state, pushHistory, seatAssignments],
   );
+
+  const handleChairCountCommit = useCallback(() => {
+    chairCountEditStarted.current = false;
+  }, []);
 
   const restoreSnapshot = useCallback(
     (snapshot: Snapshot | null) => {
@@ -738,6 +760,7 @@ export function FloorPlanCanvas({
               max={MAX_VENUE_DIMENSION}
               value={state.width}
               onChange={(e) => handleWidthChange(e.target.value)}
+              onBlur={handleVenueEditCommit}
               className="w-14 h-7 text-xs"
             />
             <label htmlFor="venue-height" className="text-xs font-medium">
@@ -751,6 +774,7 @@ export function FloorPlanCanvas({
               max={MAX_VENUE_DIMENSION}
               value={state.height}
               onChange={(e) => handleHeightChange(e.target.value)}
+              onBlur={handleVenueEditCommit}
               className="w-14 h-7 text-xs"
             />
             <span className="text-xs text-muted-foreground">ft</span>
@@ -790,6 +814,7 @@ export function FloorPlanCanvas({
               count={selectedChairCount}
               max={selectedTableMaxChairs}
               onChange={handleChairCountChange}
+              onCommit={handleChairCountCommit}
             />
           )}
 
