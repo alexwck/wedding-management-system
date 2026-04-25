@@ -8,6 +8,7 @@ import {
   getUnassignedGuests,
 } from "@/app/actions/seat-assignment";
 import type { SeatAssignmentMap, UnassignedGuest } from "@/types/seat-assignment";
+import type { FloorPlanItem } from "@/types/floor-plan";
 
 export function useSeatAssignments(weddingId: number) {
   const [assignmentMap, setAssignmentMap] = useState<SeatAssignmentMap>({});
@@ -81,12 +82,54 @@ export function useSeatAssignments(weddingId: number) {
     [weddingId, assignmentMap, fetchAssignments],
   );
 
+  const restoreAssignments = useCallback(
+    async (newMap: SeatAssignmentMap, newGuests: UnassignedGuest[], items: FloorPlanItem[]) => {
+      const oldMap = { ...assignmentMap };
+
+      setAssignmentMap(structuredClone(newMap));
+      setUnassignedGuests(structuredClone(newGuests));
+
+      const oldKeys = new Set(Object.keys(oldMap));
+      const newKeys = new Set(Object.keys(newMap));
+
+      let failed = false;
+
+      for (const chairId of oldKeys) {
+        if (!newKeys.has(chairId)) {
+          const result = await unassignSeat({ weddingId, chairItemId: chairId });
+          if (!result.success) failed = true;
+        }
+      }
+
+      for (const chairId of newKeys) {
+        if (!oldKeys.has(chairId)) {
+          const entry = newMap[chairId];
+          const chair = items.find((i) => i.id === chairId);
+          const tableItemId = chair?.parentItemId ?? "";
+          const result = await assignSeat({
+            weddingId,
+            rsvpId: entry.rsvpId,
+            chairItemId: chairId,
+            tableItemId,
+          });
+          if (!result.success) failed = true;
+        }
+      }
+
+      if (failed) {
+        await fetchAssignments();
+      }
+    },
+    [weddingId, assignmentMap, fetchAssignments],
+  );
+
   return {
     assignmentMap,
     unassignedGuests,
     isLoading,
     assignGuest: handleAssign,
     unassignGuest: handleUnassign,
+    restoreAssignments,
     refresh: fetchAssignments,
   };
 }

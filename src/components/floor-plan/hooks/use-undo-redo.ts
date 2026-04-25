@@ -2,12 +2,15 @@
 
 import { useCallback, useRef, useState } from "react";
 import type { FloorPlanItem } from "@/types/floor-plan";
+import type { SeatAssignmentMap, UnassignedGuest } from "@/types/seat-assignment";
 import { MAX_HISTORY_SIZE } from "@/lib/floor-plan/constants";
 
-interface Snapshot {
+export interface Snapshot {
   items: FloorPlanItem[];
   width: number;
   height: number;
+  assignmentMap: SeatAssignmentMap;
+  unassignedGuests: UnassignedGuest[];
 }
 
 export function useUndoRedo() {
@@ -22,11 +25,19 @@ export function useUndoRedo() {
   }, []);
 
   const pushState = useCallback(
-    (items: FloorPlanItem[], width: number, height: number) => {
+    (
+      items: FloorPlanItem[],
+      width: number,
+      height: number,
+      assignmentMap: SeatAssignmentMap,
+      unassignedGuests: UnassignedGuest[],
+    ) => {
       const snapshot: Snapshot = {
         items: structuredClone(items),
         width,
         height,
+        assignmentMap: structuredClone(assignmentMap),
+        unassignedGuests: structuredClone(unassignedGuests),
       };
 
       if (indexRef.current < history.current.length - 1) {
