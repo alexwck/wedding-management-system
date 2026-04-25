@@ -355,8 +355,8 @@ export function FloorPlanCanvas({
     [pushHistory, state],
   );
 
-  const handleWidthChange = useCallback(
-    (value: string) => {
+  const handleVenueDimChange = useCallback(
+    (dim: "width" | "height", value: string) => {
       const num = Number(value);
       if (isNaN(num)) return;
       const clamped = Math.min(Math.max(num, 1), MAX_VENUE_DIMENSION);
@@ -364,21 +364,10 @@ export function FloorPlanCanvas({
         pushHistory();
         venueEditStarted.current = true;
       }
-      state.updateDimensions(clamped, state.height);
-    },
-    [pushHistory, state],
-  );
-
-  const handleHeightChange = useCallback(
-    (value: string) => {
-      const num = Number(value);
-      if (isNaN(num)) return;
-      const clamped = Math.min(Math.max(num, 1), MAX_VENUE_DIMENSION);
-      if (!venueEditStarted.current) {
-        pushHistory();
-        venueEditStarted.current = true;
-      }
-      state.updateDimensions(state.width, clamped);
+      state.updateDimensions(
+        dim === "width" ? clamped : state.width,
+        dim === "height" ? clamped : state.height,
+      );
     },
     [pushHistory, state],
   );
@@ -577,7 +566,6 @@ export function FloorPlanCanvas({
     if (!selectedItemId) return;
     pushHistory();
 
-    // Cascade: unassign guests from chairs belonging to the deleted item's children
     const childChairs = state.items.filter(
       (item) => item.type === "chair" && item.parentItemId === selectedItemId,
     );
@@ -622,7 +610,6 @@ export function FloorPlanCanvas({
         chairCountEditStarted.current = true;
       }
 
-      // Cascade: unassign guests from chairs being regenerated
       const currentChairs = state.items.filter(
         (i) => i.type === "chair" && i.parentItemId === tableId,
       );
@@ -759,7 +746,7 @@ export function FloorPlanCanvas({
               min={1}
               max={MAX_VENUE_DIMENSION}
               value={state.width}
-              onChange={(e) => handleWidthChange(e.target.value)}
+              onChange={(e) => handleVenueDimChange("width", e.target.value)}
               onBlur={handleVenueEditCommit}
               className="w-14 h-7 text-xs"
             />
@@ -773,7 +760,7 @@ export function FloorPlanCanvas({
               min={1}
               max={MAX_VENUE_DIMENSION}
               value={state.height}
-              onChange={(e) => handleHeightChange(e.target.value)}
+              onChange={(e) => handleVenueDimChange("height", e.target.value)}
               onBlur={handleVenueEditCommit}
               className="w-14 h-7 text-xs"
             />
