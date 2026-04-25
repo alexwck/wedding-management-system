@@ -20,4 +20,6 @@ export const createCoupleFormSchema = createCoupleBaseSchema
     path: ["confirmPassword"],
   });
 
+export const coupleNameSchema = z.string().min(1, "Couple name is required").max(100, "Couple name must be 100 characters or less");
+
 export type CreateCoupleFormData = z.infer<typeof createCoupleFormSchema>;

@@ -9,8 +9,18 @@ import type { ItemType } from "@/types/floor-plan";
 import { Button } from "@/components/ui/button";
 import { PanelLeftClose, PanelLeft } from "lucide-react";
 
+export type AvailabilityKey = string;
+
 interface ItemCatalogProps {
   onSelectItem: (type: ItemType, sizeVariant?: number) => void;
+  disabled?: boolean;
+  unavailableItems?: Set<AvailabilityKey>;
+}
+
+function entryKey(entry: CatalogEntry): AvailabilityKey {
+  if (entry.type === "round_table") return `round_table-${(entry as CatalogEntry & { diameter: number }).diameter}`;
+  if (entry.type === "long_table") return `long_table-${(entry as CatalogEntry & { length: number }).length}`;
+  return entry.type;
 }
 
 function isRoundTableEntry(
@@ -48,11 +58,11 @@ const ROUND_TABLES = ITEM_CATALOG.filter(isRoundTableEntry);
 const LONG_TABLES = ITEM_CATALOG.filter(isLongTableEntry);
 const OTHER_ITEMS = ITEM_CATALOG.filter(isGenericEntry);
 
-export function ItemCatalog({ onSelectItem }: ItemCatalogProps) {
+export function ItemCatalog({ onSelectItem, disabled = false, unavailableItems }: ItemCatalogProps) {
   const [collapsed, setCollapsed] = useState(false);
-  const roundTables = ROUND_TABLES;
-  const longTables = LONG_TABLES;
-  const otherItems = OTHER_ITEMS;
+
+  const isUnavailable = (entry: CatalogEntry) =>
+    unavailableItems?.has(entryKey(entry)) ?? false;
 
   return (
     <aside
@@ -79,49 +89,67 @@ export function ItemCatalog({ onSelectItem }: ItemCatalogProps) {
             <h3 className="text-sm font-medium text-muted-foreground">
               Round Tables
             </h3>
-            {roundTables.map((entry) => (
-              <Button
-                key={`round-${entry.diameter}`}
-                variant="outline"
-                size="sm"
-                onClick={() => onSelectItem("round_table", entry.diameter)}
-              >
-                {entry.diameter}ft &middot; {entry.defaultChairs} chairs
-              </Button>
-            ))}
+            {ROUND_TABLES.map((entry) => {
+              const unavailable = isUnavailable(entry);
+              return (
+                <Button
+                  key={`round-${entry.diameter}`}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onSelectItem("round_table", entry.diameter)}
+                  disabled={disabled || unavailable}
+                  title={unavailable ? "No space available" : undefined}
+                  className={unavailable ? "opacity-50" : undefined}
+                >
+                  {entry.diameter}ft &middot; {entry.defaultChairs} chairs
+                </Button>
+              );
+            })}
           </div>
 
           <div className="flex flex-col gap-2 border-b pb-4">
             <h3 className="text-sm font-medium text-muted-foreground">
               Long Tables
             </h3>
-            {longTables.map((entry) => (
-              <Button
-                key={`long-${entry.length}`}
-                variant="outline"
-                size="sm"
-                onClick={() => onSelectItem("long_table", entry.length)}
-              >
-                {entry.length}ft x {entry.height}ft &middot; {entry.defaultChairs}{" "}
-                chairs
-              </Button>
-            ))}
+            {LONG_TABLES.map((entry) => {
+              const unavailable = isUnavailable(entry);
+              return (
+                <Button
+                  key={`long-${entry.length}`}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onSelectItem("long_table", entry.length)}
+                  disabled={disabled || unavailable}
+                  title={unavailable ? "No space available" : undefined}
+                  className={unavailable ? "opacity-50" : undefined}
+                >
+                  {entry.length}ft x {entry.height}ft &middot; {entry.defaultChairs}{" "}
+                  chairs
+                </Button>
+              );
+            })}
           </div>
 
           <div className="flex flex-col gap-2">
             <h3 className="text-sm font-medium text-muted-foreground">
               Other Items
             </h3>
-            {otherItems.map((entry) => (
-              <Button
-                key={entry.type}
-                variant="outline"
-                size="sm"
-                onClick={() => onSelectItem(entry.type)}
-              >
-                {OTHER_ITEM_LABELS[entry.type] ?? entry.type}
-              </Button>
-            ))}
+            {OTHER_ITEMS.map((entry) => {
+              const unavailable = isUnavailable(entry);
+              return (
+                <Button
+                  key={entry.type}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onSelectItem(entry.type)}
+                  disabled={disabled || unavailable}
+                  title={unavailable ? "No space available" : undefined}
+                  className={unavailable ? "opacity-50" : undefined}
+                >
+                  {OTHER_ITEM_LABELS[entry.type] ?? entry.type}
+                </Button>
+              );
+            })}
           </div>
         </>
       )}

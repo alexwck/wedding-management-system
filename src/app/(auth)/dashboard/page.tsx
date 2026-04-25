@@ -22,6 +22,13 @@ export default async function CoupleDashboard() {
 
   return (
     <div className="space-y-6">
+      {wedding.isLocked && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-amber-800">
+          <p className="font-medium">This wedding has been locked by admin.</p>
+          <p className="text-sm mt-1">Contact your admin if you need to make changes.</p>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">{wedding.coupleName}</h2>

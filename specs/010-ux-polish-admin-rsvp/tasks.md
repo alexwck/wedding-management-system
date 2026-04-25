@@ -19,8 +19,8 @@
 
 **Purpose**: Database schema change for wedding lock
 
-- [ ] T001 Create migration `supabase/migrations/XXXXXXXX_add_wedding_lock.sql` adding `is_locked BOOLEAN NOT NULL DEFAULT false` to weddings table per data-model.md
-- [ ] T002 Run `supabase db reset` and verify `is_locked` column exists with default `false` per quickstart.md
+- [x] T001 Create migration `supabase/migrations/XXXXXXXX_add_wedding_lock.sql` adding `is_locked BOOLEAN NOT NULL DEFAULT false` to weddings table per data-model.md
+- [x] T002 Run `supabase db reset` and verify `is_locked` column exists with default `false` per quickstart.md
 
 ---
 
@@ -30,14 +30,14 @@
 
 **CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Add `verifyWeddingNotLocked(weddingId)` helper to `src/lib/auth-guards.ts` returning `{ ok: true } | { ok: false, error: string }` per contracts/server-actions.md and research.md R2
-- [ ] T004 [P] Add lock check to `submitRSVP` (after wedding lookup ~L46) and `updateRsvpStatus` (~L102) in `src/app/actions/rsvp.ts` per contracts/server-actions.md
-- [ ] T005 [P] Add lock check (after access verification ~L85) and OOB validation with `isItemOutOfBounds` to `saveFloorPlan` in `src/app/actions/floor-plan.ts` per contracts/server-actions.md
-- [ ] T006 [P] Add lock check (~L33) and cache-bust `?t=${Date.now()}` to `uploadTemplateImage` in `src/app/actions/upload.ts` per contracts/server-actions.md and research.md R5
-- [ ] T007 Add lock checks to `updateWeddingDetails` (~L388), `updateWeddingDate` (~L452), `updateWeddingTimezone` (~L486), `updateTemplateFocalPoint` (~L524) in `src/app/actions/admin.ts` per contracts/server-actions.md
-- [ ] T008 Add `toggleWeddingLock(weddingId)` admin-only server action in `src/app/actions/admin.ts` — flips `is_locked`, the only mutation allowed on a locked wedding per contracts/server-actions.md
-- [ ] T009 Add `updateCoupleName(weddingId, coupleName)` server action in `src/app/actions/admin.ts` with Zod schema `z.string().min(1).max(100)` in `src/lib/validations/admin.ts` per contracts/server-actions.md and data-model.md
-- [ ] T010 [P] Unit test for `verifyWeddingNotLocked` in `tests/unit/lib/auth-guards.test.ts` — verify returns `{ ok: true }` for unlocked wedding and `{ ok: false, error }` for locked wedding
+- [x] T003 Add `verifyWeddingNotLocked(weddingId)` helper to `src/lib/auth-guards.ts` returning `{ ok: true } | { ok: false, error: string }` per contracts/server-actions.md and research.md R2
+- [x] T004 [P] Add lock check to `submitRSVP` (after wedding lookup ~L46) and `updateRsvpStatus` (~L102) in `src/app/actions/rsvp.ts` per contracts/server-actions.md
+- [x] T005 [P] Add lock check (after access verification ~L85) and OOB validation with `isItemOutOfBounds` to `saveFloorPlan` in `src/app/actions/floor-plan.ts` per contracts/server-actions.md
+- [x] T006 [P] Add lock check (~L33) and cache-bust `?t=${Date.now()}` to `uploadTemplateImage` in `src/app/actions/upload.ts` per contracts/server-actions.md and research.md R5
+- [x] T007 Add lock checks to `updateWeddingDetails` (~L388), `updateWeddingDate` (~L452), `updateWeddingTimezone` (~L486), `updateTemplateFocalPoint` (~L524) in `src/app/actions/admin.ts` per contracts/server-actions.md
+- [x] T008 Add `toggleWeddingLock(weddingId)` admin-only server action in `src/app/actions/admin.ts` — flips `is_locked`, the only mutation allowed on a locked wedding per contracts/server-actions.md
+- [x] T009 Add `updateCoupleName(weddingId, coupleName)` server action in `src/app/actions/admin.ts` with Zod schema `z.string().min(1).max(100)` in `src/lib/validations/admin.ts` per contracts/server-actions.md and data-model.md
+- [x] T010 [P] Unit test for `verifyWeddingNotLocked` in `tests/unit/lib/auth-guards.test.ts` — verify returns `{ ok: true }` for unlocked wedding and `{ ok: false, error }` for locked wedding
 
 **Checkpoint**: All mutation server actions now enforce the lock. `toggleWeddingLock` and `updateCoupleName` are available. Auth guard tested. User story implementation can begin.
 
@@ -53,22 +53,22 @@
 
 > **Red phase**: Write these tests first, confirm they FAIL, then implement.
 
-- [ ] T011 [P] [US1] Unit tests for lock toggle and lock enforcement on mutation actions in `tests/unit/actions/admin-lock.test.ts` — verify toggleWeddingLock flips state, all guarded actions reject when locked, unlock restores access
-- [ ] T012 [P] [US1] Unit tests for RSVP submission blocked when locked in `tests/unit/actions/rsvp-lock.test.ts` — verify submitRSVP returns error when `is_locked=true`
+- [x] T011 [P] [US1] Unit tests for lock toggle and lock enforcement on mutation actions in `tests/unit/actions/admin-lock.test.ts` — verify toggleWeddingLock flips state, all guarded actions reject when locked, unlock restores access
+- [x] T012 [P] [US1] Unit tests for RSVP submission blocked when locked in `tests/unit/actions/rsvp-lock.test.ts` — verify submitRSVP returns error when `is_locked=true`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Create `LockToggle` component in `src/components/lock-toggle.tsx` — toggle button showing locked/unlocked state, calls `toggleWeddingLock`, includes ARIA attributes per FR-027
-- [ ] T014 [US1] Add `<LockToggle>` and lock-aware read-only state to admin wedding detail page in `src/app/(auth)/admin/weddings/[id]/page.tsx` — disable all edit forms when locked per FR-002
-- [ ] T015 [US1] Add lock banner and read-only mode to couple dashboard in `src/app/(auth)/dashboard/page.tsx` — show "Locked by admin" banner, disable date picker, venue editor, template upload per FR-002
-- [ ] T016 [P] [US1] Fetch and pass `isLocked` state to floor plan editor in `src/app/(auth)/admin/weddings/[id]/floor-plan/page.tsx`
-- [ ] T017 [P] [US1] Fetch and pass `isLocked` state to floor plan editor in `src/app/(auth)/dashboard/floor-plan/page.tsx`
-- [ ] T018 [US1] Add `enabled` prop to auto-save in `src/components/floor-plan/hooks/use-auto-save.ts` — set `enabled=false` when wedding is locked per FR-025
-- [ ] T019 [US1] Make floor plan canvas view-only when locked in `src/components/floor-plan/floor-plan-canvas.tsx` — disable drag, rotate, resize, catalog placement, chair count changes, guest assignments, canvas dimension edits, undo/redo controls per FR-025 and FR-026
+- [x] T013 [US1] Create `LockToggle` component in `src/components/lock-toggle.tsx` — toggle button showing locked/unlocked state, calls `toggleWeddingLock`, includes ARIA attributes per FR-027
+- [x] T014 [US1] Add `<LockToggle>` and lock-aware read-only state to admin wedding detail page in `src/app/(auth)/admin/weddings/[id]/page.tsx` — disable all edit forms when locked per FR-002
+- [x] T015 [US1] Add lock banner and read-only mode to couple dashboard in `src/app/(auth)/dashboard/page.tsx` — show "Locked by admin" banner, disable date picker, venue editor, template upload per FR-002
+- [x] T016 [P] [US1] Fetch and pass `isLocked` state to floor plan editor in `src/app/(auth)/admin/weddings/[id]/floor-plan/page.tsx`
+- [x] T017 [P] [US1] Fetch and pass `isLocked` state to floor plan editor in `src/app/(auth)/dashboard/floor-plan/page.tsx`
+- [x] T018 [US1] Add `enabled` prop to auto-save in `src/components/floor-plan/hooks/use-auto-save.ts` — set `enabled=false` when wedding is locked per FR-025
+- [x] T019 [US1] Make floor plan canvas view-only when locked in `src/components/floor-plan/floor-plan-canvas.tsx` — disable drag, rotate, resize, catalog placement, chair count changes, guest assignments, canvas dimension edits, undo/redo controls per FR-025 and FR-026
 
 ### E2E Verification for User Story 1
 
-- [ ] T020 [US1] E2E test for admin lock/unlock flow in `tests/e2e/admin-lock.spec.ts` — admin locks wedding → couple can't edit → guest sees "RSVP is closed" → verify existing RSVP data preserved (FR-004) → admin unlocks → all editing restored
+- [x] T020 [US1] E2E test for admin lock/unlock flow in `tests/e2e/admin-lock.spec.ts` — admin locks wedding → couple can't edit → guest sees "RSVP is closed" → verify existing RSVP data preserved (FR-004) → admin unlocks → all editing restored
 
 **Checkpoint**: Admin lock/unlock works end-to-end. Couple cannot edit when locked. Floor plan editor is view-only when locked. Data preserved through lock/unlock cycle.
 
@@ -86,17 +86,17 @@
 
 > **Red phase**: Write these tests first, confirm they FAIL, then implement.
 
-- [ ] T021 [P] [US2] Unit tests for `canPlaceItem()` availability check in `tests/unit/lib/placement.test.ts` — verify returns true when space available, false when canvas full, correct per item type
+- [x] T021 [P] [US2] Unit tests for `canPlaceItem()` availability check in `tests/unit/lib/placement.test.ts` — verify returns true when space available, false when canvas full, correct per item type
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Create `canPlaceItem()` availability check in `src/lib/floor-plan/placement.ts` — runs existing spiral placement algorithm in dry-run mode, returns boolean per item type per research.md R3
-- [ ] T023 [US2] Update item catalog to consume availability map and disable unavailable items with tooltip "No space available" in `src/components/floor-plan/item-catalog.tsx` — add `opacity-50 pointer-events-none` styling and ARIA disabled state per FR-007 and FR-028
-- [ ] T024 [US2] Compute and pass availability map on every canvas state change in `src/components/floor-plan/floor-plan-canvas.tsx` — re-evaluate on item add/remove/move and canvas resize per FR-008
+- [x] T022 [US2] Create `canPlaceItem()` availability check in `src/lib/floor-plan/placement.ts` — runs existing spiral placement algorithm in dry-run mode, returns boolean per item type per research.md R3
+- [x] T023 [US2] Update item catalog to consume availability map and disable unavailable items with tooltip "No space available" in `src/components/floor-plan/item-catalog.tsx` — add `opacity-50 pointer-events-none` styling and ARIA disabled state per FR-007 and FR-028
+- [x] T024 [US2] Compute and pass availability map on every canvas state change in `src/components/floor-plan/floor-plan-canvas.tsx` — re-evaluate on item add/remove/move and canvas resize per FR-008
 
 ### E2E Verification for User Story 2
 
-- [ ] T025 [US2] E2E test for catalog disable when canvas full in `tests/e2e/floor-plan-catalog-disable.spec.ts` — fill canvas → items disabled → remove item → items re-enabled
+- [x] T025 [US2] E2E test for catalog disable when canvas full in `tests/e2e/floor-plan-catalog-disable.spec.ts` — fill canvas → items disabled → remove item → items re-enabled
 
 **Checkpoint**: Catalog items are correctly disabled/enabled based on available canvas space.
 

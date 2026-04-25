@@ -29,7 +29,7 @@ describe("VenueEditor", () => {
     mockSearchAddress.mockReset();
     mockUpdateWeddingDetails.mockReset();
     mockSearchAddress.mockResolvedValue({ ok: true, results: [] });
-    mockUpdateWeddingDetails.mockResolvedValue({ success: true });
+    mockUpdateWeddingDetails.mockResolvedValue({ success: true, wedding: { slug: "test-wedding" } });
   });
 
   afterEach(() => {
@@ -291,7 +291,7 @@ describe("VenueEditor", () => {
   // --- Save tests (real timers, no debounce) ---
 
   it('shows "Venue details saved!" on successful save', async () => {
-    mockUpdateWeddingDetails.mockResolvedValue({ success: true });
+    mockUpdateWeddingDetails.mockResolvedValue({ success: true, wedding: { slug: "test-wedding" } });
 
     render(<VenueEditor weddingId={1} />);
 

@@ -15,7 +15,7 @@ export default async function CoupleFloorPlanPage() {
 
   const { data: wedding } = await supabase
     .from("weddings")
-    .select("id")
+    .select("id, is_locked")
     .eq("user_id", user.id)
     .single();
 
@@ -42,6 +42,7 @@ export default async function CoupleFloorPlanPage() {
       <FloorPlanCanvas
         weddingId={wedding.id}
         initialFloorPlan={result.floorPlan}
+        isLocked={wedding.is_locked}
       />
     </div>
   );

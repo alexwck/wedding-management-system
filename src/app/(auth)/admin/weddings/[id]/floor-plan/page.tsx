@@ -26,7 +26,7 @@ export default async function AdminFloorPlanPage({ params }: AdminFloorPlanPageP
   const adminClient = createAdminClient();
   const { data: wedding } = await adminClient
     .from("weddings")
-    .select("id, couple_name")
+    .select("id, couple_name, is_locked")
     .eq("id", weddingId)
     .single();
 
@@ -49,6 +49,7 @@ export default async function AdminFloorPlanPage({ params }: AdminFloorPlanPageP
       <FloorPlanCanvas
         weddingId={weddingId}
         initialFloorPlan={result.floorPlan}
+        isLocked={wedding.is_locked}
       />
     </div>
   );

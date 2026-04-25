@@ -1,7 +1,7 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getAuthAndVerifyAccess } from "@/lib/auth-guards";
+import { getAuthAndVerifyAccess, verifyWeddingNotLocked } from "@/lib/auth-guards";
 import { rsvpSchema } from "@/lib/validations/rsvp";
 
 export async function submitRSVP(data: {
@@ -42,6 +42,11 @@ export async function submitRSVP(data: {
       error: "not_found" as const,
       message: "Wedding not found.",
     };
+  }
+
+  const lockCheck = await verifyWeddingNotLocked(wedding.id);
+  if (!lockCheck.ok) {
+    return { success: false, error: "locked" as const, message: lockCheck.error };
   }
 
   const { data: existing } = await supabase
@@ -98,6 +103,11 @@ export async function updateRsvpStatus(input: {
   const auth = await getAuthAndVerifyAccess(input.weddingId);
   if (auth.error) {
     return { success: false as const, error: auth.error };
+  }
+
+  const lockCheck = await verifyWeddingNotLocked(input.weddingId);
+  if (!lockCheck.ok) {
+    return { success: false as const, error: lockCheck.error };
   }
 
   const adminClient = createAdminClient();

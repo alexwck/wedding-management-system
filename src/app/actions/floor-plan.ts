@@ -6,6 +6,8 @@ import { floorPlanInputSchema } from "@/lib/validations/floor-plan";
 import {
   deserializeFloorPlan,
 } from "@/lib/floor-plan/serializers";
+import { isItemOutOfBounds } from "@/lib/floor-plan/collision";
+import { verifyWeddingNotLocked } from "@/lib/auth-guards";
 import { cleanupOrphanedAssignments } from "@/app/actions/seat-assignment";
 import type { FloorPlanItem } from "@/types/floor-plan";
 
@@ -89,6 +91,18 @@ export async function saveFloorPlan(
       success: false as const,
       error: "Validation failed: " + parsed.error.issues.map((i) => i.message).join(", "),
     };
+  }
+
+  const lockCheck = await verifyWeddingNotLocked(weddingId);
+  if (!lockCheck.ok) {
+    return { success: false as const, error: lockCheck.error };
+  }
+
+  const oobCount = parsed.data.items.filter((item) =>
+    isItemOutOfBounds(item, parsed.data.width, parsed.data.height)
+  ).length;
+  if (oobCount > 0) {
+    return { success: false as const, error: `${oobCount} item(s) are outside the canvas bounds` };
   }
 
   const adminClient = createAdminClient();

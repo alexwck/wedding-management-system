@@ -22,6 +22,7 @@ interface CanvasItemProps {
   item: FloorPlanItem;
   isSelected: boolean;
   isOutOfBounds: boolean;
+  isLocked: boolean;
   chairAssignment: { guestName: string } | null;
   isSeatLoading: boolean;
   onDragEnd: (id: string, e: Konva.KonvaEventObject<DragEvent>) => void;
@@ -35,6 +36,7 @@ export const CanvasItem = memo(function CanvasItem({
   item,
   isSelected,
   isOutOfBounds,
+  isLocked,
   chairAssignment,
   isSeatLoading,
   onDragEnd,
@@ -49,7 +51,7 @@ export const CanvasItem = memo(function CanvasItem({
     y: item.y,
     rotation: item.rotation,
     label: item.label,
-    draggable: true,
+    draggable: !isLocked,
     isSelected,
     onDragEnd: (e: Konva.KonvaEventObject<DragEvent>) => onDragEnd(item.id, e),
     onDragMove: (e: Konva.KonvaEventObject<DragEvent>) => onDragMove(item.id, e),
