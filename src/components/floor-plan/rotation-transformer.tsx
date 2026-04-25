@@ -3,7 +3,7 @@
 import React, { useRef, useEffect } from "react";
 import { Transformer } from "react-konva";
 import type Konva from "konva";
-import { ROTATION_SNAPS, isResizable, getResizeBounds, FEET_TO_PIXELS } from "@/lib/floor-plan/constants";
+import { ROTATION_SNAPS, isResizable, getResizeBounds, FEET_TO_PIXELS, centerPixelsToTopLeftFeet } from "@/lib/floor-plan/constants";
 import type { ItemType } from "@/types/floor-plan";
 
 export interface TransformResult {
@@ -95,10 +95,11 @@ export function RotationTransformer({
 
           const newWidth = (node.width() * scaleX) / FEET_TO_PIXELS;
           const newHeight = (node.height() * scaleY) / FEET_TO_PIXELS;
+          const { x, y } = centerPixelsToTopLeftFeet(node.x(), node.y(), newWidth, newHeight);
 
           onTransformEnd(selectedItemId, {
-            x: node.x() / FEET_TO_PIXELS,
-            y: node.y() / FEET_TO_PIXELS,
+            x,
+            y,
             width: Math.round(newWidth * 100) / 100,
             height: Math.round(newHeight * 100) / 100,
             rotation: node.rotation(),
