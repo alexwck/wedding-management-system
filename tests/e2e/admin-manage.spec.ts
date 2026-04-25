@@ -75,6 +75,7 @@ test.describe("Admin manages couple accounts (US4)", () => {
     const uniqueName = `Test Couple ${uniqueId}`;
     await page.fill('input[id="email"]', uniqueEmail);
     await page.fill('input[id="password"]', "password123");
+    await page.fill('input[id="confirmPassword"]', "password123");
     await page.fill('input[id="displayName"]', uniqueName);
     await page.fill('input[id="coupleName"]', uniqueName);
 

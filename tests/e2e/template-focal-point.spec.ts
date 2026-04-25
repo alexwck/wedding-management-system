@@ -17,8 +17,8 @@ test.describe("Template focal point (US8)", () => {
     if (await previewButton.isVisible({ timeout: 3000 }).catch(() => false)) {
       await previewButton.click();
 
-      // Dialog should open with focal point instructions
-      await expect(page.getByText("Click the image to set a focal point")).toBeVisible();
+      // Dialog should open with drag-to-crop title
+      await expect(page.getByText("Template Preview — Drag to crop")).toBeVisible();
     }
   });
 
@@ -37,8 +37,8 @@ test.describe("Template focal point (US8)", () => {
     if (await previewButton.isVisible({ timeout: 3000 }).catch(() => false)) {
       await previewButton.click();
 
-      // Dialog should open — check for the specific instruction text
-      await expect(page.getByText("Click the image to set a focal point")).toBeVisible();
+      // Dialog should open — check for dialog title
+      await expect(page.getByText("Template Preview — Drag to crop")).toBeVisible();
     }
   });
 });
