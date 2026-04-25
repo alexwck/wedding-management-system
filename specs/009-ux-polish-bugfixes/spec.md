@@ -17,11 +17,13 @@ As a couple or admin uploading a wedding template image, I want to control which
 
 **Acceptance Scenarios**:
 
-1. **Given** a template image that is taller than the display frame, **When** the user opens the preview, **Then** the image is shown fitted within the frame and the user can drag vertically to choose which portion is visible
-2. **Given** a template image that is wider than the display frame, **When** the user opens the preview, **Then** the image is shown fitted within the frame and the user can drag horizontally to choose which portion is visible
+1. **Given** a template image that is taller than the display frame, **When** the user opens the preview, **Then** the image is shown fitted within the frame and the user can drag vertically (mouse drag or touch drag) to choose which portion is visible
+2. **Given** a template image that is wider than the display frame, **When** the user opens the preview, **Then** the image is shown fitted within the frame and the user can drag horizontally (mouse drag or touch drag) to choose which portion is visible
 3. **Given** an image that exactly matches the display frame aspect ratio, **When** the user opens the preview, **Then** no dragging is needed and the image fills the frame completely
 4. **Given** a user has dragged to a preferred crop position, **When** they save, **Then** the landing page renders the image at that exact crop position
 5. **Given** a user uploads a new template image, **When** the previous image had a saved crop, **Then** the crop position resets and the user must choose a new position
+6. **Given** the user is dragging the image within the crop preview, **When** the browser window is resized, **Then** the crop position is preserved relative to the image and the preview frame updates to match the new landing page container dimensions
+7. **Given** the same wedding is open in multiple browser tabs, **When** the user saves a crop position in one tab, **Then** the other tab does not conflict — the last save wins (no merge logic required)
 
 ---
 
@@ -36,9 +38,12 @@ As a couple or admin managing floor plan seating, I want to see both unassigned 
 **Acceptance Scenarios**:
 
 1. **Given** the floor plan editor loads with a mix of assigned and unassigned guests, **When** the page renders, **Then** the unassigned guests section is expanded and the assigned guests section is collapsed
-2. **Given** both sections are visible, **When** the user clicks a section header, **Then** that section collapses or expands accordingly
+2. **Given** both sections are visible, **When** the user clicks a section header, **Then** that section collapses or expands accordingly (keyboard-accessible via Enter/Space)
 3. **Given** a guest is in the unassigned list, **When** the user assigns them to a seat, **Then** the guest moves to the assigned section showing their table number (e.g., "Jane Doe — Table 3") and the counts update
 4. **Given** a guest is in the assigned list, **When** the user unassigns them, **Then** the guest moves back to the unassigned section and the counts update
+5. **Given** the guest panel is loading initial data, **When** the fetch is in progress, **Then** a loading indicator is shown in each section until data arrives
+6. **Given** a section contains more guests than fit in the visible panel area, **When** the section is expanded, **Then** the section scrolls independently without affecting the other section or the stats component
+7. **Given** zero RSVPs have been received, **When** the guest panel renders, **Then** both sections show "No guests yet" (unassigned) and an empty state (assigned)
 
 ---
 
@@ -53,8 +58,8 @@ As a couple or admin, I want to see a summary of tables, chairs, and seat assign
 **Acceptance Scenarios**:
 
 1. **Given** the canvas contains 2 round tables (5ft, 7ft) and 1 long table (6ft), **When** the stats component renders, **Then** it shows "2 Round Tables, 1 Long Table" and the total chair count based on each table's chair configuration
-2. **Given** 10 chairs across all tables and 7 guests assigned, **When** the stats component renders, **Then** it shows "7 assigned, 3 empty"
-3. **Given** all guests are assigned and 3 chairs remain empty, **When** the stats component renders, **Then** it shows the unoccupied chair count clearly
+2. **Given** 10 chairs across all tables and 7 guests assigned, **When** the stats component renders, **Then** it shows "7 assigned, 3 empty" (where "empty" means chairs without a guest assigned, regardless of whether all guests are seated)
+3. **Given** all guests are assigned and 3 chairs remain empty (3 surplus chairs beyond guest count), **When** the stats component renders, **Then** the empty chair count reflects chairs that still have no guest
 4. **Given** an empty canvas, **When** the stats component renders, **Then** it shows zero counts for all categories
 
 ---
@@ -71,7 +76,7 @@ As a floor plan user, when I undo my last action, I expect exactly one action to
 
 1. **Given** the user has added 3 items sequentially, **When** the user clicks undo once, **Then** exactly the last item is removed and 2 items remain
 2. **Given** the user has moved an item, **When** the user clicks undo, **Then** the item returns to its previous position (no additional state changes)
-3. **Given** the undo button is clicked rapidly, **When** each undo completes, **Then** only one state change occurs per click
+3. **Given** the undo button is clicked multiple times in quick succession, **When** each click is processed, **Then** only one state change occurs per click — the undo action is synchronous and blocks duplicate invocations
 
 ---
 
@@ -85,7 +90,7 @@ As an admin creating a couple account, I want to type the password twice to conf
 
 **Acceptance Scenarios**:
 
-1. **Given** the admin couple creation form, **When** the admin types different passwords in the password and confirm fields, **Then** the form displays an error indicating passwords do not match
+1. **Given** the admin couple creation form, **When** the admin types different passwords in the password and confirm fields, **Then** the form displays the error "Passwords do not match" below the confirm field
 2. **Given** the admin couple creation form, **When** the admin types identical passwords in both fields, **Then** the form submits successfully
 3. **Given** the confirm password field is empty, **When** the admin attempts to submit, **Then** the form displays a required field error
 
@@ -106,6 +111,17 @@ As a couple or admin using the floor plan editor, I want to resize non-table ite
 3. **Given** a long table is selected, **When** the user views the top bar or selection controls, **Then** no resize handles or dimension inputs are shown — only the fixed size is displayed
 4. **Given** a resized non-table item, **When** the user undoes the resize, **Then** the item returns to its previous dimensions
 5. **Given** any item being resized, **When** the new dimensions would cause a collision with another item, **Then** the collision indicator appears
+6. **Given** an item being resized near the canvas boundary, **When** the new dimensions would extend beyond the venue limits, **Then** the resize snaps to the venue boundary and the out-of-bounds indicator appears
+7. **Given** a table with assigned guest chairs, **When** the table is deleted, **Then** the assigned guests are returned to the unassigned section
+
+**Per-Item Resize Limits**:
+
+| Item Type | Min (WxH) | Max (WxH) | Default (WxH) |
+|-----------|-----------|-----------|----------------|
+| Stage     | 4ft x 3ft | 20ft x 20ft | 12ft x 8ft |
+| Pillar    | 1ft x 1ft | 6ft x 6ft   | 2ft x 2ft  |
+| Walkway   | 2ft x 1ft | 20ft x 10ft | 6ft x 3ft  |
+| Misc      | 1ft x 1ft | 15ft x 15ft | 4ft x 4ft  |
 
 ---
 
@@ -115,8 +131,10 @@ As a couple or admin using the floor plan editor, I want to resize non-table ite
 - When all guests are assigned and the unassigned section becomes empty, it displays a "All guests are seated!" message
 - Undo and redo buttons stay disabled when there is nothing to undo or redo (initial state only / end of history)
 - Password confirmation validation triggers correctly even when fields are filled via browser autofill
-- Resizable items enforce minimum (2ft) and maximum (20ft) dimension limits — dragging snaps to the boundary
+- Resizable items enforce per-type minimum and maximum dimension limits (see table in User Story 6) — dragging snaps to the boundary
 - Tables (round and long) cannot be resized — selecting a table shows no resize handles
+- If the template image is deleted from storage but a crop offset exists, the landing page shows the default state (no image) and the crop offset is ignored gracefully
+- If the crop position save fails (network error), the preview shows an error toast and the user can retry without losing their current crop position
 
 ## Requirements *(mandatory)*
 
@@ -124,9 +142,9 @@ As a couple or admin using the floor plan editor, I want to resize non-table ite
 
 **Template Image Crop & Reposition**
 
-- **FR-001**: System MUST allow users to drag a template image within the preview frame to choose the visible portion
+- **FR-001**: System MUST allow users to drag a template image within the preview frame to choose the visible portion (supporting both mouse drag and touch drag for mobile parity)
 - **FR-002**: System MUST replace the current click-to-set focal point feature with the drag-to-crop interaction
-- **FR-003**: System MUST persist the crop position as offset coordinates (horizontal and vertical percentages or pixels)
+- **FR-003**: System MUST persist the crop position as percentage-based offset coordinates (0–100 for horizontal and vertical), compatible with CSS `object-position`
 - **FR-004**: System MUST render the saved crop position on the public wedding landing page
 - **FR-005**: System MUST reset the crop position when a new template image is uploaded
 - **FR-006**: System MUST accept any image dimensions (portrait, landscape, square) without enforcing specific aspect ratios
@@ -138,15 +156,18 @@ As a couple or admin using the floor plan editor, I want to resize non-table ite
 - **FR-009**: System MUST display unassigned guests in a collapsible section (replacing the current non-collapsible panel)
 - **FR-010**: System MUST expand the unassigned guests section by default on page load
 - **FR-011**: System MUST collapse the assigned guests section by default on page load
-- **FR-012**: System MUST update guest lists in real-time when assignments change (guest moves between sections)
+- **FR-012**: System MUST update guest lists within 500ms when assignments change (guest moves between sections)
+- **FR-012a**: System MUST show a loading indicator in each guest section while initial data is being fetched
+- **FR-012b**: System MUST allow each guest section to scroll independently when guest count exceeds the visible panel area
+- **FR-012c**: Table numbers in the assigned guests list are derived from the item's sequential position among table-type items on the canvas (e.g., the first table placed is Table 1, the second is Table 2)
 
 **Floor Plan Canvas Statistics**
 
 - **FR-013**: System MUST display a summary component pinned at the top of the left panel (always visible, not collapsible) showing total round tables and total long tables
 - **FR-014**: System MUST display total chair count across all tables
-- **FR-015**: System MUST display number of chairs with assigned guests and number of empty chairs
-- **FR-016**: System MUST display the count of empty chairs that remain after all guests have been assigned
-- **FR-017**: System MUST update statistics in real-time as items are added, removed, or guests are assigned/unassigned
+- **FR-015**: System MUST display number of chairs with assigned guests and number of chairs without an assigned guest ("empty")
+- **FR-016**: System MUST display the count of empty chairs that remain after all guests have been assigned (same value as FR-015's "empty" count — FR-016 exists to emphasize this metric when all guests are seated)
+- **FR-017**: System MUST update statistics within 500ms as items are added, removed, or guests are assigned/unassigned
 
 **Undo Bug Fix**
 
@@ -157,11 +178,11 @@ As a couple or admin using the floor plan editor, I want to resize non-table ite
 
 - **FR-020**: System MUST add a confirm password field to the admin couple account creation form
 - **FR-021**: System MUST validate that password and confirm password match before form submission
-- **FR-022**: System MUST display a clear error message when passwords do not match
+- **FR-022**: System MUST display "Passwords do not match" below the confirm password field when passwords do not match
 
 **Item Dimensions / Resize**
 
-- **FR-023**: System MUST allow users to resize non-table items (Stage, Pillar, Walkway, Misc) on the canvas via drag handles or dimension inputs
+- **FR-023**: System MUST allow users to resize non-table items — specifically Stage, Pillar, Walkway, and Misc — on the canvas via drag handles or dimension inputs (this is the exhaustive list of resizable types; any future item types default to non-resizable unless explicitly added)
 - **FR-024**: System MUST NOT show resize controls for round tables and long tables — these items use fixed predefined dimensions only
 - **FR-025**: System MUST enforce minimum and maximum dimension limits for resizable items
 - **FR-026**: System MUST include resize actions in the undo/redo history
@@ -177,8 +198,8 @@ As a couple or admin using the floor plan editor, I want to resize non-table ite
 
 ### Measurable Outcomes
 
-- **SC-001**: Users can position any uploaded template image within 3 seconds of opening the preview, regardless of original image dimensions
-- **SC-002**: The landing page renders the user's chosen crop position exactly as previewed, with no visible discrepancy
+- **SC-001**: Users can position any uploaded template image within 3 seconds of opening the preview (time-to-interactive: the drag handle is responsive and the image moves with the pointer/touch within 100ms)
+- **SC-002**: The landing page renders the crop position using the same percentage-based `object-position` value as the preview — verified by comparing the computed CSS `object-position` on both pages
 - **SC-003**: Users can see both assigned and unassigned guest counts and canvas statistics at a glance without scrolling
 - **SC-004**: Undo reverts exactly one action in 100% of test cases (no double-undo behavior)
 - **SC-005**: Admin cannot submit the couple creation form with mismatched passwords — validation catches 100% of mismatches
@@ -195,12 +216,13 @@ As a couple or admin using the floor plan editor, I want to resize non-table ite
 
 ## Assumptions
 
-- The existing focal point database columns (`template_focal_x`, `template_focal_y`) can be repurposed or replaced for crop offset storage — the storage mechanism is the same (two numeric coordinates)
+- The existing focal point database columns (`template_focal_x`, `template_focal_y`) can be repurposed for crop offset storage — the storage mechanism is the same (two numeric coordinates stored as percentages 0–100)
 - Portrait-oriented images (taller than wide) are the most common wedding template uploads and will be the primary design target
 - The crop preview frame uses the same dimensions as the landing page container (free-form, no fixed aspect ratio) — what the user sees in preview matches what guests see on the landing page
-- The floor plan left panel has sufficient space to accommodate both guest sections and a statistics component without requiring horizontal scrolling
-- The undo bug is caused by the initial state not being correctly pushed to history, or by an extra `pushState` call during item addition — the fix is in the hook logic, not in the canvas event handlers
+- The floor plan left panel (224px / w-56) has sufficient space to accommodate both guest sections and a statistics component without requiring horizontal scrolling; on mobile viewports the panel adapts to full-width overlay
+- The undo bug is caused by a duplicate `pushState` call in `floor-plan-canvas.tsx` (the caller), specifically `pushHistory()` being called before `addItem()` — the fix is in the canvas event handler, not in the `use-undo-redo` hook itself
 - Password confirmation is a client-side-only validation enhancement — no server-side changes needed beyond what the existing Zod schema provides
 - Item resize applies only to non-table items (Stage, Pillar, Walkway, Misc) — round tables and long tables are fixed at their predefined dimensions
-- Minimum dimensions for resizable items will follow sensible defaults (e.g., 2ft minimum width/height)
-- Maximum dimensions will be capped at reasonable real-world sizes (e.g., 20ft width/height for stages)
+- The undo history limit of 20 snapshots is adequate for resize operations — each resize is a single state push on drag-end, not per-pixel during drag
+- Stats computation for canvases with up to 100 items must complete within the 500ms update requirement (simple array iteration, no heavy computation)
+- Collapsible guest sections follow the same visual pattern as the existing item catalog collapse in the right sidebar (glass-panel styling, chevron toggle icon)
