@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import type { UnassignedGuest, SeatAssignmentMap } from "@/types/seat-assignment";
 import type { FloorPlanItem } from "@/types/floor-plan";
 import { isTableType } from "@/lib/floor-plan/constants";
+import { CanvasStats } from "./canvas-stats";
 import {
   Collapsible,
   CollapsibleContent,
@@ -91,6 +92,9 @@ export function GuestPanel({
 
   return (
     <div className="w-56 shrink-0 border-r glass-panel flex flex-col">
+      {/* Canvas stats - always visible at top */}
+      <CanvasStats items={items} assignmentMap={assignmentMap} />
+
       {/* Unassigned section */}
       <Collapsible open={unassignedOpen} onOpenChange={setUnassignedOpen}>
         <CollapsibleTrigger asChild>
