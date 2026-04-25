@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  createCoupleSchema,
+  createCoupleFormSchema,
   type CreateCoupleFormData,
 } from "@/lib/validations/admin";
 import { createCoupleAccount } from "@/app/actions/admin";
@@ -28,10 +28,11 @@ export function CreateCoupleForm() {
   const router = useRouter();
 
   const form = useForm<CreateCoupleFormData>({
-    resolver: zodResolver(createCoupleSchema),
+    resolver: zodResolver(createCoupleFormSchema),
     defaultValues: {
       email: "",
       password: "",
+      confirmPassword: "",
       displayName: "",
       coupleName: "",
     },
@@ -107,7 +108,28 @@ export function CreateCoupleForm() {
                   <Input
                     id="password"
                     type="password"
+                    autoComplete="new-password"
                     placeholder="Min. 8 characters"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Confirm Password</FormLabel>
+                <FormControl>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    placeholder="Confirm Password"
                     {...field}
                   />
                 </FormControl>
