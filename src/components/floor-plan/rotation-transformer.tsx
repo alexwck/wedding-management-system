@@ -17,6 +17,7 @@ export interface TransformResult {
 interface RotationTransformerProps {
   selectedItemId: string | null;
   selectedItemType: ItemType | null;
+  isLocked: boolean;
   stageRef: React.RefObject<Konva.Stage | null>;
   onTransformEnd: (itemId: string, result: TransformResult) => void;
   venueWidth?: number;
@@ -26,6 +27,7 @@ interface RotationTransformerProps {
 export function RotationTransformer({
   selectedItemId,
   selectedItemType,
+  isLocked,
   stageRef,
   onTransformEnd,
   venueWidth,
@@ -40,10 +42,10 @@ export function RotationTransformer({
     const stage = stageRef.current;
     if (!tr || !stage) return;
 
-    const node = selectedItemId ? stage.findOne(`#${selectedItemId}`) : null;
+    const node = selectedItemId && !isLocked ? stage.findOne(`#${selectedItemId}`) : null;
     tr.nodes(node ? [node] : []);
     tr.getLayer()?.batchDraw();
-  }, [selectedItemId, stageRef]);
+  }, [selectedItemId, stageRef, isLocked]);
 
   return (
     <Transformer

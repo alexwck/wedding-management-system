@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { verifyWeddingNotLocked } from "@/lib/auth-guards";
 import { MAX_FILE_SIZE, ALLOWED_TYPES } from "@/lib/validations/upload";
 
 export async function uploadTemplateImage(formData: FormData) {
@@ -31,6 +32,11 @@ export async function uploadTemplateImage(formData: FormData) {
     };
   }
 
+  const lockCheck = await verifyWeddingNotLocked(Number(weddingId));
+  if (!lockCheck.ok) {
+    return { success: false, error: "locked" as const, message: lockCheck.error };
+  }
+
   const supabase = createAdminClient();
 
   const ext = file.name.split(".").pop() || "png";
@@ -52,9 +58,11 @@ export async function uploadTemplateImage(formData: FormData) {
     data: { publicUrl },
   } = supabase.storage.from("wedding-templates").getPublicUrl(filePath);
 
+  const cacheBustedUrl = `${publicUrl}?t=${Date.now()}`;
+
   const { error: updateError } = await supabase
     .from("weddings")
-    .update({ template_image_url: publicUrl, updated_at: new Date().toISOString(), template_focal_x: null, template_focal_y: null })
+    .update({ template_image_url: cacheBustedUrl, updated_at: new Date().toISOString(), template_focal_x: null, template_focal_y: null })
     .eq("id", Number(weddingId));
 
   if (updateError) {
@@ -65,5 +73,5 @@ export async function uploadTemplateImage(formData: FormData) {
     };
   }
 
-  return { success: true, imageUrl: publicUrl };
+  return { success: true, imageUrl: cacheBustedUrl };
 }

@@ -4,11 +4,12 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { nanoid } from "nanoid";
-import { createCoupleSchema } from "@/lib/validations/admin";
+import { createCoupleSchema, coupleNameSchema } from "@/lib/validations/admin";
 import { weddingUpdateSchema, weddingDateSchema, timezoneSchema, focalPointSchema } from "@/lib/validations/wedding";
 import type { User } from "@supabase/supabase-js";
 import type { FloorPlanItem } from "@/types/floor-plan";
 import { resolveSeatLabels } from "@/lib/seat-resolution";
+import { verifyWeddingNotLocked } from "@/lib/auth-guards";
 
 async function enrichRsvpsWithSeats(
   supabase: ReturnType<typeof createAdminClient>,
@@ -66,7 +67,7 @@ export async function getWeddingRSVPs(weddingId: number) {
 
   const { data: wedding, error: weddingError } = await supabase
     .from("weddings")
-    .select("id, couple_name, slug, wedding_date, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message, timezone, template_focal_x, template_focal_y")
+    .select("id, couple_name, slug, wedding_date, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message, timezone, template_focal_x, template_focal_y, is_locked")
     .eq("id", weddingId)
     .single();
 
@@ -117,6 +118,7 @@ export async function getWeddingRSVPs(weddingId: number) {
       timezone: wedding.timezone,
       templateFocalX: wedding.template_focal_x,
       templateFocalY: wedding.template_focal_y,
+      isLocked: wedding.is_locked,
     },
     rsvps: await enrichRsvpsWithSeats(supabase, weddingId, rsvpList),
     summary,
@@ -274,7 +276,7 @@ export async function getMyWeddingRSVPs() {
 
   const { data: wedding, error: weddingError } = await supabase
     .from("weddings")
-    .select("id, couple_name, slug, wedding_date, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message, timezone, template_focal_x, template_focal_y")
+    .select("id, couple_name, slug, wedding_date, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message, timezone, template_focal_x, template_focal_y, is_locked")
     .eq("user_id", user.id)
     .single();
 
@@ -327,6 +329,7 @@ export async function getMyWeddingRSVPs() {
       timezone: wedding.timezone,
       templateFocalX: wedding.template_focal_x,
       templateFocalY: wedding.template_focal_y,
+      isLocked: wedding.is_locked,
     },
     rsvps: await enrichRsvpsWithSeats(adminClient, wedding.id, rsvpList),
     summary,
@@ -385,6 +388,9 @@ export async function updateWeddingDetails(formData: FormData) {
   const adminClient = createAdminClient();
   const authCheck = await verifyWeddingAccess(user, weddingId, adminClient);
   if (authCheck) return { ...authCheck, error: "unauthorized" as const, message: authCheck.error };
+
+  const lockCheck = await verifyWeddingNotLocked(weddingId);
+  if (!lockCheck.ok) return { success: false, error: "locked" as const, message: lockCheck.error };
 
   const rawData: Record<string, unknown> = {};
   const fields = ["venue", "venue_address", "venue_lat", "venue_lng", "welcome_message"] as const;
@@ -450,6 +456,10 @@ export async function updateWeddingDate(weddingId: number, weddingDate: string |
   const adminClient = createAdminClient();
   const authCheck = await verifyWeddingAccess(user, weddingId, adminClient);
   if (authCheck) return authCheck;
+
+  const lockCheck = await verifyWeddingNotLocked(weddingId);
+  if (!lockCheck.ok) return { success: false as const, error: lockCheck.error };
+
   const { data, error } = await adminClient
     .from("weddings")
     .update({ wedding_date: weddingDate ? new Date(weddingDate).toISOString() : null })
@@ -485,6 +495,10 @@ export async function updateWeddingTimezone(weddingId: number, timezone: string)
   }
 
   const adminClient = createAdminClient();
+
+  const lockCheck = await verifyWeddingNotLocked(weddingId);
+  if (!lockCheck.ok) return { success: false as const, error: lockCheck.error };
+
   const { data, error } = await adminClient
     .from("weddings")
     .update({ timezone })
@@ -522,6 +536,10 @@ export async function updateTemplateFocalPoint(weddingId: number, focalX: number
   const adminClient = createAdminClient();
   const authCheck = await verifyWeddingAccess(user, weddingId, adminClient);
   if (authCheck) return authCheck;
+
+  const lockCheck = await verifyWeddingNotLocked(weddingId);
+  if (!lockCheck.ok) return { success: false as const, error: lockCheck.error };
+
   const { data, error } = await adminClient
     .from("weddings")
     .update({ template_focal_x: focalX, template_focal_y: focalY })
@@ -539,3 +557,85 @@ export async function updateTemplateFocalPoint(weddingId: number, focalX: number
   return { success: true as const };
 }
 
+export async function toggleWeddingLock(weddingId: number) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user || user.app_metadata?.role !== "admin") {
+    return { success: false as const, error: "Admin access required." };
+  }
+
+  const adminClient = createAdminClient();
+
+  const { data: wedding, error: fetchError } = await adminClient
+    .from("weddings")
+    .select("is_locked, slug")
+    .eq("id", weddingId)
+    .single();
+
+  if (fetchError || !wedding) {
+    return { success: false as const, error: "Wedding not found." };
+  }
+
+  const newLockState = !wedding.is_locked;
+
+  const { data, error: updateError } = await adminClient
+    .from("weddings")
+    .update({ is_locked: newLockState })
+    .eq("id", weddingId)
+    .select("slug, is_locked")
+    .single();
+
+  if (updateError || !data) {
+    return { success: false as const, error: "Failed to toggle lock." };
+  }
+
+  revalidatePath(`/admin/weddings/${weddingId}`);
+  revalidatePath(`/w/${data.slug}`);
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/floor-plan");
+
+  return { success: true as const, isLocked: data.is_locked };
+}
+
+export async function updateCoupleName(weddingId: number, coupleName: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false as const, error: "Not authenticated." };
+  }
+
+  const parsed = coupleNameSchema.safeParse(coupleName);
+  if (!parsed.success) {
+    return { success: false as const, error: parsed.error.issues[0].message };
+  }
+
+  const adminClient = createAdminClient();
+  const authCheck = await verifyWeddingAccess(user, weddingId, adminClient);
+  if (authCheck) return { ...authCheck, error: "unauthorized" as const, message: authCheck.error };
+
+  const lockCheck = await verifyWeddingNotLocked(weddingId);
+  if (!lockCheck.ok) return { success: false as const, error: lockCheck.error };
+
+  const { data, error } = await adminClient
+    .from("weddings")
+    .update({ couple_name: parsed.data })
+    .eq("id", weddingId)
+    .select("slug, couple_name")
+    .single();
+
+  if (error || !data) {
+    return { success: false as const, error: "Failed to update couple name." };
+  }
+
+  revalidatePath(`/admin/weddings/${weddingId}`);
+  revalidatePath(`/w/${data.slug}`);
+  revalidatePath("/dashboard");
+
+  return { success: true as const, coupleName: data.couple_name };
+}

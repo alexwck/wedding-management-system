@@ -21,17 +21,20 @@ import { CanvasItem } from "./canvas-item";
 import {
   FEET_TO_PIXELS,
   MAX_VENUE_DIMENSION,
+  ITEM_CATALOG,
   isTableType,
   centerPixelsToTopLeftFeet,
   topLeftFeetToCenterPixels,
 } from "@/lib/floor-plan/constants";
 import { isItemOutOfBounds, checkItemCollisions } from "@/lib/floor-plan/collision";
+import { canPlaceItem } from "@/lib/floor-plan/placement";
 import type { FloorPlan, FloorPlanItem, ItemType } from "@/types/floor-plan";
 import { redistributeChairs, getMaxChairCount } from "./hooks/use-chair-generation";
 
 interface FloorPlanCanvasProps {
   weddingId: number;
   initialFloorPlan: FloorPlan | null;
+  isLocked?: boolean;
 }
 
 const DEFAULT_WIDTH = 50;
@@ -129,6 +132,7 @@ function ChairCountControls({
 export function FloorPlanCanvas({
   weddingId,
   initialFloorPlan,
+  isLocked = false,
 }: FloorPlanCanvasProps) {
   const initialWidth = initialFloorPlan?.width ?? DEFAULT_WIDTH;
   const initialHeight = initialFloorPlan?.height ?? DEFAULT_HEIGHT;
@@ -192,6 +196,7 @@ export function FloorPlanCanvas({
     width: state.width,
     height: state.height,
     items: state.items,
+    enabled: !isLocked,
   });
 
   const canvasWidth = state.width * FEET_TO_PIXELS;
@@ -202,6 +207,27 @@ export function FloorPlanCanvas({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [state.items, state.width, state.height],
   );
+
+  const unavailableCatalogItems = useMemo(() => {
+    const unavailable = new Set<string>();
+    for (const entry of ITEM_CATALOG) {
+      const sizeVariant = entry.type === "round_table"
+        ? (entry as typeof entry & { diameter: number }).diameter
+        : entry.type === "long_table"
+          ? (entry as typeof entry & { length: number }).length
+          : undefined;
+      if (!canPlaceItem(entry.type, state.items, state.width, state.height, sizeVariant)) {
+        const key = entry.type === "round_table"
+          ? `round_table-${(entry as typeof entry & { diameter: number }).diameter}`
+          : entry.type === "long_table"
+            ? `long_table-${(entry as typeof entry & { length: number }).length}`
+            : entry.type;
+        unavailable.add(key);
+      }
+    }
+    return unavailable;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.items, state.width, state.height]);
 
   const handleWheel = useCallback((e: Konva.KonvaEventObject<WheelEvent>) => {
     e.evt.preventDefault();
@@ -531,6 +557,7 @@ export function FloorPlanCanvas({
 
   const handleDblClickItem = useCallback(
     (id: string) => {
+      if (isLocked) return;
       const item = state.items.find((i) => i.id === id);
       if (!item) return;
       setEditingLabelId(id);
@@ -591,6 +618,7 @@ export function FloorPlanCanvas({
 
   const handleChairCountChange = useCallback(
     (tableId: string, newCount: number, isButton: boolean) => {
+      if (isLocked) return;
       const table = state.items.find((i) => i.id === tableId);
       if (!table) return;
       const max = getMaxChairCount(table);
@@ -666,6 +694,7 @@ export function FloorPlanCanvas({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (isLocked) return;
       if (editingLabelId) return;
       if ((e.metaKey || e.ctrlKey) && e.key === "z") {
         e.preventDefault();
@@ -683,7 +712,7 @@ export function FloorPlanCanvas({
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleUndo, handleRedo, handleDelete, editingLabelId, selectedItemId]);
+  }, [handleUndo, handleRedo, handleDelete, editingLabelId, selectedItemId, isLocked]);
 
   const handleStageClick = useCallback(
     (e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -699,9 +728,10 @@ export function FloorPlanCanvas({
   );
 
   const handleChairClick = useCallback((chairId: string, tableId: string) => {
+    if (isLocked) return;
     setDialogChairId(chairId);
     setDialogTableId(tableId);
-  }, []);
+  }, [isLocked]);
 
   const SAVE_LABELS: Record<string, string> = {
     saving: "Saving...",
@@ -745,6 +775,7 @@ export function FloorPlanCanvas({
               value={state.width}
               onChange={(e) => handleVenueDimChange("width", e.target.value)}
               onBlur={handleVenueEditCommit}
+              disabled={isLocked}
               className="w-14 h-7 text-xs"
             />
             <label htmlFor="venue-height" className="text-xs font-medium">
@@ -759,6 +790,7 @@ export function FloorPlanCanvas({
               value={state.height}
               onChange={(e) => handleVenueDimChange("height", e.target.value)}
               onBlur={handleVenueEditCommit}
+              disabled={isLocked}
               className="w-14 h-7 text-xs"
             />
             <span className="text-xs text-muted-foreground">ft</span>
@@ -768,8 +800,8 @@ export function FloorPlanCanvas({
 
           {/* Undo / Redo / Zoom */}
           <FloorPlanToolbar
-            canUndo={undoRedo.canUndo}
-            canRedo={undoRedo.canRedo}
+            canUndo={undoRedo.canUndo && !isLocked}
+            canRedo={undoRedo.canRedo && !isLocked}
             onUndo={handleUndo}
             onRedo={handleRedo}
             zoomPercent={stageScale * 100}
@@ -785,6 +817,7 @@ export function FloorPlanCanvas({
                 variant="outline"
                 size="sm"
                 onClick={handleDelete}
+                disabled={isLocked}
                 className="text-destructive"
               >
                 Delete
@@ -804,13 +837,23 @@ export function FloorPlanCanvas({
 
           <div className="flex-1" />
 
+          {/* Lock indicator */}
+          {isLocked && (
+            <span className="text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-0.5">
+              Locked
+            </span>
+          )}
+
           {/* Save status */}
+          {!isLocked && (
           <span
             data-testid="save-status"
             className="text-sm text-muted-foreground whitespace-nowrap"
           >
             {saveLabel}
           </span>
+          )}
+          {!isLocked && (
           <button
             type="button"
             data-testid="save-now"
@@ -819,6 +862,7 @@ export function FloorPlanCanvas({
           >
             Save now
           </button>
+          )}
         </div>
 
         {/* Canvas area */}
@@ -860,6 +904,7 @@ export function FloorPlanCanvas({
                 item={item}
                 isSelected={item.id === selectedItemId}
                 isOutOfBounds={outOfBoundsIds.has(item.id)}
+                isLocked={isLocked}
                 chairAssignment={seatAssignments.assignmentMap[item.id] ?? null}
                 isSeatLoading={seatAssignments.isLoading}
                 onDragEnd={handleDragEnd}
@@ -872,6 +917,7 @@ export function FloorPlanCanvas({
             <RotationTransformer
               selectedItemId={selectedItemId}
               selectedItemType={selectedItem?.type ?? null}
+              isLocked={isLocked}
               stageRef={stageRef}
               onTransformEnd={handleTransformEnd}
               venueWidth={state.width}
@@ -918,7 +964,7 @@ export function FloorPlanCanvas({
         )}
 
         {/* Dimension editing overlay for selected configurable item */}
-        {selectedItem && DIMENSION_EDITABLE_TYPES.includes(selectedItem.type) && (
+        {!isLocked && selectedItem && DIMENSION_EDITABLE_TYPES.includes(selectedItem.type) && (
           <div className="absolute bottom-2 right-2 glass-panel rounded-lg px-3 py-2 flex items-center gap-2" style={{ pointerEvents: "auto" }}>
             <span className="text-xs text-muted-foreground">
               {selectedItem.label}:
@@ -970,7 +1016,7 @@ export function FloorPlanCanvas({
       </div>
 
       {/* Right sidebar: item catalog */}
-      <ItemCatalog onSelectItem={handleSelectItem} />
+      <ItemCatalog onSelectItem={handleSelectItem} disabled={isLocked} unavailableItems={unavailableCatalogItems} />
 
       {/* Guest assignment dialog */}
       {dialogChairId && dialogTableId && (
