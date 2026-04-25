@@ -134,7 +134,7 @@ When a couple or admin uploads a new template image, the preview and all display
 
 ### Edge Cases
 
-- What happens when admin locks a wedding while the couple is actively editing the floor plan? The couple's next save attempt should fail with a clear "This wedding has been locked" message. Same applies if admin locks while another admin is editing — the lock takes effect and all edits are blocked.
+- What happens when admin locks a wedding while the couple is actively editing the floor plan? The couple's next save attempt should fail with a clear "This wedding has been locked" message. Same applies if admin locks while another admin is editing — the lock takes effect and all edits are blocked. The client does not proactively poll for lock state changes — the couple discovers the lock on their next save attempt or auto-save cycle. A future enhancement could add periodic lock state polling or a real-time notification for a smoother mid-session lock experience.
 - What happens when the canvas is exactly at capacity? All catalog items should be disabled, including non-table items like Stage and Pillar. The catalog should display a message such as "Canvas is full — remove an item to add more" when no items can be placed.
 - What happens when a guest has already submitted an RSVP and the wedding is then locked? The existing RSVP data is preserved in full; only new submissions are blocked.
 - What happens when undo is pressed during an active drag gesture? The drag should complete before undo processes to avoid state corruption.

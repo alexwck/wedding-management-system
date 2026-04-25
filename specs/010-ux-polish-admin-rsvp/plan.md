@@ -240,6 +240,7 @@ Foundation layer. Everything else depends on this.
 | `floor-plan-catalog-disable.spec.ts` | Fill canvas → items disabled → remove item → items re-enabled |
 | `floor-plan-save-oob.spec.ts` | Drag item OOB → save blocked → move in bounds → save succeeds |
 | `rsvp-single-page.spec.ts` | Hero → scroll to RSVP → submit → inline success. Fallback hero for no image. Locked shows "closed" |
+| `undo-redo-audit.spec.ts` | Place item, drag, rotate, chair count → undo each → verify state → redo all → verify final state |
 | `editable-couple-name.spec.ts` | Edit couple name → save → visible on public page |
 | `template-image-refresh.spec.ts` | Upload image → preview shows new image → landing page shows new image |
 
