@@ -611,17 +611,18 @@ export function FloorPlanCanvas({
         chairCountEditStarted.current = true;
       }
 
+      const updatedTable = { ...table, metadata: { ...table.metadata, chairCount: clamped } };
+      const newChairs = redistributeChairs(updatedTable, clamped);
+      const newChairIds = new Set(newChairs.map((c) => c.id));
+
       const currentChairs = state.items.filter(
         (i) => i.type === "chair" && i.parentItemId === tableId,
       );
       for (const chair of currentChairs) {
-        if (seatAssignments.assignmentMap[chair.id]) {
+        if (!newChairIds.has(chair.id) && seatAssignments.assignmentMap[chair.id]) {
           void seatAssignments.unassignGuest(chair.id);
         }
       }
-
-      const updatedTable = { ...table, metadata: { ...table.metadata, chairCount: clamped } };
-      const newChairs = redistributeChairs(updatedTable, clamped);
 
       state.setAllItems([
         ...state.items.filter(
