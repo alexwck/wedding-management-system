@@ -34,7 +34,6 @@ export function CreateCoupleForm() {
       password: "",
       confirmPassword: "",
       displayName: "",
-      coupleName: "",
     },
   });
 
@@ -45,7 +44,6 @@ export function CreateCoupleForm() {
     formData.append("email", data.email);
     formData.append("password", data.password);
     formData.append("displayName", data.displayName);
-    formData.append("coupleName", data.coupleName);
 
     const result = await createCoupleAccount(formData);
 
@@ -149,25 +147,6 @@ export function CreateCoupleForm() {
                     id="displayName"
                     type="text"
                     placeholder="Jane Doe"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="coupleName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Couple Name</FormLabel>
-                <FormControl>
-                  <Input
-                    id="coupleName"
-                    type="text"
-                    placeholder="Jane & John"
                     {...field}
                   />
                 </FormControl>

@@ -1,5 +1,6 @@
 import { getCouples } from "@/app/actions/admin";
 import { CreateCoupleForm } from "@/components/create-couple-form";
+import { LockToggle } from "@/components/lock-toggle";
 import {
   Table,
   TableBody,
@@ -34,14 +35,23 @@ export default async function CouplesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Display Name</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead>Created</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {couples.map((couple) => (
                 <TableRow key={couple.id}>
-                  <TableCell className="font-medium">
+
+                  <TableCell>
                     {couple.display_name}
+                  </TableCell>
+                  <TableCell>
+                    {couple.weddingId ? (
+                      <LockToggle weddingId={couple.weddingId} isLocked={couple.isLocked} />
+                    ) : (
+                      <span className="text-muted-foreground text-xs">No wedding</span>
+                    )}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {new Date(couple.created_at).toLocaleDateString()}

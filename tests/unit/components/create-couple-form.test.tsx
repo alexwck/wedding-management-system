@@ -30,7 +30,6 @@ describe("CreateCoupleForm", () => {
     expect(screen.getByPlaceholderText(/min\. 8 characters/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Confirm Password")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Jane Doe")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Jane & John")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /create couple/i }),
     ).toBeInTheDocument();
@@ -45,7 +44,7 @@ describe("CreateCoupleForm", () => {
     expect(await screen.findByText(/please enter a valid email/i)).toBeInTheDocument();
     // Password and confirmPassword both show "Password must be at least 8 characters"
     expect(screen.getAllByText(/password must be at least 8 characters/i).length).toBeGreaterThanOrEqual(2);
-    expect(screen.getAllByText(/is required/i).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText(/is required/i).length).toBeGreaterThanOrEqual(1);
     expect(mockedCreateCoupleAccount).not.toHaveBeenCalled();
   });
 
@@ -63,7 +62,6 @@ describe("CreateCoupleForm", () => {
     await user.type(screen.getByPlaceholderText(/min\. 8 characters/i), "password123");
     await user.type(screen.getByPlaceholderText("Confirm Password"), "password123");
     await user.type(screen.getByPlaceholderText("Jane Doe"), "Jane Doe");
-    await user.type(screen.getByPlaceholderText("Jane & John"), "Jane & John");
     await user.click(screen.getByRole("button", { name: /create couple/i }));
 
     expect(await screen.findByText(/email already registered/i)).toBeInTheDocument();
@@ -84,7 +82,6 @@ describe("CreateCoupleForm", () => {
     await user.type(screen.getByPlaceholderText(/min\. 8 characters/i), "password123");
     await user.type(screen.getByPlaceholderText("Confirm Password"), "password123");
     await user.type(screen.getByPlaceholderText("Jane Doe"), "Jane Doe");
-    await user.type(screen.getByPlaceholderText("Jane & John"), "Jane & John");
     await user.click(screen.getByRole("button", { name: /create couple/i }));
 
     expect(
@@ -108,7 +105,6 @@ describe("CreateCoupleForm", () => {
     await user.type(screen.getByPlaceholderText(/min\. 8 characters/i), "password123");
     await user.type(screen.getByPlaceholderText("Confirm Password"), "password123");
     await user.type(screen.getByPlaceholderText("Jane Doe"), "Jane Doe");
-    await user.type(screen.getByPlaceholderText("Jane & John"), "Jane & John");
     await user.click(screen.getByRole("button", { name: /create couple/i }));
 
     expect(screen.getByText("Creating...")).toBeInTheDocument();
@@ -132,7 +128,6 @@ describe("CreateCoupleForm", () => {
     await user.type(screen.getByPlaceholderText(/min\. 8 characters/i), "password123");
     await user.type(screen.getByPlaceholderText("Confirm Password"), "password123");
     await user.type(screen.getByPlaceholderText("Jane Doe"), "Jane Doe");
-    await user.type(screen.getByPlaceholderText("Jane & John"), "Jane & John");
     await user.click(screen.getByRole("button", { name: /create couple/i }));
 
     await screen.findByText(/couple account created/i);
@@ -148,7 +143,6 @@ describe("CreateCoupleForm", () => {
     await user.type(screen.getByPlaceholderText(/min\. 8 characters/i), "password123");
     await user.type(screen.getByPlaceholderText("Confirm Password"), "different456");
     await user.type(screen.getByPlaceholderText("Jane Doe"), "Jane Doe");
-    await user.type(screen.getByPlaceholderText("Jane & John"), "Jane & John");
     await user.click(screen.getByRole("button", { name: /create couple/i }));
 
     expect(await screen.findByText("Passwords do not match")).toBeInTheDocument();
@@ -163,7 +157,6 @@ describe("CreateCoupleForm", () => {
     await user.type(screen.getByPlaceholderText(/min\. 8 characters/i), "password123");
     // intentionally skip confirm password
     await user.type(screen.getByPlaceholderText("Jane Doe"), "Jane Doe");
-    await user.type(screen.getByPlaceholderText("Jane & John"), "Jane & John");
     await user.click(screen.getByRole("button", { name: /create couple/i }));
 
     expect(await screen.findByText(/password must be at least 8 characters/i)).toBeInTheDocument();
@@ -185,7 +178,6 @@ describe("CreateCoupleForm", () => {
     await user.type(screen.getByPlaceholderText(/min\. 8 characters/i), "password123");
     await user.type(screen.getByPlaceholderText("Confirm Password"), "password123");
     await user.type(screen.getByPlaceholderText("Jane Doe"), "Jane Doe");
-    await user.type(screen.getByPlaceholderText("Jane & John"), "Jane & John");
     await user.click(screen.getByRole("button", { name: /create couple/i }));
 
     await screen.findByText(/couple account created/i);
