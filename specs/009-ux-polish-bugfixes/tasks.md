@@ -88,17 +88,17 @@
 
 ### Tests for User Story 2
 
-- [ ] T010 [US2] Write failing component tests in `tests/unit/components/floor-plan/guest-panel.test.tsx` for: default expand/collapse state, toggle behavior, guest moves on assign/unassign, loading state, empty states, table number display
+- [x] T010 [US2] Write failing component tests in `tests/unit/components/floor-plan/guest-panel.test.tsx` for: default expand/collapse state, toggle behavior, guest moves on assign/unassign, loading state, empty states, table number display
 
 ### Implementation for User Story 2
 
-- [ ] T011 [US2] Create `src/components/floor-plan/guest-panel.tsx` with two collapsible sections using shadcn/ui `Collapsible` — unassigned section (expanded by default) and assigned section (collapsed by default), each with chevron toggle and guest count in header
-- [ ] T012 [US2] Add table number derivation logic: compute sequential table numbers from table-type items on canvas (first table = Table 1, etc.), map each assigned guest to their parent table's number — implement as a computed function in `src/components/floor-plan/guest-panel.tsx` (depends on T011)
-- [ ] T013 [US2] Update `src/components/floor-plan/floor-plan-canvas.tsx` to replace `UnassignedGuestsPanel` import with new `GuestPanel`, passing both `unassignedGuests` and `assignmentMap`/`items` props
-- [ ] T014 [US2] Add loading state to guest panel sections (spinner while fetching), independent scroll per section (`overflow-y-auto` with max-height), and "No guests yet" / "All guests are seated!" empty states
-- [ ] T015 [US2] Add keyboard accessibility (Enter/Space to toggle collapse) and ARIA attributes to collapsible section headers
-- [ ] T016 [US2] Handle guest-to-unassigned cascade: when a table item is deleted from the canvas, return all guests assigned to that table's chairs back to the unassigned section
-- [ ] T017 [US2] Add E2E test in `tests/e2e/guest-panel.spec.ts` for: load floor plan, verify unassigned expanded, assign guest, verify guest in assigned section with table number, delete table → verify guests return to unassigned
+- [x] T011 [US2] Create `src/components/floor-plan/guest-panel.tsx` with two collapsible sections using shadcn/ui `Collapsible` — unassigned section (expanded by default) and assigned section (collapsed by default), each with chevron toggle and guest count in header
+- [x] T012 [US2] Add table number derivation logic: compute sequential table numbers from table-type items on canvas (first table = Table 1, etc.), map each assigned guest to their parent table's number — implement as a computed function in `src/components/floor-plan/guest-panel.tsx` (depends on T011)
+- [x] T013 [US2] Update `src/components/floor-plan/floor-plan-canvas.tsx` to replace `UnassignedGuestsPanel` import with new `GuestPanel`, passing both `unassignedGuests` and `assignmentMap`/`items` props
+- [x] T014 [US2] Add loading state to guest panel sections (spinner while fetching), independent scroll per section (`overflow-y-auto` with max-height), and "No guests yet" / "All guests are seated!" empty states
+- [x] T015 [US2] Add keyboard accessibility (Enter/Space to toggle collapse) and ARIA attributes to collapsible section headers
+- [x] T016 [US2] Handle guest-to-unassigned cascade: when a table item is deleted from the canvas, return all guests assigned to that table's chairs back to the unassigned section
+- [x] T017 [US2] Add E2E test in `tests/e2e/guest-panel.spec.ts` for: load floor plan, verify unassigned expanded, assign guest, verify guest in assigned section with table number, delete table → verify guests return to unassigned
 
 **Checkpoint**: Both assigned and unassigned guests visible in collapsible sections. Assignment changes update lists in real-time. Table deletion cascades guests back to unassigned.
 
