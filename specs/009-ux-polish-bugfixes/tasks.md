@@ -31,11 +31,11 @@
 
 ### Tests for User Story 4
 
-- [ ] T001 [US4] Write failing unit test assertions in `tests/unit/hooks/use-undo-redo.test.ts` verifying that a single undo after adding one item returns to the pre-add state (not two steps back)
+- [x] T001 [US4] Write failing unit test assertions in `tests/unit/hooks/use-undo-redo.test.ts` verifying that a single undo after adding one item returns to the pre-add state (not two steps back)
 
 ### Implementation for User Story 4
 
-- [ ] T002 [US4] Fix duplicate `pushState` in `handleSelectItem` in `src/components/floor-plan/floor-plan-canvas.tsx` — remove the separate `pushHistory()` call before `state.addItem()` and ensure state is pushed atomically within `addItem` in `src/components/floor-plan/hooks/use-floor-plan-state.ts`
+- [x] T002 [US4] Fix duplicate `pushState` in `handleSelectItem` in `src/components/floor-plan/floor-plan-canvas.tsx` — remove the separate `pushHistory()` call before `state.addItem()` and ensure state is pushed atomically within `addItem` in `src/components/floor-plan/hooks/use-floor-plan-state.ts`
 
 **Checkpoint**: Undo button reverts exactly one action. Add 3 items, undo once → 2 items remain.
 
@@ -49,12 +49,12 @@
 
 ### Tests for User Story 5
 
-- [ ] T003 [US5] Write failing unit tests in `tests/unit/components/create-couple-form.test.tsx` for password mismatch error, empty confirm field error, and matching passwords success
+- [x] T003 [US5] Write failing unit tests in `tests/unit/components/create-couple-form.test.tsx` for password mismatch error, empty confirm field error, and matching passwords success
 
 ### Implementation for User Story 5
 
-- [ ] T004 [P] [US5] Add `confirmPassword` field with `.refine()` match validation to `createCoupleSchema` in `src/lib/validations/admin.ts` — strip `confirmPassword` from the data before submitting to the server action
-- [ ] T005 [US5] Add confirm password input field to `src/components/create-couple-form.tsx` with `autoComplete="new-password"`, wire into react-hook-form, and display "Passwords do not match" error inline below the field
+- [x] T004 [P] [US5] Add `confirmPassword` field with `.refine()` match validation to `createCoupleSchema` in `src/lib/validations/admin.ts` — strip `confirmPassword` from the data before submitting to the server action
+- [x] T005 [US5] Add confirm password input field to `src/components/create-couple-form.tsx` with `autoComplete="new-password"`, wire into react-hook-form, and display "Passwords do not match" error inline below the field
 
 **Checkpoint**: Admin cannot submit couple creation form with mismatched passwords.
 
