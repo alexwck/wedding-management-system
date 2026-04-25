@@ -38,17 +38,19 @@ export function PillarItem({
 }: PillarItemProps) {
   const pixelWidth = width * FEET_TO_PIXELS;
   const pixelHeight = height * FEET_TO_PIXELS;
-  const pixelX = x * FEET_TO_PIXELS;
-  const pixelY = y * FEET_TO_PIXELS;
+  const centerX = (x + width / 2) * FEET_TO_PIXELS;
+  const centerY = (y + height / 2) * FEET_TO_PIXELS;
 
   return (
     <>
       <Rect
         id={id}
-        x={pixelX}
-        y={pixelY}
+        x={centerX}
+        y={centerY}
         width={pixelWidth}
         height={pixelHeight}
+        offsetX={pixelWidth / 2}
+        offsetY={pixelHeight / 2}
         rotation={rotation}
         fill="#e5e7eb"
         stroke={isSelected ? "#374151" : "#6b7280"}
@@ -63,10 +65,8 @@ export function PillarItem({
       />
       <ItemLabel
         id={`${id}-label`}
-        x={pixelX}
-        y={pixelY}
-        width={pixelWidth}
-        height={pixelHeight}
+        x={centerX}
+        y={centerY}
         text={label}
       />
     </>

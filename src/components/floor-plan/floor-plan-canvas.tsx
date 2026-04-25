@@ -160,6 +160,12 @@ export function FloorPlanCanvas({
   const stageRef = useRef<Konva.Stage>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
+  const assignmentMapRef = useRef(seatAssignments.assignmentMap);
+  assignmentMapRef.current = seatAssignments.assignmentMap;
+  const unassignedGuestsRef = useRef(seatAssignments.unassignedGuests);
+  unassignedGuestsRef.current = seatAssignments.unassignedGuests;
+  const seatAssignmentsRef = useRef(seatAssignments);
+  seatAssignmentsRef.current = seatAssignments;
 
   useEffect(() => {
     if (initialFloorPlan?.items) {
@@ -341,10 +347,10 @@ export function FloorPlanCanvas({
       state.items,
       state.width,
       state.height,
-      seatAssignments.assignmentMap,
-      seatAssignments.unassignedGuests,
+      assignmentMapRef.current,
+      unassignedGuestsRef.current,
     );
-  }, [undoRedo, state.items, state.width, state.height, seatAssignments.assignmentMap, seatAssignments.unassignedGuests]);
+  }, [undoRedo, state.items, state.width, state.height]);
 
   const handleSelectItem = useCallback(
     (type: ItemType, sizeVariant?: number) => {
@@ -383,10 +389,7 @@ export function FloorPlanCanvas({
       const item = state.items.find((i) => i.id === id);
       if (!item) return;
 
-      const table = isTableType(item.type);
-      const { x: newX, y: newY } = table
-        ? centerPixelsToTopLeftFeet(node.x(), node.y(), item.width, item.height)
-        : { x: node.x() / FEET_TO_PIXELS, y: node.y() / FEET_TO_PIXELS };
+      const { x: newX, y: newY } = centerPixelsToTopLeftFeet(node.x(), node.y(), item.width, item.height);
 
       const dx = newX - item.x;
       const dy = newY - item.y;
@@ -395,7 +398,7 @@ export function FloorPlanCanvas({
       pushHistory();
       state.updateItem(id, { x: newX, y: newY });
 
-      if (table) {
+      if (isTableType(item.type)) {
         state.items
           .filter((i) => i.parentItemId === id)
           .forEach((child) => {
@@ -463,44 +466,29 @@ export function FloorPlanCanvas({
       const movedItem = state.items.find((i) => i.id === id);
       if (!movedItem) return;
 
-      const table = isTableType(movedItem.type);
-      const { x: newX, y: newY } = table
-        ? centerPixelsToTopLeftFeet(node.x(), node.y(), movedItem.width, movedItem.height)
-        : { x: node.x() / FEET_TO_PIXELS, y: node.y() / FEET_TO_PIXELS };
+      const isTable = isTableType(movedItem.type);
+      const { x: newX, y: newY } = centerPixelsToTopLeftFeet(node.x(), node.y(), movedItem.width, movedItem.height);
 
       const hypothetical = { ...movedItem, x: newX, y: newY };
 
       const dragResult = checkDragCollisions(
-        id, hypothetical, movedItem, table, state.items, state.width, state.height,
+        id, hypothetical, movedItem, isTable, state.items, state.width, state.height,
       );
-
-      const labelBaseX = (movedItem.x + movedItem.width / 2) * FEET_TO_PIXELS;
-      const labelBaseY = (movedItem.y + movedItem.height / 2) * FEET_TO_PIXELS;
 
       const moveLabel = () => {
         const stage = stageRef.current;
         if (!stage) return;
         const label = stage.findOne(`#${id}-label`);
         if (label) {
-          const shapeBaseX = table
-            ? (movedItem.x + movedItem.width / 2) * FEET_TO_PIXELS
-            : movedItem.x * FEET_TO_PIXELS;
-          const shapeBaseY = table
-            ? (movedItem.y + movedItem.height / 2) * FEET_TO_PIXELS
-            : movedItem.y * FEET_TO_PIXELS;
-          const dx = node.x() - shapeBaseX;
-          const dy = node.y() - shapeBaseY;
-          label.x(labelBaseX + dx);
-          label.y(labelBaseY + dy);
+          label.x(node.x());
+          label.y(node.y());
         }
       };
 
       const snapBack = () => {
         const saved = collision.getSavedPosition(id);
         if (saved) {
-          const restored = table
-            ? topLeftFeetToCenterPixels(saved.x, saved.y, movedItem.width, movedItem.height)
-            : { x: saved.x * FEET_TO_PIXELS, y: saved.y * FEET_TO_PIXELS };
+          const restored = topLeftFeetToCenterPixels(saved.x, saved.y, movedItem.width, movedItem.height);
           node.x(restored.x);
           node.y(restored.y);
         }
@@ -512,7 +500,7 @@ export function FloorPlanCanvas({
       } else {
         collision.savePosition(id, newX, newY);
         moveLabel();
-        if (table) {
+        if (isTable) {
           const dx = newX - movedItem.x;
           const dy = newY - movedItem.y;
           const stage = stageRef.current;
@@ -567,18 +555,19 @@ export function FloorPlanCanvas({
     if (!selectedItemId) return;
     pushHistory();
 
+    const sa = seatAssignmentsRef.current;
     const childChairs = state.items.filter(
       (item) => item.type === "chair" && item.parentItemId === selectedItemId,
     );
     for (const chair of childChairs) {
-      if (seatAssignments.assignmentMap[chair.id]) {
-        void seatAssignments.unassignGuest(chair.id);
+      if (sa.assignmentMap[chair.id]) {
+        void sa.unassignGuest(chair.id);
       }
     }
 
     state.removeItem(selectedItemId);
     setSelectedItemId(null);
-  }, [selectedItemId, pushHistory, state, seatAssignments]);
+  }, [selectedItemId, pushHistory, state]);
 
   const dimEditStarted = useRef(false);
 
@@ -615,12 +604,13 @@ export function FloorPlanCanvas({
       const newChairs = redistributeChairs(updatedTable, clamped);
       const newChairIds = new Set(newChairs.map((c) => c.id));
 
+      const sa = seatAssignmentsRef.current;
       const currentChairs = state.items.filter(
         (i) => i.type === "chair" && i.parentItemId === tableId,
       );
       for (const chair of currentChairs) {
-        if (!newChairIds.has(chair.id) && seatAssignments.assignmentMap[chair.id]) {
-          void seatAssignments.unassignGuest(chair.id);
+        if (!newChairIds.has(chair.id) && sa.assignmentMap[chair.id]) {
+          void sa.unassignGuest(chair.id);
         }
       }
 
@@ -632,7 +622,7 @@ export function FloorPlanCanvas({
         ...newChairs,
       ]);
     },
-    [state, pushHistory, seatAssignments],
+    [state, pushHistory],
   );
 
   const handleChairCountCommit = useCallback(() => {
@@ -707,6 +697,11 @@ export function FloorPlanCanvas({
     },
     [],
   );
+
+  const handleChairClick = useCallback((chairId: string, tableId: string) => {
+    setDialogChairId(chairId);
+    setDialogTableId(tableId);
+  }, []);
 
   const SAVE_LABELS: Record<string, string> = {
     saving: "Saving...",
@@ -871,10 +866,7 @@ export function FloorPlanCanvas({
                 onDragMove={handleDragMove}
                 onSelect={setSelectedItemId}
                 onDblClick={handleDblClickItem}
-                onChairClick={(chairId, tableId) => {
-                  setDialogChairId(chairId);
-                  setDialogTableId(tableId);
-                }}
+                onChairClick={handleChairClick}
               />
             ))}
             <RotationTransformer

@@ -148,28 +148,16 @@ function OutOfBoundsIndicator({ item }: { item: FloorPlanItem }) {
     );
   }
 
-  if (item.type === "long_table") {
-    const center = topLeftFeetToCenterPixels(item.x, item.y, item.width, item.height);
-    return (
-      <Rect
-        x={center.x}
-        y={center.y}
-        width={item.width * FEET_TO_PIXELS}
-        height={item.height * FEET_TO_PIXELS}
-        offsetX={(item.width * FEET_TO_PIXELS) / 2}
-        offsetY={(item.height * FEET_TO_PIXELS) / 2}
-        rotation={item.rotation}
-        {...commonProps}
-      />
-    );
-  }
+  const center = topLeftFeetToCenterPixels(item.x, item.y, item.width, item.height);
 
   return (
     <Rect
-      x={item.x * FEET_TO_PIXELS}
-      y={item.y * FEET_TO_PIXELS}
+      x={center.x}
+      y={center.y}
       width={item.width * FEET_TO_PIXELS}
       height={item.height * FEET_TO_PIXELS}
+      offsetX={(item.width * FEET_TO_PIXELS) / 2}
+      offsetY={(item.height * FEET_TO_PIXELS) / 2}
       rotation={item.rotation}
       {...commonProps}
     />
