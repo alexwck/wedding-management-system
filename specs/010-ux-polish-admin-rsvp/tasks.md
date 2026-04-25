@@ -129,14 +129,14 @@
 
 ### Implementation for User Story 4
 
-- [ ] T029 [US4] Merge hero + venue + RSVP sections into single page in `src/app/(public)/w/[slug]/page.tsx` — server component fetching all wedding data, rendering landing-page component + venue section + RSVP form, smooth scroll anchor `#rsvp` per research.md R6
-- [ ] T030 [US4] Update landing page component in `src/components/landing-page.tsx` — add RSVP CTA button with smooth scroll to `#rsvp`, add gradient fallback hero for weddings without template image (use glassmorphism CSS variables per research.md R7), remove separate RSVP page link per FR-013/FR-014/FR-015
-- [ ] T031 [US4] Update RSVP form for inline success state and `isLocked` prop in `src/components/rsvp-form.tsx` — show "RSVP is now closed" when locked per FR-003, show inline confirmation after submit per US4 scenario 4
-- [ ] T032 [US4] Delete `src/app/(public)/w/[slug]/rsvp/` directory entirely per FR-016
+- [x] T029 [US4] Merge hero + venue + RSVP sections into single page in `src/app/(public)/w/[slug]/page.tsx` — server component fetching all wedding data, rendering landing-page component + venue section + RSVP form, smooth scroll anchor `#rsvp` per research.md R6
+- [x] T030 [US4] Update landing page component in `src/components/landing-page.tsx` — add RSVP CTA button with smooth scroll to `#rsvp`, add gradient fallback hero for weddings without template image (use glassmorphism CSS variables per research.md R7), remove separate RSVP page link per FR-013/FR-014/FR-015
+- [x] T031 [US4] Update RSVP form for inline success state and `isLocked` prop in `src/components/rsvp-form.tsx` — show "RSVP is now closed" when locked per FR-003, show inline confirmation after submit per US4 scenario 4
+- [x] T032 [US4] Delete `src/app/(public)/w/[slug]/rsvp/` directory entirely per FR-016
 
 ### E2E Verification for User Story 4
 
-- [ ] T033 [US4] E2E test for single-page RSVP experience in `tests/e2e/rsvp-single-page.spec.ts` — hero with couple name → smooth scroll to RSVP via CTA → submit RSVP → inline success. Fallback hero for no-image wedding. Locked wedding shows "RSVP is closed."
+- [x] T033 [US4] E2E test for single-page RSVP experience in `tests/e2e/rsvp-single-page.spec.ts` — hero with couple name → smooth scroll to RSVP via CTA → submit RSVP → inline success. Fallback hero for no-image wedding. Locked wedding shows "RSVP is closed."
 
 **Checkpoint**: Full single-page RSVP experience working. Fallback hero for no-image weddings. Locked weddings show "RSVP is closed."
 
