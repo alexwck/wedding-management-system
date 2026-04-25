@@ -14,6 +14,7 @@ interface TemplateUploadProps {
 
 export function TemplateUpload({ weddingId, currentImageUrl, focalX, focalY }: TemplateUploadProps) {
   const [preview, setPreview] = useState<string | null>(currentImageUrl);
+  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -100,7 +101,7 @@ export function TemplateUpload({ weddingId, currentImageUrl, focalX, focalY }: T
       {currentImageUrl && (
         <TemplatePreview
           weddingId={weddingId}
-          imageUrl={currentImageUrl}
+          imageUrl={uploadedUrl ?? currentImageUrl}
           focalX={focalX ?? null}
           focalY={focalY ?? null}
         />

@@ -177,11 +177,11 @@ export function TemplatePreview({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={(props) => <Button variant="outline" size="sm" {...props} />}>
-          Preview
+          Adjust Crop
       </DialogTrigger>
       <DialogContent className="glass-panel max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Template Preview — Drag to crop</DialogTitle>
+          <DialogTitle>Adjust Image Crop</DialogTitle>
         </DialogHeader>
         <div
           className="relative overflow-hidden rounded-lg bg-black"
