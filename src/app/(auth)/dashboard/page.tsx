@@ -3,6 +3,7 @@ import { getMyWeddingRSVPs } from "@/app/actions/admin";
 import { RVPSummary } from "@/components/rsvp-summary";
 import { VenueEditor } from "@/components/venue-editor";
 import { WeddingDatePicker } from "@/components/wedding-date-picker";
+import { EditableCoupleName } from "@/components/editable-couple-name";
 
 export default async function CoupleDashboard() {
   const result = await getMyWeddingRSVPs();
@@ -31,7 +32,7 @@ export default async function CoupleDashboard() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">{wedding.coupleName}</h2>
+          <EditableCoupleName weddingId={wedding.id} coupleName={wedding.coupleName} isLocked={wedding.isLocked} />
           <p className="text-muted-foreground">
             Public link:{" "}
             <a
