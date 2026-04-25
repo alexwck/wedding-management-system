@@ -84,7 +84,7 @@ export function useSeatAssignments(weddingId: number) {
 
   const restoreAssignments = useCallback(
     async (newMap: SeatAssignmentMap, newGuests: UnassignedGuest[], items: FloorPlanItem[]) => {
-      const oldMap = { ...assignmentMap };
+      const oldMap = structuredClone(assignmentMap);
 
       setAssignmentMap(newMap);
       setUnassignedGuests(newGuests);
@@ -92,33 +92,36 @@ export function useSeatAssignments(weddingId: number) {
       const oldKeys = new Set(Object.keys(oldMap));
       const newKeys = new Set(Object.keys(newMap));
 
-      let failed = false;
+      const unassignPromises: Promise<void>[] = [];
+      const assignPromises: Promise<void>[] = [];
 
       for (const chairId of oldKeys) {
         if (!newKeys.has(chairId)) {
-          const result = await unassignSeat({ weddingId, chairItemId: chairId });
-          if (!result.success) failed = true;
+          unassignPromises.push(
+            unassignSeat({ weddingId, chairItemId: chairId }).then((r) => { if (!r.success) throw new Error(); }).catch(() => {}),
+          );
         }
       }
 
       for (const chairId of newKeys) {
-        if (!oldKeys.has(chairId)) {
-          const entry = newMap[chairId];
+        const newEntry = newMap[chairId];
+        const oldEntry = oldMap[chairId];
+        if (!oldKeys.has(chairId) || (oldEntry && oldEntry.rsvpId !== newEntry.rsvpId)) {
           const chair = items.find((i) => i.id === chairId);
           const tableItemId = chair?.parentItemId ?? "";
-          const result = await assignSeat({
-            weddingId,
-            rsvpId: entry.rsvpId,
-            chairItemId: chairId,
-            tableItemId,
-          });
-          if (!result.success) failed = true;
+          if (oldEntry) {
+            unassignPromises.push(
+              unassignSeat({ weddingId, chairItemId: chairId }).then((r) => { if (!r.success) throw new Error(); }).catch(() => {}),
+            );
+          }
+          assignPromises.push(
+            assignSeat({ weddingId, rsvpId: newEntry.rsvpId, chairItemId: chairId, tableItemId }).then((r) => { if (!r.success) throw new Error(); }).catch(() => {}),
+          );
         }
       }
 
-      if (failed) {
-        await fetchAssignments();
-      }
+      await Promise.all(unassignPromises);
+      await Promise.all(assignPromises);
     },
     [weddingId, assignmentMap, fetchAssignments],
   );
