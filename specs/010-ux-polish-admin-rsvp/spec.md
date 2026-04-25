@@ -21,7 +21,7 @@ An admin wants to prevent any modifications to a confirmed or completed wedding.
 2. **Given** a locked wedding, **When** a guest navigates to the public RSVP page, **Then** they see a message indicating RSVP is closed instead of the form
 3. **Given** a locked wedding, **When** admin clicks "Unlock Wedding", **Then** all editing capabilities are restored
 4. **Given** a locked wedding, **When** a couple user accesses their dashboard, **Then** all forms and editors display a "locked" indicator and save actions are disabled
-5. **Given** a locked wedding, **When** admin accesses the wedding detail page, **Then** all edit forms are read-only and the only available action is "Unlock Wedding"
+5. **Given** a locked wedding, **When** admin accesses the wedding detail page, **Then** all editing interfaces (forms, editors, canvas) are read-only and the only available action is "Unlock Wedding"
 
 ---
 
@@ -135,12 +135,13 @@ When a couple or admin uploads a new template image, the preview and all display
 ### Edge Cases
 
 - What happens when admin locks a wedding while the couple is actively editing the floor plan? The couple's next save attempt should fail with a clear "This wedding has been locked" message. Same applies if admin locks while another admin is editing — the lock takes effect and all edits are blocked.
-- What happens when the canvas is exactly at capacity? All catalog items should be disabled, including non-table items like Stage and Pillar.
+- What happens when the canvas is exactly at capacity? All catalog items should be disabled, including non-table items like Stage and Pillar. The catalog should display a message such as "Canvas is full — remove an item to add more" when no items can be placed.
 - What happens when a guest has already submitted an RSVP and the wedding is then locked? The existing RSVP data is preserved in full; only new submissions are blocked.
 - What happens when undo is pressed during an active drag gesture? The drag should complete before undo processes to avoid state corruption.
 - What happens when the couple name is cleared to empty? Validation must prevent saving an empty couple name.
 - What happens with the old `/w/[slug]/rsvp` route? It is removed entirely — the RSVP form lives on the single page.
 - What happens when multiple catalog items are disabled and the user resizes the canvas larger? All items that now fit should re-enable in real-time.
+- What happens when the canvas is resized smaller? Items near the new edges may go out of bounds and catalog items that no longer fit should become disabled immediately.
 - What happens when a template image upload fails mid-transfer? The previous image remains active and no partial/orphan file is left in storage.
 
 ## Clarifications
@@ -156,7 +157,7 @@ When a couple or admin uploads a new template image, the preview and all display
 **Admin Lock**
 
 - **FR-001**: System MUST provide a lock/unlock toggle on each wedding visible to admins on the wedding detail page
-- **FR-002**: System MUST prevent all edits by both the couple AND admin (template, venue, floor plan, couple name, date) when the wedding is locked — the only action permitted on a locked wedding is unlocking it
+- **FR-002**: System MUST prevent all edits by both the couple AND admin (template, venue, floor plan, couple name, date) when the wedding is locked — the only action permitted on a locked wedding is unlocking it. Enforcement MUST be server-side in every mutation action, not solely through client-side UI disabling.
 - **FR-003**: System MUST prevent new RSVP submissions on the public page when the wedding is locked, displaying a "RSVP is closed" message
 - **FR-004**: System MUST preserve all existing data (RSVPs, floor plan, venue, assignments) when a wedding is locked — locking is a state change only, never data deletion
 - **FR-005**: System MUST allow admins to lock and unlock any wedding at any time regardless of its current state
@@ -165,11 +166,11 @@ When a couple or admin uploads a new template image, the preview and all display
 
 - **FR-006**: System MUST check whether a valid non-overlapping, in-bounds position exists for each catalog item type before allowing placement
 - **FR-007**: System MUST visually disable catalog items that have no valid placement position, with a tooltip explaining insufficient space
-- **FR-008**: System MUST re-evaluate and re-enable disabled catalog items in real-time when space becomes available (after item deletion, move, or canvas resize)
+- **FR-008**: System MUST re-evaluate catalog item availability in real-time on every canvas state change — items MUST be disabled when canvas shrinks or items are added, and re-enabled when space becomes available (after item deletion, move, or canvas resize)
 
 **Save UX & OOB Prevention**
 
-- **FR-009**: System MUST display one of these clear save states at all times: "Unsaved changes" (with save button), "Saving...", "All changes saved" (with timestamp), or "Save failed — try again"
+- **FR-009**: System MUST display one of these clear save states at all times: "Unsaved changes" (with save button), "Saving...", "All changes saved" (with timestamp), "N item(s) outside canvas — move within bounds to save" (blocked, no save button), or "Save failed — try again"
 - **FR-010**: System MUST block both auto-save and manual save when any floor plan item is outside the canvas bounds
 - **FR-011**: System MUST display the count of out-of-bounds items when save is blocked, with guidance to move them within bounds
 - **FR-012**: System MUST resume auto-save automatically once all out-of-bounds items are corrected and the debounce period elapses
@@ -184,19 +185,31 @@ When a couple or admin uploads a new template image, the preview and all display
 **Editable Couple Name**
 
 - **FR-017**: System MUST display the couple name as an editable text input on the wedding management page, positioned above the wedding date/time picker
-- **FR-018**: System MUST reject empty couple name values with a validation error
+- **FR-018**: System MUST reject empty couple name values and enforce a maximum length of 100 characters, with a validation error for both
 
 **Template Image**
 
 - **FR-019**: System MUST ensure the template preview shows the most recently uploaded image immediately after upload without requiring a page refresh
 - **FR-020**: System MUST ensure only one template image file exists per wedding in storage at any time
+- **FR-020a**: The template preview button MUST be labeled "Adjust Crop" (not "Preview") to accurately describe its focal-point crop adjustment function
 
 **Undo/Redo Completeness**
 
 - **FR-021**: System MUST track all canvas actions in undo history: item placement from catalog, item deletion, drag position change, rotation, resize, canvas dimension changes, chair count changes, guest seat assignments, guest unassignments, and item label edits
 - **FR-022**: System MUST produce exactly one undo entry per user gesture — a drag produces one entry, a rotation produces one entry, a resize produces one entry, not continuous entries during the gesture
 - **FR-023**: System MUST restore the complete canvas state (items, dimensions, guest assignment map, unassigned guest list) when undoing or redoing any action
-- **FR-024**: System MUST cap undo history at a fixed maximum to prevent unbounded memory growth
+- **FR-024**: System MUST cap undo history at 20 entries maximum to prevent unbounded memory growth — the oldest entry is discarded when a new action exceeds the cap
+
+**Lock × Floor Plan Editor Interaction**
+
+- **FR-025**: When a wedding is locked, the floor plan editor MUST disable all interactive capabilities (drag, rotate, resize, catalog placement, chair count changes, guest assignments, canvas dimension edits) — the canvas is view-only
+- **FR-026**: When a wedding is locked, undo and redo controls MUST be disabled — existing undo history is preserved but not navigable until the wedding is unlocked
+
+**Accessibility**
+
+- **FR-027**: The lock toggle MUST include ARIA attributes conveying its current state (locked/unlocked) for screen reader users
+- **FR-028**: Disabled catalog items MUST be announced as disabled with the reason ("no space available") for screen reader users
+- **FR-029**: Save status changes MUST be announced via ARIA live regions for screen reader users
 
 ### Key Entities
 
@@ -225,7 +238,7 @@ When a couple or admin uploads a new template image, the preview and all display
 - **Lock is manual**: Locking is an explicit admin action, not automatic based on wedding date. Admins may lock when the plan is confirmed or after the wedding has ended.
 - **RSVP single-page design direction**: The recommended approach is a single scrollable page with CTA hierarchy — hero section (full-screen image, couple name, date, venue summary) → smooth scroll or CTA → venue details section → RSVP form section. This follows the Apple-style landing page pattern the user referenced. The separate `/w/[slug]/rsvp` route is removed entirely — no backward compatibility needed.
 - **Wedding without template image**: The single-page redesign shows a styled fallback hero (gradient background with couple name and date) instead of the current 404. This allows RSVP submissions even without an uploaded image.
-- **Template preview purpose**: The current template preview is a focal-point/crop adjuster that controls which portion of the uploaded image is visible in the hero section's frame via CSS object-position. This is a genuinely useful feature that gives couples visual control over their hero image. It should be retained but renamed to "Adjust Crop" or "Set Framing" to be more self-explanatory than "Preview."
+- **Template preview purpose**: The current template preview is a focal-point/crop adjuster that controls which portion of the uploaded image is visible in the hero section's frame via CSS object-position. This is a genuinely useful feature that gives couples visual control over their hero image. Per FR-020a, it is renamed to "Adjust Crop."
 - **Undo/redo capacity**: History is capped at 20 entries, balancing memory usage with practical editing depth.
 - **Catalog placement algorithm**: The existing spiral placement algorithm is retained; the enhancement disables items when the algorithm cannot find any valid position, rather than placing at center with overlap.
 - **OOB save block is a hard block**: When items are out of bounds, no save occurs — neither auto-save nor manual save. The user must move items within bounds before any data is persisted.
