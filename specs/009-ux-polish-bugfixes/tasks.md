@@ -112,13 +112,13 @@
 
 ### Tests for User Story 3
 
-- [ ] T018 [US3] Write failing component tests in `tests/unit/components/floor-plan/canvas-stats.test.tsx` for: mixed tables, all assigned with surplus chairs, empty canvas, stats update on item add/remove
+- [x] T018 [US3] Write failing component tests in `tests/unit/components/floor-plan/canvas-stats.test.tsx` for: mixed tables, all assigned with surplus chairs, empty canvas, stats update on item add/remove
 
 ### Implementation for User Story 3
 
-- [ ] T019 [US3] Add `computeStats(items, assignmentMap)` function in `src/lib/floor-plan/stats.ts` that returns `{ roundTableCount, longTableCount, totalChairs, assignedChairs, emptyChairs }`
-- [ ] T020 [US3] Create `src/components/floor-plan/canvas-stats.tsx` component — glass-panel styled, always visible, showing "Round Tables: N | Long Tables: N" and "Chairs: N total | N assigned | N empty", with zero-state for empty canvas
-- [ ] T021 [US3] Integrate `canvas-stats.tsx` into `src/components/floor-plan/guest-panel.tsx` pinned at top of panel (above collapsible sections), passing computed stats as props
+- [x] T019 [US3] Add `computeStats(items, assignmentMap)` function in `src/lib/floor-plan/stats.ts` that returns `{ roundTableCount, longTableCount, totalChairs, assignedChairs, emptyChairs }`
+- [x] T020 [US3] Create `src/components/floor-plan/canvas-stats.tsx` component — glass-panel styled, always visible, showing "Round Tables: N | Long Tables: N" and "Chairs: N total | N assigned | N empty", with zero-state for empty canvas
+- [x] T021 [US3] Integrate `canvas-stats.tsx` into `src/components/floor-plan/guest-panel.tsx` pinned at top of panel (above collapsible sections), passing computed stats as props
 
 **Checkpoint**: Canvas statistics visible at top of guest panel, updating in real-time as items change.
 
