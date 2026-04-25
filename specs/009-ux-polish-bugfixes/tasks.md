@@ -25,19 +25,24 @@
 
 ## Phase 1: User Story 4 - Undo Bug Fix (Priority: P1)
 
-**Goal**: Fix the undo double-step bug so each undo reverts exactly one state change
+**Goal**: Fix the undo double-step bug so each undo reverts exactly one state change, and extend undo to track ALL canvas state including guest seat assignments
 
-**Independent Test**: Add 3 items to the canvas, click undo once, verify exactly 1 item is removed (2 remain)
+**Independent Test**: Add 3 items to the canvas, click undo once, verify exactly 1 item is removed (2 remain). Assign a guest to a chair, undo, verify guest returns to unassigned.
 
 ### Tests for User Story 4
 
 - [x] T001 [US4] Write failing unit test assertions in `tests/unit/hooks/use-undo-redo.test.ts` verifying that a single undo after adding one item returns to the pre-add state (not two steps back)
+- [x] T001a [US4] Write unit tests in `tests/unit/hooks/use-undo-redo.test.ts` verifying assignmentMap and unassignedGuests are captured in snapshots and restored on undo/redo, with deep-clone isolation
 
 ### Implementation for User Story 4
 
-- [x] T002 [US4] Fix duplicate `pushState` in `handleSelectItem` in `src/components/floor-plan/floor-plan-canvas.tsx` — remove the separate `pushHistory()` call before `state.addItem()` and ensure state is pushed atomically within `addItem` in `src/components/floor-plan/hooks/use-floor-plan-state.ts`
+- [x] T002 [US4] Fix duplicate `pushState` in mount useEffect in `src/components/floor-plan/floor-plan-canvas.tsx` — remove the initial pushState call
+- [x] T002a [US4] Extend `Snapshot` type in `src/components/floor-plan/hooks/use-undo-redo.ts` to include `assignmentMap: SeatAssignmentMap` and `unassignedGuests: UnassignedGuest[]`; update `pushState` to accept 5 parameters
+- [x] T002b [US4] Add `restoreAssignments(newMap, newGuests, items)` to `src/components/floor-plan/hooks/use-seat-assignments.ts` — diff old vs new maps, unassign removed chairs, assign new chairs, handle same-chair-different-guest; use structuredClone for safe diffing and Promise.all for parallel server calls
+- [x] T002c [US4] Update `pushHistory` in `src/components/floor-plan/floor-plan-canvas.tsx` to pass assignment state; update `restoreSnapshot` to call `restoreAssignments`; wrap guest assign/unassign handlers to push history before calling seat assignment functions
+- [x] T002d [US4] Add edit-started ref guards for venue dimension and chair count number inputs in `src/components/floor-plan/floor-plan-canvas.tsx` — pushHistory on first keystroke, skip subsequent, reset on blur
 
-**Checkpoint**: Undo button reverts exactly one action. Add 3 items, undo once → 2 items remain.
+**Checkpoint**: Undo button reverts exactly one action. Add 3 items, undo once → 2 items remain. Assign guest, undo → guest returns to unassigned. Type in venue width, undo → reverts full edit session.
 
 ---
 
@@ -137,8 +142,16 @@
 ### Implementation for User Story 6
 
 - [x] T023 [P] [US6] Add per-item resize bounds (`minWidth`, `maxWidth`, `minHeight`, `maxHeight`) to `FLOOR_PLAN_ITEMS` entries in `src/lib/floor-plan/constants.ts` for Stage, Pillar, Walkway, and Misc types (per spec table in US6)
-- [x] T024 [US6] Modify `src/components/floor-plan/canvas-item.tsx` (or the Transformer wrapper) to conditionally enable resize handles via Konva `Transformer` only when item type is Stage, Pillar, Walkway, or Misc — round tables and long tables must not show resize anchors; Konva `Transformer` provides built-in touch support for resize handles (no separate `onTap`/`onClick` needed on individual handles)
-- [x] T025 [US6] Implement `transformend` handler in `src/components/floor-plan/canvas-item.tsx` that clamps new dimensions to per-type min/max bounds, converts pixel delta to feet using `FEET_TO_PIXELS`, updates item `width`/`height`, pushes pre-resize state to undo history, and snaps to venue boundary if dimensions exceed canvas limits
+- [x] T024 [US6] Modify `src/components/floor-plan/rotation-transformer.tsx` to conditionally enable resize anchors via Konva `Transformer` only when item type is resizable — merged separate rotation/resize handlers into single `onTransformEnd`; clamping via `boundBoxFunc`; convert center pixels to top-left feet via `centerPixelsToTopLeftFeet` for storage
+- [x] T025 [US6] Implement `handleTransformEnd` in `src/components/floor-plan/floor-plan-canvas.tsx` — for non-table items update x/y/width/height/rotation from TransformResult; for tables update only rotation and reposition child chairs via trig; push history once per gesture
+- [x] T025a [US6] Switch all non-table items (Stage, Pillar, Walkway, Misc) in `src/components/floor-plan/items/` to center-based rendering with `offsetX/Y` so rotation pivots around visual center; update `OutOfBoundsIndicator` in `src/components/floor-plan/canvas-item.tsx` to match
+- [x] T025b [US6] Update `handleDragEnd` and `handleDragMove` in `src/components/floor-plan/floor-plan-canvas.tsx` to use `centerPixelsToTopLeftFeet` for ALL items (not just tables), simplifying the table/non-table coordinate conversion split
+
+### Performance for User Story 6
+
+- [x] T025c [US6] Use refs for `assignmentMap` and `unassignedGuests` in `pushHistory` callback deps in `src/components/floor-plan/floor-plan-canvas.tsx` — prevents callback cascade when seat assignments change (which recreates all dependent handlers and defeats CanvasItem memoization)
+- [x] T025d [US6] Replace inline `onChairClick` arrow function with stable `useCallback` in `src/components/floor-plan/floor-plan-canvas.tsx` — inline functions defeat memoization for all CanvasItem components
+- [x] T025e [US6] Scope chair count unassign to only removed chairs in `handleChairCountChange` — compute new chair IDs first, only unassign guests from chairs NOT in the new set
 
 **Checkpoint**: Non-table items can be resized on the canvas. Tables are fixed. Resize is undoable and respects bounds.
 
@@ -225,10 +238,14 @@ Developer E: Phase 6 (US6 Item Resize)
 ## Notes
 
 - No database migrations needed — all features use existing columns or client-side computed state
-- The undo bug is in `floor-plan-canvas.tsx` (caller), not in `use-undo-redo.ts` (hook)
+- The undo bug was in `floor-plan-canvas.tsx` (caller), not in `use-undo-redo.ts` (hook) — duplicate pushState in mount useEffect
+- Undo system extended to track ALL canvas state: items, venue dimensions, assignmentMap, unassignedGuests
 - Template crop repurposes `template_focal_x`/`template_focal_y` columns — no schema change
 - Guest panel refactor replaces `unassigned-guests-panel.tsx` with `guest-panel.tsx`
 - All new UI surfaces use `.glass-panel` class per glassmorphism design system
-- Konva Transformer provides built-in touch support for resize handles — no separate `onTap`/`onClick` handlers needed on individual resize anchors
-- Stats computation lives in `src/lib/floor-plan/stats.ts` as a pure function (separate from hooks for clean separation)
+- All Konva items now use center-based rendering with offsetX/Y for correct rotation behavior
+- Rotation and resize handled by single merged `onTransformEnd` (not separate handlers) to prevent duplicate undo entries
+- Number input fields (venue dims, chair count) use edit-started ref guards — one undo entry per focus→blur session
+- Callback stability: refs for assignment state in pushHistory, stable onChairClick — prevents CanvasItem re-render cascade
+- Chair count changes only unassign guests from removed chairs, not all chairs on the table
 - Deleting a table from the canvas must cascade assigned guests back to the unassigned section

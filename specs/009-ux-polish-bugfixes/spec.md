@@ -64,19 +64,24 @@ As a couple or admin, I want to see a summary of tables, chairs, and seat assign
 
 ---
 
-### User Story 4 - Undo Bug Fix (Priority: P1)
+### User Story 4 - Undo Bug Fix & Assignment Tracking (Priority: P1)
 
-As a floor plan user, when I undo my last action, I expect exactly one action to be reversed, so that I can reliably control changes to my layout.
+As a floor plan user, when I undo my last action, I expect exactly one action to be reversed — including guest seat assignments, item dimensions, and venue changes — so that I can reliably control changes to my layout and seating arrangements.
 
-**Why this priority**: A core interaction (undo) is broken. Users cannot trust the editor's history system, which undermines confidence in making changes.
+**Why this priority**: A core interaction (undo) is broken. Users cannot trust the editor's history system, which undermines confidence in making changes. Extended scope ensures undo covers ALL canvas state, not just item positions.
 
-**Independent Test**: Place two items on the canvas. Click undo once. Verify exactly one item is removed (not two).
+**Independent Test**: Place two items on the canvas, assign a guest to a chair. Click undo once. Verify exactly the guest assignment is reversed (not the item placement). Click undo again. Verify one item is removed.
 
 **Acceptance Scenarios**:
 
 1. **Given** the user has added 3 items sequentially, **When** the user clicks undo once, **Then** exactly the last item is removed and 2 items remain
 2. **Given** the user has moved an item, **When** the user clicks undo, **Then** the item returns to its previous position (no additional state changes)
 3. **Given** the undo button is clicked multiple times in quick succession, **When** each click is processed, **Then** only one state change occurs per click — the undo action is synchronous and blocks duplicate invocations
+4. **Given** a guest is assigned to a chair, **When** the user clicks undo, **Then** the guest returns to the unassigned list and the chair becomes empty
+5. **Given** a guest is unassigned from a chair, **When** the user clicks undo, **Then** the guest is re-assigned to the same chair
+6. **Given** venue dimensions are changed (e.g., width from 50 to 60), **When** the user clicks undo, **Then** the width reverts to 50
+7. **Given** the user types a new value into a venue dimension input field (multiple keystrokes), **When** the typing is complete and the user clicks undo, **Then** only one undo entry exists for the entire typing session (not one per keystroke)
+8. **Given** the user types a new value into a chair count input field (multiple keystrokes), **When** the typing is complete and the user clicks undo, **Then** only one undo entry exists for the entire typing session
 
 ---
 
@@ -113,6 +118,9 @@ As a couple or admin using the floor plan editor, I want to resize non-table ite
 5. **Given** any item being resized, **When** the new dimensions would cause a collision with another item, **Then** the collision indicator appears
 6. **Given** an item being resized near the canvas boundary, **When** the new dimensions would extend beyond the venue limits, **Then** the resize snaps to the venue boundary and the out-of-bounds indicator appears
 7. **Given** a table with assigned guest chairs, **When** the table is deleted, **Then** the assigned guests are returned to the unassigned section
+8. **Given** a non-table item (Stage, Pillar, Walkway, Misc) is rotated, **When** the rotation completes, **Then** the item's label remains centered on the item
+9. **Given** a non-table item is resized, **When** the resize completes, **Then** the item's label remains centered on the item
+10. **Given** any item is rotated, **When** the rotation completes, **Then** exactly one undo entry is created (not separate entries for rotation and resize)
 
 **Per-Item Resize Limits**:
 
@@ -135,6 +143,11 @@ As a couple or admin using the floor plan editor, I want to resize non-table ite
 - Tables (round and long) cannot be resized — selecting a table shows no resize handles
 - If the template image is deleted from storage but a crop offset exists, the landing page shows the default state (no image) and the crop offset is ignored gracefully
 - If the crop position save fails (network error), the preview shows an error toast and the user can retry without losing their current crop position
+- Undoing a guest assignment must handle server-side failures gracefully — if the server unassign/assign call fails, the full assignment state is re-fetched to restore consistency
+- When undoing changes that affect both items and guest assignments (e.g., deleting a table that had assigned chairs), both item state and assignment state are restored atomically in a single undo step
+- Rotating an item via the Konva Transformer and then undoing must restore both the item's rotation and the positions of any child chairs that were repositioned by the rotation
+- Venue dimension and chair count input fields push a single undo entry when the user finishes editing (on blur), not one entry per keystroke
+- Restoring guest assignments after undo/redo parallelizes server calls (unassignes first, then assigns) for performance
 
 ## Requirements *(mandatory)*
 
@@ -169,10 +182,13 @@ As a couple or admin using the floor plan editor, I want to resize non-table ite
 - **FR-016**: System MUST display the count of empty chairs that remain after all guests have been assigned (same value as FR-015's "empty" count — FR-016 exists to emphasize this metric when all guests are seated)
 - **FR-017**: System MUST update statistics within 500ms as items are added, removed, or guests are assigned/unassigned
 
-**Undo Bug Fix**
+**Undo Bug Fix & Assignment Tracking**
 
 - **FR-018**: System MUST revert exactly one state change per undo action
 - **FR-019**: System MUST correctly track initial state so that undo from a single action returns to the pre-action state
+- **FR-019a**: System MUST include guest seat assignments (assignmentMap and unassignedGuests) in every undo/redo snapshot alongside items, width, and height
+- **FR-019b**: System MUST restore guest seat assignments when undoing or redoing, including unassigning and reassigning guests on the server
+- **FR-019c**: System MUST deduplicate undo entries for number input fields (venue dimensions, chair count) — one undo entry per editing session (focus → blur), not one per keystroke
 
 **Password Confirmation**
 
@@ -186,6 +202,13 @@ As a couple or admin using the floor plan editor, I want to resize non-table ite
 - **FR-024**: System MUST NOT show resize controls for round tables and long tables — these items use fixed predefined dimensions only
 - **FR-025**: System MUST enforce minimum and maximum dimension limits for resizable items
 - **FR-026**: System MUST include resize actions in the undo/redo history
+
+**Rendering & Performance**
+
+- **FR-027**: All floor plan items MUST use center-based Konva positioning with offsetX/Y so that rotation pivots around the visual center (not the top-left corner)
+- **FR-028**: System MUST use a single merged transform handler (not separate rotation and resize handlers) to prevent duplicate undo entries when rotating and resizing
+- **FR-029**: System MUST use stable callback references for canvas item event handlers to prevent unnecessary re-renders of memoized CanvasItem components when unrelated state changes (e.g., guest assignments)
+- **FR-030**: When chair count decreases, System MUST only unassign guests from chairs that are being removed (not from all chairs on the table)
 
 ### Key Entities
 
@@ -221,6 +244,7 @@ As a couple or admin using the floor plan editor, I want to resize non-table ite
 - The crop preview frame uses the same dimensions as the landing page container (free-form, no fixed aspect ratio) — what the user sees in preview matches what guests see on the landing page
 - The floor plan left panel (224px / w-56) has sufficient space to accommodate both guest sections and a statistics component without requiring horizontal scrolling; on mobile viewports the panel adapts to full-width overlay
 - The undo bug is caused by a duplicate `pushState` call in `floor-plan-canvas.tsx` (the caller), specifically `pushHistory()` being called before `addItem()` — the fix is in the canvas event handler, not in the `use-undo-redo` hook itself
+- The undo system tracks the full canvas state: items, venue dimensions, guest assignment map, and unassigned guests list — all captured atomically in each snapshot
 - Password confirmation is a client-side-only validation enhancement — no server-side changes needed beyond what the existing Zod schema provides
 - Item resize applies only to non-table items (Stage, Pillar, Walkway, Misc) — round tables and long tables are fixed at their predefined dimensions
 - The undo history limit of 20 snapshots is adequate for resize operations — each resize is a single state push on drag-end, not per-pixel during drag

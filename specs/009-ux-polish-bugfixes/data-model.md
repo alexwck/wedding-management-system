@@ -52,6 +52,20 @@ AssignedGuest {
 }
 ```
 
+### Undo Snapshot (captured on every action, not persisted)
+
+```
+Snapshot {
+  items: FloorPlanItem[]
+  width: number              // venue width in feet
+  height: number             // venue height in feet
+  assignmentMap: SeatAssignmentMap  // chair ID → { guestName, rsvpId }
+  unassignedGuests: UnassignedGuest[]  // guests not assigned to any chair
+}
+```
+
+All fields are `structuredClone`'d for isolation. History capped at 20 snapshots (MAX_HISTORY_SIZE).
+
 ### Item Resize Bounds (constants, not persisted)
 
 Added to existing `FLOOR_PLAN_ITEMS` in `constants.ts`:
