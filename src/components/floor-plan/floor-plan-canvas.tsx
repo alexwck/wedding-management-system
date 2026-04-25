@@ -7,6 +7,7 @@ import { useFloorPlanState } from "./hooks/use-floor-plan-state";
 import { useAutoSave } from "./hooks/use-auto-save";
 import { useCollisionDetection } from "./hooks/use-collision-detection";
 import { useUndoRedo } from "./hooks/use-undo-redo";
+import type { Snapshot } from "./hooks/use-undo-redo";
 import { useSeatAssignments } from "./hooks/use-seat-assignments";
 import { ItemCatalog } from "./item-catalog";
 import { GuestAssignmentDialog } from "./guest-assignment-dialog";
@@ -330,8 +331,14 @@ export function FloorPlanCanvas({
   }, [containerWidth, containerHeight, handleFitToScreen]);
 
   const pushHistory = useCallback(() => {
-    undoRedo.pushState(state.items, state.width, state.height);
-  }, [undoRedo, state.items, state.width, state.height]);
+    undoRedo.pushState(
+      state.items,
+      state.width,
+      state.height,
+      seatAssignments.assignmentMap,
+      seatAssignments.unassignedGuests,
+    );
+  }, [undoRedo, state.items, state.width, state.height, seatAssignments.assignmentMap, seatAssignments.unassignedGuests]);
 
   const handleSelectItem = useCallback(
     (type: ItemType, sizeVariant?: number) => {
@@ -597,6 +604,16 @@ export function FloorPlanCanvas({
       const clamped = Math.min(Math.max(newCount, 0), max);
       pushHistory();
 
+      // Cascade: unassign guests from chairs being regenerated
+      const currentChairs = state.items.filter(
+        (i) => i.type === "chair" && i.parentItemId === tableId,
+      );
+      for (const chair of currentChairs) {
+        if (seatAssignments.assignmentMap[chair.id]) {
+          void seatAssignments.unassignGuest(chair.id);
+        }
+      }
+
       const updatedTable = { ...table, metadata: { ...table.metadata, chairCount: clamped } };
       const newChairs = redistributeChairs(updatedTable, clamped);
 
@@ -608,22 +625,43 @@ export function FloorPlanCanvas({
         ...newChairs,
       ]);
     },
-    [state, pushHistory],
+    [state, pushHistory, seatAssignments],
   );
 
   const restoreSnapshot = useCallback(
-    (snapshot: { items: FloorPlanItem[]; width: number; height: number } | null) => {
+    (snapshot: Snapshot | null) => {
       if (!snapshot) return;
       state.setAllItems(snapshot.items);
       state.updateDimensions(snapshot.width, snapshot.height);
+      void seatAssignments.restoreAssignments(
+        snapshot.assignmentMap,
+        snapshot.unassignedGuests,
+        snapshot.items,
+      );
       setSelectedItemId(null);
     },
-    [state],
+    [state, seatAssignments],
   );
 
   const handleUndo = useCallback(() => restoreSnapshot(undoRedo.undo()), [undoRedo, restoreSnapshot]);
 
   const handleRedo = useCallback(() => restoreSnapshot(undoRedo.redo()), [undoRedo, restoreSnapshot]);
+
+  const handleGuestAssign = useCallback(
+    async (rsvpId: number, chairItemId: string, tableItemId: string, guestName: string) => {
+      pushHistory();
+      return seatAssignments.assignGuest(rsvpId, chairItemId, tableItemId, guestName);
+    },
+    [pushHistory, seatAssignments],
+  );
+
+  const handleGuestUnassign = useCallback(
+    async (chairItemId: string) => {
+      pushHistory();
+      return seatAssignments.unassignGuest(chairItemId);
+    },
+    [pushHistory, seatAssignments],
+  );
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -944,8 +982,8 @@ export function FloorPlanCanvas({
             seatAssignments.assignmentMap[dialogChairId]?.guestName ?? null
           }
           unassignedGuests={seatAssignments.unassignedGuests}
-          onAssign={seatAssignments.assignGuest}
-          onUnassign={seatAssignments.unassignGuest}
+          onAssign={handleGuestAssign}
+          onUnassign={handleGuestUnassign}
           tableItemId={dialogTableId}
         />
       )}

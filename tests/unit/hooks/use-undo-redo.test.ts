@@ -3,6 +3,20 @@ import { renderHook, act } from "@testing-library/react";
 import { useUndoRedo } from "@/components/floor-plan/hooks/use-undo-redo";
 import { makeFloorPlanItem } from "../helpers/factories";
 
+const EMPTY_MAP = {};
+const EMPTY_GUESTS: { id: number; guestName: string }[] = [];
+
+function push(
+  result: { current: ReturnType<typeof useUndoRedo> },
+  items: ReturnType<typeof makeFloorPlanItem>[],
+  assignmentMap = EMPTY_MAP,
+  unassignedGuests = EMPTY_GUESTS,
+) {
+  act(() => {
+    result.current.pushState(items, 50, 50, assignmentMap, unassignedGuests);
+  });
+}
+
 describe("useUndoRedo", () => {
   it("starts with canUndo=false and canRedo=false", () => {
     const { result } = renderHook(() => useUndoRedo());
@@ -10,34 +24,22 @@ describe("useUndoRedo", () => {
     expect(result.current.canRedo).toBe(false);
   });
 
-  it("pushes state and enables undo", () => {
+  it("pushes state and enables undo after 2 pushes", () => {
     const { result } = renderHook(() => useUndoRedo());
 
-    act(() => {
-      result.current.pushState(
-        [makeFloorPlanItem({ id: "t1" })],
-        50,
-        50,
-      );
-    });
-
-    expect(result.current.canUndo).toBe(false); // only 1 snapshot, index at 0
+    push(result, [makeFloorPlanItem({ id: "t1" })]);
+    expect(result.current.canUndo).toBe(false);
     expect(result.current.canRedo).toBe(false);
+
+    push(result, [makeFloorPlanItem({ id: "t1" }), makeFloorPlanItem({ id: "t2" })]);
+    expect(result.current.canUndo).toBe(true);
   });
 
   it("undoes to previous state", () => {
     const { result } = renderHook(() => useUndoRedo());
 
-    act(() => {
-      result.current.pushState([makeFloorPlanItem({ id: "t1" })], 50, 50);
-    });
-    act(() => {
-      result.current.pushState(
-        [makeFloorPlanItem({ id: "t1" }), makeFloorPlanItem({ id: "t2" })],
-        50,
-        50,
-      );
-    });
+    push(result, [makeFloorPlanItem({ id: "t1" })]);
+    push(result, [makeFloorPlanItem({ id: "t1" }), makeFloorPlanItem({ id: "t2" })]);
 
     expect(result.current.canUndo).toBe(true);
 
@@ -53,16 +55,8 @@ describe("useUndoRedo", () => {
   it("redoes to next state", () => {
     const { result } = renderHook(() => useUndoRedo());
 
-    act(() => {
-      result.current.pushState([makeFloorPlanItem({ id: "t1" })], 50, 50);
-    });
-    act(() => {
-      result.current.pushState(
-        [makeFloorPlanItem({ id: "t1" }), makeFloorPlanItem({ id: "t2" })],
-        50,
-        50,
-      );
-    });
+    push(result, [makeFloorPlanItem({ id: "t1" })]);
+    push(result, [makeFloorPlanItem({ id: "t1" }), makeFloorPlanItem({ id: "t2" })]);
 
     act(() => {
       result.current.undo();
@@ -81,9 +75,7 @@ describe("useUndoRedo", () => {
   it("returns null on undo at start of history", () => {
     const { result } = renderHook(() => useUndoRedo());
 
-    act(() => {
-      result.current.pushState([], 50, 50);
-    });
+    push(result, []);
 
     let snapshot: unknown;
     act(() => {
@@ -95,9 +87,7 @@ describe("useUndoRedo", () => {
   it("returns null on redo at end of history", () => {
     const { result } = renderHook(() => useUndoRedo());
 
-    act(() => {
-      result.current.pushState([], 50, 50);
-    });
+    push(result, []);
 
     let snapshot: unknown;
     act(() => {
@@ -109,34 +99,16 @@ describe("useUndoRedo", () => {
   it("truncates future history on push after undo", () => {
     const { result } = renderHook(() => useUndoRedo());
 
-    act(() => {
-      result.current.pushState([makeFloorPlanItem({ id: "a" })], 50, 50);
-    });
-    act(() => {
-      result.current.pushState(
-        [makeFloorPlanItem({ id: "a" }), makeFloorPlanItem({ id: "b" })],
-        50,
-        50,
-      );
-    });
-    act(() => {
-      result.current.pushState(
-        [makeFloorPlanItem({ id: "a" }), makeFloorPlanItem({ id: "b" }), makeFloorPlanItem({ id: "c" })],
-        50,
-        50,
-      );
-    });
+    push(result, [makeFloorPlanItem({ id: "a" })]);
+    push(result, [makeFloorPlanItem({ id: "a" }), makeFloorPlanItem({ id: "b" })]);
+    push(result, [makeFloorPlanItem({ id: "a" }), makeFloorPlanItem({ id: "b" }), makeFloorPlanItem({ id: "c" })]);
 
-    // Undo twice to get back to first state
     act(() => { result.current.undo(); });
     act(() => { result.current.undo(); });
 
     expect(result.current.canRedo).toBe(true);
 
-    // Push new state — should truncate future
-    act(() => {
-      result.current.pushState([makeFloorPlanItem({ id: "x" })], 50, 50);
-    });
+    push(result, [makeFloorPlanItem({ id: "x" })]);
 
     expect(result.current.canRedo).toBe(false);
     expect(result.current.canUndo).toBe(true);
@@ -147,33 +119,20 @@ describe("useUndoRedo", () => {
 
     act(() => {
       for (let i = 0; i < 25; i++) {
-        result.current.pushState([makeFloorPlanItem({ id: `item-${i}` })], 50, 50);
+        result.current.pushState([makeFloorPlanItem({ id: `item-${i}` })], 50, 50, EMPTY_MAP, EMPTY_GUESTS);
       }
     });
 
-    // Can still undo (should be at least MAX_HISTORY_SIZE back)
     expect(result.current.canUndo).toBe(true);
   });
 
   it("undo returns to previous state after sequential pushes (single undo per action)", () => {
     const { result } = renderHook(() => useUndoRedo());
 
-    // Push 3 states: empty → 1 item → 2 items
-    act(() => {
-      result.current.pushState([], 50, 50);
-    });
-    act(() => {
-      result.current.pushState([makeFloorPlanItem({ id: "a" })], 50, 50);
-    });
-    act(() => {
-      result.current.pushState(
-        [makeFloorPlanItem({ id: "a" }), makeFloorPlanItem({ id: "b" })],
-        50,
-        50,
-      );
-    });
+    push(result, []);
+    push(result, [makeFloorPlanItem({ id: "a" })]);
+    push(result, [makeFloorPlanItem({ id: "a" }), makeFloorPlanItem({ id: "b" })]);
 
-    // One undo should go from 2 items to 1 item (not to 0 items)
     let snapshot: unknown;
     act(() => {
       snapshot = result.current.undo();
@@ -188,16 +147,33 @@ describe("useUndoRedo", () => {
     const { result } = renderHook(() => useUndoRedo());
 
     const items = [makeFloorPlanItem({ id: "t1", label: "original" })];
-    act(() => {
-      result.current.pushState(items, 50, 50);
-    });
+    push(result, items);
 
-    // Mutate original array after push
     items[0].label = "mutated";
 
-    // Push second state to enable undo
+    push(result, items);
+
+    let snapshot: unknown;
     act(() => {
-      result.current.pushState(items, 50, 50);
+      snapshot = result.current.undo();
+    });
+
+    expect((snapshot as { items: { label: string }[] }).items[0].label).toBe("original");
+  });
+
+  it("captures and restores assignmentMap in snapshots", () => {
+    const { result } = renderHook(() => useUndoRedo());
+
+    const map1 = { "chair-1": { guestName: "Alice", rsvpId: 1 } };
+    const guests1 = [{ id: 2, guestName: "Bob" }];
+    const map2 = { "chair-1": { guestName: "Alice", rsvpId: 1 }, "chair-2": { guestName: "Bob", rsvpId: 2 } };
+    const guests2: typeof guests1 = [];
+
+    act(() => {
+      result.current.pushState([makeFloorPlanItem({ id: "t1" })], 50, 50, map1, guests1);
+    });
+    act(() => {
+      result.current.pushState([makeFloorPlanItem({ id: "t1" })], 50, 50, map2, guests2);
     });
 
     let snapshot: unknown;
@@ -205,7 +181,34 @@ describe("useUndoRedo", () => {
       snapshot = result.current.undo();
     });
 
-    // First snapshot should have "original" label (captured before mutation)
-    expect((snapshot as { items: { label: string }[] }).items[0].label).toBe("original");
+    const s = snapshot as { assignmentMap: Record<string, { guestName: string }>; unassignedGuests: { guestName: string }[] };
+    expect(s.assignmentMap).toEqual(map1);
+    expect(s.unassignedGuests).toEqual(guests1);
+  });
+
+  it("deep-clones assignmentMap so mutations don't affect snapshots", () => {
+    const { result } = renderHook(() => useUndoRedo());
+
+    const map = { "chair-1": { guestName: "Alice", rsvpId: 1 } };
+    const guests = [{ id: 2, guestName: "Bob" }];
+
+    act(() => {
+      result.current.pushState([makeFloorPlanItem({ id: "t1" })], 50, 50, map, guests);
+    });
+
+    // Mutate original after push — snapshot should still have "Alice"
+    map["chair-1"].guestName = "Mutated";
+
+    act(() => {
+      result.current.pushState([makeFloorPlanItem({ id: "t1" })], 50, 50, map, guests);
+    });
+
+    let snapshot: unknown;
+    act(() => {
+      snapshot = result.current.undo();
+    });
+
+    const s = snapshot as { assignmentMap: Record<string, { guestName: string }> };
+    expect(s.assignmentMap["chair-1"].guestName).toBe("Alice");
   });
 });
