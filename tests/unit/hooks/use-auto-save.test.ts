@@ -18,7 +18,7 @@ describe("useAutoSave", () => {
     mockSaveFloorPlan.mockReset();
   });
 
-  it("starts with idle status", () => {
+  it("starts with unsaved status", () => {
     const { result } = renderHook(() =>
       useAutoSave({
         weddingId: 1,
@@ -27,7 +27,7 @@ describe("useAutoSave", () => {
         items: [],
       }),
     );
-    expect(result.current.saveStatus).toBe("idle");
+    expect(result.current.saveStatus).toBe("unsaved");
   });
 
   it("sets status to saved on saveNow success", async () => {

@@ -6,6 +6,7 @@ vi.mock("@/lib/supabase/admin", () => ({
 
 vi.mock("@/lib/auth-guards", () => ({
   getAuthAndVerifyAccess: vi.fn(),
+  verifyWeddingNotLocked: vi.fn().mockResolvedValue({ ok: true }),
 }));
 
 import { createAdminClient } from "@/lib/supabase/admin";

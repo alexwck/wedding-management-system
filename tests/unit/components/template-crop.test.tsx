@@ -38,7 +38,7 @@ describe("TemplatePreview — drag-to-crop", () => {
       />,
     );
 
-    await userEvent.click(screen.getByText("Preview"));
+    await userEvent.click(screen.getByText("Adjust Crop"));
     expect(screen.getByText(/drag the image/i)).toBeInTheDocument();
   });
 
@@ -52,7 +52,7 @@ describe("TemplatePreview — drag-to-crop", () => {
       />,
     );
 
-    await userEvent.click(screen.getByText("Preview"));
+    await userEvent.click(screen.getByText("Adjust Crop"));
     expect(screen.getByText("Save Crop")).toBeInTheDocument();
   });
 
@@ -66,7 +66,7 @@ describe("TemplatePreview — drag-to-crop", () => {
       />,
     );
 
-    await userEvent.click(screen.getByText("Preview"));
+    await userEvent.click(screen.getByText("Adjust Crop"));
 
     const container = screen.getByRole("img");
     const img = container as HTMLImageElement;
@@ -93,7 +93,7 @@ describe("TemplatePreview — drag-to-crop", () => {
       />,
     );
 
-    await userEvent.click(screen.getByText("Preview"));
+    await userEvent.click(screen.getByText("Adjust Crop"));
 
     const img = screen.getByRole("img") as HTMLImageElement;
     Object.defineProperty(img, "naturalWidth", { value: 800, configurable: true });
@@ -118,7 +118,7 @@ describe("TemplatePreview — drag-to-crop", () => {
       />,
     );
 
-    await userEvent.click(screen.getByText("Preview"));
+    await userEvent.click(screen.getByText("Adjust Crop"));
     await userEvent.click(screen.getByText("Save Crop"));
 
     await waitFor(() => {
@@ -138,7 +138,7 @@ describe("TemplatePreview — drag-to-crop", () => {
       />,
     );
 
-    await userEvent.click(screen.getByText("Preview"));
+    await userEvent.click(screen.getByText("Adjust Crop"));
     await userEvent.click(screen.getByText("Save Crop"));
 
     await waitFor(() => {
@@ -157,7 +157,7 @@ describe("TemplatePreview — drag-to-crop", () => {
       />,
     );
 
-    await userEvent.click(screen.getByText("Preview"));
+    await userEvent.click(screen.getByText("Adjust Crop"));
 
     const img = screen.getByRole("img") as HTMLImageElement;
     Object.defineProperty(img, "naturalWidth", { value: 800, configurable: true });

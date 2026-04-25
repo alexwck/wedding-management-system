@@ -12,6 +12,10 @@ vi.mock("@/app/actions/seat-assignment", () => ({
   cleanupOrphanedAssignments: vi.fn(),
 }));
 
+vi.mock("@/lib/auth-guards", () => ({
+  verifyWeddingNotLocked: vi.fn().mockResolvedValue({ ok: true }),
+}));
+
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getFloorPlan, saveFloorPlan } from "@/app/actions/floor-plan";

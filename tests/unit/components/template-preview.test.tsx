@@ -25,7 +25,7 @@ describe("TemplatePreview", () => {
         focalY={null}
       />,
     );
-    expect(screen.getByText("Preview")).toBeInTheDocument();
+    expect(screen.getByText("Adjust Crop")).toBeInTheDocument();
   });
 
   it("opens dialog on click", async () => {
@@ -38,7 +38,7 @@ describe("TemplatePreview", () => {
       />,
     );
 
-    await userEvent.click(screen.getByText("Preview"));
+    await userEvent.click(screen.getByText("Adjust Crop"));
     expect(screen.getByText(/drag the image/i)).toBeInTheDocument();
   });
 
@@ -52,7 +52,7 @@ describe("TemplatePreview", () => {
       />,
     );
 
-    await userEvent.click(screen.getByText("Preview"));
+    await userEvent.click(screen.getByText("Adjust Crop"));
     expect(screen.getByText(/50\.0%.*30\.0%/)).toBeInTheDocument();
   });
 
@@ -66,7 +66,7 @@ describe("TemplatePreview", () => {
       />,
     );
 
-    await userEvent.click(screen.getByText("Preview"));
+    await userEvent.click(screen.getByText("Adjust Crop"));
     expect(screen.getByText("Save Crop")).toBeInTheDocument();
   });
 });
