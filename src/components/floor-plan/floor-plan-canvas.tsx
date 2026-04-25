@@ -10,7 +10,7 @@ import { useUndoRedo } from "./hooks/use-undo-redo";
 import { useSeatAssignments } from "./hooks/use-seat-assignments";
 import { ItemCatalog } from "./item-catalog";
 import { GuestAssignmentDialog } from "./guest-assignment-dialog";
-import { UnassignedGuestsPanel } from "./unassigned-guests-panel";
+import { GuestPanel } from "./guest-panel";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FloorPlanToolbar } from "./floor-plan-toolbar";
@@ -541,9 +541,20 @@ export function FloorPlanCanvas({
   const handleDelete = useCallback(() => {
     if (!selectedItemId) return;
     pushHistory();
+
+    // Cascade: unassign guests from chairs belonging to the deleted item's children
+    const childChairs = state.items.filter(
+      (item) => item.type === "chair" && item.parentItemId === selectedItemId,
+    );
+    for (const chair of childChairs) {
+      if (seatAssignments.assignmentMap[chair.id]) {
+        void seatAssignments.unassignGuest(chair.id);
+      }
+    }
+
     state.removeItem(selectedItemId);
     setSelectedItemId(null);
-  }, [selectedItemId, pushHistory, state]);
+  }, [selectedItemId, pushHistory, state, seatAssignments]);
 
   const handleDimChange = useCallback(
     (dim: "width" | "height", value: string) => {
@@ -643,9 +654,11 @@ export function FloorPlanCanvas({
 
   return (
     <div className="flex h-full overflow-hidden">
-      {/* Left sidebar: unassigned guests panel */}
-      <UnassignedGuestsPanel
-        guests={seatAssignments.unassignedGuests}
+      {/* Left sidebar: guest panel */}
+      <GuestPanel
+        unassignedGuests={seatAssignments.unassignedGuests}
+        assignmentMap={seatAssignments.assignmentMap}
+        items={state.items}
         isLoading={seatAssignments.isLoading}
       />
 
