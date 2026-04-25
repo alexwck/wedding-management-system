@@ -21,7 +21,7 @@ An admin wants to prevent any modifications to a confirmed or completed wedding.
 2. **Given** a locked wedding, **When** a guest navigates to the public RSVP page, **Then** they see a message indicating RSVP is closed instead of the form
 3. **Given** a locked wedding, **When** admin clicks "Unlock Wedding", **Then** all editing capabilities are restored
 4. **Given** a locked wedding, **When** a couple user accesses their dashboard, **Then** all forms and editors display a "locked" indicator and save actions are disabled
-5. **Given** a locked wedding, **When** admin accesses the wedding detail page, **Then** they see the lock status prominently and can toggle it
+5. **Given** a locked wedding, **When** admin accesses the wedding detail page, **Then** all edit forms are read-only and the only available action is "Unlock Wedding"
 
 ---
 
@@ -134,7 +134,7 @@ When a couple or admin uploads a new template image, the preview and all display
 
 ### Edge Cases
 
-- What happens when admin locks a wedding while the couple is actively editing the floor plan? The couple's next save attempt should fail with a clear "This wedding has been locked" message.
+- What happens when admin locks a wedding while the couple is actively editing the floor plan? The couple's next save attempt should fail with a clear "This wedding has been locked" message. Same applies if admin locks while another admin is editing — the lock takes effect and all edits are blocked.
 - What happens when the canvas is exactly at capacity? All catalog items should be disabled, including non-table items like Stage and Pillar.
 - What happens when a guest has already submitted an RSVP and the wedding is then locked? The existing RSVP data is preserved in full; only new submissions are blocked.
 - What happens when undo is pressed during an active drag gesture? The drag should complete before undo processes to avoid state corruption.
@@ -143,6 +143,12 @@ When a couple or admin uploads a new template image, the preview and all display
 - What happens when multiple catalog items are disabled and the user resizes the canvas larger? All items that now fit should re-enable in real-time.
 - What happens when a template image upload fails mid-transfer? The previous image remains active and no partial/orphan file is left in storage.
 
+## Clarifications
+
+### Session 2026-04-25
+
+- Q: When a wedding is locked, should the admin still be able to edit it? → A: No one can edit while locked — admin must unlock, make changes, then re-lock.
+
 ## Requirements
 
 ### Functional Requirements
@@ -150,7 +156,7 @@ When a couple or admin uploads a new template image, the preview and all display
 **Admin Lock**
 
 - **FR-001**: System MUST provide a lock/unlock toggle on each wedding visible to admins on the wedding detail page
-- **FR-002**: System MUST prevent all edits by the couple (template, venue, floor plan, couple name, date) when the wedding is locked
+- **FR-002**: System MUST prevent all edits by both the couple AND admin (template, venue, floor plan, couple name, date) when the wedding is locked — the only action permitted on a locked wedding is unlocking it
 - **FR-003**: System MUST prevent new RSVP submissions on the public page when the wedding is locked, displaying a "RSVP is closed" message
 - **FR-004**: System MUST preserve all existing data (RSVPs, floor plan, venue, assignments) when a wedding is locked — locking is a state change only, never data deletion
 - **FR-005**: System MUST allow admins to lock and unlock any wedding at any time regardless of its current state
@@ -215,7 +221,7 @@ When a couple or admin uploads a new template image, the preview and all display
 ## Assumptions
 
 - **No backward compatibility required**: The system is still in development with no production users. Breaking changes (removing the separate RSVP route, schema changes, restructuring pages) are acceptable without migration paths or legacy support.
-- **Admin lock scope**: Locking prevents all modifications — couple dashboard edits, admin wedding edits (except the lock toggle itself), and public RSVP submissions. Existing RSVP data is preserved. Any admin can lock or unlock any wedding.
+- **Admin lock scope**: Locking prevents all modifications by everyone — couple dashboard edits, admin wedding edits, and public RSVP submissions. The only action permitted on a locked wedding is unlocking it. Admin must unlock to make any changes, then re-lock if needed. Existing RSVP data is preserved. Any admin can lock or unlock any wedding.
 - **Lock is manual**: Locking is an explicit admin action, not automatic based on wedding date. Admins may lock when the plan is confirmed or after the wedding has ended.
 - **RSVP single-page design direction**: The recommended approach is a single scrollable page with CTA hierarchy — hero section (full-screen image, couple name, date, venue summary) → smooth scroll or CTA → venue details section → RSVP form section. This follows the Apple-style landing page pattern the user referenced. The separate `/w/[slug]/rsvp` route is removed entirely — no backward compatibility needed.
 - **Wedding without template image**: The single-page redesign shows a styled fallback hero (gradient background with couple name and date) instead of the current 404. This allows RSVP submissions even without an uploaded image.
