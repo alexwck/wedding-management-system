@@ -191,7 +191,7 @@ export function FloorPlanCanvas({
 
   const selectedItem = state.items.find((i) => i.id === selectedItemId) ?? null;
 
-  const { saveStatus, saveNow } = useAutoSave({
+  const { saveStatus, lastSavedAt, saveNow, blockedCount } = useAutoSave({
     weddingId,
     width: state.width,
     height: state.height,
@@ -733,12 +733,21 @@ export function FloorPlanCanvas({
     setDialogTableId(tableId);
   }, [isLocked]);
 
-  const SAVE_LABELS: Record<string, string> = {
-    saving: "Saving...",
-    saved: "Saved",
-    error: "Save failed",
-  };
-  const saveLabel = SAVE_LABELS[saveStatus] ?? "Unsaved";
+  const saveStatusText = (() => {
+    switch (saveStatus) {
+      case "saving": return "Saving\u2026";
+      case "saved": {
+        if (lastSavedAt) {
+          const t = lastSavedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+          return `Saved at ${t}`;
+        }
+        return "All changes saved";
+      }
+      case "error": return "Save failed \u2014 try again";
+      case "blocked": return `${blockedCount} item${blockedCount !== 1 ? "s" : ""} outside canvas`;
+      default: return "Unsaved changes";
+    }
+  })();
 
   const selectedTableMaxChairs = selectedItem && isTableType(selectedItem.type)
     ? getMaxChairCount(selectedItem)
@@ -846,22 +855,33 @@ export function FloorPlanCanvas({
 
           {/* Save status */}
           {!isLocked && (
-          <span
-            data-testid="save-status"
-            className="text-sm text-muted-foreground whitespace-nowrap"
-          >
-            {saveLabel}
-          </span>
-          )}
-          {!isLocked && (
-          <button
-            type="button"
-            data-testid="save-now"
-            onClick={saveNow}
-            className="text-sm text-primary hover:underline whitespace-nowrap"
-          >
-            Save now
-          </button>
+          <>
+            <span
+              role="status"
+              aria-live="polite"
+              data-testid="save-status"
+              className={`text-sm whitespace-nowrap ${
+                saveStatus === "blocked"
+                  ? "text-yellow-700"
+                  : saveStatus === "error"
+                    ? "text-destructive"
+                    : "text-muted-foreground"
+              }`}
+            >
+              {saveStatusText}
+            </span>
+            {(saveStatus === "unsaved" || saveStatus === "error") && (
+              <Button
+                variant="outline"
+                size="sm"
+                data-testid="save-now"
+                onClick={saveNow}
+                className="h-7 text-xs"
+              >
+                Save
+              </Button>
+            )}
+          </>
           )}
         </div>
 
