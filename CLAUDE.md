@@ -25,7 +25,7 @@ src/
 ├── app/
 │   ├── (public)/           # Public route group (no auth required)
 │   │   ├── auth/login/     # Login page
-│   │   └── w/[slug]/       # Wedding landing pages (+ /rsvp sub-route)
+│   │   └── w/[slug]/       # Wedding landing pages (single-page: hero + venue + RSVP, no separate /rsvp route)
 │   ├── (auth)/             # Authenticated route group
 │   │   ├── admin/          # Admin: manage weddings, couples
 │   │   │   └── weddings/[id]/floor-plan/  # Admin floor plan editor
@@ -42,18 +42,20 @@ src/
 │   │   ├── canvas-item.tsx          # Memoized Konva item renderer
 │   │   ├── canvas-stats.tsx         # Always-visible stats (table/chair counts, assigned/empty breakdown)
 │   │   ├── guest-panel.tsx          # Collapsible unassigned + assigned guests with table numbering
-│   │   ├── item-catalog.tsx         # Sidebar of placeable items
+│   │   ├── item-catalog.tsx         # Sidebar of placeable items (disabled when no space or locked)
+│   │   ├── editable-couple-name.tsx # Click-to-edit inline couple name component
 │   │   ├── rotation-transformer.tsx # Konva Transformer (rotation all items, resize non-table only)
 │   │   ├── items/                   # Konva shape components (round-table, long-table, chair, etc.)
 │   │   └── hooks/                   # use-floor-plan-state, use-auto-save, use-collision-detection, etc.
 │   ├── ui/                 # shadcn/ui components (button, card, dialog, etc.)
-│   ├── landing-page.tsx    # Wedding landing page component (venue info overlay, object-cover crop display)
-│   ├── rsvp-form.tsx       # RSVP form with react-hook-form + zod
+│   ├── landing-page.tsx    # Wedding landing page component (venue info overlay, object-cover crop display, gradient fallback for no-image)
+│   ├── lock-toggle.tsx     # Admin lock/unlock toggle for weddings
+│   ├── rsvp-form.tsx       # RSVP form with react-hook-form + zod (isLocked prop shows "RSVP is closed")
 │   ├── rsvp-table.tsx      # Sortable RSVP response table
 │   ├── rsvp-section.tsx    # Collapsible RSVP section with embedded export buttons
 │   ├── rsvp-summary.tsx    # RSVP summary cards (attending, declining, vegetarian, baby chairs)
 │   ├── export-buttons.tsx  # XLSX export button
-│   ├── template-preview.tsx # Template preview with drag-to-crop repositioning
+│   ├── template-preview.tsx # Template preview with drag-to-crop repositioning (button: "Adjust Crop")
 │   ├── template-upload.tsx # Template image upload with preview button
 │   ├── wedding-date-picker.tsx # Wedding date/time picker with timezone selector
 │   ├── timezone-combobox.tsx   # Searchable IANA timezone dropdown (cmdk)
@@ -61,7 +63,7 @@ src/
 │   ├── venue-section.tsx   # Public venue display with OSM map embed + nav buttons (server)
 │   └── ...                 # Other app components
 ├── lib/
-│   ├── floor-plan/         # Floor plan utilities (constants, collision, serializers, stats)
+│   ├── floor-plan/         # Floor plan utilities (constants, collision, serializers, stats, placement)
 │   ├── geocoding.ts        # Nominatim API client (searchAddress)
 │   ├── supabase/           # Supabase clients: client.ts, server.ts, admin.ts
 │   ├── utils.ts            # cn() helper and utilities
@@ -70,7 +72,7 @@ src/
 ├── types/
 │   └── floor-plan.ts       # Floor plan type definitions
 supabase/
-├── migrations/             # 11 migrations: users, weddings, rsvps, storage, floor_plans, seat_assignments, oauth_tokens, admin_rls_policies, venue_columns, timezone_focal_point, drop_oauth_tokens
+├── migrations/             # 12 migrations: users, weddings, rsvps, storage, floor_plans, seat_assignments, oauth_tokens, admin_rls_policies, venue_columns, timezone_focal_point, drop_oauth_tokens, add_wedding_lock
 ├── seed.sql                # Dev seed data (weddings, RSVPs, users — venue data on test-wedding-1)
 ├── config.toml             # Supabase local config
 ```
@@ -175,13 +177,20 @@ git config core.hooksPath .githooks
 - **Chair count scoped unassign**: `handleChairCountChange` only unassigns guests from chairs being removed (computed via `newChairIds` set diff), not from all chairs on the table.
 - **restoreAssignments diff logic**: `useSeatAssignments.restoreAssignments` uses `structuredClone` for safe diffing, handles 3 cases: removed chairs, new chairs, and same-chair-different-guest. Server calls parallelized: unassignes first via `Promise.all`, then assigns.
 - **Transformer center-to-topLeft**: `rotation-transformer.tsx` converts Konva center pixel positions to top-left feet via `centerPixelsToTopLeftFeet` before emitting `TransformResult`. All drag/transform handlers use this conversion uniformly.
+- **Wedding lock (`is_locked`)**: `weddings.is_locked` column (default `false`) enforced server-side via `verifyWeddingNotLocked(weddingId)` in every mutation action. Only `toggleWeddingLock` can modify a locked wedding. Floor plan editor becomes view-only (no drag, rotate, resize, catalog, chair count, guest assignments). Admin and couple dashboards disable all edit forms when locked. RSVP form shows "RSVP is now closed."
+- **5-state save model**: `useAutoSave` returns `SaveStatus = "unsaved" | "saving" | "saved" | "error" | "blocked"`. `blocked` means items are out-of-bounds — save is prevented, user sees "N item(s) outside canvas" with yellow styling. Save button only shows for `unsaved` and `error` states. ARIA live region announces status changes.
+- **Catalog availability blocking**: `canPlaceItem()` in `src/lib/floor-plan/placement.ts` runs spiral placement in dry-run mode. Item catalog buttons are disabled with "No space available" tooltip when no valid non-overlapping in-bounds position exists. Also disabled when wedding is locked.
+- **RSVP single-page design**: Wedding public page (`/w/[slug]`) is a single scrollable page: hero → venue section → RSVP form. No separate `/w/[slug]/rsvp` route. RSVP CTA smooth scrolls to `#rsvp` anchor. Gradient fallback hero for weddings without template image.
+- **Editable couple name**: `EditableCoupleName` component — click to edit, blur/Enter to save, Escape to cancel. Calls `updateCoupleName` server action. Read-only when wedding is locked. Used on both admin and couple pages.
+- **Template image cache-bust**: `uploadTemplateImage` appends `?t=${Date.now()}` to the public URL. `TemplatePreview` uses uploaded URL (with cache-bust) after upload. Button renamed from "Preview" to "Adjust Crop."
 
 ## Active Technologies
 - TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, Tailwind CSS v4, shadcn/ui (Nova theme), react-hook-form, zod, exceljs, cmdk
-- Supabase PostgreSQL — `seat_assignments`, `rsvps`, `floor_plans`, `weddings` (with `timezone`, `template_focal_x`, `template_focal_y`, venue columns)
+- Supabase PostgreSQL — `seat_assignments`, `rsvps`, `floor_plans`, `weddings` (with `timezone`, `template_focal_x`, `template_focal_y`, `is_locked`, venue columns)
 - XLSX export via `exceljs` with base64 buffer transfer pattern
 
 ## Recent Changes
+- 010-ux-polish-admin-rsvp: Admin lock/unlock for weddings (`is_locked` column), catalog collision blocking (`canPlaceItem` dry-run), 5-state save model with OOB prevention, RSVP single-page redesign (hero + venue + RSVP in one scrollable page, gradient fallback hero), editable couple name component, template image cache-bust + "Adjust Crop" rename, undo/redo audit (all 10 actions verified)
 - 009-ux-polish-bugfixes: Drag-to-crop template repositioning (replaces click focal point), collapsible guest panel with assigned/unassigned sections, canvas stats (table/chair/assignment counts), undo tracks all state (items + assignments + dimensions), number input undo dedup, center-based rendering for all items (offsetX/Y), merged rotation+resize handler, callback stability via refs, chair count scoped unassign, password confirmation for couple creation, resize handles for non-table items (Stage/Pillar/Walkway/Misc) with per-type min/max bounds
 - 008-dashboard-ux-fixes: Side-by-side dashboard layout (template left, details right), wedding date picker with timezone, collapsible sortable RSVP table, template preview with click-to-set focal point, fixed XLSX export (base64 transfer), removed Google Sheets export, fixed floor plan catalog overflow, chair count controls in top toolbar, collision detection for child chairs during drag, undo initial state fix, venue suggestion dropdown styling, memoized CanvasItem component, extracted checkDragCollisions and ChairCountControls helpers
 - 007-venue-details-maps: Added venue name, address (with Nominatim autocomplete), welcome message, embedded OSM map, and navigation buttons. Venue editor on admin/couple pages, venue info on landing page, venue section with map on RSVP form.

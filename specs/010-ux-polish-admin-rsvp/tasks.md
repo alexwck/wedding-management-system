@@ -204,10 +204,10 @@
 
 **Purpose**: Verify everything works together; update documentation
 
-- [ ] T044 Run `npm run build` and fix any TypeScript errors
-- [ ] T045 Run `npm run test` and fix any failing unit tests
-- [ ] T046 Run `npm run test:e2e` (requires dev server + Supabase) and fix any failing E2E tests
-- [ ] T047 Update `CLAUDE.md` with 010 feature changes: new `is_locked` column, lock toggle component, editable couple name, RSVP single-page, canPlaceItem availability check, 5-state save model
+- [x] T044 Run `npm run build` and fix any TypeScript errors
+- [x] T045 Run `npm run test` and fix any failing unit tests
+- [x] T046 Run `npm run test:e2e` (requires dev server + Supabase) and fix any failing E2E tests
+- [x] T047 Update `CLAUDE.md` with 010 feature changes: new `is_locked` column, lock toggle component, editable couple name, RSVP single-page, canPlaceItem availability check, 5-state save model
 
 ---
 

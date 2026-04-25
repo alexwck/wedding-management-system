@@ -5,6 +5,10 @@ vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: vi.fn(),
 }));
 
+vi.mock("@/lib/auth-guards", () => ({
+  verifyWeddingNotLocked: vi.fn().mockResolvedValue({ ok: true }),
+}));
+
 import { createAdminClient } from "@/lib/supabase/admin";
 import { uploadTemplateImage } from "@/app/actions/upload";
 import { mockFrom } from "../helpers/supabase-mock";
@@ -137,7 +141,7 @@ describe("uploadTemplateImage action", () => {
     const result = await uploadTemplateImage(fd);
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.imageUrl).toBe("https://example.com/1/template.png");
+      expect(result.imageUrl).toMatch(/^https:\/\/example\.com\/1\/template\.png\?t=\d+$/);
     }
   });
 });

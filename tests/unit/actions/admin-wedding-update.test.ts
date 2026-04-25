@@ -12,6 +12,10 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
+vi.mock("@/lib/auth-guards", () => ({
+  verifyWeddingNotLocked: vi.fn().mockResolvedValue({ ok: true }),
+}));
+
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { updateWeddingDetails } from "@/app/actions/admin";

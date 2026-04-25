@@ -98,7 +98,7 @@ export async function saveFloorPlan(
     return { success: false as const, error: lockCheck.error };
   }
 
-  const oobCount = parsed.data.items.filter((item) =>
+  const oobCount = (parsed.data.items as FloorPlanItem[]).filter((item) =>
     isItemOutOfBounds(item, parsed.data.width, parsed.data.height)
   ).length;
   if (oobCount > 0) {
