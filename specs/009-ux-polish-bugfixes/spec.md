@@ -13,7 +13,7 @@ As a couple or admin uploading a wedding template image, I want to control which
 
 **Why this priority**: The template image is the centerpiece of the wedding landing page. If it displays poorly (cropped awkwardly or with blank space), it degrades the first impression for every guest. This affects all weddings.
 
-**Independent Test**: Upload a portrait-oriented photo (e.g., 800x1200) and a landscape photo (e.g., 1600x900). In both cases, drag the image within the preview frame to choose the visible area. Verify the chosen crop is reflected on the public landing page.
+**Independent Test**: Upload a portrait-oriented photo (e.g., 800x1200) and a landscape photo (e.g., 1600x900). In both cases, drag the image within the preview frame to choose the visible area. The preview frame matches the exact landing page container dimensions. Verify the chosen crop is reflected on the public landing page.
 
 **Acceptance Scenarios**:
 
@@ -37,7 +37,7 @@ As a couple or admin managing floor plan seating, I want to see both unassigned 
 
 1. **Given** the floor plan editor loads with a mix of assigned and unassigned guests, **When** the page renders, **Then** the unassigned guests section is expanded and the assigned guests section is collapsed
 2. **Given** both sections are visible, **When** the user clicks a section header, **Then** that section collapses or expands accordingly
-3. **Given** a guest is in the unassigned list, **When** the user assigns them to a seat, **Then** the guest moves to the assigned section and the counts update
+3. **Given** a guest is in the unassigned list, **When** the user assigns them to a seat, **Then** the guest moves to the assigned section showing their table number (e.g., "Jane Doe — Table 3") and the counts update
 4. **Given** a guest is in the assigned list, **When** the user unassigns them, **Then** the guest moves back to the unassigned section and the counts update
 
 ---
@@ -142,7 +142,7 @@ As a couple or admin using the floor plan editor, I want to resize non-table ite
 
 **Floor Plan Canvas Statistics**
 
-- **FR-013**: System MUST display a summary component in the left panel showing total round tables and total long tables
+- **FR-013**: System MUST display a summary component pinned at the top of the left panel (always visible, not collapsible) showing total round tables and total long tables
 - **FR-014**: System MUST display total chair count across all tables
 - **FR-015**: System MUST display number of chairs with assigned guests and number of empty chairs
 - **FR-016**: System MUST display the count of empty chairs that remain after all guests have been assigned
@@ -179,16 +179,25 @@ As a couple or admin using the floor plan editor, I want to resize non-table ite
 
 - **SC-001**: Users can position any uploaded template image within 3 seconds of opening the preview, regardless of original image dimensions
 - **SC-002**: The landing page renders the user's chosen crop position exactly as previewed, with no visible discrepancy
-- **SC-003**: Users can see both assigned and unassigned guest counts at a glance without scrolling
+- **SC-003**: Users can see both assigned and unassigned guest counts and canvas statistics at a glance without scrolling
 - **SC-004**: Undo reverts exactly one action in 100% of test cases (no double-undo behavior)
 - **SC-005**: Admin cannot submit the couple creation form with mismatched passwords — validation catches 100% of mismatches
 - **SC-006**: Users can resize a non-table item (Stage, Pillar, Walkway, Misc) within 1 second and see the updated dimensions on canvas
 - **SC-007**: All statistics update within 1 second of any canvas change (item add, remove, resize, guest assign/unassign)
 
+## Clarifications
+
+### Session 2026-04-25
+
+- Q: Should each assigned guest entry display which table/seat they are assigned to? → A: Show guest name and table number only (e.g., "Jane Doe — Table 3")
+- Q: Should the canvas statistics component be always visible or collapsible? → A: Always visible, pinned at top of panel above guest sections
+- Q: What aspect ratio should the template crop preview frame use? → A: Free-form — preview matches the exact landing page container dimensions, no fixed ratio
+
 ## Assumptions
 
 - The existing focal point database columns (`template_focal_x`, `template_focal_y`) can be repurposed or replaced for crop offset storage — the storage mechanism is the same (two numeric coordinates)
 - Portrait-oriented images (taller than wide) are the most common wedding template uploads and will be the primary design target
+- The crop preview frame uses the same dimensions as the landing page container (free-form, no fixed aspect ratio) — what the user sees in preview matches what guests see on the landing page
 - The floor plan left panel has sufficient space to accommodate both guest sections and a statistics component without requiring horizontal scrolling
 - The undo bug is caused by the initial state not being correctly pushed to history, or by an extra `pushState` call during item addition — the fix is in the hook logic, not in the canvas event handlers
 - Password confirmation is a client-side-only validation enhancement — no server-side changes needed beyond what the existing Zod schema provides
