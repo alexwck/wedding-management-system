@@ -155,6 +155,35 @@ describe("useUndoRedo", () => {
     expect(result.current.canUndo()).toBe(true);
   });
 
+  it("undo returns to previous state after sequential pushes (single undo per action)", () => {
+    const { result } = renderHook(() => useUndoRedo());
+
+    // Push 3 states: empty → 1 item → 2 items
+    act(() => {
+      result.current.pushState([], 50, 50);
+    });
+    act(() => {
+      result.current.pushState([makeFloorPlanItem({ id: "a" })], 50, 50);
+    });
+    act(() => {
+      result.current.pushState(
+        [makeFloorPlanItem({ id: "a" }), makeFloorPlanItem({ id: "b" })],
+        50,
+        50,
+      );
+    });
+
+    // One undo should go from 2 items to 1 item (not to 0 items)
+    let snapshot: unknown;
+    act(() => {
+      snapshot = result.current.undo();
+    });
+
+    expect(snapshot).not.toBeNull();
+    expect((snapshot as { items: unknown[] }).items).toHaveLength(1);
+    expect((snapshot as { items: { id: string }[] }).items[0].id).toBe("a");
+  });
+
   it("returns deep-cloned snapshots", () => {
     const { result } = renderHook(() => useUndoRedo());
 
