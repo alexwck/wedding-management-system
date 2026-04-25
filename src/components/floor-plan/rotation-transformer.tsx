@@ -6,12 +6,19 @@ import type Konva from "konva";
 import { ROTATION_SNAPS, isResizable, getResizeBounds, FEET_TO_PIXELS } from "@/lib/floor-plan/constants";
 import type { ItemType } from "@/types/floor-plan";
 
+export interface TransformResult {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+}
+
 interface RotationTransformerProps {
   selectedItemId: string | null;
   selectedItemType: ItemType | null;
   stageRef: React.RefObject<Konva.Stage | null>;
-  onRotationEnd: (itemId: string, rotation: number) => void;
-  onResizeEnd?: (itemId: string, width: number, height: number) => void;
+  onTransformEnd: (itemId: string, result: TransformResult) => void;
   venueWidth?: number;
   venueHeight?: number;
 }
@@ -20,8 +27,7 @@ export function RotationTransformer({
   selectedItemId,
   selectedItemType,
   stageRef,
-  onRotationEnd,
-  onResizeEnd,
+  onTransformEnd,
   venueWidth,
   venueHeight,
 }: RotationTransformerProps) {
@@ -66,7 +72,6 @@ export function RotationTransformer({
         const clampedWidth = Math.min(Math.max(newWidthFt, bounds.minWidth), bounds.maxWidth);
         const clampedHeight = Math.min(Math.max(newHeightFt, bounds.minHeight), bounds.maxHeight);
 
-        // Snap to venue boundary if exceeding
         const maxW = venueWidth ? Math.min(clampedWidth, venueWidth) : clampedWidth;
         const maxH = venueHeight ? Math.min(clampedHeight, venueHeight) : clampedHeight;
 
@@ -82,24 +87,22 @@ export function RotationTransformer({
       onTransformEnd={() => {
         const node = transformerRef.current?.nodes()[0];
         if (node && selectedItemId) {
-          const newRotation = node.rotation();
           const scaleX = node.scaleX();
           const scaleY = node.scaleY();
 
-          // Reset scale and apply as dimensions
-          if (canResize && (scaleX !== 1 || scaleY !== 1)) {
-            const nodeWidth = (node.width() * scaleX) / FEET_TO_PIXELS;
-            const nodeHeight = (node.height() * scaleY) / FEET_TO_PIXELS;
+          node.scaleX(1);
+          node.scaleY(1);
 
-            node.scaleX(1);
-            node.scaleY(1);
+          const newWidth = (node.width() * scaleX) / FEET_TO_PIXELS;
+          const newHeight = (node.height() * scaleY) / FEET_TO_PIXELS;
 
-            if (onResizeEnd) {
-              onResizeEnd(selectedItemId, Math.round(nodeWidth * 100) / 100, Math.round(nodeHeight * 100) / 100);
-            }
-          }
-
-          onRotationEnd(selectedItemId, newRotation);
+          onTransformEnd(selectedItemId, {
+            x: node.x() / FEET_TO_PIXELS,
+            y: node.y() / FEET_TO_PIXELS,
+            width: Math.round(newWidth * 100) / 100,
+            height: Math.round(newHeight * 100) / 100,
+            rotation: node.rotation(),
+          });
         }
       }}
     />
