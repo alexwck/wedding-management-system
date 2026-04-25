@@ -348,9 +348,10 @@ export function FloorPlanCanvas({
       const num = Number(value);
       if (isNaN(num)) return;
       const clamped = Math.min(Math.max(num, 1), MAX_VENUE_DIMENSION);
+      pushHistory();
       state.updateDimensions(clamped, state.height);
     },
-    [state],
+    [pushHistory, state],
   );
 
   const handleHeightChange = useCallback(
@@ -358,9 +359,10 @@ export function FloorPlanCanvas({
       const num = Number(value);
       if (isNaN(num)) return;
       const clamped = Math.min(Math.max(num, 1), MAX_VENUE_DIMENSION);
+      pushHistory();
       state.updateDimensions(state.width, clamped);
     },
-    [state],
+    [pushHistory, state],
   );
 
   const handleDragEnd = useCallback(
@@ -376,9 +378,12 @@ export function FloorPlanCanvas({
 
       const dx = newX - item.x;
       const dy = newY - item.y;
+      if (dx === 0 && dy === 0) return;
+
+      pushHistory();
       state.updateItem(id, { x: newX, y: newY });
 
-      if (table && (dx !== 0 || dy !== 0)) {
+      if (table) {
         state.items
           .filter((i) => i.parentItemId === id)
           .forEach((child) => {
@@ -389,7 +394,7 @@ export function FloorPlanCanvas({
           });
       }
     },
-    [state],
+    [pushHistory, state],
   );
 
   const handleRotationEnd = useCallback(
@@ -564,19 +569,25 @@ export function FloorPlanCanvas({
     setSelectedItemId(null);
   }, [selectedItemId, pushHistory, state, seatAssignments]);
 
+  const dimEditStarted = useRef(false);
+
   const handleDimChange = useCallback(
     (dim: "width" | "height", value: string) => {
       if (!editingDimId) return;
       const num = Number(value);
       if (isNaN(num) || num <= 0) return;
+      if (!dimEditStarted.current) {
+        pushHistory();
+        dimEditStarted.current = true;
+      }
       state.updateItem(editingDimId, { [dim]: num });
     },
-    [editingDimId, state],
+    [editingDimId, pushHistory, state],
   );
 
   const handleDimCommit = useCallback(() => {
-    if (editingDimId) pushHistory();
-  }, [editingDimId, pushHistory]);
+    dimEditStarted.current = false;
+  }, []);
 
   const handleChairCountChange = useCallback(
     (tableId: string, newCount: number) => {
@@ -711,8 +722,8 @@ export function FloorPlanCanvas({
 
           {/* Undo / Redo / Zoom */}
           <FloorPlanToolbar
-            canUndo={undoRedo.canUndo()}
-            canRedo={undoRedo.canRedo()}
+            canUndo={undoRedo.canUndo}
+            canRedo={undoRedo.canRedo}
             onUndo={handleUndo}
             onRedo={handleRedo}
             zoomPercent={stageScale * 100}

@@ -6,8 +6,8 @@ import { makeFloorPlanItem } from "../helpers/factories";
 describe("useUndoRedo", () => {
   it("starts with canUndo=false and canRedo=false", () => {
     const { result } = renderHook(() => useUndoRedo());
-    expect(result.current.canUndo()).toBe(false);
-    expect(result.current.canRedo()).toBe(false);
+    expect(result.current.canUndo).toBe(false);
+    expect(result.current.canRedo).toBe(false);
   });
 
   it("pushes state and enables undo", () => {
@@ -21,8 +21,8 @@ describe("useUndoRedo", () => {
       );
     });
 
-    expect(result.current.canUndo()).toBe(false); // only 1 snapshot, index at 0
-    expect(result.current.canRedo()).toBe(false);
+    expect(result.current.canUndo).toBe(false); // only 1 snapshot, index at 0
+    expect(result.current.canRedo).toBe(false);
   });
 
   it("undoes to previous state", () => {
@@ -39,7 +39,7 @@ describe("useUndoRedo", () => {
       );
     });
 
-    expect(result.current.canUndo()).toBe(true);
+    expect(result.current.canUndo).toBe(true);
 
     let snapshot: unknown;
     act(() => {
@@ -67,7 +67,7 @@ describe("useUndoRedo", () => {
     act(() => {
       result.current.undo();
     });
-    expect(result.current.canRedo()).toBe(true);
+    expect(result.current.canRedo).toBe(true);
 
     let snapshot: unknown;
     act(() => {
@@ -131,15 +131,15 @@ describe("useUndoRedo", () => {
     act(() => { result.current.undo(); });
     act(() => { result.current.undo(); });
 
-    expect(result.current.canRedo()).toBe(true);
+    expect(result.current.canRedo).toBe(true);
 
     // Push new state — should truncate future
     act(() => {
       result.current.pushState([makeFloorPlanItem({ id: "x" })], 50, 50);
     });
 
-    expect(result.current.canRedo()).toBe(false);
-    expect(result.current.canUndo()).toBe(true);
+    expect(result.current.canRedo).toBe(false);
+    expect(result.current.canUndo).toBe(true);
   });
 
   it("caps history at MAX_HISTORY_SIZE (20)", () => {
@@ -152,7 +152,7 @@ describe("useUndoRedo", () => {
     });
 
     // Can still undo (should be at least MAX_HISTORY_SIZE back)
-    expect(result.current.canUndo()).toBe(true);
+    expect(result.current.canUndo).toBe(true);
   });
 
   it("undo returns to previous state after sequential pushes (single undo per action)", () => {

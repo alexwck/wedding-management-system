@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { FloorPlanItem } from "@/types/floor-plan";
 import { MAX_HISTORY_SIZE } from "@/lib/floor-plan/constants";
 
@@ -12,7 +12,14 @@ interface Snapshot {
 
 export function useUndoRedo() {
   const history = useRef<Snapshot[]>([]);
-  const index = useRef(-1);
+  const indexRef = useRef(-1);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+
+  const updateFlags = useCallback(() => {
+    setCanUndo(indexRef.current > 0);
+    setCanRedo(indexRef.current < history.current.length - 1);
+  }, []);
 
   const pushState = useCallback(
     (items: FloorPlanItem[], width: number, height: number) => {
@@ -22,8 +29,8 @@ export function useUndoRedo() {
         height,
       };
 
-      if (index.current < history.current.length - 1) {
-        history.current = history.current.slice(0, index.current + 1);
+      if (indexRef.current < history.current.length - 1) {
+        history.current = history.current.slice(0, indexRef.current + 1);
       }
 
       history.current.push(snapshot);
@@ -32,28 +39,25 @@ export function useUndoRedo() {
         history.current = history.current.slice(-MAX_HISTORY_SIZE);
       }
 
-      index.current = history.current.length - 1;
+      indexRef.current = history.current.length - 1;
+      updateFlags();
     },
-    [],
+    [updateFlags],
   );
 
   const undo = useCallback((): Snapshot | null => {
-    if (index.current <= 0) return null;
-    index.current -= 1;
-    return structuredClone(history.current[index.current]);
-  }, []);
+    if (indexRef.current <= 0) return null;
+    indexRef.current -= 1;
+    updateFlags();
+    return structuredClone(history.current[indexRef.current]);
+  }, [updateFlags]);
 
   const redo = useCallback((): Snapshot | null => {
-    if (index.current >= history.current.length - 1) return null;
-    index.current += 1;
-    return structuredClone(history.current[index.current]);
-  }, []);
-
-  const canUndo = useCallback(() => index.current > 0, []);
-  const canRedo = useCallback(
-    () => index.current < history.current.length - 1,
-    [],
-  );
+    if (indexRef.current >= history.current.length - 1) return null;
+    indexRef.current += 1;
+    updateFlags();
+    return structuredClone(history.current[indexRef.current]);
+  }, [updateFlags]);
 
   return { pushState, undo, redo, canUndo, canRedo };
 }
