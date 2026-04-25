@@ -39,18 +39,10 @@ export function TemplatePreview({
   );
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [imageUrlState, setImageUrlState] = useState(imageUrl);
   const dragging = useRef(false);
   const dragStart = useRef({ clientX: 0, clientY: 0 });
   const offsetAtDragStart = useRef<CropOffset>({ x: 50, y: 50 });
   const imgRef = useRef<HTMLImageElement>(null);
-
-  useEffect(() => {
-    if (imageUrl !== imageUrlState) {
-      setOffset(null);
-      setImageUrlState(imageUrl);
-    }
-  }, [imageUrl, imageUrlState]);
 
   const getOffsetFromPosition = useCallback(
     (clientX: number, clientY: number): CropOffset => {

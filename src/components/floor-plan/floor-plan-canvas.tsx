@@ -20,7 +20,6 @@ import {
   FEET_TO_PIXELS,
   MAX_VENUE_DIMENSION,
   isTableType,
-  isResizable,
   centerPixelsToTopLeftFeet,
   topLeftFeetToCenterPixels,
 } from "@/lib/floor-plan/constants";
