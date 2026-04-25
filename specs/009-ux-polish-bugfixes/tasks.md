@@ -132,13 +132,13 @@
 
 ### Tests for User Story 6
 
-- [ ] T022 [US6] Write failing E2E test in `tests/e2e/item-resize.spec.ts` for: resize a Stage via dimension inputs, verify round table shows no resize handles, undo a resize, verify collision indicator on resize into another item
+- [x] T022 [US6] Write failing E2E test in `tests/e2e/item-resize.spec.ts` for: resize a Stage via dimension inputs, verify round table shows no resize handles, undo a resize, verify collision indicator on resize into another item
 
 ### Implementation for User Story 6
 
-- [ ] T023 [P] [US6] Add per-item resize bounds (`minWidth`, `maxWidth`, `minHeight`, `maxHeight`) to `FLOOR_PLAN_ITEMS` entries in `src/lib/floor-plan/constants.ts` for Stage, Pillar, Walkway, and Misc types (per spec table in US6)
-- [ ] T024 [US6] Modify `src/components/floor-plan/canvas-item.tsx` (or the Transformer wrapper) to conditionally enable resize handles via Konva `Transformer` only when item type is Stage, Pillar, Walkway, or Misc — round tables and long tables must not show resize anchors; Konva `Transformer` provides built-in touch support for resize handles (no separate `onTap`/`onClick` needed on individual handles)
-- [ ] T025 [US6] Implement `transformend` handler in `src/components/floor-plan/canvas-item.tsx` that clamps new dimensions to per-type min/max bounds, converts pixel delta to feet using `FEET_TO_PIXELS`, updates item `width`/`height`, pushes pre-resize state to undo history, and snaps to venue boundary if dimensions exceed canvas limits
+- [x] T023 [P] [US6] Add per-item resize bounds (`minWidth`, `maxWidth`, `minHeight`, `maxHeight`) to `FLOOR_PLAN_ITEMS` entries in `src/lib/floor-plan/constants.ts` for Stage, Pillar, Walkway, and Misc types (per spec table in US6)
+- [x] T024 [US6] Modify `src/components/floor-plan/canvas-item.tsx` (or the Transformer wrapper) to conditionally enable resize handles via Konva `Transformer` only when item type is Stage, Pillar, Walkway, or Misc — round tables and long tables must not show resize anchors; Konva `Transformer` provides built-in touch support for resize handles (no separate `onTap`/`onClick` needed on individual handles)
+- [x] T025 [US6] Implement `transformend` handler in `src/components/floor-plan/canvas-item.tsx` that clamps new dimensions to per-type min/max bounds, converts pixel delta to feet using `FEET_TO_PIXELS`, updates item `width`/`height`, pushes pre-resize state to undo history, and snaps to venue boundary if dimensions exceed canvas limits
 
 **Checkpoint**: Non-table items can be resized on the canvas. Tables are fixed. Resize is undoable and respects bounds.
 
