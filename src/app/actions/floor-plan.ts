@@ -7,6 +7,7 @@ import {
   deserializeFloorPlan,
 } from "@/lib/floor-plan/serializers";
 import { isItemOutOfBounds } from "@/lib/floor-plan/collision";
+import { verifyWeddingNotLocked } from "@/lib/auth-guards";
 import { cleanupOrphanedAssignments } from "@/app/actions/seat-assignment";
 import type { FloorPlanItem } from "@/types/floor-plan";
 
@@ -80,14 +81,16 @@ export async function saveFloorPlan(
     return { success: false as const, error: "Not authenticated." };
   }
 
+  const lockCheck = await verifyWeddingNotLocked(weddingId);
+  if (!lockCheck.ok) {
+    return { success: false as const, error: lockCheck.error };
+  }
+
   const isAdmin = user.app_metadata?.role === "admin";
   if (!isAdmin) {
     const access = await verifyWeddingAccess(weddingId, user.id);
     if (!access.ok) {
       return { success: false as const, error: access.error };
-    }
-    if (access.isLocked) {
-      return { success: false as const, error: "This wedding has been locked. No edits are permitted." };
     }
   }
 

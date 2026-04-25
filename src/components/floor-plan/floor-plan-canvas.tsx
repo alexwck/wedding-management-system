@@ -564,7 +564,7 @@ export function FloorPlanCanvas({
       setEditingLabelValue(item.label);
       setTimeout(() => editInputRef.current?.focus(), 50);
     },
-    [state.items],
+    [state.items, isLocked],
   );
 
   const commitLabelEdit = useCallback(() => {
@@ -579,6 +579,7 @@ export function FloorPlanCanvas({
   }, [editingLabelId, editingLabelValue, pushHistory, state]);
 
   const handleDelete = useCallback(() => {
+    if (isLocked) return;
     if (!selectedItemId) return;
     pushHistory();
 
@@ -594,7 +595,7 @@ export function FloorPlanCanvas({
 
     state.removeItem(selectedItemId);
     setSelectedItemId(null);
-  }, [selectedItemId, pushHistory, state]);
+  }, [selectedItemId, pushHistory, state, isLocked]);
 
   const dimEditStarted = useRef(false);
 
@@ -702,7 +703,7 @@ export function FloorPlanCanvas({
         else handleUndo();
       }
       if (e.key === "Delete" || e.key === "Backspace") {
-        if (selectedItemId && !editingLabelId) handleDelete();
+        if (selectedItemId && !editingLabelId && !isLocked) handleDelete();
       }
       if (e.key === "Escape") {
         setSelectedItemId(null);

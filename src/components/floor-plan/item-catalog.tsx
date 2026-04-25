@@ -97,9 +97,11 @@ export function ItemCatalog({ onSelectItem, disabled = false, unavailableItems }
                   variant="outline"
                   size="sm"
                   onClick={() => onSelectItem("round_table", entry.diameter)}
-                  disabled={disabled || unavailable}
-                  title={unavailable ? "No space available" : undefined}
-                  className={unavailable ? "opacity-50" : undefined}
+                  disabled={disabled}
+                  aria-disabled={unavailable || disabled}
+                  tabIndex={unavailable ? -1 : 0}
+                  aria-label={`${entry.diameter}ft Round Table${unavailable ? " — No space available" : ""}`}
+                  className={unavailable ? "opacity-50 cursor-not-allowed" : undefined}
                 >
                   {entry.diameter}ft &middot; {entry.defaultChairs} chairs
                 </Button>
@@ -119,9 +121,11 @@ export function ItemCatalog({ onSelectItem, disabled = false, unavailableItems }
                   variant="outline"
                   size="sm"
                   onClick={() => onSelectItem("long_table", entry.length)}
-                  disabled={disabled || unavailable}
-                  title={unavailable ? "No space available" : undefined}
-                  className={unavailable ? "opacity-50" : undefined}
+                  disabled={disabled}
+                  aria-disabled={unavailable || disabled}
+                  tabIndex={unavailable ? -1 : 0}
+                  aria-label={`${entry.length}ft Long Table${unavailable ? " — No space available" : ""}`}
+                  className={unavailable ? "opacity-50 cursor-not-allowed" : undefined}
                 >
                   {entry.length}ft x {entry.height}ft &middot; {entry.defaultChairs}{" "}
                   chairs
@@ -142,9 +146,11 @@ export function ItemCatalog({ onSelectItem, disabled = false, unavailableItems }
                   variant="outline"
                   size="sm"
                   onClick={() => onSelectItem(entry.type)}
-                  disabled={disabled || unavailable}
-                  title={unavailable ? "No space available" : undefined}
-                  className={unavailable ? "opacity-50" : undefined}
+                  disabled={disabled}
+                  aria-disabled={unavailable || disabled}
+                  tabIndex={unavailable ? -1 : 0}
+                  aria-label={`${OTHER_ITEM_LABELS[entry.type] ?? entry.type}${unavailable ? " — No space available" : ""}`}
+                  className={unavailable ? "opacity-50 cursor-not-allowed" : undefined}
                 >
                   {OTHER_ITEM_LABELS[entry.type] ?? entry.type}
                 </Button>
