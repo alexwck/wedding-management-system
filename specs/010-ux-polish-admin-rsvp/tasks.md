@@ -189,12 +189,12 @@
 
 ### Implementation for User Story 7
 
-- [ ] T041 [P] [US7] Rename template preview button to "Adjust Crop" and dialog title to "Adjust Image Crop" in `src/components/template-preview.tsx` per FR-020a
-- [ ] T042 [P] [US7] Refresh template preview after upload in `src/components/template-upload.tsx` — ensure component re-fetches `template_image_url` (now with cache-bust param from T006) per FR-019/FR-020
+- [x] T041 [P] [US7] Rename template preview button to "Adjust Crop" and dialog title to "Adjust Image Crop" in `src/components/template-preview.tsx` per FR-020a
+- [x] T042 [P] [US7] Refresh template preview after upload in `src/components/template-upload.tsx` — ensure component re-fetches `template_image_url` (now with cache-bust param from T006) per FR-019/FR-020
 
 ### E2E Verification for User Story 7
 
-- [ ] T043 [US7] E2E test for template image refresh in `tests/e2e/template-image-refresh.spec.ts` — upload image A → preview shows A → upload image B → preview and landing page show B immediately
+- [x] T043 [US7] E2E test for template image refresh in `tests/e2e/template-image-refresh.spec.ts` — upload image A → preview shows A → upload image B → preview and landing page show B immediately
 
 **Checkpoint**: Template preview always reflects latest upload. Button correctly labeled "Adjust Crop."
 
