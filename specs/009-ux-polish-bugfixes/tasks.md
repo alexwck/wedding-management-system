@@ -148,9 +148,9 @@
 
 **Purpose**: Final validation, documentation, and cleanup
 
-- [ ] T026 Update `CLAUDE.md` with new components (guest-panel, canvas-stats), updated file paths, and new gotchas (crop offset semantics, table numbering rule, per-item resize bounds, guest cascade on table deletion)
-- [ ] T027 Delete `src/components/floor-plan/unassigned-guests-panel.tsx` if fully replaced by `guest-panel.tsx` and no imports remain
-- [ ] T028 Run full verification: `npm run build && npm run lint && npm run test && npm run test:e2e` — all pass across desktop and mobile projects
+- [x] T026 Update `CLAUDE.md` with new components (guest-panel, canvas-stats), updated file paths, and new gotchas (crop offset semantics, table numbering rule, per-item resize bounds, guest cascade on table deletion)
+- [x] T027 Delete `src/components/floor-plan/unassigned-guests-panel.tsx` if fully replaced by `guest-panel.tsx` and no imports remain
+- [x] T028 Run full verification: `npm run build && npm run lint && npm run test && npm run test:e2e` — all pass across desktop and mobile projects
 
 ---
 

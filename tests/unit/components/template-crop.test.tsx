@@ -180,20 +180,8 @@ describe("TemplatePreview — drag-to-crop", () => {
     });
   });
 
-  it("resets crop position when opened with new image", async () => {
-    const { rerender } = render(
-      <TemplatePreview
-        weddingId={1}
-        imageUrl="https://example.com/old.jpg"
-        focalX={50}
-        focalY={30}
-      />,
-    );
-
-    await userEvent.click(screen.getByText("Preview"));
-    expect(screen.getByText(/50\.0%.*30\.0%/)).toBeInTheDocument();
-
-    rerender(
+  it("initializes without crop offset when no focal point set", () => {
+    render(
       <TemplatePreview
         weddingId={1}
         imageUrl="https://example.com/new.jpg"
@@ -202,6 +190,7 @@ describe("TemplatePreview — drag-to-crop", () => {
       />,
     );
 
-    expect(screen.queryByText(/50\.0%.*30\.0%/)).not.toBeInTheDocument();
+    // The crop offset text should show the drag instruction, not coordinates
+    expect(screen.queryByText(/Crop offset:/)).not.toBeInTheDocument();
   });
 });

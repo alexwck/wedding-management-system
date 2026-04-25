@@ -40,17 +40,20 @@ src/
 │   │   ├── floor-plan-canvas.tsx    # Main canvas wrapper (Stage/Layer, compact top bar, label tracking)
 │   │   ├── floor-plan-toolbar.tsx   # Undo/redo, zoom controls (inlined into top bar)
 │   │   ├── canvas-item.tsx          # Memoized Konva item renderer
+│   │   ├── canvas-stats.tsx         # Always-visible stats (table/chair counts, assigned/empty breakdown)
+│   │   ├── guest-panel.tsx          # Collapsible unassigned + assigned guests with table numbering
 │   │   ├── item-catalog.tsx         # Sidebar of placeable items
+│   │   ├── rotation-transformer.tsx # Konva Transformer (rotation all items, resize non-table only)
 │   │   ├── items/                   # Konva shape components (round-table, long-table, chair, etc.)
 │   │   └── hooks/                   # use-floor-plan-state, use-auto-save, use-collision-detection, etc.
 │   ├── ui/                 # shadcn/ui components (button, card, dialog, etc.)
-│   ├── landing-page.tsx    # Wedding landing page component (venue info overlay, focal point positioning)
+│   ├── landing-page.tsx    # Wedding landing page component (venue info overlay, object-cover crop display)
 │   ├── rsvp-form.tsx       # RSVP form with react-hook-form + zod
 │   ├── rsvp-table.tsx      # Sortable RSVP response table
 │   ├── rsvp-section.tsx    # Collapsible RSVP section with embedded export buttons
 │   ├── rsvp-summary.tsx    # RSVP summary cards (attending, declining, vegetarian, baby chairs)
 │   ├── export-buttons.tsx  # XLSX export button
-│   ├── template-preview.tsx # Template preview with click-to-set focal point picker
+│   ├── template-preview.tsx # Template preview with drag-to-crop repositioning
 │   ├── template-upload.tsx # Template image upload with preview button
 │   ├── wedding-date-picker.tsx # Wedding date/time picker with timezone selector
 │   ├── timezone-combobox.tsx   # Searchable IANA timezone dropdown (cmdk)
@@ -58,7 +61,7 @@ src/
 │   ├── venue-section.tsx   # Public venue display with OSM map embed + nav buttons (server)
 │   └── ...                 # Other app components
 ├── lib/
-│   ├── floor-plan/         # Floor plan utilities (constants, collision, serializers)
+│   ├── floor-plan/         # Floor plan utilities (constants, collision, serializers, stats)
 │   ├── geocoding.ts        # Nominatim API client (searchAddress)
 │   ├── supabase/           # Supabase clients: client.ts, server.ts, admin.ts
 │   ├── utils.ts            # cn() helper and utilities
@@ -160,6 +163,12 @@ git config core.hooksPath .githooks
 - **Chair collision on drag**: When dragging a table, child chairs must also be checked for OOB and collisions (not just the parent table). The `checkDragCollisions` helper handles this — it early-exits on parent collision before computing child positions.
 - **Venue suggestion dropdown styling**: Address autocomplete suggestions must use `bg-background shadow-md` (not `glass-panel`) because the transparent glass-panel background makes text unreadable over page content beneath.
 - **Canvas item memoization**: `CanvasItem` is a memoized component wrapping each Konva shape. It prevents full canvas re-renders on selection changes — always use it instead of rendering shapes directly in the `Stage`.
+- **Template crop uses object-cover**: Landing page and preview now use `object-cover` with `object-position` (not `object-contain`). Crop offsets are 0-100 percentages stored in `template_focal_x`/`template_focal_y` columns.
+- **Guest panel table numbering**: Table numbers are derived from sequential position among table-type items in the canvas items array — not from item IDs or labels. Deleting and re-adding tables changes numbering.
+- **Resize bounds per item type**: Only non-table items (Stage, Pillar, Walkway, Misc) have resize handles via Konva Transformer. Bounds are defined in `RESIZE_BOUNDS` in constants.ts. Tables are fixed at predefined dimensions.
+- **Guest cascade on table deletion**: When a table is deleted from the canvas, all guests assigned to that table's chairs are returned to the unassigned section via `seatAssignments.unassignGuest()`.
+- **Undo bug was in caller, not hook**: The double-undo was caused by a duplicate pushState in the mount useEffect of floor-plan-canvas.tsx, not in the useUndoRedo hook itself. The initial pushState was removed.
+- **Password confirmation client-side only**: `createCoupleFormSchema` adds confirmPassword with `.refine()` match validation. `createCoupleSchema` (server) has no confirmPassword. Client form explicitly picks only email/password/displayName/coupleName for FormData.
 
 ## Active Technologies
 - TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, Tailwind CSS v4, shadcn/ui (Nova theme), react-hook-form, zod, exceljs, cmdk (008-dashboard-ux-fixes)
@@ -170,6 +179,7 @@ git config core.hooksPath .githooks
 - TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-hook-form, zod, Supabase JS, Tailwind CSS v4, shadcn/ui (007-venue-details-maps)
 
 ## Recent Changes
+- 009-ux-polish-bugfixes: Drag-to-crop template repositioning (replaces click focal point), collapsible guest panel with assigned/unassigned sections, canvas stats (table/chair/assignment counts), undo double-step bug fix, password confirmation for couple creation, resize handles for non-table items (Stage/Pillar/Walkway/Misc) with per-type min/max bounds
 - 008-dashboard-ux-fixes: Side-by-side dashboard layout (template left, details right), wedding date picker with timezone, collapsible sortable RSVP table, template preview with click-to-set focal point, fixed XLSX export (base64 transfer), removed Google Sheets export, fixed floor plan catalog overflow, chair count controls in top toolbar, collision detection for child chairs during drag, undo initial state fix, venue suggestion dropdown styling, memoized CanvasItem component, extracted checkDragCollisions and ChairCountControls helpers
 - 007-venue-details-maps: Added venue name, address (with Nominatim autocomplete), welcome message, embedded OSM map, and navigation buttons. Venue editor on admin/couple pages, venue info on landing page, venue section with map on RSVP form.
 - 006-guest-seat-assignment: Guest-to-chair seat assignments with drag-and-drop, unassigned guests panel, assignment dialog
