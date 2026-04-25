@@ -4,11 +4,12 @@ const createCoupleBaseSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   displayName: z.string().min(1, "Display name is required"),
-  coupleName: z.string().min(1, "Couple name is required"),
 });
 
 /** Server-side schema (no confirmPassword — server never receives it) */
-export const createCoupleSchema = createCoupleBaseSchema;
+export const createCoupleSchema = createCoupleBaseSchema.extend({
+  coupleName: z.string().min(1, "Couple name is required"),
+});
 
 /** Client-side schema with password confirmation */
 export const createCoupleFormSchema = createCoupleBaseSchema

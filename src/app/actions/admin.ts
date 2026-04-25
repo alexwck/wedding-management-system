@@ -173,7 +173,7 @@ export async function createCoupleAccount(formData: FormData) {
     email: formData.get("email") as string,
     password: formData.get("password") as string,
     displayName: formData.get("displayName") as string,
-    coupleName: formData.get("coupleName") as string,
+    coupleName: (formData.get("coupleName") as string) || (formData.get("displayName") as string),
   };
 
   const parsed = createCoupleSchema.safeParse(rawData);
@@ -349,7 +349,25 @@ export async function getCouples() {
     return { success: false, error: "fetch_failed" as const, message: "Failed to fetch couples." };
   }
 
-  return { success: true, couples: users ?? [] };
+  const userIds = (users ?? []).map((u) => u.id);
+  const { data: weddings } = await supabase
+    .from("weddings")
+    .select("user_id, id, couple_name, is_locked")
+    .in("user_id", userIds);
+
+  const weddingMap = new Map((weddings ?? []).map((w) => [w.user_id, w]));
+
+  const couples = (users ?? []).map((u) => {
+    const wedding = weddingMap.get(u.id);
+    return {
+      ...u,
+      weddingId: wedding?.id ?? null,
+      coupleName: wedding?.couple_name ?? null,
+      isLocked: wedding?.is_locked ?? false,
+    };
+  });
+
+  return { success: true, couples };
 }
 
 async function verifyWeddingAccess(
