@@ -9,9 +9,9 @@
 
 ## Overview
 
-The wedding management system currently serves two primary audiences on its public-facing pages: **guests** who visit wedding landing pages to RSVP, and **prospective couples** who may encounter the site before signing up. The existing landing page design, while functional, was not optimized for mobile-first engagement. Industry data shows that over 70% of wedding RSVPs and event page visits occur on mobile devices, yet mobile conversion rates lag desktop by a significant margin.
+The wedding management system currently serves three primary audiences: **guests** who visit wedding landing pages to RSVP, **couples** who log in to manage their RSVPs and floor plans, and **admins** who oversee all weddings and users. The existing design, while functional, was not optimized for mobile-first engagement across any of these interfaces. Industry data shows that over 70% of wedding RSVPs and event page visits occur on mobile devices, yet mobile conversion rates and task completion lag desktop by a significant margin.
 
-This feature delivers a complete visual and structural redesign of the public-facing homepage and wedding landing pages, driven by 2026 UX trends: **frosted glass effects (glassmorphism)**, **bento box modular layouts with 3D depth**, and **soft pastel/earthy color palettes**. The redesign prioritizes mobile usability above all else, with the explicit goal of increasing RSVP submission rates and reducing bounce rates on mobile devices.
+This feature delivers a complete visual and structural redesign of **all pages, components, and UI elements** in the codebase — public-facing pages, admin dashboards, couple dashboards, shared components, forms, tables, dialogs, navigation, and canvas controls — driven by 2026 UX trends: **frosted glass effects (glassmorphism)**, **bento box modular layouts with 3D depth**, and **soft pastel/earthy color palettes**. The redesign prioritizes mobile usability above all else across every user interface, with the explicit goal of increasing RSVP submission rates, reducing bounce rates, and improving task completion on mobile devices.
 
 ---
 
@@ -31,48 +31,69 @@ A wedding guest receives a shareable link to a couple's wedding landing page. Th
 2. **Given** a guest is viewing the venue section, **When** they tap the RSVP call-to-action, **Then** the page smooth-scrolls to the RSVP form with the keyboard automatically focusing the first input field.
 3. **Given** a guest is filling out the RSVP form on mobile, **When** they select attendance status, **Then** conditional fields (dietary preferences, plus-one) appear inline without page reloads or jarring layout shifts.
 4. **Given** a guest submits the RSVP form, **When** the submission is successful, **Then** they see a celebratory confirmation with a glassmorphism-styled success card and an option to add the event to their calendar.
+5. **Given** a guest who has already RSVPed revisits the wedding page, **When** the page loads, **Then** the RSVP form is replaced with a personalized glassmorphism confirmation card showing their submitted response and an "Edit RSVP" option (if the wedding is not locked).
+6. **Given** a guest views the venue section, **When** the embedded map fails to load, **Then** the venue card displays the address text and navigation buttons in a glassmorphism panel with a subtle "Map unavailable" placeholder, without breaking the page layout.
 
 ---
 
-### User Story 2 - Admin Customizes Wedding Landing Page (Priority: P2)
+### User Story 2 - Admin Manages Weddings on Mobile (Priority: P2)
 
-A wedding planner or admin creates a new wedding and wants the public landing page to reflect the couple's aesthetic. They browse a gallery of 6+ layout presets inspired by 2026 design trends, select one that matches the couple's style, upload a Canva-designed invitation template, set a focal point for the hero image, and preview how the page will look on both mobile and desktop before sharing the link with guests.
+A wedding planner or admin logs into the admin dashboard on their tablet or phone while on-site at a venue. They navigate between weddings, check RSVP counts, toggle wedding locks, edit venue details, and configure floor plans. Every screen they encounter uses the same cohesive glassmorphism and bento design language, with touch-friendly inputs, clear hierarchy, and no horizontal scrolling.
 
-**Why this priority**: The admin/couple customization flow determines the quality and consistency of the guest-facing experience. If admins cannot easily create beautiful pages that match diverse couple aesthetics, guest conversion suffers regardless of the underlying design system. Offering multiple layout presets maximizes the chance that every couple finds a design that resonates with their wedding theme.
+**Why this priority**: Admins increasingly manage weddings on mobile devices, especially during events. A consistent, mobile-optimized admin experience reduces errors, speeds up on-the-spot decisions, and builds trust in the platform's professionalism.
 
-**Independent Test**: Can be fully tested by having an admin create a wedding, browse layout presets, select one, upload a template, configure page settings, and verify the preview matches the published page on mobile and desktop.
+**Independent Test**: Can be fully tested by having an admin perform core tasks (view wedding list, edit a wedding, toggle lock, check RSVP counts) entirely on a mobile device without assistance.
 
 **Acceptance Scenarios**:
 
-1. **Given** an admin is configuring a wedding page, **When** they browse and select from the 6+ available layout presets, **Then** a live preview updates instantly showing how their template and content will render in the selected layout.
-2. **Given** an admin uploads a template image, **When** they use the crop adjustment tool, **Then** the focal point they set is respected across all screen sizes without awkward cropping on mobile.
-3. **Given** an admin has set a wedding to locked, **When** a guest visits the page, **Then** the RSVP form is replaced with a glassmorphism "RSVP is now closed" message while preserving the rest of the page design.
+1. **Given** an admin views the wedding list on mobile, **When** they scroll through 20+ weddings, **Then** each card uses glassmorphism styling with clear couple names, date, and RSVP count visible at a glance.
+2. **Given** an admin edits a wedding on mobile, **When** they navigate through tabs (details, venue, floor plan, RSVPs), **Then** each tab renders in a bento-style layout with form inputs sized for thumb interaction.
+3. **Given** an admin uses the floor plan editor on a tablet, **When** they tap to add a table or assign a guest, **Then** the canvas controls and guest panel adapt to the smaller screen without clipping or overflow.
+4. **Given** an admin configures a wedding landing page, **When** they browse and select from the 6+ available layout presets, **Then** a live preview updates instantly showing how their template and content will render in the selected layout.
+5. **Given** an admin uploads a template image, **When** they use the crop adjustment tool, **Then** the focal point they set is respected across all screen sizes without awkward cropping on mobile.
+6. **Given** an admin has set a wedding to locked, **When** a guest visits the page, **Then** the RSVP form is replaced with a glassmorphism "RSVP is now closed" message while preserving the rest of the page design.
+7. **Given** an admin views the wedding list with 50+ weddings on mobile, **When** they scroll through the list, **Then** the page uses pagination or virtual scrolling to maintain 60fps without jank or excessive memory usage.
+8. **Given** an admin opens the floor plan editor on a phone screen narrower than 640px, **When** the page loads, **Then** a device-not-supported message is displayed with a prompt to use a tablet or desktop, while a read-only preview of the floor plan remains visible.
 
 ---
 
-### User Story 3 - Couple Previews Their Public Page (Priority: P3)
+### User Story 3 - Couple Manages Their Wedding on Mobile (Priority: P3)
 
-A couple logs into their dashboard and wants to see exactly what their guests will experience. They open their public page preview and share it with each other for approval before sending invitations.
+A couple logs into their dashboard on their phone while commuting. They check how many guests have RSVPed, view the RSVP breakdown (attending, declining, dietary needs), edit their venue details, adjust their floor plan, and preview how guests will see their public page. Every screen they use feels modern, responsive, and consistent with the overall platform design.
 
-**Why this priority**: Couples are emotionally invested in their wedding page appearance. A preview that accurately reflects the guest experience builds trust and reduces support requests about "why does my page look different?"
+**Why this priority**: Couples are emotionally invested in their wedding planning tools and use them frequently on mobile. A polished, mobile-friendly dashboard experience increases engagement, reduces support requests, and creates a positive brand association that encourages word-of-mouth referrals.
 
-**Independent Test**: Can be fully tested by having a couple user navigate from their dashboard to their public page and confirming the visual consistency.
+**Independent Test**: Can be fully tested by having a couple user perform core dashboard tasks (view RSVP summary, edit venue, adjust floor plan, preview public page) entirely on a mobile device without assistance.
 
 **Acceptance Scenarios**:
 
-1. **Given** a couple views their public page from the dashboard, **When** they open it on their phone, **Then** the page renders identically to what an unauthenticated guest would see.
-2. **Given** a couple shares their page link via messaging app, **When** the link generates a preview card, **Then** the Open Graph image and description are derived from their template and couple name.
+1. **Given** a couple views their dashboard on mobile, **When** the page loads, **Then** RSVP summary cards display in a bento grid with glassmorphism styling, showing attending, declining, vegetarian, and baby chair counts at a glance.
+2. **Given** a couple views the RSVP table on mobile, **When** they tap a sortable column header, **Then** the table remains readable with appropriate column widths, pagination controls, and no horizontal overflow.
+3. **Given** a couple edits venue details on mobile, **When** they use the address autocomplete, **Then** the suggestion dropdown is touch-friendly, the map preview is visible, and form inputs are sized for thumb interaction.
+4. **Given** a couple uses the floor plan editor on a tablet, **When** they tap to add items or assign guests to chairs, **Then** the canvas, toolbar, and guest panel adapt to the smaller screen with all controls reachable.
+5. **Given** a couple views their public page preview from the dashboard, **When** they open it on their phone, **Then** the page renders identically to what an unauthenticated guest would see.
+6. **Given** a couple shares their page link via messaging app, **When** the link generates a preview card, **Then** the Open Graph image and description are derived from their template and couple name.
+7. **Given** a couple views the RSVP table with 200+ guests on mobile, **When** the page loads, **Then** the table paginates at 25 rows per page with search and filter controls always visible, remaining performant and readable without horizontal overflow.
+8. **Given** a couple opens a modal dialog on mobile, **When** they focus a text input and the on-screen keyboard appears, **Then** the dialog scrolls or repositions so the focused input remains visible and unobstructed.
+9. **Given** a couple opens the floor plan editor on a phone screen narrower than 640px, **When** the page loads, **Then** a device-not-supported message is displayed with a prompt to use a tablet or desktop, while a read-only preview of the floor plan remains visible.
 
 ---
 
 ### Edge Cases
 
-- What happens when a guest's device has reduced motion preferences enabled?
-- How does the design accommodate weddings without a uploaded template image (gradient fallback)?
-- What happens when venue coordinates are set but the map service is unavailable?
-- How does the RSVP form behave when a guest has already submitted an RSVP and revisits the page?
-- What is the experience for guests using screen readers or assistive technologies?
-- How does the page perform on slow 3G connections or low-end devices?
+| Edge Case | Covered By |
+|-----------|------------|
+| Guest device has reduced motion preferences enabled | FR-008 |
+| Wedding has no uploaded template image | FR-007 |
+| Venue map service is unavailable | FR-022 |
+| Guest has already submitted an RSVP and revisits the page | FR-023 |
+| Guest uses screen readers or assistive technologies | FR-004, FR-021 |
+| Page performance on slow 3G or low-end devices | FR-013 |
+| Admin manages 50+ weddings on mobile | FR-024 |
+| Couple views RSVP table with 200+ guests on mobile | FR-025 |
+| Floor plan canvas on phone screens under 640px | FR-026 |
+| Modal dialogs with on-screen keyboard on mobile | FR-027 |
+| Browser lacks `backdrop-filter` support | FR-021 |
 
 ---
 
@@ -293,13 +314,29 @@ After evaluating seven distinct layout approaches against 2026 trends and conver
 - **FR-011**: When a wedding is locked, the RSVP form MUST be replaced with a glassmorphism "RSVP is now closed" message while preserving all other page content and styling.
 - **FR-012**: The admin/couple preview mode MUST render the page identically to the guest-facing version, including the same responsive breakpoints and glassmorphism effects.
 - **FR-013**: The page MUST render primary content within 2.5 seconds and become interactive within 4 seconds on a simulated slow mobile network connection.
+- **FR-014**: The admin wedding list (`/admin/weddings`) MUST display as a responsive card grid on mobile, with each card showing couple name, date, RSVP count, and lock status in a glassmorphism-styled panel.
+- **FR-015**: The couple dashboard (`/dashboard`) MUST present RSVP summary statistics in a bento grid layout with glassmorphism cards, displaying attending, declining, vegetarian, and baby chair counts.
+- **FR-016**: The floor plan editor MUST be usable on tablet devices (768px+ width) with all toolbar controls, canvas, and guest panel visible and reachable without horizontal scrolling.
+- **FR-017**: All form inputs across admin, couple, and public interfaces MUST have a minimum touch target of 44x44px, clear focus states, and inline validation that does not obstruct other fields on mobile.
+- **FR-018**: Table components (RSVP tables, wedding lists) MUST remain readable on mobile through responsive column handling, horizontal scroll as a last resort, or card-based alternatives.
+- **FR-019**: Dialog and modal components MUST adapt to mobile by using full-screen or bottom-sheet presentation on screens narrower than 640px, with a visible close action.
+- **FR-020**: Navigation components (admin sidebar, couple sidebar, public nav) MUST collapse to a hamburger menu on mobile with touch-friendly links and clear active states.
+- **FR-021**: The glassmorphism design system MUST degrade gracefully on browsers without `backdrop-filter` support, falling back to solid semi-transparent backgrounds.
+- **FR-022**: When a venue map embed fails to load, the venue section MUST display the address text and navigation buttons in a glassmorphism card without the map, with a subtle "Map unavailable" placeholder.
+- **FR-023**: When a guest who has already RSVPed revisits the page, the RSVP form MUST be replaced with a personalized glassmorphism confirmation card showing their submitted response and an "Edit RSVP" option if the wedding is not locked.
+- **FR-024**: The admin wedding list MUST implement pagination or virtual scrolling so that 50+ wedding cards render without jank or excessive memory usage on mobile devices.
+- **FR-025**: The couple dashboard RSVP table MUST paginate at 25 rows per page on mobile, with search and filter controls always visible, ensuring 200+ guest lists remain performant and readable.
+- **FR-026**: The floor plan editor MUST display a device-not-supported message on screens narrower than 640px, directing users to a tablet or desktop, while still allowing read-only preview of the floor plan.
+- **FR-027**: Modal dialogs on mobile MUST prevent the on-screen keyboard from obscuring the focused input by either scrolling the dialog into view or repositioning the dialog above the keyboard.
 
 ### Key Entities
 
 - **Wedding Landing Page**: The public-facing page for a specific wedding, composed of modular sections rendered within a bento grid system. Key attributes: layout preset, theme colors, template image, focal point, glassmorphism intensity.
 - **Bento Module**: A self-contained content block (hero, date, venue, RSVP, stats) rendered as a glassmorphism card. Each module has a type, content configuration, and responsive behavior rules.
-- **Theme Configuration**: The aesthetic settings for a wedding page including primary pastel color, earthy accent, glass blur radius, and border opacity. Defined per-wedding or inherited from a global default.
+- **Theme Configuration**: The aesthetic settings for a wedding page including primary pastel color, earthy accent, glass blur radius, and border opacity. Defined per-wedding or inherited from a global default. Applied globally across public pages, admin dashboards, and couple dashboards.
 - **RSVP Form State**: The guest-facing RSVP interaction including form fields, validation state, submission status, and confirmation display. Must function identically across all layout presets.
+- **Admin Dashboard Interface**: The authenticated admin experience including wedding list, wedding detail editing, floor plan editor, and RSVP management. All screens share the glassmorphism and bento design language.
+- **Couple Dashboard Interface**: The authenticated couple experience including RSVP summary, RSVP table, venue editor, floor plan editor, and public page preview. All screens share the glassmorphism and bento design language.
 
 ---
 
@@ -314,7 +351,10 @@ After evaluating seven distinct layout approaches against 2026 trends and conver
 - **SC-005**: 100% of wedding landing pages render correctly without a template image using the pastel gradient fallback system.
 - **SC-006**: The page renders its primary content (hero image, couple names, and wedding date) within 2.5 seconds on simulated slow mobile networks for 95% of page loads.
 - **SC-007**: Admin and couple users report a preview-to-published consistency rating of 4.5+ out of 5 in post-deployment feedback surveys.
-- **SC-008**: The redesigned landing pages maintain full functionality across iOS Safari, Android Chrome, and Samsung Internet browsers covering 98%+ of mobile traffic.
+- **SC-008**: The redesigned pages maintain full functionality across iOS Safari, Android Chrome, and Samsung Internet browsers covering 98%+ of mobile traffic.
+- **SC-009**: Admin users can complete core management tasks (toggle lock, edit venue, view RSVP counts) on mobile in under 90 seconds without horizontal scrolling or zooming.
+- **SC-010**: Couple users can complete core dashboard tasks (view RSVP summary, edit venue, preview public page) on mobile in under 60 seconds without assistance.
+- **SC-011**: All interactive elements across public, admin, and couple interfaces have a minimum touch target of 44x44px, verified via automated accessibility scanning.
 
 ---
 
@@ -326,10 +366,9 @@ After evaluating seven distinct layout approaches against 2026 trends and conver
 - 3D depth effects will be implemented via standard styling techniques rather than heavy graphics libraries to ensure performance and accessibility.
 - The RSVP form logic (validation, submission, deduplication) remains functionally unchanged; only the visual presentation and mobile interaction patterns are modified.
 - Social sharing metadata generation will use the existing image storage and public URL pipeline with cache-busting parameters.
-- The redesign applies to all public-facing pages including the root homepage (`/`), authentication pages (`/auth/login`), and individual wedding landing pages (`/w/[slug]`). Admin dashboards and couple dashboards remain out of scope unless explicitly noted in future specifications.
+- The redesign applies to all pages, components, and UI elements in the codebase: public pages (`/`, `/auth/login`, `/w/[slug]`), admin dashboards (`/admin` and sub-routes), couple dashboards (`/dashboard` and sub-routes), and all shared components (forms, tables, dialogs, navigation, canvas controls, etc.).
 - Guest users do not need to authenticate to view wedding pages or submit RSVPs; this unauthenticated flow is preserved.
 - The existing template image upload and storage pipeline is reused without modification.
-- The redesign applies to all public-facing pages: the root homepage (`/`), authentication pages (`/auth/login`), and individual wedding landing pages (`/w/[slug]`). Admin dashboards and couple dashboards remain out of scope.
 - Mobile RSVP completion success criterion uses a user-facing task completion metric rather than a comparative baseline (see SC-001).
 - Admins will have a curated selection of 6+ layout presets to choose from per wedding, each representing a distinct 2026 design trend approach. The exact selection will be finalized after design review.
 
