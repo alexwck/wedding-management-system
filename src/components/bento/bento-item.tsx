@@ -9,7 +9,7 @@ export interface BentoItemProps {
   rowSpan?: 1 | 2;
 }
 
-export const BentoItem = React.forwardRef<htmlElement, BentoItemProps>(
+export const BentoItem = React.forwardRef<HTMLElement, BentoItemProps>(
   ({ children, className, colSpan = 1, rowSpan = 1, ...props }, ref) => {
     return (
       <GlassCard

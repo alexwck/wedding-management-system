@@ -1,5 +1,4 @@
-import React from "react";
-import type { ThemeConfiguration, ThemeContextValue } from "@/types/theme";
+import type { ThemeConfiguration } from "@/types/theme";
 
 export const DEFAULT_THEME: Required<ThemeConfiguration> = {
   primaryColor: "#E8D5C4",
@@ -21,32 +20,8 @@ export function mergeTheme(global: ThemeConfiguration, override?: ThemeConfigura
   };
 }
 
-export const ThemeContext = React.createContext<ThemeContextValue>({
-  theme: DEFAULT_THEME,
-  isGlobalDefault: true,
-});
-
-export function useTheme(): ThemeContextValue {
-  return React.useContext(ThemeContext);
-}
-
 export interface ThemeProviderProps {
-  children: React.ReactNode;
+  children: import("react").ReactNode;
   globalTheme?: ThemeConfiguration;
   weddingTheme?: ThemeConfiguration | null;
-}
-
-export function ThemeProvider({ children, globalTheme, weddingTheme }: ThemeProviderProps) {
-  const theme = React.useMemo(() => {
-    const merged = mergeTheme(globalTheme ?? DEFAULT_THEME, weddingTheme);
-    return merged;
-  }, [globalTheme, weddingTheme]);
-
-  const isGlobalDefault = !weddingTheme;
-
-  return (
-    <ThemeContext.Provider value={{ theme, isGlobalDefault }}>
-      {children}
-    </ThemeContext.Provider>
-  );
 }

@@ -19,8 +19,8 @@
 
 **Purpose**: Database schema updates and project initialization for the redesign
 
-- [ ] T001 Create database migrations: `supabase/migrations/013_add_theme_to_weddings.sql`, `014_create_rsvp_tokens.sql`, `015_create_platform_settings.sql`
-- [ ] T002 Reset local Supabase database and verify migrations apply cleanly
+- [x] T001 Create database migrations: `supabase/migrations/013_add_theme_to_weddings.sql`, `014_create_rsvp_tokens.sql`, `015_create_platform_settings.sql`
+- [x] T002 Reset local Supabase database and verify migrations apply cleanly
 
 ---
 
@@ -30,20 +30,20 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Extend `src/app/globals.css` with glassmorphism CSS variables (`--glass-bg`, `--glass-bg-heavy`, `--glass-border`, `--glass-shadow`, `--glass-blur`, `--radius-glass`) and bento grid utilities
-- [ ] T004 [P] Create theme TypeScript types in `src/types/theme.ts` (ThemeConfiguration, ThemeContextValue)
-- [ ] T005 Create Zod theme validation schema in `src/lib/validations/theme.ts` (primaryColor, accentColor, glassBlurRadius, borderOpacity, borderRadius, fontFamily)
-- [ ] T013 [P] Write unit tests for theme Zod validation in `tests/unit/validations/theme.test.ts` (must FAIL before T005 is considered complete)
-- [ ] T006 Create theme provider and `useTheme` hook in `src/lib/design-system/theme.ts` (merged global + per-wedding theme, DEFAULT_THEME constant)
-- [ ] T015 [P] Write component tests for glassmorphism primitives in `tests/component/glassmorphism/` (GlassCard, GlassPanel, GlassButton — must FAIL before T007–T009)
-- [ ] T007 [P] Create GlassCard component in `src/components/glassmorphism/glass-card.tsx` (variant: default/heavy/light, @supports fallback)
-- [ ] T008 [P] Create GlassPanel component in `src/components/glassmorphism/glass-panel.tsx` (padding: none/sm/md/lg, radius: sm/md/lg/glass)
-- [ ] T009 [P] Create GlassButton component in `src/components/glassmorphism/glass-button.tsx` (variant: primary/secondary/ghost, size: sm/md/lg, 44x44px touch target)
-- [ ] T016 [P] Write component tests for bento primitives in `tests/component/bento/` (BentoGrid, BentoItem — must FAIL before T010–T011)
-- [ ] T010 [P] Create BentoGrid component in `src/components/bento/bento-grid.tsx` (cols: 1/2/3/4, gap: sm/md/lg, mobile always grid-cols-1)
-- [ ] T011 [P] Create BentoItem component in `src/components/bento/bento-item.tsx` (colSpan, rowSpan, renders inside GlassCard)
-- [ ] T014 [P] Write unit tests for preset loader in `tests/unit/lib/design-system/preset-loader.test.ts` (must FAIL before T012)
-- [ ] T012 Create preset loader in `src/lib/design-system/preset-loader.ts` (PRESET_REGISTRY, loadPreset, preloadAllPresets)
+- [x] T003 Extend `src/app/globals.css` with glassmorphism CSS variables (`--glass-bg`, `--glass-bg-heavy`, `--glass-border`, `--glass-shadow`, `--glass-blur`, `--radius-glass`) and bento grid utilities
+- [x] T004 [P] Create theme TypeScript types in `src/types/theme.ts` (ThemeConfiguration, ThemeContextValue)
+- [x] T005 Create Zod theme validation schema in `src/lib/validations/theme.ts` (primaryColor, accentColor, glassBlurRadius, borderOpacity, borderRadius, fontFamily)
+- [x] T013 [P] Write unit tests for theme Zod validation in `tests/unit/validations/theme.test.ts` (must FAIL before T005 is considered complete)
+- [x] T006 Create theme provider and `useTheme` hook in `src/lib/design-system/theme.ts` (merged global + per-wedding theme, DEFAULT_THEME constant)
+- [x] T015 [P] Write component tests for glassmorphism primitives in `tests/component/glassmorphism/` (GlassCard, GlassPanel, GlassButton — must FAIL before T007–T009)
+- [x] T007 [P] Create GlassCard component in `src/components/glassmorphism/glass-card.tsx` (variant: default/heavy/light, @supports fallback)
+- [x] T008 [P] Create GlassPanel component in `src/components/glassmorphism/glass-panel.tsx` (padding: none/sm/md/lg, radius: sm/md/lg/glass)
+- [x] T009 [P] Create GlassButton component in `src/components/glassmorphism/glass-button.tsx` (variant: primary/secondary/ghost, size: sm/md/lg, 44x44px touch target)
+- [x] T016 [P] Write component tests for bento primitives in `tests/component/bento/` (BentoGrid, BentoItem — must FAIL before T010–T011)
+- [x] T010 [P] Create BentoGrid component in `src/components/bento/bento-grid.tsx` (cols: 1/2/3/4, gap: sm/md/lg, mobile always grid-cols-1)
+- [x] T011 [P] Create BentoItem component in `src/components/bento/bento-item.tsx` (colSpan, rowSpan, renders inside GlassCard)
+- [x] T014 [P] Write unit tests for preset loader in `tests/unit/lib/design-system/preset-loader.test.ts` (must FAIL before T012)
+- [x] T012 Create preset loader in `src/lib/design-system/preset-loader.ts` (PRESET_REGISTRY, loadPreset, preloadAllPresets)
 
 **Checkpoint**: Foundation ready — glassmorphism primitives, bento grid, theme system, and preset loader are all implemented and tested
 
@@ -57,24 +57,24 @@
 
 ### Tests for User Story 1 (Write FIRST — ensure they FAIL before implementation)
 
-- [ ] T017 [P] [US1] Write E2E test skeleton for guest RSVP mobile flow in `tests/e2e/guest-rsvp-mobile.spec.ts` (hero visible, RSVP submission, confirmation card, map fallback, edit RSVP)
-- [ ] T018 [P] [US1] Write component tests for RSVP form mobile in `tests/component/rsvp-form.test.tsx` (touch targets 44x44px, inline validation, conditional fields)
-- [ ] T019 [P] [US1] Write component tests for venue section map fallback in `tests/component/venue-section.test.tsx` (timeout handling, retry button, graceful degradation)
+- [x] T017 [P] [US1] Write E2E test skeleton for guest RSVP mobile flow in `tests/e2e/guest-rsvp-mobile.spec.ts` (hero visible, RSVP submission, confirmation card, map fallback, edit RSVP)
+- [x] T018 [P] [US1] Write component tests for RSVP form mobile in `tests/component/rsvp-form.test.tsx` (touch targets 44x44px, inline validation, conditional fields)
+- [x] T019 [P] [US1] Write component tests for venue section map fallback in `tests/component/venue-section.test.tsx` (timeout handling, retry button, graceful degradation)
 
 ### Implementation for User Story 1
 
-- [ ] T020 [P] [US1] Create MVP preset CSS files (minimalist, bento, magazine) in `src/styles/presets/preset-minimalist.css`, `preset-bento.css`, `preset-magazine.css`
-- [ ] T021 [P] [US1] Create MVP layout preset components in `src/components/layout-presets/preset-minimalist.tsx`, `preset-bento.tsx`, `preset-magazine.tsx` (conform to LayoutPresetProps contract)
-- [ ] T022 [US1] Implement preset rendering and theme application in `src/app/(public)/w/[slug]/page.tsx` (lazy-load active preset CSS, merge theme, pass to preset component)
-- [ ] T023 [US1] Refactor RSVP form for mobile optimization in `src/components/rsvp-form.tsx` (full-width inputs, 44px min-height, stacked layout, inline validation below fields)
-- [ ] T024 [US1] Create RSVP confirmation card with inline edit integration in `src/components/rsvp-confirmation-card.tsx` and update `src/components/rsvp-section.tsx` (replaces form when token valid, edit button swaps back to pre-filled form)
-- [ ] T025 [US1] Refactor venue section with map fallback in `src/components/venue-section.tsx` (5s timeout detection, glassmorphism card with address + nav buttons, retry button + auto-retry)
-- [ ] T026 [US1] Implement returning guest token system in `src/app/actions/rsvp.ts` (generate random token, set Secure/HttpOnly/SameSite=Lax cookie, rate-limit 5 attempts per 15min). Validate token server-side on every request; if expired mid-session, show "Please submit again" without losing form data (FR-038).
+- [x] T020 [P] [US1] Create MVP preset CSS files (minimalist, bento, magazine) in `src/styles/presets/preset-minimalist.css`, `preset-bento.css`, `preset-magazine.css`
+- [x] T021 [P] [US1] Create MVP layout preset components in `src/components/layout-presets/preset-minimalist.tsx`, `preset-bento.tsx`, `preset-magazine.tsx` (conform to LayoutPresetProps contract)
+- [x] T022 [US1] Implement preset rendering and theme application in `src/app/(public)/w/[slug]/page.tsx` (lazy-load active preset CSS, merge theme, pass to preset component)
+- [x] T023 [US1] Refactor RSVP form for mobile optimization in `src/components/rsvp-form.tsx` (full-width inputs, 44px min-height, stacked layout, inline validation below fields)
+- [x] T024 [US1] Create RSVP confirmation card with inline edit integration in `src/components/rsvp-confirmation-card.tsx` and update `src/components/rsvp-section.tsx` (replaces form when token valid, edit button swaps back to pre-filled form)
+- [x] T025 [US1] Refactor venue section with map fallback in `src/components/venue-section.tsx` (5s timeout detection, glassmorphism card with address + nav buttons, retry button + auto-retry)
+- [x] T026 [US1] Implement returning guest token system in `src/app/actions/rsvp.ts` (generate random token, set Secure/HttpOnly/SameSite=Lax cookie, rate-limit 5 attempts per 15min). Validate token server-side on every request; if expired mid-session, show "Please submit again" without losing form data (FR-038).
 - [ ] T068 [P] [US1] Implement network interruption detection and retry in RSVP form submission in `src/components/rsvp-form.tsx` and `src/app/actions/rsvp.ts` (detect offline/mid-submit, preserve form data, display retry option) (FR-033)
 - [ ] T073 [P] [US1] Add token cookie attribute validation test in `tests/e2e/guest-rsvp-mobile.spec.ts` (verify Secure, HttpOnly, SameSite=Lax flags are set correctly)
-- [ ] T027 [US1] Redesign root homepage in `src/app/(public)/page.tsx` (glassmorphism hero, mobile-first)
-- [ ] T028 [US1] Redesign login page in `src/app/(public)/auth/login/page.tsx` (glassmorphism card, mobile-optimized inputs)
-- [ ] T029 [P] [US1] Write component tests for layout presets in `tests/component/layout-presets/` (rendering, theme application, mobile stacking)
+- [x] T027 [US1] Redesign root homepage in `src/app/(public)/page.tsx` (glassmorphism hero, mobile-first)
+- [x] T028 [US1] Redesign login page in `src/app/(public)/auth/login/page.tsx` (glassmorphism card, mobile-optimized inputs)
+- [x] T029 [P] [US1] Write component tests for layout presets in `tests/component/layout-presets/` (rendering, theme application, mobile stacking)
 - [ ] T030 [US1] Run and fix E2E tests for guest RSVP mobile flow in `tests/e2e/guest-rsvp-mobile.spec.ts`
 
 **Checkpoint**: User Story 1 is fully functional — guests can view a wedding landing page, RSVP on mobile, see map fallback, and edit their RSVP via token

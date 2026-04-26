@@ -1,6 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mockFrom } from "../helpers/supabase-mock";
 
+vi.mock("next/headers", () => ({
+  cookies: vi.fn(() => ({
+    set: vi.fn(),
+    get: vi.fn(),
+  })),
+}));
+
 vi.mock("@/lib/supabase/admin", () => {
   const mockFrom = vi.fn();
   return {
@@ -63,9 +70,13 @@ describe("submitRSVP lock check", () => {
     _mockFrom.mockReturnValueOnce(
       mockFrom({ data: null })
     );
-    // Third .from() call: insert
+    // Third .from() call: insert RSVP
     _mockFrom.mockReturnValueOnce(
-      mockFrom({ error: null })
+      mockFrom({ data: { id: 99 }, error: null })
+    );
+    // Fourth .from() call: insert token
+    _mockFrom.mockReturnValueOnce(
+      mockFrom({ data: {}, error: null })
     );
 
     vi.mocked(verifyWeddingNotLocked).mockResolvedValue({ ok: true });

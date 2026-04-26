@@ -8,7 +8,7 @@ export interface GlassCardProps {
   as?: "div" | "section" | "article";
 }
 
-export const GlassCard = React.forwardRef<htmlElement, GlassCardProps>(
+export const GlassCard = React.forwardRef<HTMLElement, GlassCardProps>(
   ({ children, className, variant = "default", as: Component = "div", ...props }, ref) => {
     const variantClass =
       variant === "heavy"

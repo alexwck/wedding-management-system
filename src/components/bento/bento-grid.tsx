@@ -21,7 +21,7 @@ const gapMap = {
   lg: "gap-6",
 };
 
-export const BentoGrid = React.forwardRef<htmlElement, BentoGridProps>(
+export const BentoGrid = React.forwardRef<HTMLElement, BentoGridProps>(
   ({ children, className, cols = 2, gap = "md", ...props }, ref) => {
     return (
       <div

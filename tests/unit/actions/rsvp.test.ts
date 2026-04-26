@@ -1,5 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+vi.mock("next/headers", () => ({
+  cookies: vi.fn(() => ({
+    set: vi.fn(),
+    get: vi.fn(),
+  })),
+}));
+
 vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: vi.fn(),
 }));
@@ -97,6 +104,7 @@ describe("submitRSVP", () => {
     const fromMock = vi.fn();
     fromMock.mockReturnValueOnce(mockFrom({ data: { id: 1 }, error: null }));
     fromMock.mockReturnValueOnce(mockFrom({ data: null, error: null }));
+    fromMock.mockReturnValueOnce(mockFrom({ data: { id: 99 }, error: null }));
     fromMock.mockReturnValueOnce(mockFrom({ data: {}, error: null }));
 
     vi.mocked(createAdminClient).mockReturnValue({ from: fromMock } as never);
@@ -110,6 +118,7 @@ describe("updateRsvpStatus", () => {
   it("rejects unauthenticated users", async () => {
     vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({
       user: null,
+      isLocked: null,
       error: "Not authenticated.",
     } as const);
 
@@ -124,6 +133,7 @@ describe("updateRsvpStatus", () => {
   it("returns updated RSVP on success", async () => {
     vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({
       user: { id: "u1" } as never,
+      isLocked: false,
       error: null,
     } as const);
 
@@ -144,6 +154,7 @@ describe("updateRsvpStatus", () => {
   it("returns error when update fails", async () => {
     vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({
       user: { id: "u1" } as never,
+      isLocked: false,
       error: null,
     } as const);
 
@@ -164,6 +175,7 @@ describe("updateRsvpStatus", () => {
   it("removes seat assignment when status changes to declining", async () => {
     vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({
       user: { id: "u1" } as never,
+      isLocked: false,
       error: null,
     } as const);
 
