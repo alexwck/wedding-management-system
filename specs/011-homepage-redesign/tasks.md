@@ -33,17 +33,17 @@
 - [ ] T003 Extend `src/app/globals.css` with glassmorphism CSS variables (`--glass-bg`, `--glass-bg-heavy`, `--glass-border`, `--glass-shadow`, `--glass-blur`, `--radius-glass`) and bento grid utilities
 - [ ] T004 [P] Create theme TypeScript types in `src/types/theme.ts` (ThemeConfiguration, ThemeContextValue)
 - [ ] T005 Create Zod theme validation schema in `src/lib/validations/theme.ts` (primaryColor, accentColor, glassBlurRadius, borderOpacity, borderRadius, fontFamily)
+- [ ] T013 [P] Write unit tests for theme Zod validation in `tests/unit/validations/theme.test.ts` (must FAIL before T005 is considered complete)
 - [ ] T006 Create theme provider and `useTheme` hook in `src/lib/design-system/theme.ts` (merged global + per-wedding theme, DEFAULT_THEME constant)
+- [ ] T015 [P] Write component tests for glassmorphism primitives in `tests/component/glassmorphism/` (GlassCard, GlassPanel, GlassButton — must FAIL before T007–T009)
 - [ ] T007 [P] Create GlassCard component in `src/components/glassmorphism/glass-card.tsx` (variant: default/heavy/light, @supports fallback)
 - [ ] T008 [P] Create GlassPanel component in `src/components/glassmorphism/glass-panel.tsx` (padding: none/sm/md/lg, radius: sm/md/lg/glass)
 - [ ] T009 [P] Create GlassButton component in `src/components/glassmorphism/glass-button.tsx` (variant: primary/secondary/ghost, size: sm/md/lg, 44x44px touch target)
+- [ ] T016 [P] Write component tests for bento primitives in `tests/component/bento/` (BentoGrid, BentoItem — must FAIL before T010–T011)
 - [ ] T010 [P] Create BentoGrid component in `src/components/bento/bento-grid.tsx` (cols: 1/2/3/4, gap: sm/md/lg, mobile always grid-cols-1)
 - [ ] T011 [P] Create BentoItem component in `src/components/bento/bento-item.tsx` (colSpan, rowSpan, renders inside GlassCard)
+- [ ] T014 [P] Write unit tests for preset loader in `tests/unit/lib/design-system/preset-loader.test.ts` (must FAIL before T012)
 - [ ] T012 Create preset loader in `src/lib/design-system/preset-loader.ts` (PRESET_REGISTRY, loadPreset, preloadAllPresets)
-- [ ] T013 [P] Write unit tests for theme Zod validation in `tests/unit/validations/theme.test.ts`
-- [ ] T014 [P] Write unit tests for preset loader in `tests/unit/lib/design-system/preset-loader.test.ts`
-- [ ] T015 [P] Write component tests for glassmorphism primitives in `tests/component/glassmorphism/` (GlassCard, GlassPanel, GlassButton)
-- [ ] T016 [P] Write component tests for bento primitives in `tests/component/bento/` (BentoGrid, BentoItem)
 
 **Checkpoint**: Foundation ready — glassmorphism primitives, bento grid, theme system, and preset loader are all implemented and tested
 
@@ -69,7 +69,9 @@
 - [ ] T023 [US1] Refactor RSVP form for mobile optimization in `src/components/rsvp-form.tsx` (full-width inputs, 44px min-height, stacked layout, inline validation below fields)
 - [ ] T024 [US1] Create RSVP confirmation card with inline edit integration in `src/components/rsvp-confirmation-card.tsx` and update `src/components/rsvp-section.tsx` (replaces form when token valid, edit button swaps back to pre-filled form)
 - [ ] T025 [US1] Refactor venue section with map fallback in `src/components/venue-section.tsx` (5s timeout detection, glassmorphism card with address + nav buttons, retry button + auto-retry)
-- [ ] T026 [US1] Implement returning guest token system in `src/app/actions/rsvp.ts` (generate random token, set Secure/HttpOnly/SameSite=Lax cookie, rate-limit 5 attempts per 15min)
+- [ ] T026 [US1] Implement returning guest token system in `src/app/actions/rsvp.ts` (generate random token, set Secure/HttpOnly/SameSite=Lax cookie, rate-limit 5 attempts per 15min). Validate token server-side on every request; if expired mid-session, show "Please submit again" without losing form data (FR-038).
+- [ ] T068 [P] [US1] Implement network interruption detection and retry in RSVP form submission in `src/components/rsvp-form.tsx` and `src/app/actions/rsvp.ts` (detect offline/mid-submit, preserve form data, display retry option) (FR-033)
+- [ ] T073 [P] [US1] Add token cookie attribute validation test in `tests/e2e/guest-rsvp-mobile.spec.ts` (verify Secure, HttpOnly, SameSite=Lax flags are set correctly)
 - [ ] T027 [US1] Redesign root homepage in `src/app/(public)/page.tsx` (glassmorphism hero, mobile-first)
 - [ ] T028 [US1] Redesign login page in `src/app/(public)/auth/login/page.tsx` (glassmorphism card, mobile-optimized inputs)
 - [ ] T029 [P] [US1] Write component tests for layout presets in `tests/component/layout-presets/` (rendering, theme application, mobile stacking)
@@ -103,6 +105,9 @@
 - [ ] T041 [US2] Implement floor plan editor small-screen blocking in `src/app/(auth)/admin/weddings/[id]/floor-plan/page.tsx` (device-not-supported message <640px, read-only preview below)
 - [ ] T042 [US2] Refactor template upload and preview for mobile in `src/components/template-upload.tsx` and `src/components/template-preview.tsx` (touch-friendly crop, file validation inline errors)
 - [ ] T043 [US2] Refactor lock toggle for glassmorphism in `src/components/lock-toggle.tsx` (glass-panel styling, clear state indication)
+- [ ] T069 [P] [US2] Implement template image optimization pipeline in `src/app/actions/upload.ts` (WebP conversion, max 1200px width, 80% quality, inline error display) (FR-035)
+- [ ] T070 [P] [US2] Verify admin preview renders identically to guest view in `src/app/(auth)/admin/weddings/[id]/page.tsx` (preset, theme, responsive breakpoints match guest `/w/[slug]`) (FR-012)
+- [ ] T072 [P] [US2] Redesign couple creation form `/admin/weddings/create` with glassmorphism styling and mobile-optimized inputs
 - [ ] T044 [US2] Run and fix E2E tests for admin mobile flow in `tests/e2e/admin-mobile.spec.ts`
 
 **Checkpoint**: User Stories 1 AND 2 are independently functional
@@ -148,6 +153,7 @@
 - [ ] T061 [P] Implement focus management for modals and RSVP inline edit in `src/components/mobile-modal.tsx` and `src/components/rsvp-section.tsx` (focus to close button on modal open, focus to first field on edit)
 - [ ] T062 [P] Add color blindness simulation tests for theme palette in `tests/unit/lib/design-system/theme.test.ts` (protanopia, deuteranopia, tritanopia)
 - [ ] T063 [P] Create stretch-goal preset CSS and components (storytelling, card-stack, asymmetric, cinematic) in `src/styles/presets/` and `src/components/layout-presets/` (optional — post-MVP)
+- [ ] T071 [P] Verify tablet viewport layouts (640px–768px) across all user stories in E2E tests (`tests/e2e/`) — ensure distinct layouts from mobile (<640px) and desktop (>768px) (FR-031)
 - [ ] T064 Run full test suite (`npm run test && npm run test:e2e --workers=1`)
 - [ ] T065 Run Lighthouse audit for mobile performance targets (FCP <2.5s on 4G throttling, 375px viewport)
 - [ ] T066 Run axe-core accessibility audit for WCAG 2.1 AA compliance (contrast 4.5:1, keyboard navigation, name/role/value)
@@ -241,10 +247,11 @@ With multiple developers:
 ## Notes
 
 - [P] tasks = different files, no dependencies
+- Preset naming convention: descriptive names (`minimalist`, `bento`, `magazine`, etc.) used throughout; letter-based aliases (`preset-a` through `preset-g`) are plan-level shorthand only
 - [Story] label maps task to specific user story for traceability
 - Each user story is independently completable and testable
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Stretch-goal presets (storytelling, card-stack, asymmetric, cinematic) are T063 and can be deferred post-MVP
-- Total tasks: 67 | Setup: 2 | Foundational: 14 | US1: 14 | US2: 14 | US3: 10 | Polish: 13
+- Total tasks: 73 | Setup: 2 | Foundational: 14 | US1: 16 | US2: 17 | US3: 10 | Polish: 14
