@@ -15,6 +15,23 @@ This feature delivers a complete visual and structural redesign of **all pages, 
 
 ---
 
+## Clarifications
+
+### Session 2026-04-26
+
+- **Q1**: When a guest clicks "Edit RSVP" on the confirmation card, how does the editing flow work?  
+  **A**: The confirmation card is replaced inline by the original RSVP form, pre-filled with the guest's previous response (name, attendance, dietary preferences, plus-one). The guest can modify any field and re-submit, which atomically updates their existing RSVP record. No separate page or modal is needed. This keeps the single-page design consistent and minimizes friction.
+- **Q2**: How are theme configurations stored and who controls them?  
+  **A**: Themes are stored per-wedding in the database. Each wedding has its own theme configuration, inheriting from a global platform default when unset. Admins can customize per-wedding themes during creation or editing.
+- **Q3**: How should screen reader users navigate between layout presets, and do presets maintain the same semantic structure?  
+  **A**: All layout presets share a single semantic DOM structure. The visual layout differences are purely presentational (CSS-only). Screen reader users experience the identical heading hierarchy, landmark roles, and form field order regardless of which preset is chosen. This ensures WCAG 2.1 AA compliance is maintained across all presets without requiring per-preset accessibility testing.
+- **Q4**: How should CSS for 7 layout presets be delivered to keep initial page load fast?  
+  **A**: Only the active preset's CSS is loaded for guests. Admins get all preset CSS for instant preview switching. The global design system CSS (glassmorphism variables, utilities) loads upfront for all users.
+- **Q5**: How does the system securely identify a returning guest to show their "Edit RSVP" option?  
+  **A**: A short-lived random token cookie is set after successful RSVP submission. The cookie maps server-side to the RSVP record. On revisit, the cookie enables the personalized confirmation card. If the cookie is missing or expired, the guest sees the standard RSVP form. No PII is stored client-side.
+
+---
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Guest RSVPs on Mobile (Priority: P1)
@@ -303,7 +320,7 @@ After evaluating seven distinct layout approaches against 2026 trends and conver
 
 - **FR-001**: The public wedding landing page MUST use a mobile-first responsive layout where all primary content (couple names, wedding date, venue details, RSVP form) is accessible within two screenfuls on a standard mobile device (375px width).
 - **FR-002**: The design system MUST implement glassmorphism effects using frosted glass panels with consistent blur intensity, semi-transparent white backgrounds, and subtle borders across all card-like surfaces.
-- **FR-003**: The landing page MUST support a bento box modular layout where content is organized into distinct glass-panel cards (hero, date/time, venue, welcome message, RSVP form, quick stats) that stack vertically on mobile and grid on desktop.
+- **FR-003**: The landing page MUST support a bento box modular layout where content is organized into distinct glass-panel cards (hero, date/time, venue, welcome message, RSVP form, quick stats) that stack vertically on mobile and grid on desktop. All layout presets MUST share a single semantic DOM structure, with visual differences implemented via CSS only.
 - **FR-004**: The color palette MUST use soft pastel and earthy tones as the default theme, with sufficient contrast ratios to meet WCAG AA accessibility standards for text readability against both light and dark backgrounds.
 - **FR-005**: The RSVP form MUST be optimized for mobile input with appropriately sized touch targets (minimum 44x44px), clear input grouping, and inline validation that does not obstruct other fields.
 - **FR-006**: The RSVP call-to-action MUST remain visually prominent throughout the mobile scrolling experience, either via a sticky button or through high-contrast placement within the bento grid.
@@ -323,17 +340,18 @@ After evaluating seven distinct layout approaches against 2026 trends and conver
 - **FR-020**: Navigation components (admin sidebar, couple sidebar, public nav) MUST collapse to a hamburger menu on mobile with touch-friendly links and clear active states.
 - **FR-021**: The glassmorphism design system MUST degrade gracefully on browsers without `backdrop-filter` support, falling back to solid semi-transparent backgrounds.
 - **FR-022**: When a venue map embed fails to load, the venue section MUST display the address text and navigation buttons in a glassmorphism card without the map, with a subtle "Map unavailable" placeholder.
-- **FR-023**: When a guest who has already RSVPed revisits the page, the RSVP form MUST be replaced with a personalized glassmorphism confirmation card showing their submitted response and an "Edit RSVP" option if the wedding is not locked.
+- **FR-023**: When a guest who has already RSVPed revisits the page, the RSVP form MUST be replaced with a personalized glassmorphism confirmation card showing their submitted response and an "Edit RSVP" option if the wedding is not locked. Clicking "Edit RSVP" replaces the confirmation card inline with the pre-filled RSVP form, allowing the guest to modify and re-submit their response atomically. Returning guests are identified by a short-lived random token cookie set after successful RSVP submission; if the cookie is missing or expired, the guest sees the standard RSVP form.
 - **FR-024**: The admin wedding list MUST implement pagination or virtual scrolling so that 50+ wedding cards render without jank or excessive memory usage on mobile devices.
 - **FR-025**: The couple dashboard RSVP table MUST paginate at 25 rows per page on mobile, with search and filter controls always visible, ensuring 200+ guest lists remain performant and readable.
 - **FR-026**: The floor plan editor MUST display a device-not-supported message on screens narrower than 640px, directing users to a tablet or desktop, while still allowing read-only preview of the floor plan.
 - **FR-027**: Modal dialogs on mobile MUST prevent the on-screen keyboard from obscuring the focused input by either scrolling the dialog into view or repositioning the dialog above the keyboard.
+- **FR-028**: Preset-specific CSS MUST be loaded on-demand: only the active preset's CSS is delivered to guests, while admins receive all preset CSS for instant preview switching. The global design system CSS (glassmorphism variables, utilities) loads upfront for all users.
 
 ### Key Entities
 
 - **Wedding Landing Page**: The public-facing page for a specific wedding, composed of modular sections rendered within a bento grid system. Key attributes: layout preset, theme colors, template image, focal point, glassmorphism intensity.
 - **Bento Module**: A self-contained content block (hero, date, venue, RSVP, stats) rendered as a glassmorphism card. Each module has a type, content configuration, and responsive behavior rules.
-- **Theme Configuration**: The aesthetic settings for a wedding page including primary pastel color, earthy accent, glass blur radius, and border opacity. Defined per-wedding or inherited from a global default. Applied globally across public pages, admin dashboards, and couple dashboards.
+- **Theme Configuration**: The aesthetic settings for a wedding page including primary pastel color, earthy accent, glass blur radius, and border opacity. Stored per-wedding in the database, inheriting from a global platform default when unset. Applied globally across public pages, admin dashboards, and couple dashboards.
 - **RSVP Form State**: The guest-facing RSVP interaction including form fields, validation state, submission status, and confirmation display. Must function identically across all layout presets.
 - **Admin Dashboard Interface**: The authenticated admin experience including wedding list, wedding detail editing, floor plan editor, and RSVP management. All screens share the glassmorphism and bento design language.
 - **Couple Dashboard Interface**: The authenticated couple experience including RSVP summary, RSVP table, venue editor, floor plan editor, and public page preview. All screens share the glassmorphism and bento design language.
