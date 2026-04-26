@@ -1,3 +1,6 @@
-.preset-card-stack {
-  /* Card stack preset styles */
+.preset-card-stack > div > .max-w-xl {
+  max-width: 48rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }

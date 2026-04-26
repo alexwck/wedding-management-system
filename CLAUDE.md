@@ -2,6 +2,17 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+# Tool Calling Guidelines
+- Always provide ALL required parameters (path, content, etc.) in every tool call.
+- Do not omit code or use comments like "// ... rest of code" inside write_file calls.
+- Format tool calls as pure JSON within the designated XML tags.
+
+# Compact Instructions
+When auto-compacting, always preserve:
+- Current project architecture and Next.js 16 file structure.
+- Progress of the current speckit-implement task.
+- Exact file paths for any active bug fixes.
+
 ## Project Overview
 
 Wedding management system built with Next.js 16 (App Router) and Supabase. Couples can create wedding landing pages with RSVP forms; admins manage all weddings and couples. Uses a specification-driven development workflow via speckit skills.

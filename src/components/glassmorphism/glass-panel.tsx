@@ -22,7 +22,7 @@ const radiusMap = {
   glass: "rounded-glass",
 };
 
-export const GlassPanel = React.forwardRef<htmlElement, GlassPanelProps>(
+export const GlassPanel = React.forwardRef<HTMLElement, GlassPanelProps>(
   ({ children, className, padding = "md", radius = "glass", ...props }, ref) => {
     return (
       <div

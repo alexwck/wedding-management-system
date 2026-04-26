@@ -21,17 +21,20 @@ interface RSVPFormProps {
   slug: string;
   coupleName: string;
   isLocked?: boolean;
+  initialData?: RSVPFormData;
+  onSubmitSuccess?: () => void;
 }
 
-export function RSVPForm({ slug, coupleName, isLocked }: RSVPFormProps) {
+export function RSVPForm({ slug, coupleName, isLocked, initialData, onSubmitSuccess }: RSVPFormProps) {
   const [serverMessage, setServerMessage] = useState<{
-    type: "success" | "error";
+    type: "success" | "error" | "network";
     text: string;
   } | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   const form = useForm<RSVPFormData>({
     resolver: zodResolver(rsvpSchema),
-    defaultValues: {
+    defaultValues: initialData ?? {
       guestName: "",
       status: "attending",
       dietaryNotes: "",
@@ -43,19 +46,44 @@ export function RSVPForm({ slug, coupleName, isLocked }: RSVPFormProps) {
   async function onSubmit(data: RSVPFormData) {
     setServerMessage(null);
 
-    const result = await submitRSVP({
-      slug,
-      guestName: data.guestName,
-      status: data.status,
-      dietaryNotes: data.dietaryNotes,
-      isVegetarian: data.isVegetarian,
-      needsBabyChair: data.needsBabyChair,
-    });
+    if (!navigator.onLine) {
+      setServerMessage({
+        type: "network",
+        text: "You appear to be offline. Please check your connection and try again.",
+      });
+      return;
+    }
 
-    if (result.success) {
-      setServerMessage({ type: "success", text: result.message });
-    } else {
-      setServerMessage({ type: "error", text: result.message });
+    try {
+      const result = await submitRSVP({
+        slug,
+        guestName: data.guestName,
+        status: data.status,
+        dietaryNotes: data.dietaryNotes,
+        isVegetarian: data.isVegetarian,
+        needsBabyChair: data.needsBabyChair,
+      });
+
+      if (result.success) {
+        setServerMessage({ type: "success", text: result.message });
+        setRetryCount(0);
+        onSubmitSuccess?.();
+      } else {
+        setServerMessage({ type: "error", text: result.message });
+      }
+    } catch {
+      setServerMessage({
+        type: "network",
+        text: "Connection failed. Your response is preserved. Please try again.",
+      });
+
+      // Auto-retry once on first failure
+      if (retryCount === 0) {
+        setRetryCount((c) => c + 1);
+        setTimeout(() => {
+          onSubmit(data);
+        }, 3000);
+      }
     }
   }
 
@@ -93,6 +121,19 @@ export function RSVPForm({ slug, coupleName, isLocked }: RSVPFormProps) {
           </div>
         )}
 
+        {serverMessage?.type === "network" && (
+          <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-3 text-sm text-amber-700 space-y-2">
+            <p>{serverMessage.text}</p>
+            <button
+              type="button"
+              onClick={() => form.handleSubmit(onSubmit)()}
+              className="text-sm font-medium underline underline-offset-2 hover:no-underline"
+            >
+              Retry now
+            </button>
+          </div>
+        )}
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -105,6 +146,7 @@ export function RSVPForm({ slug, coupleName, isLocked }: RSVPFormProps) {
                     <Input
                       id="guestName"
                       placeholder="Enter your name"
+                      className="min-h-[44px] w-full"
                       {...field}
                     />
                   </FormControl>
@@ -122,7 +164,7 @@ export function RSVPForm({ slug, coupleName, isLocked }: RSVPFormProps) {
                   <FormControl>
                     <select
                       id="status"
-                      className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                      className="h-[44px] w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                       value={field.value}
                       onChange={field.onChange}
                     >
@@ -145,6 +187,7 @@ export function RSVPForm({ slug, coupleName, isLocked }: RSVPFormProps) {
                     <Textarea
                       id="dietaryNotes"
                       placeholder="Any dietary requirements? (optional)"
+                      className="min-h-[44px] w-full"
                       {...field}
                     />
                   </FormControl>
@@ -191,7 +234,7 @@ export function RSVPForm({ slug, coupleName, isLocked }: RSVPFormProps) {
               )}
             />
 
-            <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
+            <Button type="submit" disabled={form.formState.isSubmitting} className="w-full min-h-[44px]">
               {form.formState.isSubmitting ? "Submitting..." : "Submit RSVP"}
             </Button>
           </form>

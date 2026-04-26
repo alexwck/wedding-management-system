@@ -4,14 +4,12 @@ import { cn } from "@/lib/utils";
 export interface GlassButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "ghost";
   size?: "sm" | "md" | "lg";
-  asChild?: boolean;
 }
 
 export const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
-  ({ children, className, variant = "primary", size = "md", asChild, ...props }, ref) => {
-    const Comp = asChild ? React.Slot : "button";
+  ({ children, className, variant = "primary", size = "md", ...props }, ref) => {
     return (
-      <Comp
+      <button
         ref={ref}
         className={cn(
           "inline-flex items-center justify-center min-w-[44px] min-h-[44px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
@@ -26,7 +24,7 @@ export const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>
         {...props}
       >
         {children}
-      </Comp>
+      </button>
     );
   },
 );
