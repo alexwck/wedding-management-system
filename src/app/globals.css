@@ -85,6 +85,7 @@
   --sidebar-ring: oklch(0.708 0 0);
   --glass-bg: oklch(1 0 0 / 0.3);
   --glass-bg-heavy: oklch(1 0 0 / 0.5);
+  --glass-bg-light: oklch(1 0 0 / 0.15);
   --glass-border: oklch(1 0 0 / 0.2);
   --glass-shadow: 0 8px 32px oklch(0 0 0 / 0.08);
   --glass-blur: 16px;
@@ -145,6 +146,46 @@
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
     border-radius: var(--radius-glass);
+  }
+
+  .glass-panel--heavy {
+    background: var(--glass-bg-heavy);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: var(--radius-glass);
+  }
+
+  .glass-panel--light {
+    background: var(--glass-bg-light);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: var(--radius-glass);
+  }
+
+  .glass-button--primary {
+    background: var(--glass-bg-heavy);
+    border: 1px solid var(--glass-border);
+    color: inherit;
+  }
+
+  .glass-button--secondary {
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    color: inherit;
+  }
+
+  .glass-button--ghost {
+    background: transparent;
+    border: none;
+    color: inherit;
+  }
+
+  .glass-button--ghost:hover {
+    background: var(--glass-bg);
   }
 
   @supports not (backdrop-filter: blur(1px)) {
