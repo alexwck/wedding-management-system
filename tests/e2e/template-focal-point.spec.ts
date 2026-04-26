@@ -12,13 +12,13 @@ test.describe("Template focal point (US8)", () => {
   test("preview button opens dialog for template preview", async ({ page }) => {
     await page.goto("/admin/weddings/1");
 
-    // Should see Preview button (only visible when template image exists)
-    const previewButton = page.locator('button', { hasText: "Preview" }).first();
+    // Should see Adjust Crop button (only visible when template image exists)
+    const previewButton = page.locator('button', { hasText: "Adjust Crop" }).first();
     if (await previewButton.isVisible({ timeout: 3000 }).catch(() => false)) {
       await previewButton.click();
 
-      // Dialog should open with drag-to-crop title
-      await expect(page.getByText("Template Preview — Drag to crop")).toBeVisible();
+      // Dialog should open with crop title
+      await expect(page.getByText("Adjust Image Crop")).toBeVisible();
     }
   });
 
@@ -33,12 +33,12 @@ test.describe("Template focal point (US8)", () => {
   test("focal point indicator shown when set", async ({ page }) => {
     await page.goto("/admin/weddings/1");
 
-    const previewButton = page.locator('button', { hasText: "Preview" }).first();
+    const previewButton = page.locator('button', { hasText: "Adjust Crop" }).first();
     if (await previewButton.isVisible({ timeout: 3000 }).catch(() => false)) {
       await previewButton.click();
 
       // Dialog should open — check for dialog title
-      await expect(page.getByText("Template Preview — Drag to crop")).toBeVisible();
+      await expect(page.getByText("Adjust Image Crop")).toBeVisible();
     }
   });
 });

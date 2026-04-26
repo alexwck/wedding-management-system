@@ -15,7 +15,7 @@ test.describe("Floor plan item placement", () => {
   test("can add a round table from catalog", async ({ page }) => {
     const roundTableButton = page.locator('button', { hasText: /ft.*chairs/i }).first();
     if (await roundTableButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await roundTableButton.click({ force: true });
+      await roundTableButton.click();
       await expect(page.locator('[data-testid="floor-plan-canvas"]')).toBeVisible();
     }
   });
@@ -23,7 +23,7 @@ test.describe("Floor plan item placement", () => {
   test("can add a stage from catalog", async ({ page }) => {
     const stageButton = page.locator('button', { hasText: /^stage$/i }).first();
     if (await stageButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await stageButton.click({ force: true });
+      await stageButton.click();
       await expect(page.locator('[data-testid="floor-plan-canvas"]')).toBeVisible();
     }
   });
@@ -31,7 +31,7 @@ test.describe("Floor plan item placement", () => {
   test("save persists changes on reload", async ({ page }) => {
     const stageButton = page.locator('button', { hasText: /^stage$/i }).first();
     if (await stageButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await stageButton.click({ force: true });
+      await stageButton.click();
 
       // Wait for auto-save
       await expect(page.locator('[data-testid="save-status"]')).toContainText(/saved/i, { timeout: 10000 });
@@ -47,13 +47,13 @@ test.describe("Floor plan item placement", () => {
     const undoButton = page.locator('button', { hasText: /^undo$/i }).first();
 
     if (await stageButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-      // Add first item (pushes initial state, index=0, canUndo=false)
-      await stageButton.click({ force: true });
-      await page.waitForTimeout(500);
+      // Add first item
+      await stageButton.click();
+      await expect(page.locator('[data-testid="save-status"]')).toContainText(/saved/i, { timeout: 10000 });
 
-      // Add second item (pushes first-item state, index=1, canUndo=true)
-      await stageButton.click({ force: true });
-      await page.waitForTimeout(1000);
+      // Add second item — undo should now be enabled
+      await stageButton.click();
+      await expect(undoButton).toBeEnabled({ timeout: 10000 });
 
       if (await undoButton.isVisible({ timeout: 3000 }).catch(() => false)) {
         await expect(undoButton).toBeEnabled({ timeout: 10000 });

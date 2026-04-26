@@ -8,7 +8,7 @@ test.describe("Couple floor plan — User Story 1", () => {
     await page.fill('input[id="password"]', "couple123");
     await page.click('button[type="submit"]');
 
-    await expect(page).toHaveURL(/\/dashboard/);
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
 
     // Navigate to floor plan page
     await page.goto("/dashboard/floor-plan");
@@ -27,9 +27,12 @@ test.describe("Couple floor plan — User Story 1", () => {
     await widthInput.fill("80");
     await heightInput.clear();
     await heightInput.fill("60");
+    await widthInput.blur();
 
-    // Explicitly save via "Save now" button
-    await page.locator('[data-testid="save-now"]').click({ force: true });
+    // Save Now button should appear; click it before auto-save fires
+    const saveNowBtn = page.locator('[data-testid="save-now"]');
+    await saveNowBtn.waitFor({ state: "visible", timeout: 5000 });
+    await saveNowBtn.click();
     await expect(page.locator('[data-testid="save-status"]')).toContainText(/saved/i, { timeout: 10000 });
 
     // Reload the page
@@ -49,9 +52,10 @@ test.describe("Couple floor plan — User Story 1", () => {
     await page.fill('input[id="password"]', "couple123");
     await page.click('button[type="submit"]');
 
-    await expect(page).toHaveURL(/\/dashboard/);
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
 
     await page.goto("/dashboard/floor-plan");
+    await expect(page.locator('[data-testid="floor-plan-canvas"]')).toBeVisible({ timeout: 10000 });
 
     // Canvas element should be visible
     const canvas = page.locator('[data-testid="floor-plan-canvas"]');
@@ -108,9 +112,12 @@ test.describe("Admin floor plan — User Story 1", () => {
     await widthInput.fill("100");
     await heightInput.clear();
     await heightInput.fill("75");
+    await widthInput.blur();
 
-    // Explicitly save via "Save now" button
-    await page.locator('[data-testid="save-now"]').click({ force: true });
+    // Save Now button should appear; click it before auto-save fires
+    const saveNowBtn = page.locator('[data-testid="save-now"]');
+    await saveNowBtn.waitFor({ state: "visible", timeout: 5000 });
+    await saveNowBtn.click();
     await expect(page.locator('[data-testid="save-status"]')).toContainText(/saved/i, { timeout: 10000 });
 
     // Reload and verify

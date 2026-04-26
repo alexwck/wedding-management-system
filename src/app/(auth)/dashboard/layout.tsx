@@ -12,7 +12,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           { href: "/dashboard/floor-plan", label: "Floor Plan", section: "Planning" },
         ]}
       />
-      <main className="flex-1 p-6 pt-20 md:pt-6">
+      <main className="flex-1 p-6 pt-20 md:pt-6 flex flex-col overflow-x-hidden">
         <Breadcrumbs className="mb-4" />
         {children}
       </main>

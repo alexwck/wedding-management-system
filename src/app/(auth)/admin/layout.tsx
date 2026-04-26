@@ -12,7 +12,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           { href: "/admin/couples", label: "Couples", section: "Management" },
         ]}
       />
-      <main className="flex-1 p-6 pt-20 md:pt-6">
+      <main className="flex-1 p-6 pt-20 md:pt-6 flex flex-col overflow-x-hidden">
         <Breadcrumbs className="mb-4" />
         {children}
       </main>

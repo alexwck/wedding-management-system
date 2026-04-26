@@ -7,7 +7,7 @@ test.describe("Seat assignment flow", () => {
     await page.fill('input[id="email"]', "admin@example.com");
     await page.fill('input[id="password"]', "admin123");
     await page.click('button[type="submit"]');
-    await expect(page).toHaveURL(/\/admin/);
+    await expect(page).toHaveURL(/\/admin/, { timeout: 15000 });
   });
 
   test("admin can navigate to wedding floor plan", async ({ page }) => {

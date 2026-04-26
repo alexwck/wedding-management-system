@@ -25,10 +25,10 @@ export function FloorPlanToolbar({
 }: FloorPlanToolbarProps) {
   return (
     <div className="flex items-center gap-1">
-      <Button variant="outline" size="sm" onClick={onUndo} disabled={!canUndo}>
+      <Button variant="outline" size="sm" onClick={onUndo} disabled={!canUndo} aria-label="Undo">
         Undo
       </Button>
-      <Button variant="outline" size="sm" onClick={onRedo} disabled={!canRedo}>
+      <Button variant="outline" size="sm" onClick={onRedo} disabled={!canRedo} aria-label="Redo">
         Redo
       </Button>
       <div className="w-px h-6 bg-border mx-1" />

@@ -14,8 +14,8 @@ test.describe("Landing page rendering", () => {
     const ctaButton = page.locator("a", { hasText: "RSVP Now" });
     await expect(ctaButton).toBeVisible();
 
-    // CTA should link to RSVP form
-    await expect(ctaButton).toHaveAttribute("href", "/w/test-wedding-1/rsvp");
+    // CTA should link to RSVP anchor on same page
+    await expect(ctaButton).toHaveAttribute("href", "#rsvp");
   });
 
   test("guest sees landing page on mobile viewport", async ({ page }) => {

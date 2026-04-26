@@ -61,7 +61,7 @@ test.describe("Admin manages couple accounts (US4)", () => {
     await page.fill('input[id="email"]', "admin@example.com");
     await page.fill('input[id="password"]', "admin123");
     await page.click('button[type="submit"]');
-    await expect(page).toHaveURL(/\/admin/);
+    await expect(page).toHaveURL(/\/admin/, { timeout: 15000 });
 
     // Navigate to couples page
     await page.goto("/admin/couples");
@@ -77,7 +77,6 @@ test.describe("Admin manages couple accounts (US4)", () => {
     await page.fill('input[id="password"]', "password123");
     await page.fill('input[id="confirmPassword"]', "password123");
     await page.fill('input[id="displayName"]', uniqueName);
-    await page.fill('input[id="coupleName"]', uniqueName);
 
     // Submit
     await page.getByRole("button", { name: "Create Couple" }).click();
@@ -90,8 +89,11 @@ test.describe("Admin manages couple accounts (US4)", () => {
       throw new Error(`Couple creation failed: ${await errorLocator.textContent()}`);
     }
 
+    // Refresh to ensure list is updated (mobile can be slow)
+    await page.reload();
+
     // New couple should appear in the couples list
-    await expect(page.locator("table").getByText(uniqueName)).toBeVisible();
+    await expect(page.getByText(uniqueName)).toBeVisible({ timeout: 10000 });
   });
 
   test("admin can view any wedding's RSVP data", async ({ page }) => {

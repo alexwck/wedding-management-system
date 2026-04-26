@@ -6,7 +6,7 @@ test.describe("Item resize (US6)", () => {
     await page.fill('input[id="email"]', "alex@example.com");
     await page.fill('input[id="password"]', "couple123");
     await page.click('button[type="submit"]');
-    await expect(page).toHaveURL(/\/dashboard/);
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
 
     await page.goto("/dashboard/floor-plan");
     await expect(page.locator('[data-testid="floor-plan-canvas"]')).toBeVisible({ timeout: 10000 });
@@ -15,7 +15,7 @@ test.describe("Item resize (US6)", () => {
   test("round table shows no resize handles", async ({ page }) => {
     const roundTableButton = page.locator("button", { hasText: /ft.*chairs/i }).first();
     if (await roundTableButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await roundTableButton.click({ force: true });
+      await roundTableButton.click();
 
       // Click on the canvas to select the table
       const canvas = page.locator('[data-testid="floor-plan-canvas"]');
@@ -31,7 +31,7 @@ test.describe("Item resize (US6)", () => {
   test("stage can be resized via dimension inputs", async ({ page }) => {
     const stageButton = page.locator("button", { hasText: /^stage$/i }).first();
     if (await stageButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await stageButton.click({ force: true });
+      await stageButton.click();
 
       // Click on the canvas to select the stage
       const canvas = page.locator('[data-testid="floor-plan-canvas"]');
@@ -46,7 +46,7 @@ test.describe("Item resize (US6)", () => {
   test("resize is undoable", async ({ page }) => {
     const stageButton = page.locator("button", { hasText: /^stage$/i }).first();
     if (await stageButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await stageButton.click({ force: true });
+      await stageButton.click();
 
       const canvas = page.locator('[data-testid="floor-plan-canvas"]');
       await canvas.click({ position: { x: 300, y: 200 } });

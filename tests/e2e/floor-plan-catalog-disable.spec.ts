@@ -16,10 +16,9 @@ test.describe("Catalog disable when canvas full", () => {
     await page.fill("#venue-width", "3");
     await page.fill("#venue-height", "3");
     await page.locator("#venue-width").blur();
-    await page.waitForTimeout(500);
 
     // All table buttons and stage should be disabled
-    const disabledButtons = page.locator('button[title="No space available"]');
+    const disabledButtons = page.locator('button[aria-label*="No space available"]');
     await expect(disabledButtons.first()).toBeVisible({ timeout: 10000 });
     // Should have multiple disabled items (tables + stage at minimum)
     const count = await disabledButtons.count();
@@ -29,7 +28,6 @@ test.describe("Catalog disable when canvas full", () => {
     await page.fill("#venue-width", "50");
     await page.fill("#venue-height", "40");
     await page.locator("#venue-width").blur();
-    await page.waitForTimeout(500);
 
     // All items should now be available
     await expect(disabledButtons.first()).not.toBeVisible({ timeout: 10000 });

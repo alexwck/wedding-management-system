@@ -1,6 +1,38 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Admin lock/unlock wedding", () => {
+  test.beforeEach(async ({ page }) => {
+    // Ensure wedding 1 starts unlocked
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "admin@example.com");
+    await page.fill('input[id="password"]', "admin123");
+    await page.click('button[type="submit"]');
+    await page.waitForURL(/\/admin/, { timeout: 10000 });
+
+    await page.goto("/admin/weddings/1");
+    const unlockBtn = page.getByRole("button", { name: "Unlock wedding" });
+    if (await unlockBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await unlockBtn.click();
+      await page.getByRole("button", { name: "Lock wedding" }).waitFor({ state: "visible", timeout: 5000 });
+    }
+  });
+
+  test.afterEach(async ({ page }) => {
+    // Always unlock wedding 1 after each test to avoid breaking other tests
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "admin@example.com");
+    await page.fill('input[id="password"]', "admin123");
+    await page.click('button[type="submit"]');
+    await page.waitForURL(/\/admin/, { timeout: 10000 });
+
+    await page.goto("/admin/weddings/1");
+    const unlockBtn = page.getByRole("button", { name: "Unlock wedding" });
+    if (await unlockBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await unlockBtn.click();
+      await page.getByRole("button", { name: "Lock wedding" }).waitFor({ state: "visible", timeout: 5000 });
+    }
+  });
+
   test("admin can lock and unlock a wedding", async ({ page, browserName }) => {
     test.skip(browserName !== "chromium", "Chromium only to avoid DB race conditions");
 

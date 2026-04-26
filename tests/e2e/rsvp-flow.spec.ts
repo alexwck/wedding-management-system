@@ -7,11 +7,11 @@ test.describe("RSVP submission flow", () => {
     // Visit the landing page
     await page.goto("/w/test-wedding-1");
 
-    // Click the CTA button to go to RSVP form
-    await page.click('a[href="/w/test-wedding-1/rsvp"]');
+    // Click the CTA button to scroll to RSVP form
+    await page.click('a[href="#rsvp"]');
 
-    // Should be on the RSVP form page
-    await expect(page).toHaveURL("/w/test-wedding-1/rsvp");
+    // Should still be on the landing page (with hash anchor)
+    await expect(page).toHaveURL(/\/w\/test-wedding-1/);
 
     // Should see the form
     await expect(page.locator("form")).toBeVisible();
@@ -33,7 +33,7 @@ test.describe("RSVP submission flow", () => {
   test("guest can submit declining RSVP", async ({ page }) => {
     const uniqueName = `Bob Smith ${Date.now()}`;
 
-    await page.goto("/w/test-wedding-1/rsvp");
+    await page.goto("/w/test-wedding-1");
 
     // Fill out with declining status
     await page.fill('input[id="guestName"]', uniqueName);
@@ -46,7 +46,7 @@ test.describe("RSVP submission flow", () => {
   });
 
   test("RSVP form shows validation errors for missing fields", async ({ page }) => {
-    await page.goto("/w/test-wedding-1/rsvp");
+    await page.goto("/w/test-wedding-1");
 
     // Submit without filling anything
     await page.click('button[type="submit"]');

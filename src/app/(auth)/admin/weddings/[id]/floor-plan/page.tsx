@@ -45,7 +45,7 @@ export default async function AdminFloorPlanPage({ params }: AdminFloorPlanPageP
   }
 
   return (
-    <div className="h-[calc(100vh-3rem)]">
+    <div className="flex-1 min-h-0 min-w-0">
       <FloorPlanCanvas
         weddingId={weddingId}
         initialFloorPlan={result.floorPlan}

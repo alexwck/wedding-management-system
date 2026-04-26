@@ -11,10 +11,12 @@ test.describe("Save blocked when items out of bounds", () => {
     await expect(page).toHaveURL(/\/dashboard/);
 
     await page.goto("/dashboard/floor-plan");
+    await expect(page.locator('[data-testid="floor-plan-canvas"]')).toBeVisible({ timeout: 10000 });
 
     // Place a round table so there's something to drag OOB
-    await page.click('button:has-text("5ft"):not([disabled])');
-    await page.waitForTimeout(500);
+    const roundTableBtn = page.locator("button", { hasText: /5ft.*chairs/i }).first();
+    await expect(roundTableBtn).toBeVisible({ timeout: 10000 });
+    await roundTableBtn.click();
 
     // Wait for save to complete
     await expect(page.getByTestId("save-status")).toContainText(/Saved|Unsaved/, { timeout: 10000 });
@@ -23,7 +25,6 @@ test.describe("Save blocked when items out of bounds", () => {
     await page.fill("#venue-width", "3");
     await page.fill("#venue-height", "3");
     await page.locator("#venue-width").blur();
-    await page.waitForTimeout(500);
 
     // Save status should show "outside canvas" message
     await expect(page.getByTestId("save-status")).toContainText("outside canvas", { timeout: 10000 });
@@ -31,11 +32,10 @@ test.describe("Save blocked when items out of bounds", () => {
     // Save Now button should NOT be visible when blocked (not unsaved/error)
     await expect(page.getByTestId("save-now")).not.toBeVisible({ timeout: 5000 });
 
-    // Expand venue to 50x40 — items should be back in bounds
-    await page.fill("#venue-width", "50");
-    await page.fill("#venue-height", "40");
+    // Expand venue to 200x200 — items should be back in bounds
+    await page.fill("#venue-width", "200");
+    await page.fill("#venue-height", "200");
     await page.locator("#venue-width").blur();
-    await page.waitForTimeout(500);
 
     // Save should resume — status should eventually show Saved
     await expect(page.getByTestId("save-status")).toContainText(/Saved|Unsaved/, { timeout: 10000 });

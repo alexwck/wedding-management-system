@@ -31,6 +31,7 @@ export function useAutoSave({
   const itemsRef = useRef(items);
   const widthRef = useRef(width);
   const heightRef = useRef(height);
+  const snapshotRef = useRef(JSON.stringify({ width, height, items }));
 
   useEffect(() => {
     itemsRef.current = items;
@@ -41,6 +42,7 @@ export function useAutoSave({
   const oobCount = items.filter((item) => isItemOutOfBounds(item, width, height)).length;
 
   const save = useCallback(async () => {
+    console.log("save() called, enabled:", enabled, "savingRef:", savingRef.current);
     if (!enabled) return;
     if (savingRef.current) return;
 
@@ -57,6 +59,7 @@ export function useAutoSave({
 
     savingRef.current = true;
     setSaveStatus("saving");
+    console.log("save() set status to saving");
     const result = await saveFloorPlan(weddingId, {
       width: currentW,
       height: currentH,
@@ -67,6 +70,7 @@ export function useAutoSave({
     if (result.success) {
       setSaveStatus("saved");
       setLastSavedAt(new Date());
+      snapshotRef.current = JSON.stringify({ width: currentW, height: currentH, items: currentItems });
     } else {
       setSaveStatus("error");
     }
@@ -75,16 +79,30 @@ export function useAutoSave({
   useEffect(() => {
     if (!enabled) return;
 
+    const currentSnapshot = JSON.stringify({ width, height, items });
+    const hasChanged = currentSnapshot !== snapshotRef.current;
+
     if (oobCount > 0) {
       if (saveStatus !== "blocked" || blockedCount !== oobCount) {
-        setBlockedCount(oobCount);
-        setSaveStatus("blocked");
+        queueMicrotask(() => {
+          setBlockedCount(oobCount);
+          setSaveStatus("blocked");
+        });
       }
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
+      snapshotRef.current = currentSnapshot;
       return;
     }
+
+    if (hasChanged && saveStatus !== "unsaved" && saveStatus !== "saving") {
+      queueMicrotask(() => {
+        setSaveStatus("unsaved");
+      });
+    }
+
+    snapshotRef.current = currentSnapshot;
 
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -99,7 +117,7 @@ export function useAutoSave({
         clearTimeout(timerRef.current);
       }
     };
-  }, [width, height, items, enabled, save, oobCount]);
+  }, [width, height, items, enabled, save, oobCount, saveStatus, blockedCount]);
 
   const saveNow = useCallback(() => {
     if (timerRef.current) {

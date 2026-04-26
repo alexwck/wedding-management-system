@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased scroll-pt-20 md:scroll-pt-0`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <GradientBackdrop />
