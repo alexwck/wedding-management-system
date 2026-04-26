@@ -140,7 +140,7 @@ tests/
 
 No violations. All complexity is justified:
 - 7 layout presets share a single semantic DOM — complexity is CSS-only, not structural
-- Per-wedding theme config stored in existing `weddings` table — no new tables needed
+- Per-wedding theme config stored in existing `weddings` table; two new tables (`rsvp_tokens`, `platform_settings`) for RSVP edit flow and global theme default
 - Lazy-loaded preset CSS uses dynamic `import()` — standard Next.js pattern
 - Floor plan editor small-screen blocking is a guard clause, not a redesign
 
