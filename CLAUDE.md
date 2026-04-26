@@ -177,3 +177,9 @@ git config core.hooksPath .githooks
 - 005-fix-coords-ui-layout: Fixed Konva coordinate system (Circle center vs Rect top-left), added compact glass-panel top bar, real-time label tracking during drag, canvas auto-centering on load, chair rotation removal (chairs follow parent table only)
 - 004-app-wide-ux-redesign: App-wide content density improvements across all pages
 - 003-ux-polish-floorplan-fixes: Floor plan editor UX polish, Supabase Auth + Storage integration
+
+<!-- SPECKIT START -->
+## Active Plan
+
+- **Feature**: [011-homepage-redesign](specs/011-homepage-redesign/plan.md) — Homepage redesign for mobile conversion with glassmorphism and bento layouts
+<!-- SPECKIT END -->
