@@ -8,7 +8,7 @@ test.describe("Venue details on landing page (US2)", () => {
     await expect(page.locator("h2", { hasText: "Alex & Sam" })).toBeVisible();
 
     // Welcome message should be visible
-    await expect(page.locator("text=We can't wait to celebrate with you!")).toBeVisible();
+    await expect(page.getByText("We can't wait to celebrate with you!").first()).toBeVisible();
 
     // Wedding date visible (formatWeddingDate includes time and UTC offset)
     // Date may differ from seed if admin tests modified it
@@ -31,7 +31,7 @@ test.describe("Venue details on landing page (US2)", () => {
 
 test.describe("Venue section on RSVP form (US3)", () => {
   test("guest sees venue map and nav buttons on RSVP form", async ({ page }) => {
-    await page.goto("/w/test-wedding-1/rsvp");
+    await page.goto("/w/test-wedding-1");
 
     // Venue section should have address visible
     await expect(page.locator("text=123 Main St")).toBeVisible();
@@ -45,14 +45,14 @@ test.describe("Venue section on RSVP form (US3)", () => {
     await expect(page.locator("text=Navigate with Waze")).toBeVisible();
 
     // Welcome message
-    await expect(page.locator("text=We can't wait to celebrate with you!")).toBeVisible();
+    await expect(page.getByText("We can't wait to celebrate with you!").first()).toBeVisible();
 
     // RSVP form should still be visible
     await expect(page.locator("form")).toBeVisible();
   });
 
   test("RSVP form renders normally without venue data", async ({ page }) => {
-    await page.goto("/w/jordan-taylor-wedding/rsvp");
+    await page.goto("/w/jordan-taylor-wedding");
 
     // No venue section
     await expect(page.locator("text=Open in Maps")).not.toBeVisible();
@@ -94,7 +94,7 @@ test.describe("Admin venue editing (US1)", () => {
     await page.click('button:has-text("Save Venue Details")');
 
     // Success message
-    await expect(page.locator("text=Venue details saved!")).toBeVisible();
+    await expect(page.getByText("Venue details saved!")).toBeVisible();
   });
 });
 

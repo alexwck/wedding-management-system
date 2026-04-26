@@ -160,6 +160,7 @@ export function FloorPlanCanvas({
   const lastTouchDist = useRef(0);
   const lastTouchCenter = useRef<{ x: number; y: number } | null>(null);
   const hasFittedRef = useRef(false);
+  const hasPushedInitialRef = useRef(false);
 
   const stageRef = useRef<Konva.Stage>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -226,7 +227,6 @@ export function FloorPlanCanvas({
       }
     }
     return unavailable;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.items, state.width, state.height]);
 
   const handleWheel = useCallback((e: Konva.KonvaEventObject<WheelEvent>) => {
@@ -377,6 +377,14 @@ export function FloorPlanCanvas({
       unassignedGuestsRef.current,
     );
   }, [undoRedo, state.items, state.width, state.height]);
+
+  useEffect(() => {
+    if (hasPushedInitialRef.current) return;
+    const targetLength = initialFloorPlan?.items?.length ?? 0;
+    if (state.items.length !== targetLength) return;
+    hasPushedInitialRef.current = true;
+    pushHistory();
+  }, [initialFloorPlan, state.items, pushHistory]);
 
   const handleSelectItem = useCallback(
     (type: ItemType, sizeVariant?: number) => {
@@ -651,7 +659,7 @@ export function FloorPlanCanvas({
         ...newChairs,
       ]);
     },
-    [state, pushHistory],
+    [state, pushHistory, isLocked],
   );
 
   const handleChairCountCommit = useCallback(() => {
@@ -756,7 +764,7 @@ export function FloorPlanCanvas({
   const selectedChairCount = selectedItem?.metadata?.chairCount ?? 0;
 
   return (
-    <div className="flex h-full overflow-hidden">
+    <div className="flex h-full overflow-x-auto md:overflow-hidden">
       {/* Left sidebar: guest panel */}
       <GuestPanel
         unassignedGuests={seatAssignments.unassignedGuests}
@@ -767,7 +775,7 @@ export function FloorPlanCanvas({
 
       <div
         data-testid="floor-plan-canvas"
-        className="flex-1 min-w-0 flex flex-col bg-muted/30 relative"
+        className="flex-1 min-w-[350px] md:min-w-[250px] flex flex-col bg-muted/30 relative overflow-hidden isolate"
       >
         {/* Compact top bar */}
         <div className="h-10 shrink-0 glass-panel border-b flex items-center px-3 gap-3 z-30 rounded-none">
@@ -887,10 +895,10 @@ export function FloorPlanCanvas({
         </div>
 
         {/* Canvas area */}
-        <div className="flex-1 min-h-0 relative">
+        <div className="flex-1 min-h-0 min-w-0 relative">
         <div
           ref={containerRef}
-          className="absolute inset-0 overflow-hidden"
+          className="absolute inset-0 overflow-hidden isolate"
         >
         <Stage
           ref={stageRef}

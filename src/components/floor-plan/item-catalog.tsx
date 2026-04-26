@@ -68,7 +68,7 @@ export function ItemCatalog({ onSelectItem, disabled = false, unavailableItems }
     <aside
       className={`${
         collapsed ? "w-12" : "w-64"
-      } border-r p-4 flex flex-col gap-4 overflow-y-auto overflow-hidden glass-panel shrink-0 h-[calc(100vh-40px)]`}
+      } border-r p-4 flex flex-col gap-4 overflow-y-auto glass-panel shrink-0 relative z-[60] h-[calc(100vh-40px)]`}
     >
       <button
         type="button"

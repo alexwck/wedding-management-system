@@ -17,7 +17,7 @@ export function CanvasStats({ items, assignmentMap }: CanvasStatsProps) {
   );
 
   return (
-    <div className="p-3 border-b text-xs space-y-1">
+    <div className="p-3 border-b text-xs space-y-1" data-testid="canvas-stats">
       <div className="flex justify-between">
         <span className="text-muted-foreground">Tables</span>
         <span className="font-medium">

@@ -91,7 +91,7 @@ export function GuestPanel({
   }
 
   return (
-    <div className="w-56 shrink-0 border-r glass-panel flex flex-col">
+    <div className="w-56 shrink-0 border-r glass-panel flex flex-col relative z-[60]">
       {/* Canvas stats - always visible at top */}
       <CanvasStats items={items} assignmentMap={assignmentMap} />
 

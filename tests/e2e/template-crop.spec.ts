@@ -12,22 +12,19 @@ test.describe("Template crop repositioning (US1)", () => {
   test("preview dialog shows drag instruction", async ({ page }) => {
     await page.goto("/admin/weddings/1");
 
-    const previewButton = page.locator('button', { hasText: "Preview" }).first();
+    const previewButton = page.locator('button', { hasText: "Adjust Crop" }).first();
     if (await previewButton.isVisible({ timeout: 3000 }).catch(() => false)) {
       await previewButton.click();
 
-      // Dialog opens with either drag instruction (no offset) or crop offset display
-      await expect(
-        page.getByText("Drag the image to choose the visible portion")
-          .or(page.getByText(/Crop offset:/))
-      ).toBeVisible();
+      // Dialog opens with crop title
+      await expect(page.getByText("Adjust Image Crop")).toBeVisible();
     }
   });
 
   test("can drag image to set crop offset", async ({ page }) => {
     await page.goto("/admin/weddings/1");
 
-    const previewButton = page.locator('button', { hasText: "Preview" }).first();
+    const previewButton = page.locator('button', { hasText: "Adjust Crop" }).first();
     if (await previewButton.isVisible({ timeout: 3000 }).catch(() => false)) {
       await previewButton.click();
 
@@ -49,7 +46,7 @@ test.describe("Template crop repositioning (US1)", () => {
   test("save crop persists and shows on landing page", async ({ page }) => {
     await page.goto("/admin/weddings/1");
 
-    const previewButton = page.locator('button', { hasText: "Preview" }).first();
+    const previewButton = page.locator('button', { hasText: "Adjust Crop" }).first();
     if (await previewButton.isVisible({ timeout: 3000 }).catch(() => false)) {
       await previewButton.click();
 

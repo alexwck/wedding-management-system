@@ -1,6 +1,22 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Editable couple name", () => {
+  test.beforeEach(async ({ page }) => {
+    // Ensure wedding 1 is unlocked before each test
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "admin@example.com");
+    await page.fill('input[id="password"]', "admin123");
+    await page.click('button[type="submit"]');
+    await expect(page).toHaveURL(/\/admin/, { timeout: 15000 });
+
+    await page.goto("/admin/weddings/1");
+    const unlockBtn = page.getByRole("button", { name: "Unlock wedding" });
+    if (await unlockBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await unlockBtn.click();
+      await page.getByRole("button", { name: "Lock wedding" }).waitFor({ state: "visible", timeout: 5000 });
+    }
+  });
+
   test("edit couple name from couple dashboard", async ({ page, browserName }) => {
     test.skip(browserName !== "chromium", "Chromium only to avoid DB race conditions");
 
@@ -10,36 +26,33 @@ test.describe("Editable couple name", () => {
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/dashboard/);
 
-    // Click on couple name to start editing
-    const nameHeading = page.locator("h2.cursor-pointer").first();
-    await nameHeading.click();
-    await page.waitForTimeout(300);
+    // Click on couple name wrapper to start editing
+    const nameWrapper = page.locator("div.cursor-pointer").filter({ hasText: "Alex & Sam" }).first();
+    await expect(nameWrapper).toBeVisible();
+    await nameWrapper.click();
 
-    // Should show an input
+    // Should show an input (editable couple name uses border-b-2 styling)
     const input = page.locator("input.border-b-2");
     await expect(input).toBeVisible();
 
     // Clear and type new name
     await input.fill("Alex & Sam Updated");
     await input.press("Enter");
-    await page.waitForTimeout(1000);
 
     // Name should be updated
     await expect(page.locator("h2").first()).toContainText("Alex & Sam Updated", { timeout: 5000 });
 
     // Verify on public page
     await page.goto("/w/test-wedding-1");
-    await expect(page.locator("text=Alex & Sam Updated")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h2").filter({ hasText: "Alex & Sam Updated" })).toBeVisible({ timeout: 10000 });
 
     // Restore original name
     await page.goto("/dashboard");
-    const nameHeading2 = page.locator("h2.cursor-pointer").first();
-    await nameHeading2.click();
-    await page.waitForTimeout(300);
+    const nameWrapper2 = page.locator("div.cursor-pointer").filter({ hasText: "Alex & Sam Updated" }).first();
+    await nameWrapper2.click();
     const input2 = page.locator("input.border-b-2");
     await input2.fill("Alex & Sam");
     await input2.press("Enter");
-    await page.waitForTimeout(1000);
   });
 
   test("couple name is not editable when locked", async ({ page, browserName }) => {
@@ -53,8 +66,7 @@ test.describe("Editable couple name", () => {
     await expect(page).toHaveURL(/\/admin/);
 
     await page.goto("/admin/weddings/1");
-    await page.click('button:has-text("Lock")');
-    await page.waitForTimeout(500);
+    await page.getByRole("button", { name: "Lock wedding" }).click();
 
     // Couple should see name without cursor-pointer (not editable)
     await page.goto("/auth/login");
@@ -75,7 +87,22 @@ test.describe("Editable couple name", () => {
     await expect(page).toHaveURL(/\/admin/);
 
     await page.goto("/admin/weddings/1");
-    await page.click('button:has-text("Unlock")');
-    await page.waitForTimeout(500);
+    await page.getByRole("button", { name: "Unlock wedding" }).click();
+  });
+
+  test.afterEach(async ({ page }) => {
+    // Always unlock wedding 1 after each test
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "admin@example.com");
+    await page.fill('input[id="password"]', "admin123");
+    await page.click('button[type="submit"]');
+    await page.waitForURL(/\/admin/, { timeout: 10000 });
+
+    await page.goto("/admin/weddings/1");
+    const unlockBtn = page.getByRole("button", { name: "Unlock wedding" });
+    if (await unlockBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await unlockBtn.click();
+      await page.getByRole("button", { name: "Lock wedding" }).waitFor({ state: "visible", timeout: 5000 });
+    }
   });
 });

@@ -7,7 +7,7 @@ test.describe("Floor plan bug fixes (US6 & US7)", () => {
       await page.fill('input[id="email"]', "alex@example.com");
       await page.fill('input[id="password"]', "couple123");
       await page.click('button[type="submit"]');
-      await expect(page).toHaveURL(/\/dashboard/);
+      await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
       await page.goto("/dashboard/floor-plan");
 
       // Wait for canvas to load
@@ -23,10 +23,10 @@ test.describe("Floor plan bug fixes (US6 & US7)", () => {
         // Toggle collapse
         const toggleBtn = catalogSection.locator("button").first();
         if (await toggleBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-          await toggleBtn.click({ force: true });
+          await toggleBtn.click();
 
           // Toggle expand back
-          await toggleBtn.click({ force: true });
+          await toggleBtn.click();
         }
 
         // Catalog should still be within viewport (not overflow off-screen)
@@ -45,7 +45,7 @@ test.describe("Floor plan bug fixes (US6 & US7)", () => {
         // Toggle 5 times rapidly
         for (let i = 0; i < 5; i++) {
           if (await toggleBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-            await toggleBtn.click({ force: true });
+            await toggleBtn.click();
           }
         }
 
@@ -78,17 +78,14 @@ test.describe("Floor plan bug fixes (US6 & US7)", () => {
       // Place a round table from catalog
       const roundTableBtn = page.locator('button', { hasText: /round table/i }).first();
       if (await roundTableBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-        await roundTableBtn.click({ force: true });
+        await roundTableBtn.click();
 
-        // Wait for item to appear on canvas
-        await page.waitForTimeout(500);
-
-        // Click on the stage to place it (or it may auto-place)
+        // Click on the canvas to place it (or it may auto-place)
         const stage = page.locator('[data-testid="floor-plan-canvas"]');
-        await stage.click({ force: true });
+        await stage.click();
 
         // Wait for auto-save
-        await page.waitForTimeout(500);
+        await expect(page.locator('[data-testid="save-status"]')).toContainText(/saved/i, { timeout: 10000 });
 
         // Chair count controls should be visible when a table is selected
         // The controls show + and - buttons for chair count

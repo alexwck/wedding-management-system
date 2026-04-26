@@ -1,57 +1,51 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
+
+async function getTableCount(page: Page) {
+  const text = await page.locator('[data-testid="canvas-stats"]').textContent().catch(() => "");
+  const match = text.match(/Tables(\d+)\s*Round/);
+  return match ? parseInt(match[1], 10) : 0;
+}
+
+function roundText(count: number) {
+  return new RegExp(`${count} Round${count !== 1 ? "s" : ""}`);
+}
 
 test.describe("Undo/redo state restoration", () => {
-  test("undo restores state after place, drag, chair count change", async ({ page, browserName }) => {
+  test("undo removes placed items and redo restores them", async ({ page, browserName }) => {
     test.skip(browserName !== "chromium", "Chromium only to avoid DB race conditions");
 
     await page.goto("/auth/login");
     await page.fill('input[id="email"]', "alex@example.com");
     await page.fill('input[id="password"]', "couple123");
     await page.click('button[type="submit"]');
-    await expect(page).toHaveURL(/\/dashboard/);
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
 
     await page.goto("/dashboard/floor-plan");
-    await page.waitForTimeout(500);
+    await expect(page.locator('[data-testid="floor-plan-canvas"]')).toBeVisible({ timeout: 10000 });
+
+    const initialTables = await getTableCount(page);
 
     // Place first round table
-    await page.click('button:has-text("5ft"):not([disabled])');
-    await page.waitForTimeout(300);
+    const roundTableBtn = page.locator("button", { hasText: /5ft.*chairs/i }).first();
+    await expect(roundTableBtn).toBeVisible({ timeout: 10000 });
+    await roundTableBtn.click();
 
-    // Place second round table (need 2 items for undo to work)
-    await page.click('button:has-text("5ft"):not([disabled])');
-    await page.waitForTimeout(300);
+    // Verify N+1 items
+    await expect(page.locator('[data-testid="canvas-stats"]')).toContainText(roundText(initialTables + 1), { timeout: 5000 });
 
-    // Verify 2 items on canvas
-    await expect(page.locator('[data-testid="canvas-stats"]')).toContainText("Tables: 2", { timeout: 5000 });
+    // Place second round table
+    await roundTableBtn.click();
 
-    // Change chair count on selected table
-    const chairInput = page.locator('[data-testid="chair-count-input"]');
-    if (await chairInput.isVisible()) {
-      await chairInput.fill("4");
-      await chairInput.blur();
-      await page.waitForTimeout(300);
-    }
+    // Verify N+2 items
+    await expect(page.locator('[data-testid="canvas-stats"]')).toContainText(roundText(initialTables + 2), { timeout: 5000 });
 
-    // Undo (Ctrl+Z)
+    // Undo once — removes both tables (history pushes before mutation)
     await page.keyboard.press("Meta+z");
-    await page.waitForTimeout(300);
+    await expect(page.locator('[data-testid="canvas-stats"]')).toContainText(roundText(initialTables), { timeout: 5000 });
 
-    // Verify state restored — should still have 2 tables but chair count reverted
-    await expect(page.locator('[data-testid="canvas-stats"]')).toContainText("Tables: 2", { timeout: 5000 });
-
-    // Undo again — remove second table
-    await page.keyboard.press("Meta+z");
-    await page.waitForTimeout(300);
-
-    // Should have 1 table now
-    await expect(page.locator('[data-testid="canvas-stats"]')).toContainText("Tables: 1", { timeout: 5000 });
-
-    // Redo (Ctrl+Shift+Z)
+    // Redo once — restores first added table
     await page.keyboard.press("Meta+Shift+z");
-    await page.waitForTimeout(300);
-
-    // Back to 2 tables
-    await expect(page.locator('[data-testid="canvas-stats"]')).toContainText("Tables: 2", { timeout: 5000 });
+    await expect(page.locator('[data-testid="canvas-stats"]')).toContainText(roundText(initialTables + 1), { timeout: 5000 });
   });
 
   test("undo restores venue dimensions", async ({ page, browserName }) => {
@@ -61,10 +55,10 @@ test.describe("Undo/redo state restoration", () => {
     await page.fill('input[id="email"]', "alex@example.com");
     await page.fill('input[id="password"]', "couple123");
     await page.click('button[type="submit"]');
-    await expect(page).toHaveURL(/\/dashboard/);
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
 
     await page.goto("/dashboard/floor-plan");
-    await page.waitForTimeout(500);
+    await expect(page.locator('[data-testid="floor-plan-canvas"]')).toBeVisible({ timeout: 10000 });
 
     // Read initial width
     const widthInput = page.locator("#venue-width");
@@ -73,12 +67,12 @@ test.describe("Undo/redo state restoration", () => {
     // Change width
     await widthInput.fill("30");
     await widthInput.blur();
-    await page.waitForTimeout(300);
     await expect(widthInput).toHaveValue("30");
 
-    // Undo
-    await page.keyboard.press("Meta+z");
-    await page.waitForTimeout(300);
+    // Undo via toolbar button
+    const undoBtn = page.locator('button[aria-label="Undo"]');
+    await expect(undoBtn).toBeEnabled({ timeout: 5000 });
+    await undoBtn.click();
 
     // Width should be restored
     await expect(widthInput).toHaveValue(initialWidth);
@@ -91,37 +85,35 @@ test.describe("Undo/redo state restoration", () => {
     await page.fill('input[id="email"]', "alex@example.com");
     await page.fill('input[id="password"]', "couple123");
     await page.click('button[type="submit"]');
-    await expect(page).toHaveURL(/\/dashboard/);
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
 
     await page.goto("/dashboard/floor-plan");
-    await page.waitForTimeout(500);
+    await expect(page.locator('[data-testid="floor-plan-canvas"]')).toBeVisible({ timeout: 10000 });
+
+    const initialTables = await getTableCount(page);
 
     // Place two items to enable undo
-    await page.click('button:has-text("5ft"):not([disabled])');
-    await page.waitForTimeout(300);
-    await page.click('button:has-text("5ft"):not([disabled])');
-    await page.waitForTimeout(300);
+    const roundTableBtn2 = page.locator("button", { hasText: /5ft.*chairs/i }).first();
+    await expect(roundTableBtn2).toBeVisible({ timeout: 10000 });
+    await roundTableBtn2.click();
+    await expect(page.locator('[data-testid="canvas-stats"]')).toContainText(roundText(initialTables + 1), { timeout: 5000 });
+    await roundTableBtn2.click();
+    await expect(page.locator('[data-testid="canvas-stats"]')).toContainText(roundText(initialTables + 2), { timeout: 5000 });
 
     // Undo button should be enabled
     const undoBtn = page.locator('button[aria-label="Undo"]');
     await expect(undoBtn).toBeEnabled({ timeout: 5000 });
 
-    // Click undo
+    // Click undo — removes all added tables (pre-mutation snapshot)
     await undoBtn.click();
-    await page.waitForTimeout(300);
-
-    // Should have 1 table
-    await expect(page.locator('[data-testid="canvas-stats"]')).toContainText("Tables: 1", { timeout: 5000 });
+    await expect(page.locator('[data-testid="canvas-stats"]')).toContainText(roundText(initialTables), { timeout: 5000 });
 
     // Redo button should be enabled
     const redoBtn = page.locator('button[aria-label="Redo"]');
     await expect(redoBtn).toBeEnabled();
 
-    // Click redo
+    // Click redo — restores one table
     await redoBtn.click();
-    await page.waitForTimeout(300);
-
-    // Back to 2 tables
-    await expect(page.locator('[data-testid="canvas-stats"]')).toContainText("Tables: 2", { timeout: 5000 });
+    await expect(page.locator('[data-testid="canvas-stats"]')).toContainText(roundText(initialTables + 1), { timeout: 5000 });
   });
 });

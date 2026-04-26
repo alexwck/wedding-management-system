@@ -32,13 +32,14 @@ describe("useAutoSave", () => {
 
   it("sets status to saved on saveNow success", async () => {
     mockSaveFloorPlan.mockResolvedValue({ success: true });
+    const items = [makeFloorPlanItem({ id: "t1" })];
 
     const { result } = renderHook(() =>
       useAutoSave({
         weddingId: 1,
         width: 50,
         height: 50,
-        items: [makeFloorPlanItem({ id: "t1" })],
+        items,
       }),
     );
 
@@ -52,13 +53,14 @@ describe("useAutoSave", () => {
 
   it("sets status to error on saveNow failure", async () => {
     mockSaveFloorPlan.mockResolvedValue({ success: false, error: "fail" });
+    const items = [makeFloorPlanItem({ id: "t1" })];
 
     const { result } = renderHook(() =>
       useAutoSave({
         weddingId: 1,
         width: 50,
         height: 50,
-        items: [makeFloorPlanItem({ id: "t1" })],
+        items,
       }),
     );
 
