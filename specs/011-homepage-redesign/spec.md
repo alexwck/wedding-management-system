@@ -318,34 +318,47 @@ After evaluating seven distinct layout approaches against 2026 trends and conver
 
 ### Functional Requirements
 
-- **FR-001**: The public wedding landing page MUST use a mobile-first responsive layout where all primary content (couple names, wedding date, venue details, RSVP form) is accessible within two screenfuls on a standard mobile device (375px width).
-- **FR-002**: The design system MUST implement glassmorphism effects using frosted glass panels with consistent blur intensity, semi-transparent white backgrounds, and subtle borders across all card-like surfaces.
-- **FR-003**: The landing page MUST support a bento box modular layout where content is organized into distinct glass-panel cards (hero, date/time, venue, welcome message, RSVP form, quick stats) that stack vertically on mobile and grid on desktop. All layout presets MUST share a single semantic DOM structure, with visual differences implemented via CSS only.
+- **FR-001**: The public wedding landing page MUST use a mobile-first responsive layout where all primary content (couple names, wedding date, venue details, RSVP form) is accessible within two screenfuls on a standard mobile device. "Two screenfuls" is defined as 1500px maximum vertical height on a 375px-wide viewport (equivalent to 2 × iPhone 812px viewport height).
+- **FR-002**: The design system MUST implement glassmorphism effects using frosted glass panels with consistent blur intensity (16px), semi-transparent white backgrounds (`rgba(255,255,255,0.3)`), and subtle borders (1px solid `rgba(255,255,255,0.2)`) across all card-like surfaces. On browsers without `backdrop-filter` support, glass panels MUST fall back to solid semi-transparent backgrounds.
+- **FR-003**: The landing page MUST support a bento box modular layout where content is organized into distinct glass-panel cards (hero, date/time, venue, welcome message, RSVP form, quick stats) that stack vertically on mobile and grid on desktop. All layout presets MUST share a single semantic DOM structure, with visual differences implemented via CSS only. CSS Grid is the primary layout technique with Flexbox fallback for older browsers.
 - **FR-004**: The color palette MUST use soft pastel and earthy tones as the default theme, with sufficient contrast ratios to meet WCAG AA accessibility standards for text readability against both light and dark backgrounds.
 - **FR-005**: The RSVP form MUST be optimized for mobile input with appropriately sized touch targets (minimum 44x44px), clear input grouping, and inline validation that does not obstruct other fields.
-- **FR-006**: The RSVP call-to-action MUST remain visually prominent throughout the mobile scrolling experience, either via a sticky button or through high-contrast placement within the bento grid.
+- **FR-006**: The RSVP call-to-action MUST remain visually prominent throughout the mobile scrolling experience. Preset-specific placement: bento/minimalist/storytelling use high-contrast placement within the grid; magazine/card-stack/asymmetric/cinematic use a sticky bottom button on mobile.
 - **FR-007**: Weddings without an uploaded template image MUST display a gradient fallback hero using the soft pastel palette, maintaining visual consistency with glassmorphism-themed pages.
-- **FR-008**: All interactive elements MUST respect the user's `prefers-reduced-motion` system setting, disabling parallax, fade-ins, and 3D depth transitions when this preference is active.
+- **FR-008**: All interactive elements MUST respect the user's `prefers-reduced-motion` system setting, disabling parallax, fade-ins, 3D depth transitions, and all CSS transitions/animations when this preference is active.
 - **FR-009**: The venue section MUST display embedded map content within a rounded glassmorphism container, with navigation buttons (Get Directions, Save to Calendar) styled as glass-panel buttons.
 - **FR-010**: The page MUST generate accurate Open Graph metadata (title, description, image) derived from the wedding's couple name and template image for proper social sharing previews.
 - **FR-011**: When a wedding is locked, the RSVP form MUST be replaced with a glassmorphism "RSVP is now closed" message while preserving all other page content and styling.
 - **FR-012**: The admin/couple preview mode MUST render the page identically to the guest-facing version, including the same responsive breakpoints and glassmorphism effects.
-- **FR-013**: The page MUST render primary content within 2.5 seconds and become interactive within 4 seconds on a simulated slow mobile network connection.
+- **FR-013**: On mobile (375px viewport, simulated 4G), the page MUST render primary content within 2.5 seconds and become interactive within 4 seconds for 95% of page loads. Desktop targets are informational only.
 - **FR-014**: The admin wedding list (`/admin/weddings`) MUST display as a responsive card grid on mobile, with each card showing couple name, date, RSVP count, and lock status in a glassmorphism-styled panel.
 - **FR-015**: The couple dashboard (`/dashboard`) MUST present RSVP summary statistics in a bento grid layout with glassmorphism cards, displaying attending, declining, vegetarian, and baby chair counts.
 - **FR-016**: The floor plan editor MUST be usable on tablet devices (768px+ width) with all toolbar controls, canvas, and guest panel visible and reachable without horizontal scrolling.
 - **FR-017**: All form inputs across admin, couple, and public interfaces MUST have a minimum touch target of 44x44px, clear focus states, and inline validation that does not obstruct other fields on mobile.
-- **FR-018**: Table components (RSVP tables, wedding lists) MUST remain readable on mobile through responsive column handling, horizontal scroll as a last resort, or card-based alternatives.
+- **FR-018**: Table components (RSVP tables, wedding lists) MUST remain readable on mobile through responsive column handling (minimum 80px, maximum 300px per column), horizontal scroll as a last resort, or card-based alternatives.
 - **FR-019**: Dialog and modal components MUST adapt to mobile by using full-screen or bottom-sheet presentation on screens narrower than 640px, with a visible close action.
 - **FR-020**: Navigation components (admin sidebar, couple sidebar, public nav) MUST collapse to a hamburger menu on mobile with touch-friendly links and clear active states.
 - **FR-021**: The glassmorphism design system MUST degrade gracefully on browsers without `backdrop-filter` support, falling back to solid semi-transparent backgrounds.
-- **FR-022**: When a venue map embed fails to load, the venue section MUST display the address text and navigation buttons in a glassmorphism card without the map, with a subtle "Map unavailable" placeholder.
-- **FR-023**: When a guest who has already RSVPed revisits the page, the RSVP form MUST be replaced with a personalized glassmorphism confirmation card showing their submitted response and an "Edit RSVP" option if the wedding is not locked. Clicking "Edit RSVP" replaces the confirmation card inline with the pre-filled RSVP form, allowing the guest to modify and re-submit their response atomically. Returning guests are identified by a short-lived random token cookie set after successful RSVP submission; if the cookie is missing or expired, the guest sees the standard RSVP form.
+- **FR-022**: When a venue map embed fails to load (detected via 5-second timeout or error event), the venue section MUST display the address text and navigation buttons in a glassmorphism card without the map, with a "Map unavailable" placeholder. The placeholder MUST include a retry button and auto-retry after 5 seconds.
+- **FR-023**: When a guest who has already RSVPed revisits the page, the RSVP form MUST be replaced with a personalized glassmorphism confirmation card showing their submitted response and an "Edit RSVP" option if the wedding is not locked. Clicking "Edit RSVP" replaces the confirmation card inline with the pre-filled RSVP form, allowing the guest to modify and re-submit their response atomically. Returning guests are identified by a short-lived random token cookie (Secure, HttpOnly, SameSite=Lax, Max-Age=30 days) set after successful RSVP submission; if the cookie is missing or expired, the guest sees the standard RSVP form. The edit flow is rate-limited to 5 attempts per 15 minutes per token. If the wedding becomes locked mid-session, the "Edit RSVP" button MUST be disabled.
 - **FR-024**: The admin wedding list MUST implement pagination or virtual scrolling so that 50+ wedding cards render without jank or excessive memory usage on mobile devices.
 - **FR-025**: The couple dashboard RSVP table MUST paginate at 25 rows per page on mobile, with search and filter controls always visible, ensuring 200+ guest lists remain performant and readable.
-- **FR-026**: The floor plan editor MUST display a device-not-supported message on screens narrower than 640px, directing users to a tablet or desktop, while still allowing read-only preview of the floor plan.
+- **FR-026**: The floor plan editor MUST display a device-not-supported message on screens narrower than 640px: "Floor plan editing requires a larger screen. Please use a tablet or desktop." A read-only preview of the floor plan remains visible below the message.
 - **FR-027**: Modal dialogs on mobile MUST prevent the on-screen keyboard from obscuring the focused input by either scrolling the dialog into view or repositioning the dialog above the keyboard.
-- **FR-028**: Preset-specific CSS MUST be loaded on-demand: only the active preset's CSS is delivered to guests, while admins receive all preset CSS for instant preview switching. The global design system CSS (glassmorphism variables, utilities) loads upfront for all users.
+- **FR-028**: Preset-specific CSS MUST be loaded on-demand: only the active preset's CSS is delivered to guests (max 15KB per preset), while admins receive all preset CSS for instant preview switching. The global design system CSS (glassmorphism variables, utilities) loads upfront for all users (max 30KB).
+- **FR-029**: All data-dependent screens MUST display loading states (skeletons or spinners) while data is fetching, and error states (inline messages or fallback UI) when data fetching fails.
+- **FR-030**: All list and table views MUST display empty states when no data is present, with actionable guidance (e.g., "No RSVPs yet" with a link to share the page).
+- **FR-031**: The responsive design MUST explicitly support the tablet viewport range (640px–768px) with optimized layouts distinct from both mobile (<640px) and desktop (>768px).
+- **FR-032**: Template image uploads MUST validate file type (JPEG, PNG, WebP) and size (max 5MB), displaying inline error messages for invalid uploads without page reload.
+- **FR-033**: The RSVP form MUST detect network interruption during submission and display a retry option without losing form data.
+- **FR-034**: The total CSS payload for guest-facing pages MUST not exceed 100KB (global design system + active preset) to meet the 2.5s FCP target.
+- **FR-035**: Template images MUST be optimized on upload (WebP conversion, max 1200px width, 80% quality) to ensure fast loading.
+- **FR-036**: All theme color combinations MUST pass WCAG 2.1 AA contrast ratio validation (4.5:1 for normal text, 3:1 for large text) via automated testing on all preset/theme combinations.
+- **FR-037**: A Content Security Policy (CSP) MUST allow inline styles (`style-src 'self' 'unsafe-inline'`) for preset-specific CSS delivery while restricting other sources.
+- **FR-038**: When a guest's RSVP token cookie expires mid-session, the form submission MUST validate the token server-side and show "Please submit again" if expired, without losing form data.
+- **FR-039**: All dynamic content updates (RSVP confirmation, map fallback, preset preview) MUST include ARIA live regions (`aria-live="polite"`) to announce changes to screen readers.
+- **FR-040**: All interactive elements MUST manage focus explicitly: when the RSVP inline edit flow opens, focus MUST move to the first form field; when a modal opens, focus MUST move to the close button.
+- **FR-041**: The color palette MUST be tested for color blindness accessibility (protanopia, deuteranopia, tritanopia) via simulation, with text labels or patterns supplementing color-coded information where needed.
 
 ### Key Entities
 
@@ -362,17 +375,60 @@ After evaluating seven distinct layout approaches against 2026 trends and conver
 
 ### Measurable Outcomes
 
-- **SC-001**: 90% of guests who begin the RSVP form successfully complete and submit it on their first visit, measured via session analytics over a 30-day period.
-- **SC-002**: Guests can complete an RSVP submission on mobile in under 60 seconds from page load, measured via session timing analytics on 90% of successful submissions.
-- **SC-003**: Mobile bounce rate on wedding landing pages decreases by at least 15% within the first month of deployment.
-- **SC-004**: The page meets WCAG 2.1 Level AA accessibility standards across all interactive elements, ensuring inclusive access for users with assistive technologies.
-- **SC-005**: 100% of wedding landing pages render correctly without a template image using the pastel gradient fallback system.
-- **SC-006**: The page renders its primary content (hero image, couple names, and wedding date) within 2.5 seconds on simulated slow mobile networks for 95% of page loads.
-- **SC-007**: Admin and couple users report a preview-to-published consistency rating of 4.5+ out of 5 in post-deployment feedback surveys.
-- **SC-008**: The redesigned pages maintain full functionality across iOS Safari, Android Chrome, and Samsung Internet browsers covering 98%+ of mobile traffic.
-- **SC-009**: Admin users can complete core management tasks (toggle lock, edit venue, view RSVP counts) on mobile in under 90 seconds without horizontal scrolling or zooming.
-- **SC-010**: Couple users can complete core dashboard tasks (view RSVP summary, edit venue, preview public page) on mobile in under 60 seconds without assistance.
-- **SC-011**: All interactive elements across public, admin, and couple interfaces have a minimum touch target of 44x44px, verified via automated accessibility scanning.
+- **SC-001**: 90% of guests who begin the RSVP form successfully complete and submit it on their first visit, measured via Supabase `rsvps` table query counts (first_visit = true) over a 30-day period. Analytics implemented via session cookie marking first visit.
+- **SC-002**: Guests can complete an RSVP submission on mobile in under 60 seconds from page load (measured from `load` event to submission success toast visible), verified on 90% of successful submissions via session timing cookie.
+- **SC-003**: Mobile bounce rate on wedding landing pages decreases by at least 15% within the first month of deployment, measured via Google Analytics 4. Baseline: current 30-day bounce rate before deployment.
+- **SC-004**: The page meets WCAG 2.1 Level AA accessibility standards across all interactive elements, verified via automated axe-core scans in Playwright E2E tests. Specific criteria: 1.4.3 contrast (4.5:1), 2.1.1 keyboard navigation, 4.1.2 name/role/value.
+- **SC-005**: 100% of wedding landing pages render correctly without a template image using the pastel gradient fallback system, verified via visual regression testing.
+- **SC-006**: The page renders its primary content (hero image, couple names, and wedding date) within 2.5 seconds on simulated slow mobile networks (Chrome DevTools 4G throttling, 375px viewport) for 95% of page loads, measured via Lighthouse FCP.
+- **SC-007**: Admin and couple users report a preview-to-published consistency rating of 4.5+ out of 5 in post-deployment email surveys (N=50 minimum, 4 weeks after launch).
+- **SC-008**: The redesigned pages maintain full functionality across iOS Safari, Android Chrome, and Samsung Internet browsers covering 98%+ of mobile traffic, verified via BrowserStack or Playwright mobile project tests.
+- **SC-009**: Admin users can complete core management tasks (toggle lock, edit venue, view RSVP counts) on mobile in under 90 seconds from page load to task completion confirmation, measured via E2E test timers.
+- **SC-010**: Couple users can complete core dashboard tasks (view RSVP summary, edit venue, preview public page) on mobile in under 60 seconds from page load to task completion confirmation, measured via E2E test timers.
+- **SC-011**: All interactive elements across public, admin, and couple interfaces have a minimum touch target of 44x44px, verified via axe-core automated accessibility scanning in Playwright E2E tests.
+
+---
+
+## Traceability
+
+### User Story to FR Mapping
+
+| User Story | FRs |
+|------------|-----|
+| US-1 (Guest RSVPs) | FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-013, FR-022, FR-023, FR-028, FR-029, FR-030, FR-032, FR-033, FR-034, FR-035, FR-036, FR-038, FR-039, FR-040, FR-041 |
+| US-2 (Admin Mobile) | FR-002, FR-012, FR-014, FR-016, FR-017, FR-018, FR-019, FR-020, FR-021, FR-024, FR-026, FR-029, FR-030, FR-031, FR-037, FR-039, FR-040 |
+| US-3 (Couple Mobile) | FR-002, FR-012, FR-015, FR-016, FR-017, FR-018, FR-019, FR-020, FR-021, FR-025, FR-026, FR-029, FR-030, FR-031, FR-032, FR-037, FR-039, FR-040, FR-041 |
+
+### FR to Acceptance Scenario Mapping
+
+| FR | Scenarios |
+|----|-----------|
+| FR-001 | US-1 AS-1 |
+| FR-005 | US-1 AS-2, US-1 AS-3 |
+| FR-009 | US-1 AS-2 |
+| FR-011 | US-2 AS-6 |
+| FR-022 | US-1 AS-6 |
+| FR-023 | US-1 AS-5 |
+| FR-024 | US-2 AS-7 |
+| FR-025 | US-3 AS-7 |
+| FR-026 | US-2 AS-8, US-3 AS-9 |
+| FR-027 | US-3 AS-8 |
+
+### SC to FR Mapping
+
+| SC | Verified By |
+|----|-------------|
+| SC-001 | FR-005, FR-023 |
+| SC-002 | FR-001, FR-005, FR-013 |
+| SC-003 | FR-001, FR-007, FR-013 |
+| SC-004 | FR-004, FR-008, FR-021, FR-036, FR-039, FR-040, FR-041 |
+| SC-005 | FR-007 |
+| SC-006 | FR-013, FR-034, FR-035 |
+| SC-007 | FR-012 |
+| SC-008 | FR-021, FR-031 |
+| SC-009 | FR-014, FR-017, FR-018, FR-019, FR-020 |
+| SC-010 | FR-015, FR-017, FR-018, FR-019, FR-020 |
+| SC-011 | FR-017 |
 
 ---
 
@@ -384,9 +440,13 @@ After evaluating seven distinct layout approaches against 2026 trends and conver
 - 3D depth effects will be implemented via standard styling techniques rather than heavy graphics libraries to ensure performance and accessibility.
 - The RSVP form logic (validation, submission, deduplication) remains functionally unchanged; only the visual presentation and mobile interaction patterns are modified.
 - Social sharing metadata generation will use the existing image storage and public URL pipeline with cache-busting parameters.
-- The redesign applies to all pages, components, and UI elements in the codebase: public pages (`/`, `/auth/login`, `/w/[slug]`), admin dashboards (`/admin` and sub-routes), couple dashboards (`/dashboard` and sub-routes), and all shared components (forms, tables, dialogs, navigation, canvas controls, etc.).
+- The redesign applies to all pages and components EXCEPT password reset, account settings, and auth-related pages beyond `/auth/login`. Specific pages included: public pages (`/`, `/auth/login`, `/w/[slug]`), admin dashboards (`/admin` and sub-routes including `/admin/weddings/create`), couple dashboards (`/dashboard` and sub-routes), error boundaries (`error.tsx`, `not-found.tsx`, `loading.tsx`), and all shared components (forms, tables, dialogs, navigation, canvas controls, etc.).
 - Guest users do not need to authenticate to view wedding pages or submit RSVPs; this unauthenticated flow is preserved.
 - The existing template image upload and storage pipeline is reused without modification.
 - Mobile RSVP completion success criterion uses a user-facing task completion metric rather than a comparative baseline (see SC-001).
-- Admins will have a curated selection of 6+ layout presets to choose from per wedding, each representing a distinct 2026 design trend approach. The exact selection will be finalized after design review.
+- Admins will have exactly 7 layout presets to choose from per wedding: minimalist, bento (default), storytelling, magazine, card-stack, asymmetric, and cinematic. MVP includes bento + minimalist + magazine; remaining 4 presets are stretch goals.
+- Global default theme hex values: primary `#E8D5C4`, accent `#C4B5A0`, with 4 additional primary variants (`#D4E5D2`, `#E5D4E0`, `#D4D8E5`, `#E5DED4`) and 4 accent variants (`#A8C4B5`, `#C4A8B5`, `#B5A8C4`, `#C4C4A8`) for admin selection.
+- Migration strategy: existing weddings default to `layout_preset = 'bento'` and `theme_json = NULL` (inherit global default). No breaking changes to existing queries.
+- The `platform_settings` table is mandatory for storing the global theme default and other platform-wide configuration.
+- RSVP deduplication logic remains unchanged; the edit RSVP flow (FR-023) updates the existing RSVP record atomically via the same unique constraint on `(wedding_id, LOWER(guest_name))`.
 
