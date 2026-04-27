@@ -130,14 +130,25 @@ export async function getAllWeddings() {
 
   const { data: weddings, error } = await supabase
     .from("weddings")
-    .select("id, slug, couple_name, template_image_url, wedding_date, created_at")
+    .select("id, slug, couple_name, template_image_url, wedding_date, created_at, is_locked, rsvps(count)")
     .order("created_at", { ascending: false });
 
   if (error) {
     return { success: false, error: "fetch_failed" as const, message: "Failed to fetch weddings." };
   }
 
-  return { success: true, weddings: weddings ?? [] };
+  const mapped = (weddings ?? []).map((w) => ({
+    id: w.id,
+    slug: w.slug,
+    couple_name: w.couple_name,
+    template_image_url: w.template_image_url,
+    wedding_date: w.wedding_date,
+    created_at: w.created_at,
+    is_locked: w.is_locked,
+    rsvpCount: Array.isArray(w.rsvps) ? w.rsvps.length : (w.rsvps as unknown as { count: number })?.count ?? 0,
+  }));
+
+  return { success: true, weddings: mapped };
 }
 
 async function insertWeddingWithRetry(

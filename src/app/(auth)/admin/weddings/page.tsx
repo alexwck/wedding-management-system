@@ -1,14 +1,6 @@
 import Link from "next/link";
 import { getAllWeddings } from "@/app/actions/admin";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+import { WeddingListTable } from "@/components/wedding-list-table";
 
 export default async function WeddingListPage() {
   const result = await getAllWeddings();
@@ -21,50 +13,23 @@ export default async function WeddingListPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <h2 className="text-2xl font-bold">Weddings</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Weddings</h2>
+        <Link
+          href="/admin/weddings/create"
+          className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+        >
+          Create Couple
+        </Link>
+      </div>
 
       {weddings.length === 0 ? (
-        <p className="text-muted-foreground">No weddings yet.</p>
-      ) : (
-        <div className="glass-panel rounded-xl p-4">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Couple Name</TableHead>
-              <TableHead>Slug</TableHead>
-              <TableHead>Template</TableHead>
-              <TableHead>Wedding Date</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {weddings.map((wedding) => (
-              <TableRow key={wedding.id}>
-                <TableCell>
-                  <Link
-                    href={`/admin/weddings/${wedding.id}`}
-                    className="font-medium hover:underline"
-                  >
-                    {wedding.couple_name}
-                  </Link>
-                </TableCell>
-                <TableCell className="text-muted-foreground">{wedding.slug}</TableCell>
-                <TableCell>
-                  {wedding.template_image_url ? (
-                    <Badge variant="default">Uploaded</Badge>
-                  ) : (
-                    <Badge variant="secondary">Missing</Badge>
-                  )}
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {wedding.wedding_date
-                    ? new Date(wedding.wedding_date).toLocaleDateString()
-                    : "Not set"}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <div className="glass-panel rounded-xl p-8 text-center text-muted-foreground">
+          <p>No weddings yet.</p>
+          <p className="text-sm mt-1">Create a couple account to get started.</p>
         </div>
+      ) : (
+        <WeddingListTable weddings={weddings} />
       )}
     </div>
   );

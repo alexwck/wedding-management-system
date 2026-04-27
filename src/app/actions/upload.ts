@@ -1,8 +1,12 @@
 "use server";
 
+import sharp from "sharp";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyWeddingNotLocked } from "@/lib/auth-guards";
 import { MAX_FILE_SIZE, ALLOWED_TYPES } from "@/lib/validations/upload";
+
+const MAX_WIDTH = 1200;
+const QUALITY = 80;
 
 export async function uploadTemplateImage(formData: FormData) {
   const file = formData.get("file") as File | null;
@@ -37,14 +41,32 @@ export async function uploadTemplateImage(formData: FormData) {
     return { success: false, error: "locked" as const, message: lockCheck.error };
   }
 
-  const supabase = createAdminClient();
+  let optimizedBuffer: Buffer;
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
-  const ext = file.name.split(".").pop() || "png";
-  const filePath = `${weddingId}/template.${ext}`;
+    optimizedBuffer = await sharp(buffer)
+      .resize(MAX_WIDTH, null, { withoutEnlargement: true })
+      .webp({ quality: QUALITY })
+      .toBuffer();
+  } catch {
+    return {
+      success: false,
+      error: "processing_failed" as const,
+      message: "Failed to process image. Please try a different file.",
+    };
+  }
+
+  const supabase = createAdminClient();
+  const filePath = `${weddingId}/template.webp`;
 
   const { error: uploadError } = await supabase.storage
     .from("wedding-templates")
-    .upload(filePath, file, { upsert: true });
+    .upload(filePath, optimizedBuffer, {
+      upsert: true,
+      contentType: "image/webp",
+    });
 
   if (uploadError) {
     return {

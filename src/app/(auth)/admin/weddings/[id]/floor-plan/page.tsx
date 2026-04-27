@@ -3,6 +3,7 @@ import { getFloorPlan } from "@/app/actions/floor-plan";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { FloorPlanCanvas } from "@/components/floor-plan/floor-plan-canvas";
+import { FloorPlanDeviceCheck } from "@/components/floor-plan/device-check";
 
 interface AdminFloorPlanPageProps {
   params: Promise<{ id: string }>;
@@ -44,13 +45,19 @@ export default async function AdminFloorPlanPage({ params }: AdminFloorPlanPageP
     );
   }
 
+  const canvas = (
+    <FloorPlanCanvas
+      weddingId={weddingId}
+      initialFloorPlan={result.floorPlan}
+      isLocked={wedding.is_locked}
+    />
+  );
+
   return (
     <div className="flex-1 min-h-0 min-w-0">
-      <FloorPlanCanvas
-        weddingId={weddingId}
-        initialFloorPlan={result.floorPlan}
-        isLocked={wedding.is_locked}
-      />
+      <FloorPlanDeviceCheck readOnlyPreview={canvas}>
+        {canvas}
+      </FloorPlanDeviceCheck>
     </div>
   );
 }

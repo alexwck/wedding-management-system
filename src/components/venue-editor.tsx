@@ -140,7 +140,7 @@ export function VenueEditor({
           id="venue"
           type="text"
           maxLength={200}
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[44px]"
           placeholder="e.g., The Grand Ballroom"
           {...register("venue")}
         />
@@ -154,7 +154,7 @@ export function VenueEditor({
           id="venue_address"
           type="text"
           maxLength={500}
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[44px]"
           placeholder="Start typing to search..."
           onChange={handleAddressInput}
           defaultValue={initialAddress ?? ""}
