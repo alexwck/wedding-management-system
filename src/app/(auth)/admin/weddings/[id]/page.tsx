@@ -7,6 +7,10 @@ import { WeddingDatePicker } from "@/components/wedding-date-picker";
 import { RSVPSection } from "@/components/rsvp-section";
 import { EditableCoupleName } from "@/components/editable-couple-name";
 import { LockToggle } from "@/components/lock-toggle";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { GlassPanel } from "@/components/glassmorphism/glass-panel";
+import { BentoGrid } from "@/components/bento/bento-grid";
+import { BentoItem } from "@/components/bento/bento-item";
 
 interface ManageWeddingPageProps {
   params: Promise<{ id: string }>;
@@ -33,10 +37,10 @@ export default async function ManageWeddingPage({ params }: ManageWeddingPagePro
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
         <div>
           <EditableCoupleName weddingId={wedding.id} coupleName={wedding.coupleName} isLocked={wedding.isLocked} />
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm mt-1">
             Public link:{" "}
             <a
               href={publicUrl}
@@ -52,45 +56,107 @@ export default async function ManageWeddingPage({ params }: ManageWeddingPagePro
           <LockToggle weddingId={wedding.id} isLocked={wedding.isLocked} />
           <Link
             href={`/admin/weddings/${wedding.id}/floor-plan`}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 min-h-[44px] inline-flex items-center"
           >
             Floor Plan
           </Link>
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Left column: Template */}
-        <div className="lg:col-span-1 space-y-4">
-          <TemplateUpload
-            weddingId={wedding.id}
-            currentImageUrl={wedding.templateImageUrl}
-            focalX={wedding.templateFocalX}
-            focalY={wedding.templateFocalY}
-          />
-        </div>
+      <Tabs defaultValue="details">
+        <TabsList className="w-full sm:w-auto">
+          <TabsTrigger value="details" className="min-h-[44px]">Details</TabsTrigger>
+          <TabsTrigger value="venue" className="min-h-[44px]">Venue</TabsTrigger>
+          <TabsTrigger value="rsvps" className="min-h-[44px]">RSVPs</TabsTrigger>
+          <TabsTrigger value="preview" className="min-h-[44px]">Preview</TabsTrigger>
+        </TabsList>
 
-        {/* Right column: Date, Venue, Summary, RSVPs */}
-        <div className="lg:col-span-2 space-y-6">
-          <WeddingDatePicker
-            weddingId={wedding.id}
-            currentDate={wedding.weddingDate}
-            timezone={wedding.timezone}
-            isAdmin={true}
-          />
+        <TabsContent value="details" className="mt-4">
+          <BentoGrid cols={2} gap="md">
+            <BentoItem colSpan={1} rowSpan={1}>
+              <GlassPanel padding="md" radius="md" className="h-full">
+                <h3 className="text-lg font-semibold mb-4">Template</h3>
+                <TemplateUpload
+                  weddingId={wedding.id}
+                  currentImageUrl={wedding.templateImageUrl}
+                  focalX={wedding.templateFocalX}
+                  focalY={wedding.templateFocalY}
+                />
+              </GlassPanel>
+            </BentoItem>
 
-          <VenueEditor
-            weddingId={wedding.id}
-            initialVenue={wedding.venue}
-            initialAddress={wedding.venueAddress}
-            initialLat={wedding.venueLat}
-            initialLng={wedding.venueLng}
-            initialWelcomeMessage={wedding.welcomeMessage}
-          />
+            <BentoItem colSpan={1} rowSpan={1}>
+              <GlassPanel padding="md" radius="md" className="h-full">
+                <h3 className="text-lg font-semibold mb-4">Wedding Date</h3>
+                <WeddingDatePicker
+                  weddingId={wedding.id}
+                  currentDate={wedding.weddingDate}
+                  timezone={wedding.timezone}
+                  isAdmin={true}
+                />
+              </GlassPanel>
+            </BentoItem>
+          </BentoGrid>
+        </TabsContent>
 
-          <RSVPSection rsvps={rsvps} summary={summary} weddingId={wedding.id} />
-        </div>
-      </div>
+        <TabsContent value="venue" className="mt-4">
+          <BentoGrid cols={1} gap="md">
+            <BentoItem>
+              <GlassPanel padding="md" radius="md">
+                <h3 className="text-lg font-semibold mb-4">Venue Details</h3>
+                <VenueEditor
+                  weddingId={wedding.id}
+                  initialVenue={wedding.venue}
+                  initialAddress={wedding.venueAddress}
+                  initialLat={wedding.venueLat}
+                  initialLng={wedding.venueLng}
+                  initialWelcomeMessage={wedding.welcomeMessage}
+                />
+              </GlassPanel>
+            </BentoItem>
+          </BentoGrid>
+        </TabsContent>
+
+        <TabsContent value="rsvps" className="mt-4">
+          <BentoGrid cols={1} gap="md">
+            <BentoItem>
+              <RSVPSection rsvps={rsvps} summary={summary} weddingId={wedding.id} />
+            </BentoItem>
+          </BentoGrid>
+        </TabsContent>
+
+        <TabsContent value="preview" className="mt-4">
+          <BentoGrid cols={1} gap="md">
+            <BentoItem>
+              <GlassPanel padding="md" radius="md">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">Guest Preview</h3>
+                  <a
+                    href={publicUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    Open in new tab
+                  </a>
+                </div>
+                <div className="w-full rounded-lg overflow-hidden border">
+                  <iframe
+                    src={publicUrl}
+                    title="Guest preview"
+                    className="w-full"
+                    style={{ height: "600px", border: 0 }}
+                    loading="lazy"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  This preview renders identically to what your guests see.
+                </p>
+              </GlassPanel>
+            </BentoItem>
+          </BentoGrid>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

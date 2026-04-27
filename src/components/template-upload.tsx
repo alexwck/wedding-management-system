@@ -76,12 +76,20 @@ export function TemplateUpload({ weddingId, currentImageUrl, focalX, focalY }: T
           type="file"
           accept="image/png,image/jpeg"
           onChange={handleFileChange}
-          className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+          className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 file:min-h-[44px]"
         />
       </div>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
-      {success && <p className="text-sm text-green-600">Template uploaded successfully!</p>}
+      {error && (
+        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+          {error}
+        </div>
+      )}
+      {success && (
+        <div className="rounded-lg border border-green-500/50 bg-green-500/10 p-3 text-sm text-green-700">
+          Template uploaded successfully!
+        </div>
+      )}
 
       {preview && (
         <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden border">
@@ -94,7 +102,11 @@ export function TemplateUpload({ weddingId, currentImageUrl, focalX, focalY }: T
         </div>
       )}
 
-      <Button onClick={handleUpload} disabled={uploading || !hasFile}>
+      <Button
+        onClick={handleUpload}
+        disabled={uploading || !hasFile}
+        className="w-full sm:w-auto min-h-[44px]"
+      >
         {uploading ? "Uploading..." : "Upload Template"}
       </Button>
 

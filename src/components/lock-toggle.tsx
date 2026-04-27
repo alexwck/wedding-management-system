@@ -28,10 +28,10 @@ export function LockToggle({ weddingId, isLocked: initialLocked }: LockTogglePro
       disabled={loading}
       aria-label={isLocked ? "Unlock wedding" : "Lock wedding"}
       aria-pressed={isLocked}
-      className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+      className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors glass-panel ${
         isLocked
-          ? "bg-red-500/20 text-red-700 hover:bg-red-500/30 border border-red-200"
-          : "bg-green-500/20 text-green-700 hover:bg-green-500/30 border border-green-200"
+          ? "text-red-700 hover:bg-red-500/10"
+          : "text-green-700 hover:bg-green-500/10"
       } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
     >
       {isLocked ? (

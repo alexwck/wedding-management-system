@@ -61,7 +61,7 @@ export function CreateCoupleForm() {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Create Couple Account</h3>
+      <h3 className="text-lg font-semibold">Create Couple</h3>
 
       {serverMessage && (
         <div
@@ -88,6 +88,7 @@ export function CreateCoupleForm() {
                     id="email"
                     type="email"
                     placeholder="couple@example.com"
+                    className="min-h-[44px]"
                     {...field}
                   />
                 </FormControl>
@@ -108,6 +109,7 @@ export function CreateCoupleForm() {
                     type="password"
                     autoComplete="new-password"
                     placeholder="Min. 8 characters"
+                    className="min-h-[44px]"
                     {...field}
                   />
                 </FormControl>
@@ -128,6 +130,7 @@ export function CreateCoupleForm() {
                     type="password"
                     autoComplete="new-password"
                     placeholder="Confirm Password"
+                    className="min-h-[44px]"
                     {...field}
                   />
                 </FormControl>
@@ -147,6 +150,7 @@ export function CreateCoupleForm() {
                     id="displayName"
                     type="text"
                     placeholder="Jane Doe"
+                    className="min-h-[44px]"
                     {...field}
                   />
                 </FormControl>
@@ -155,7 +159,7 @@ export function CreateCoupleForm() {
             )}
           />
 
-          <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
+          <Button type="submit" disabled={form.formState.isSubmitting} className="w-full min-h-[44px]">
             {form.formState.isSubmitting ? "Creating..." : "Create Couple"}
           </Button>
         </form>

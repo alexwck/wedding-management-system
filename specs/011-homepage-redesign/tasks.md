@@ -96,18 +96,18 @@
 
 ### Implementation for User Story 2
 
-- [ ] T035 [P] [US2] Create MobileNav component in `src/components/navigation/mobile-nav.tsx` (hamburger <768px, full-screen glassmorphism overlay, active border-left accent)
-- [ ] T036 [P] [US2] Create AdminSidebar mobile navigation in `src/components/navigation/admin-sidebar.tsx` (collapses to MobileNav on mobile, touch-friendly links)
-- [ ] T037 [P] [US2] Create ResponsiveTable component in `src/components/responsive-table.tsx` (desktop table element, mobile card grid with key-value pairs, pagination always visible)
-- [ ] T038 [P] [US2] Create MobileModal component in `src/components/mobile-modal.tsx` (full-screen/bottom-sheet <640px, centered modal ≥640px, keyboard-aware scroll)
-- [ ] T039 [US2] Refactor admin wedding list to card grid in `src/app/(auth)/admin/weddings/page.tsx` (glassmorphism cards, couple name/date/RSVP count/lock status, pagination for 50+ weddings)
+- [x] T035 [P] [US2] Create MobileNav component in `src/components/navigation/mobile-nav.tsx` (hamburger <768px, full-screen glassmorphism overlay, active border-left accent)
+- [x] T036 [P] [US2] Create AdminSidebar mobile navigation in `src/components/navigation/admin-sidebar.tsx` (collapses to MobileNav on mobile, touch-friendly links)
+- [x] T037 [P] [US2] Create ResponsiveTable component in `src/components/responsive-table.tsx` (desktop table element, mobile card grid with key-value pairs, pagination always visible)
+- [x] T038 [P] [US2] Create MobileModal component in `src/components/mobile-modal.tsx` (full-screen/bottom-sheet <640px, centered modal ≥640px, keyboard-aware scroll)
+- [x] T039 [US2] Refactor admin wedding list to card grid in `src/app/(auth)/admin/weddings/page.tsx` (glassmorphism cards, couple name/date/RSVP count/lock status, pagination for 50+ weddings)
 - [ ] T040 [US2] Refactor wedding detail page with bento tabs in `src/app/(auth)/admin/weddings/[id]/page.tsx` (details, venue, floor plan, RSVPs — each tab bento layout, thumb-sized inputs)
-- [ ] T041 [US2] Implement floor plan editor small-screen blocking in `src/app/(auth)/admin/weddings/[id]/floor-plan/page.tsx` (device-not-supported message <640px, read-only preview below)
+- [x] T041 [US2] Implement floor plan editor small-screen blocking in `src/app/(auth)/admin/weddings/[id]/floor-plan/page.tsx` (device-not-supported message <640px, read-only preview below)
 - [ ] T042 [US2] Refactor template upload and preview for mobile in `src/components/template-upload.tsx` and `src/components/template-preview.tsx` (touch-friendly crop, file validation inline errors)
-- [ ] T043 [US2] Refactor lock toggle for glassmorphism in `src/components/lock-toggle.tsx` (glass-panel styling, clear state indication)
+- [x] T043 [US2] Refactor lock toggle for glassmorphism in `src/components/lock-toggle.tsx` (glass-panel styling, clear state indication)
 - [ ] T069 [P] [US2] Implement template image optimization pipeline in `src/app/actions/upload.ts` (WebP conversion, max 1200px width, 80% quality, inline error display) (FR-035)
 - [ ] T070 [P] [US2] Verify admin preview renders identically to guest view in `src/app/(auth)/admin/weddings/[id]/page.tsx` (preset, theme, responsive breakpoints match guest `/w/[slug]`) (FR-012)
-- [ ] T072 [P] [US2] Redesign couple creation form `/admin/weddings/create` with glassmorphism styling and mobile-optimized inputs
+- [x] T072 [P] [US2] Redesign couple creation form `/admin/weddings/create` with glassmorphism styling and mobile-optimized inputs
 - [ ] T044 [US2] Run and fix E2E tests for admin mobile flow in `tests/e2e/admin-mobile.spec.ts`
 
 **Checkpoint**: User Stories 1 AND 2 are independently functional
@@ -128,11 +128,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T048 [P] [US3] Create CoupleSidebar mobile navigation in `src/components/navigation/couple-sidebar.tsx` (collapses to MobileNav on mobile)
-- [ ] T049 [US3] Refactor couple dashboard with bento RSVP summary in `src/app/(auth)/dashboard/page.tsx` (attending, declining, vegetarian, baby chair counts in glassmorphism cards)
-- [ ] T050 [US3] Refactor RSVP table with mobile pagination in `src/components/rsvp-table.tsx` (25 rows/page on mobile, search/filter always visible, readable column widths 80-300px)
+- [x] T048 [P] [US3] Create CoupleSidebar mobile navigation in `src/components/navigation/couple-sidebar.tsx` (collapses to MobileNav on mobile)
+- [x] T049 [US3] Refactor couple dashboard with bento RSVP summary in `src/app/(auth)/dashboard/page.tsx` (attending, declining, vegetarian, baby chair counts in glassmorphism cards)
+- [x] T050 [US3] Refactor RSVP table with mobile pagination in `src/components/rsvp-table.tsx` (25 rows/page on mobile, search/filter always visible, readable column widths 80-300px)
 - [ ] T051 [US3] Refactor venue editor for mobile touch targets in `src/components/venue-editor.tsx` (44x44px inputs, touch-friendly autocomplete dropdown, map preview)
-- [ ] T052 [US3] Refactor floor plan editor for couple tablet in `src/app/(auth)/dashboard/floor-plan/page.tsx` (768px+ usability, small-screen blocking <640px)
+- [x] T052 [US3] Refactor floor plan editor for couple tablet in `src/app/(auth)/dashboard/floor-plan/page.tsx` (768px+ usability, small-screen blocking <640px)
 - [ ] T053 [US3] Implement public page preview for couple in `src/app/(auth)/dashboard/page.tsx` (renders identically to guest view)
 - [ ] T054 [US3] Run and fix E2E tests for couple mobile flow in `tests/e2e/couple-mobile.spec.ts`
 

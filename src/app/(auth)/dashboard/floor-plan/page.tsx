@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { FloorPlanCanvas } from "@/components/floor-plan/floor-plan-canvas";
+import { FloorPlanDeviceCheck } from "@/components/floor-plan/device-check";
 import { getFloorPlan } from "@/app/actions/floor-plan";
 
 export default async function CoupleFloorPlanPage() {
@@ -37,13 +38,19 @@ export default async function CoupleFloorPlanPage() {
     );
   }
 
+  const canvas = (
+    <FloorPlanCanvas
+      weddingId={wedding.id}
+      initialFloorPlan={result.floorPlan}
+      isLocked={wedding.is_locked}
+    />
+  );
+
   return (
     <div className="flex-1 min-h-0 min-w-0">
-      <FloorPlanCanvas
-        weddingId={wedding.id}
-        initialFloorPlan={result.floorPlan}
-        isLocked={wedding.is_locked}
-      />
+      <FloorPlanDeviceCheck readOnlyPreview={canvas}>
+        {canvas}
+      </FloorPlanDeviceCheck>
     </div>
   );
 }

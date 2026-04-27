@@ -30,10 +30,10 @@ export default async function CoupleDashboard() {
         </div>
       )}
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <EditableCoupleName weddingId={wedding.id} coupleName={wedding.coupleName} isLocked={wedding.isLocked} />
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm mt-1">
             Public link:{" "}
             <a
               href={`/w/${wedding.slug}`}
@@ -45,12 +45,22 @@ export default async function CoupleDashboard() {
             </a>
           </p>
         </div>
-        <Link
-          href="/dashboard/rsvps"
-          className="text-sm text-primary hover:underline"
-        >
-          View All RSVPs
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/dashboard/rsvps"
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 min-h-[44px] inline-flex items-center"
+          >
+            View All RSVPs
+          </Link>
+          <a
+            href={`/w/${wedding.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent min-h-[44px] inline-flex items-center"
+          >
+            Preview as Guest
+          </a>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">

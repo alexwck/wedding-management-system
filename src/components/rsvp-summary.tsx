@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { GlassCard } from "@/components/glassmorphism/glass-card";
 
 interface RVPSummaryProps {
   summary: {
@@ -21,18 +21,14 @@ export function RVPSummary({ summary }: RVPSummaryProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       {cards.map(({ key, label, color }) => (
-        <Card key={key}>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              {label}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className={`text-2xl font-bold ${color}`}>
-              {summary[key]}
-            </p>
-          </CardContent>
-        </Card>
+        <GlassCard key={key} variant="default" className="p-4">
+          <p className="text-sm font-medium text-muted-foreground">
+            {label}
+          </p>
+          <p className={`text-2xl font-bold mt-1 ${color}`}>
+            {summary[key]}
+          </p>
+        </GlassCard>
       ))}
     </div>
   );
