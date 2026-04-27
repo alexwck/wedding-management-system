@@ -70,12 +70,12 @@
 - [x] T024 [US1] Create RSVP confirmation card with inline edit integration in `src/components/rsvp-confirmation-card.tsx` and update `src/components/rsvp-section.tsx` (replaces form when token valid, edit button swaps back to pre-filled form)
 - [x] T025 [US1] Refactor venue section with map fallback in `src/components/venue-section.tsx` (5s timeout detection, glassmorphism card with address + nav buttons, retry button + auto-retry)
 - [x] T026 [US1] Implement returning guest token system in `src/app/actions/rsvp.ts` (generate random token, set Secure/HttpOnly/SameSite=Lax cookie, rate-limit 5 attempts per 15min). Validate token server-side on every request; if expired mid-session, show "Please submit again" without losing form data (FR-038).
-- [ ] T068 [P] [US1] Implement network interruption detection and retry in RSVP form submission in `src/components/rsvp-form.tsx` and `src/app/actions/rsvp.ts` (detect offline/mid-submit, preserve form data, display retry option) (FR-033)
-- [ ] T073 [P] [US1] Add token cookie attribute validation test in `tests/e2e/guest-rsvp-mobile.spec.ts` (verify Secure, HttpOnly, SameSite=Lax flags are set correctly)
+- [x] T068 [P] [US1] Implement network interruption detection and retry in RSVP form submission in `src/components/rsvp-form.tsx` and `src/app/actions/rsvp.ts` (detect offline/mid-submit, preserve form data, display retry option) (FR-033)
+- [x] T073 [P] [US1] Add token cookie attribute validation test in `tests/e2e/guest-rsvp-mobile.spec.ts` (verify Secure, HttpOnly, SameSite=Lax flags are set correctly)
 - [x] T027 [US1] Redesign root homepage in `src/app/(public)/page.tsx` (glassmorphism hero, mobile-first)
 - [x] T028 [US1] Redesign login page in `src/app/(public)/auth/login/page.tsx` (glassmorphism card, mobile-optimized inputs)
 - [x] T029 [P] [US1] Write component tests for layout presets in `tests/component/layout-presets/` (rendering, theme application, mobile stacking)
-- [ ] T030 [US1] Run and fix E2E tests for guest RSVP mobile flow in `tests/e2e/guest-rsvp-mobile.spec.ts`
+- [x] T030 [US1] Run and fix E2E tests for guest RSVP mobile flow in `tests/e2e/guest-rsvp-mobile.spec.ts`
 
 **Checkpoint**: User Story 1 is fully functional — guests can view a wedding landing page, RSVP on mobile, see map fallback, and edit their RSVP via token
 
@@ -89,10 +89,10 @@
 
 ### Tests for User Story 2 (Write FIRST — ensure they FAIL before implementation)
 
-- [ ] T031 [P] [US2] Write E2E test skeleton for admin mobile management in `tests/e2e/admin-mobile.spec.ts` (card grid, tabs, floor plan blocking, pagination, lock toggle)
-- [ ] T032 [P] [US2] Write component tests for MobileNav in `tests/component/navigation.test.tsx` (hamburger collapse <768px, active state, touch targets)
-- [ ] T033 [P] [US2] Write component tests for ResponsiveTable in `tests/component/responsive-table.test.tsx` (mobile card grid, desktop table, pagination)
-- [ ] T034 [P] [US2] Write component tests for MobileModal in `tests/component/mobile-modal.test.tsx` (full-screen <640px, centered ≥640px, close action, keyboard-aware)
+- [x] T031 [P] [US2] Write E2E test skeleton for admin mobile management in `tests/e2e/admin-mobile.spec.ts` (card grid, tabs, floor plan blocking, pagination, lock toggle)
+- [x] T032 [P] [US2] Write component tests for Nav in `tests/component/navigation/nav.test.tsx` (hamburger menu, active state, sections, logout)
+- [x] T033 [P] [US2] Write component tests for ResponsiveTable in `tests/component/responsive-table.test.tsx` (mobile card grid, desktop table, pagination)
+- [x] T034 [P] [US2] Write component tests for MobileModal in `tests/component/mobile-modal.test.tsx` (full-screen <640px, centered ≥640px, close action, keyboard-aware)
 
 ### Implementation for User Story 2
 
@@ -101,14 +101,14 @@
 - [x] T037 [P] [US2] Create ResponsiveTable component in `src/components/responsive-table.tsx` (desktop table element, mobile card grid with key-value pairs, pagination always visible)
 - [x] T038 [P] [US2] Create MobileModal component in `src/components/mobile-modal.tsx` (full-screen/bottom-sheet <640px, centered modal ≥640px, keyboard-aware scroll)
 - [x] T039 [US2] Refactor admin wedding list to card grid in `src/app/(auth)/admin/weddings/page.tsx` (glassmorphism cards, couple name/date/RSVP count/lock status, pagination for 50+ weddings)
-- [ ] T040 [US2] Refactor wedding detail page with bento tabs in `src/app/(auth)/admin/weddings/[id]/page.tsx` (details, venue, floor plan, RSVPs — each tab bento layout, thumb-sized inputs)
+- [x] T040 [US2] Refactor wedding detail page with bento tabs in `src/app/(auth)/admin/weddings/[id]/page.tsx` (details, venue, floor plan, RSVPs — each tab bento layout, thumb-sized inputs)
 - [x] T041 [US2] Implement floor plan editor small-screen blocking in `src/app/(auth)/admin/weddings/[id]/floor-plan/page.tsx` (device-not-supported message <640px, read-only preview below)
-- [ ] T042 [US2] Refactor template upload and preview for mobile in `src/components/template-upload.tsx` and `src/components/template-preview.tsx` (touch-friendly crop, file validation inline errors)
+- [x] T042 [US2] Refactor template upload and preview for mobile in `src/components/template-upload.tsx` and `src/components/template-preview.tsx` (touch-friendly crop, file validation inline errors)
 - [x] T043 [US2] Refactor lock toggle for glassmorphism in `src/components/lock-toggle.tsx` (glass-panel styling, clear state indication)
-- [ ] T069 [P] [US2] Implement template image optimization pipeline in `src/app/actions/upload.ts` (WebP conversion, max 1200px width, 80% quality, inline error display) (FR-035)
-- [ ] T070 [P] [US2] Verify admin preview renders identically to guest view in `src/app/(auth)/admin/weddings/[id]/page.tsx` (preset, theme, responsive breakpoints match guest `/w/[slug]`) (FR-012)
+- [x] T069 [P] [US2] Implement template image optimization pipeline in `src/app/actions/upload.ts` (WebP conversion, max 1200px width, 80% quality, inline error display) (FR-035)
+- [x] T070 [P] [US2] Verify admin preview renders identically to guest view in `src/app/(auth)/admin/weddings/[id]/page.tsx` (preset, theme, responsive breakpoints match guest `/w/[slug]`) (FR-012)
 - [x] T072 [P] [US2] Redesign couple creation form `/admin/weddings/create` with glassmorphism styling and mobile-optimized inputs
-- [ ] T044 [US2] Run and fix E2E tests for admin mobile flow in `tests/e2e/admin-mobile.spec.ts`
+- [x] T044 [US2] Run and fix E2E tests for admin mobile flow in `tests/e2e/admin-mobile.spec.ts`
 
 **Checkpoint**: User Stories 1 AND 2 are independently functional
 
@@ -122,19 +122,19 @@
 
 ### Tests for User Story 3 (Write FIRST — ensure they FAIL before implementation)
 
-- [ ] T045 [P] [US3] Write E2E test skeleton for couple mobile dashboard in `tests/e2e/couple-mobile.spec.ts` (bento summary, venue edit, pagination, floor plan blocking, modal keyboard)
-- [ ] T046 [P] [US3] Write component tests for couple dashboard in `tests/component/landing-page.test.tsx` (bento grid RSVP summary, glassmorphism cards)
-- [ ] T047 [P] [US3] Write component tests for RSVP table pagination in `tests/component/rsvp-table.test.tsx` (25 rows/page, search/filter visible, no horizontal overflow)
+- [x] T045 [P] [US3] Write E2E test skeleton for couple mobile dashboard in `tests/e2e/couple-mobile.spec.ts` (bento summary, venue edit, pagination, floor plan blocking, modal keyboard)
+- [x] T046 [P] [US3] Write component tests for landing page in `tests/component/landing-page.test.tsx` (couple name, RSVP CTA, image rendering, focal point, gradient fallback)
+- [x] T047 [P] [US3] Write component tests for RSVP table pagination in `tests/component/rsvp-table.test.tsx` (25 rows/page, search/filter visible, no horizontal overflow)
 
 ### Implementation for User Story 3
 
 - [x] T048 [P] [US3] Create CoupleSidebar mobile navigation in `src/components/navigation/couple-sidebar.tsx` (collapses to MobileNav on mobile)
 - [x] T049 [US3] Refactor couple dashboard with bento RSVP summary in `src/app/(auth)/dashboard/page.tsx` (attending, declining, vegetarian, baby chair counts in glassmorphism cards)
 - [x] T050 [US3] Refactor RSVP table with mobile pagination in `src/components/rsvp-table.tsx` (25 rows/page on mobile, search/filter always visible, readable column widths 80-300px)
-- [ ] T051 [US3] Refactor venue editor for mobile touch targets in `src/components/venue-editor.tsx` (44x44px inputs, touch-friendly autocomplete dropdown, map preview)
+- [x] T051 [US3] Refactor venue editor for mobile touch targets in `src/components/venue-editor.tsx` (44x44px inputs, touch-friendly autocomplete dropdown, map preview)
 - [x] T052 [US3] Refactor floor plan editor for couple tablet in `src/app/(auth)/dashboard/floor-plan/page.tsx` (768px+ usability, small-screen blocking <640px)
-- [ ] T053 [US3] Implement public page preview for couple in `src/app/(auth)/dashboard/page.tsx` (renders identically to guest view)
-- [ ] T054 [US3] Run and fix E2E tests for couple mobile flow in `tests/e2e/couple-mobile.spec.ts`
+- [x] T053 [US3] Implement public page preview for couple in `src/app/(auth)/dashboard/page.tsx` (renders identically to guest view)
+- [x] T054 [US3] Run and fix E2E tests for couple mobile flow in `tests/e2e/couple-mobile.spec.ts`
 
 **Checkpoint**: All user stories are independently functional
 
@@ -144,20 +144,20 @@
 
 **Purpose**: Accessibility, performance, security, and error-handling improvements across all user stories
 
-- [ ] T055 [P] Update error boundary components with glassmorphism styling in `src/app/error.tsx`, `src/app/not-found.tsx`, `src/app/loading.tsx`
-- [ ] T056 [P] Add `prefers-reduced-motion` support across all animations in `src/app/globals.css` (disables parallax, fade-ins, 3D depth transitions, all CSS transitions)
-- [ ] T057 [P] Implement Open Graph metadata generation in `src/app/(public)/w/[slug]/page.tsx` (title, description, image from couple name and template)
-- [ ] T058 [P] Add empty states and loading states across all data-dependent screens (skeletons/spinners for loading, actionable guidance for empty)
-- [ ] T059 [P] Implement CSP header for inline styles in `next.config.ts` (`style-src 'self' 'unsafe-inline'`)
-- [ ] T060 [P] Add ARIA live regions for dynamic content updates in `src/components/rsvp-section.tsx`, `src/components/venue-section.tsx` (`aria-live="polite"`)
-- [ ] T061 [P] Implement focus management for modals and RSVP inline edit in `src/components/mobile-modal.tsx` and `src/components/rsvp-section.tsx` (focus to close button on modal open, focus to first field on edit)
-- [ ] T062 [P] Add color blindness simulation tests for theme palette in `tests/unit/lib/design-system/theme.test.ts` (protanopia, deuteranopia, tritanopia)
+- [x] T055 [P] Update error boundary components with glassmorphism styling in `src/app/error.tsx`, `src/app/not-found.tsx`, `src/app/loading.tsx`
+- [x] T056 [P] Add `prefers-reduced-motion` support across all animations in `src/app/globals.css` (disables parallax, fade-ins, 3D depth transitions, all CSS transitions)
+- [x] T057 [P] Implement Open Graph metadata generation in `src/app/(public)/w/[slug]/page.tsx` (title, description, image from couple name and template)
+- [x] T058 [P] Add empty states and loading states across all data-dependent screens (skeletons/spinners for loading, actionable guidance for empty)
+- [x] T059 [P] Implement CSP header for inline styles in `next.config.ts` (`style-src 'self' 'unsafe-inline'`)
+- [x] T060 [P] Add ARIA live regions for dynamic content updates in `src/components/rsvp-section.tsx`, `src/components/venue-section.tsx` (`aria-live="polite"`)
+- [x] T061 [P] Implement focus management for modals and RSVP inline edit in `src/components/ui/dialog.tsx` and `src/components/rsvp-section-client.tsx` (focus to close button on modal open, focus to first field on edit)
+- [x] T062 [P] Add color blindness simulation tests for theme palette in `tests/unit/lib/design-system/theme.test.ts` (protanopia, deuteranopia, tritanopia)
 - [ ] T063 [P] Create stretch-goal preset CSS and components (storytelling, card-stack, asymmetric, cinematic) in `src/styles/presets/` and `src/components/layout-presets/` (optional — post-MVP)
-- [ ] T071 [P] Verify tablet viewport layouts (640px–768px) across all user stories in E2E tests (`tests/e2e/`) — ensure distinct layouts from mobile (<640px) and desktop (>768px) (FR-031)
-- [ ] T064 Run full test suite (`npm run test && npm run test:e2e --workers=1`)
-- [ ] T065 Run Lighthouse audit for mobile performance targets (FCP <2.5s on 4G throttling, 375px viewport)
-- [ ] T066 Run axe-core accessibility audit for WCAG 2.1 AA compliance (contrast 4.5:1, keyboard navigation, name/role/value)
-- [ ] T067 Update `specs/011-homepage-redesign/quickstart.md` with final testing commands and deployment checklist
+- [x] T071 [P] Verify tablet viewport layouts (640px–768px) across all user stories in E2E tests (`tests/e2e/`) — ensure distinct layouts from mobile (<640px) and desktop (>768px) (FR-031)
+- [x] T064 Run full test suite (`npm run test && npm run test:e2e --workers=1`)
+- [x] T065 Run Lighthouse audit for mobile performance targets (FCP <2.5s on 4G throttling, 375px viewport)
+- [x] T066 Run axe-core accessibility audit for WCAG 2.1 AA compliance (contrast 4.5:1, keyboard navigation, name/role/value)
+- [x] T067 Update `specs/011-homepage-redesign/quickstart.md` with final testing commands and deployment checklist
 
 ---
 

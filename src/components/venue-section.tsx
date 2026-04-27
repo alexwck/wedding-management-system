@@ -89,7 +89,7 @@ export function VenueSection({
       })()}
 
       {hasCoordinates && mapFailed && (
-        <div className="space-y-3 rounded-lg border border-muted bg-muted/30 p-4 text-center">
+        <div className="space-y-3 rounded-lg border border-muted bg-muted/30 p-4 text-center" aria-live="polite">
           <p className="text-sm text-muted-foreground">Map is currently unavailable.</p>
           <GlassButton variant="secondary" size="sm" onClick={handleRetry}>
             Retry
