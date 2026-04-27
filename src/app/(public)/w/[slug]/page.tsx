@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -10,8 +11,39 @@ import { DEFAULT_THEME, mergeTheme } from "@/lib/design-system/theme-config";
 import { getRsvpByToken } from "@/lib/rsvp-token";
 import { PresetWrapper } from "@/components/preset-wrapper";
 import type { PresetName } from "@/lib/design-system/preset-loader";
+
 interface PublicLandingPageProps {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: PublicLandingPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = createAdminClient();
+  const { data: wedding } = await supabase
+    .from("weddings")
+    .select("couple_name, welcome_message, template_image_url")
+    .eq("slug", slug)
+    .single();
+
+  const title = wedding?.couple_name ? `${wedding.couple_name}'s Wedding` : "Wedding Invitation";
+  const description = wedding?.welcome_message ?? "You're invited to celebrate with us!";
+  const image = wedding?.template_image_url ?? undefined;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: image ? [image] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: image ? [image] : undefined,
+    },
+  };
 }
 
 export default async function PublicLandingPage({ params }: PublicLandingPageProps) {

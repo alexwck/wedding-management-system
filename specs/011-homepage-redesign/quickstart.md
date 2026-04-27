@@ -38,10 +38,13 @@ supabase db reset
 ## Testing Commands
 
 ```bash
-# Unit + component tests
+# Unit + component tests (Vitest)
 npm run test
 
-# E2E tests (requires dev server + Supabase)
+# Watch mode for development
+npm run test:watch
+
+# E2E tests (requires dev server + Supabase running)
 npm run test:e2e --workers=1
 
 # Lint
@@ -49,6 +52,12 @@ npm run lint
 
 # Build check
 npm run build
+
+# Lighthouse audit (mobile)
+npx lighthouse http://localhost:3000/w/test-wedding-1 --preset=desktop --chrome-flags="--window-size=375,812"
+
+# axe-core accessibility audit
+npx axe-core http://localhost:3000/w/test-wedding-1
 ```
 
 ## Common Tasks
@@ -83,13 +92,20 @@ npm run build
 | Mobile layout broken | Missing `viewport` meta tag | Check `layout.tsx` has `<meta name="viewport" ...>` |
 | RSVP edit not showing | Cookie expired or blocked | Check browser dev tools → Application → Cookies |
 | Theme not applying | `theme_json` invalid | Check server logs for Zod validation errors |
+| Network error on RSVP | Guest lost connection | Form preserves data; yellow retry banner appears; auto-retry after 3s |
+| Animations not working | `prefers-reduced-motion: reduce` enabled | Expected — all animations disabled for accessibility |
 
 ## Deployment Checklist
 
-- [ ] All migrations applied to production
-- [ ] `npm run test` passes (unit + component)
+- [ ] All migrations applied to production (013_add_theme_to_weddings, 014_create_rsvp_tokens, 015_create_platform_settings)
+- [ ] `npm run test` passes (unit + component — 540+ tests)
 - [ ] `npm run test:e2e --workers=1` passes (all projects)
 - [ ] `npm run build` succeeds without errors
-- [ ] Mobile Lighthouse score ≥ 80 on `/w/[slug]`
-- [ ] Accessibility audit passes (WCAG 2.1 AA)
-- [ ] Cookie `SameSite` and `Secure` flags set for production
+- [ ] Mobile Lighthouse score ≥ 80 on `/w/[slug]` (FCP < 2.5s on 4G throttling)
+- [ ] Accessibility audit passes (WCAG 2.1 AA): contrast 4.5:1, keyboard navigation, ARIA live regions, `prefers-reduced-motion`
+- [ ] Cookie `SameSite=Lax`, `Secure`, `HttpOnly` flags set for production RSVP tokens
+- [ ] CSP headers configured in `next.config.ts` (`style-src 'self' 'unsafe-inline'`)
+- [ ] Open Graph metadata generating correctly for wedding pages
+- [ ] Template image optimization pipeline (WebP, 1200px max, 80% quality) active
+- [ ] Network interruption retry behavior tested on RSVP form
+- [ ] Admin preview tab renders identically to guest view

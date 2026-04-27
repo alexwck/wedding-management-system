@@ -74,7 +74,7 @@ export function RSVPSection({ rsvps, title = "RSVP Responses", weddingId, summar
       )}
 
       {expanded && (
-        <div className="px-4 pb-4 max-h-[600px] overflow-y-auto">
+        <div className="px-4 pb-4 max-h-[600px] overflow-y-auto" aria-live="polite">
           {rsvps.length === 0 ? (
             <p className="text-center py-8 text-muted-foreground">
               No RSVP responses yet

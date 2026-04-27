@@ -47,6 +47,15 @@ function DialogContent({
 }: DialogPrimitive.Popup.Props & {
   showCloseButton?: boolean
 }) {
+  const closeButtonRef = React.useRef<HTMLButtonElement>(null);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      closeButtonRef.current?.focus();
+    }, 50);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <DialogPortal>
       <DialogOverlay />
@@ -64,6 +73,7 @@ function DialogContent({
             data-slot="dialog-close"
             render={
               <Button
+                ref={closeButtonRef}
                 variant="ghost"
                 className="absolute top-2 right-2"
                 size="icon-sm"
