@@ -8,6 +8,7 @@ test.describe("File upload validation", () => {
     await page.click('button[type="submit"]');
     await page.waitForURL(/\/admin/);
     await page.goto("/admin/weddings/1");
+    await page.waitForLoadState("networkidle");
   });
 
   test("shows error for oversized file", async ({ page }) => {

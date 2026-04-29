@@ -12,6 +12,7 @@ test.describe("Template image refresh", () => {
     await expect(page).toHaveURL(/\/admin/);
 
     await page.goto("/admin/weddings/1");
+    await page.waitForLoadState("networkidle");
 
     // Wedding 1 has a template image, so "Adjust Crop" button should be visible
     const adjustBtn = page.locator('button:has-text("Adjust Crop")');
@@ -34,6 +35,7 @@ test.describe("Template image refresh", () => {
     await expect(page).toHaveURL(/\/admin/);
 
     await page.goto("/admin/weddings/1");
+    await page.waitForLoadState("networkidle");
 
     // Create a minimal test PNG (1x1 red pixel)
     const testImagePath = path.join(__dirname, "fixtures", "test-image.png");

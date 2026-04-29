@@ -24,7 +24,8 @@ test.describe("RSVP single-page experience", () => {
     // Submit an RSVP
     await page.fill("#guestName", `E2E Guest ${Date.now()}`);
     await page.click('button[type="submit"]');
-    await expect(page.locator("h1:has-text('Thank You')")).toBeVisible({ timeout: 10000 });
+    // After submission, page shows confirmation card (cookie triggers server re-render)
+    await expect(page.locator("h2:has-text('Your RSVP')")).toBeVisible({ timeout: 10000 });
   });
 
   test("fallback hero for wedding without template image", async ({ page, browserName }) => {
@@ -37,7 +38,7 @@ test.describe("RSVP single-page experience", () => {
     await expect(page.locator("body")).not.toContainText("404");
 
     // Fallback hero should show couple name
-    await expect(page.locator("h1:has-text('Jordan & Taylor')")).toBeVisible();
+    await expect(page.locator("h1.text-4xl")).toHaveText("Jordan & Taylor");
 
     // RSVP form should still be on the same page
     await expect(page.locator("a[href='#rsvp']")).toBeVisible();

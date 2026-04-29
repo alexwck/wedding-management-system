@@ -10,23 +10,23 @@ test.describe("Dashboard layout (US2)", () => {
       await expect(page).toHaveURL(/\/admin/);
     });
 
-    test("admin page shows two columns at 1440px", async ({ page }) => {
+    test("admin page shows details tab with template and date at 1440px", async ({ page }) => {
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.goto("/admin/weddings/1");
 
-      // Should see the two-column grid
-      const grid = page.locator(".grid.lg\\:grid-cols-3");
-      await expect(grid).toBeVisible();
-
-      // Left column should have template upload button
+      // Default tab is "Details" — should see template upload
       await expect(page.locator('input[type="file"]').first()).toBeVisible();
 
-      // Right column should have wedding date picker and venue editor
-      await expect(page.locator("h3", { hasText: "Wedding Date & Time" })).toBeVisible();
-      await expect(page.locator("h3", { hasText: "Venue Details" })).toBeVisible();
+      // Should see wedding date picker
+      await expect(page.locator("h3.text-lg", { hasText: "Wedding Date" })).toBeVisible();
 
-      // RSVP section should be visible
-      await expect(page.locator("h3", { hasText: "RSVP Responses" })).toBeVisible();
+      // Click Venue tab
+      await page.click('button:has-text("Venue")');
+      await expect(page.locator("h3", { hasText: "Venue Details" }).first()).toBeVisible();
+
+      // Click RSVPs tab
+      await page.click('button:has-text("RSVPs")');
+      await expect(page.locator("h3", { hasText: "RSVP Responses" }).first()).toBeVisible();
     });
 
     test("admin page stacks vertically at 768px", async ({ page }) => {

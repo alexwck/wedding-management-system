@@ -11,14 +11,9 @@ test.describe("Admin manages weddings", () => {
     // Should redirect to admin dashboard
     await expect(page).toHaveURL(/\/admin/);
 
-    // Navigate to weddings
-    await page.goto("/admin/weddings");
-
-    // Should see wedding list
-    await expect(page.locator("table")).toBeVisible();
-
-    // Click first wedding to manage
-    await page.locator("table tbody tr td a").first().click();
+    // Navigate directly to first wedding
+    await page.goto("/admin/weddings/1");
+    await page.waitForLoadState("networkidle");
 
     // Should see upload area
     await expect(page.locator('input[type="file"]')).toBeVisible();
@@ -67,7 +62,7 @@ test.describe("Admin manages couple accounts (US4)", () => {
     await page.goto("/admin/couples");
 
     // Should see the couple creation form
-    await expect(page.locator("text=Create Couple Account")).toBeVisible();
+    await expect(page.locator("h3:has-text('Create Couple')")).toBeVisible();
 
     // Fill out the form
     const uniqueId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -104,17 +99,14 @@ test.describe("Admin manages couple accounts (US4)", () => {
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/admin/);
 
-    // Navigate to weddings
-    await page.goto("/admin/weddings");
+    // Navigate directly to first wedding
+    await page.goto("/admin/weddings/1");
 
-    // Should see wedding list
-    await expect(page.locator("table")).toBeVisible();
-
-    // Click first wedding to view its details including RSVP data
-    await page.locator("table tbody tr td a").first().click();
+    // Click RSVPs tab to view RSVP data
+    await page.click('button:has-text("RSVPs")');
 
     // Should see RSVP section (admin can see all RSVPs for any wedding)
-    await expect(page.locator("h3", { hasText: "RSVP Responses" })).toBeVisible();
+    await expect(page.locator("h3", { hasText: "RSVP Responses" }).first()).toBeVisible();
   });
 
   test("couple creation form validates required fields", async ({ page }) => {

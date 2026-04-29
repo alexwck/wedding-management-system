@@ -1,0 +1,18 @@
+# Ignore claude skills examples (they contain template/example code)
+.claude/skills/
+
+# Ignore build output and dependencies
+.next/
+node_modules/
+dist/
+build/
+coverage/
+
+# Ignore lock files and generated files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+*.min.js
+
+# Ignore environment files
+.env*
