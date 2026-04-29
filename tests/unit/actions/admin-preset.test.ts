@@ -30,7 +30,16 @@ describe("updateWeddingPreset", () => {
     mockAuthGetUser.mockResolvedValue({ data: { user: null } });
     const result = await updateWeddingPreset(1, "cinematic");
     expect(result.success).toBe(false);
-    expect(result.error).toBe("Not authenticated.");
+    expect(result.error).toBe("Admin access required.");
+  });
+
+  it("rejects non-admin users", async () => {
+    mockAuthGetUser.mockResolvedValue({
+      data: { user: { id: "couple-user-1", app_metadata: { role: "couple" } } },
+    });
+    const result = await updateWeddingPreset(1, "cinematic");
+    expect(result.success).toBe(false);
+    expect(result.error).toBe("Admin access required.");
   });
 
   it("rejects invalid preset names", async () => {
@@ -72,4 +81,5 @@ describe("updateWeddingPreset", () => {
     expect(result.success).toBe(false);
     expect(result.error).toContain("locked");
   });
+
 });

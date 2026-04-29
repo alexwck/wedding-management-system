@@ -3,8 +3,9 @@ import { describe, it, expect } from "vitest";
 describe("FloorPlanCanvas handleSelectItem null guard", () => {
   it("should not crash when addItem returns null — null is safely handled", () => {
     // Simulates the guard logic: if addItem returns null, skip setSelectedItemId
-    const addItem = (): null => null;
-    const setSelectedItemId = () => {
+    const addItem: () => { id: string } | null = () => null;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const setSelectedItemId = (_: string) => {
       throw new Error("setSelectedItemId should not be called");
     };
 

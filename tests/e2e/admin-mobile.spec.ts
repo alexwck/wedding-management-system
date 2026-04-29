@@ -1,7 +1,7 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 test.describe("Admin mobile management flow (US2)", () => {
-  async function loginAsAdmin(page) {
+  async function loginAsAdmin(page: Page) {
     await page.goto("/auth/login");
     await page.fill('input[id="email"]', "admin@example.com");
     await page.fill('input[id="password"]', "admin123");

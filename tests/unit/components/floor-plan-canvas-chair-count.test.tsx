@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { isTableType } from "@/lib/floor-plan/constants";
 import { getMaxChairCount } from "@/components/floor-plan/hooks/use-chair-generation";
-import type { FloorPlanItem, ItemType } from "@/types/floor-plan";
+import type { FloorPlanItem } from "@/types/floor-plan";
 
 describe("isTableType", () => {
   it("returns true for round_table", () => {

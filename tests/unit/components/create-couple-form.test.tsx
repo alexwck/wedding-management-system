@@ -92,7 +92,7 @@ describe("CreateCoupleForm", () => {
 
   it("disables submit button and shows Creating... while submitting", async () => {
     const user = userEvent.setup();
-    let resolveAction!: (value: unknown) => void;
+    let resolveAction!: (value: Awaited<ReturnType<typeof createCoupleAccount>>) => void;
     mockedCreateCoupleAccount.mockReturnValueOnce(
       new Promise((resolve) => {
         resolveAction = resolve;

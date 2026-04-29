@@ -1,4 +1,4 @@
-import type { FloorPlanItem, FloorPlanItemMetadata } from "@/types/floor-plan";
+import type { FloorPlanItem } from "@/types/floor-plan";
 
 export function makeFloorPlanItem(
   overrides: Partial<FloorPlanItem> & { id: string },

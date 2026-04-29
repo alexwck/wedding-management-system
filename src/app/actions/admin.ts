@@ -642,8 +642,8 @@ export async function updateWeddingPreset(weddingId: number, layoutPreset: strin
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    return { success: false as const, error: "Not authenticated." };
+  if (!user || user.app_metadata?.role !== "admin") {
+    return { success: false as const, error: "Admin access required." };
   }
 
   if (!VALID_PRESET_NAMES.includes(layoutPreset as (typeof VALID_PRESET_NAMES)[number])) {
@@ -651,9 +651,9 @@ export async function updateWeddingPreset(weddingId: number, layoutPreset: strin
   }
 
   const adminClient = createAdminClient();
-  const authCheck = await verifyWeddingAccess(user, weddingId, adminClient);
-  if (!authCheck.success) return { success: false as const, error: authCheck.error };
-  if (authCheck.isLocked) return { success: false as const, error: "This wedding has been locked. No edits are permitted." };
+
+  const lockCheck = await verifyWeddingNotLocked(weddingId);
+  if (!lockCheck.ok) return { success: false as const, error: lockCheck.error };
 
   const { data, error } = await adminClient
     .from("weddings")
@@ -668,8 +668,6 @@ export async function updateWeddingPreset(weddingId: number, layoutPreset: strin
 
   revalidatePath(`/admin/weddings/${weddingId}`);
   revalidatePath(`/w/${data.slug}`);
-  revalidatePath(`/w/${data.slug}/rsvp`);
-  revalidatePath("/dashboard");
 
   return { success: true as const, layoutPreset: data.layout_preset };
 }

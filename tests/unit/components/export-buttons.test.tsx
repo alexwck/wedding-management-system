@@ -64,7 +64,7 @@ describe("ExportButtons", () => {
 
   it("shows Downloading... while XLSX export is in progress", async () => {
     const user = userEvent.setup();
-    let resolveXlsx: (value: unknown) => void;
+    let resolveXlsx: (value: Awaited<ReturnType<typeof exportToXlsx>>) => void;
     mockExportToXlsx.mockImplementation(
       () =>
         new Promise((resolve) => {

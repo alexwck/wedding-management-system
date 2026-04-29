@@ -9,15 +9,6 @@ vi.mock("@/app/actions/admin", () => ({
   updateTemplateFocalPoint: (...args: unknown[]) => mockUpdateFocalPoint(...args),
 }));
 
-function createImageWithDimensions(width: number, height: number) {
-  return {
-    naturalWidth: width,
-    naturalHeight: height,
-    width,
-    height,
-  };
-}
-
 describe("TemplatePreview — drag-to-crop", () => {
   beforeEach(() => {
     cleanup();

@@ -123,7 +123,7 @@ export function useSeatAssignments(weddingId: number) {
       await Promise.all(unassignPromises);
       await Promise.all(assignPromises);
     },
-    [weddingId, assignmentMap, fetchAssignments],
+    [weddingId, assignmentMap],
   );
 
   return {

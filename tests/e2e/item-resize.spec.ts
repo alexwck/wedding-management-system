@@ -38,7 +38,6 @@ test.describe("Item resize (US6)", () => {
       await canvas.click({ position: { x: 300, y: 200 } });
 
       // Wait for selection to be reflected in top bar
-      const wInput = page.locator('[data-testid="venue-width"]');
       // The dimension inputs should be visible for non-table items
     }
   });

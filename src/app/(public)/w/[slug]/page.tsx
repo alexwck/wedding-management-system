@@ -4,10 +4,9 @@ import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { LandingPage } from "@/components/landing-page";
 import { VenueSection } from "@/components/venue-section";
-import { RSVPForm } from "@/components/rsvp-form";
 import { RSVPSectionClient } from "@/components/rsvp-section-client";
 import { ThemeProvider } from "@/lib/design-system/theme";
-import { DEFAULT_THEME, mergeTheme } from "@/lib/design-system/theme-config";
+import { DEFAULT_THEME } from "@/lib/design-system/theme-config";
 import { getRsvpByToken } from "@/lib/rsvp-token";
 import { PresetWrapper } from "@/components/preset-wrapper";
 import type { PresetName } from "@/lib/design-system/preset-loader";
@@ -75,8 +74,6 @@ export default async function PublicLandingPage({ params }: PublicLandingPagePro
     typeof wedding.theme_json === "object" && wedding.theme_json !== null
       ? (wedding.theme_json as Record<string, unknown>)
       : null;
-
-  const theme = mergeTheme(DEFAULT_THEME, weddingTheme as Parameters<typeof mergeTheme>[1]);
 
   // Check for returning guest token
   const cookieStore = await cookies();
