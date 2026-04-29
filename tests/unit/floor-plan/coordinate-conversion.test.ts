@@ -59,7 +59,6 @@ describe("Round table coordinate conversion", () => {
 
   it("handles edge case: table at origin (0,0)", () => {
     const x = 0;
-    const y = 0;
     const width = 5;
 
     const centerX = (x + width / 2) * FEET_TO_PIXELS;
@@ -132,7 +131,6 @@ describe("Long table coordinate conversion", () => {
 describe("Edge case: boundary coordinate values", () => {
   it("does not produce NaN when table is at canvas edge", () => {
     const x = 49.5; // near edge of 50ft canvas
-    const y = 39.5;
     const width = 5;
 
     const centerX = (x + width / 2) * FEET_TO_PIXELS;
@@ -149,7 +147,6 @@ describe("Edge case: boundary coordinate values", () => {
     const originalX = 10;
     const originalY = 10;
     const width = 5;
-    const rotation = 45;
 
     // After rotation and drag, node reports new center position
     const newCenterPx = (originalX + width / 2) * FEET_TO_PIXELS + 100;

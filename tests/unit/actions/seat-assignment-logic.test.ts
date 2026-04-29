@@ -34,7 +34,7 @@ beforeEach(() => {
 
 describe("assignSeat", () => {
   it("rejects unauthenticated users", async () => {
-    vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({ user: null, error: "Not authenticated." } as const);
+    vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({ user: null, isLocked: null, error: "Not authenticated." } as const);
 
     const result = await assignSeat({
       weddingId: 1,
@@ -48,7 +48,7 @@ describe("assignSeat", () => {
   });
 
   it("rejects non-attending RSVPs", async () => {
-    vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({ user: { id: "u1" } as never, error: null } as const);
+    vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({ user: { id: "u1" } as never, isLocked: false, error: null } as const);
 
     const fromMock = vi.fn();
     fromMock.mockReturnValueOnce(mockFrom({ data: { id: 2, wedding_id: 1, status: "declining" }, error: null }));
@@ -66,7 +66,7 @@ describe("assignSeat", () => {
   });
 
   it("rejects already-assigned RSVPs", async () => {
-    vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({ user: { id: "u1" } as never, error: null } as const);
+    vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({ user: { id: "u1" } as never, isLocked: false, error: null } as const);
 
     const fromMock = vi.fn();
     // Call 1: get RSVP (attending)
@@ -94,14 +94,14 @@ describe("assignSeat", () => {
 
 describe("unassignSeat", () => {
   it("rejects unauthenticated users", async () => {
-    vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({ user: null, error: "Not authenticated." } as const);
+    vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({ user: null, isLocked: null, error: "Not authenticated." } as const);
 
     const result = await unassignSeat({ weddingId: 1, chairItemId: "chair-1" });
     expect(result.success).toBe(false);
   });
 
   it("returns success on valid delete", async () => {
-    vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({ user: { id: "u1" } as never, error: null } as const);
+    vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({ user: { id: "u1" } as never, isLocked: false, error: null } as const);
 
     const fromMock = vi.fn().mockReturnValue(mockFrom({ error: null }));
     vi.mocked(createAdminClient).mockReturnValue({ from: fromMock } as never);
@@ -113,7 +113,7 @@ describe("unassignSeat", () => {
 
 describe("getSeatAssignments", () => {
   it("returns assignments with guest names", async () => {
-    vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({ user: { id: "u1" } as never, error: null } as const);
+    vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({ user: { id: "u1" } as never, isLocked: false, error: null } as const);
 
     const fromMock = vi.fn().mockReturnValue(mockFrom({
       data: [
@@ -134,7 +134,7 @@ describe("getSeatAssignments", () => {
 
 describe("getUnassignedGuests", () => {
   it("returns attending guests without assignments", async () => {
-    vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({ user: { id: "u1" } as never, error: null } as const);
+    vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({ user: { id: "u1" } as never, isLocked: false, error: null } as const);
 
     const fromMock = vi.fn();
     // Promise.all[0]: rsvps query

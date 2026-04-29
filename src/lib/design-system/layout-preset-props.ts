@@ -1,5 +1,3 @@
-import type { PresetName } from "./preset-loader";
-
 export interface LayoutPresetProps {
   wedding: {
     id: number;

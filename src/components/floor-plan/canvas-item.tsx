@@ -12,7 +12,6 @@ import { MiscItem } from "./items/misc-item";
 import { Chair } from "./items/chair";
 import {
   FEET_TO_PIXELS,
-  isTableType,
   topLeftFeetToCenterPixels,
 } from "@/lib/floor-plan/constants";
 import { truncate } from "@/lib/utils";

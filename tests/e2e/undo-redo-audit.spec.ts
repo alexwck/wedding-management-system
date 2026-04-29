@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 
 async function getTableCount(page: Page) {
   const text = await page.locator('[data-testid="canvas-stats"]').textContent().catch(() => "");
-  const match = text.match(/Tables(\d+)\s*Round/);
+  const match = text?.match(/Tables(\d+)\s*Round/);
   return match ? parseInt(match[1], 10) : 0;
 }
 

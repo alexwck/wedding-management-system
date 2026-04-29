@@ -93,9 +93,9 @@ describe("getWeddingRSVPs", () => {
     const result = await getWeddingRSVPs(1);
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.summary.total).toBe(2);
-      expect(result.summary.attending).toBe(1);
-      expect(result.summary.declining).toBe(1);
+      expect(result.summary?.total).toBe(2);
+      expect(result.summary?.attending).toBe(1);
+      expect(result.summary?.declining).toBe(1);
     }
   });
 });

@@ -111,6 +111,7 @@ describe("exportToXlsx action", () => {
   it("returns error for unauthenticated user", async () => {
     vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({
       user: null,
+      isLocked: null,
       error: "Not authenticated.",
     } as const);
 
@@ -121,6 +122,7 @@ describe("exportToXlsx action", () => {
   it("returns success with base64 data and sanitized filename", async () => {
     vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({
       user: { id: "u1" } as never,
+      isLocked: false,
       error: null,
     } as const);
 
@@ -145,6 +147,7 @@ describe("exportToXlsx action", () => {
   it("defaults filename to 'wedding' when couple name is empty", async () => {
     vi.mocked(getAuthAndVerifyAccess).mockResolvedValue({
       user: { id: "u1" } as never,
+      isLocked: false,
       error: null,
     } as const);
 

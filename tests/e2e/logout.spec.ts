@@ -1,6 +1,6 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
-async function clickLogout(page) {
+async function clickLogout(page: Page) {
   // Desktop: logout is in the visible sidebar
   const sidebarLogout = page.locator("aside [data-testid='logout-button']");
   if (await sidebarLogout.isVisible()) {

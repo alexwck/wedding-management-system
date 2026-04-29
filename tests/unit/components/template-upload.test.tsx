@@ -19,7 +19,7 @@ function mockFileReader() {
   class MockFileReader {
     result: string | null = null;
     onload: ((this: MockFileReader, ev: ProgressEvent) => void) | null = null;
-    readAsDataURL(_file: File) {
+    readAsDataURL() {
       this.result = "data:image/png;base64,dGVzdA==";
       if (this.onload) {
         this.onload.call(this, {} as ProgressEvent);
@@ -184,7 +184,7 @@ describe("TemplateUpload", () => {
   });
 
   it("shows uploading state while upload is in progress", async () => {
-    let resolveUpload!: (value: unknown) => void;
+    let resolveUpload!: (value: Awaited<ReturnType<typeof uploadTemplateImage>>) => void;
     mockUploadTemplateImage.mockReturnValueOnce(
       new Promise((resolve) => {
         resolveUpload = resolve;

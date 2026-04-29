@@ -19,7 +19,7 @@ describe("canPlaceItem", () => {
   });
 
   it("returns true when space exists despite existing items", () => {
-    const item = makeFloorPlanItem({ type: "round_table", x: 0, y: 0, width: 5, height: 5 });
+    const item = makeFloorPlanItem({ id: "test-1", type: "round_table", x: 0, y: 0, width: 5, height: 5 });
     expect(canPlaceItem("pillar", [item], venueW, venueH)).toBe(true);
   });
 

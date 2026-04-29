@@ -44,22 +44,6 @@ export function TemplatePreview({
   const offsetAtDragStart = useRef<CropOffset>({ x: 50, y: 50 });
   const imgRef = useRef<HTMLImageElement>(null);
 
-  const getOffsetFromPosition = useCallback(
-    (clientX: number, clientY: number): CropOffset => {
-      const img = imgRef.current;
-      if (!img) return offset ?? { x: 50, y: 50 };
-
-      const rect = img.getBoundingClientRect();
-      const x = clamp(((clientX - rect.left) / rect.width) * 100, 0, 100);
-      const y = clamp(((clientY - rect.top) / rect.height) * 100, 0, 100);
-      return {
-        x: Math.round(x * 100) / 100,
-        y: Math.round(y * 100) / 100,
-      };
-    },
-    [offset],
-  );
-
   const handlePointerDown = useCallback(
     (e: React.MouseEvent | React.TouchEvent) => {
       e.preventDefault();

@@ -1,7 +1,7 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 test.describe("Couple mobile dashboard flow (US3)", () => {
-  async function loginAsCouple(page) {
+  async function loginAsCouple(page: Page) {
     await page.goto("/auth/login");
     await page.fill('input[id="email"]', "alex@example.com");
     await page.fill('input[id="password"]', "couple123");

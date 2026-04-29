@@ -30,8 +30,8 @@ export function PresetSelector({ weddingId, currentPreset, isLocked }: PresetSel
   const [isPending, setIsPending] = useState(false);
 
   useEffect(() => {
-    setSelected(currentPreset);
-  }, [currentPreset]);
+    if (!isPending) setSelected(currentPreset);
+  }, [currentPreset, isPending]);
 
   const handleChange = useCallback(
     async (value: string) => {
