@@ -152,7 +152,14 @@
 - [x] T060 [P] Add ARIA live regions for dynamic content updates in `src/components/rsvp-section.tsx`, `src/components/venue-section.tsx` (`aria-live="polite"`)
 - [x] T061 [P] Implement focus management for modals and RSVP inline edit in `src/components/ui/dialog.tsx` and `src/components/rsvp-section-client.tsx` (focus to close button on modal open, focus to first field on edit)
 - [x] T062 [P] Add color blindness simulation tests for theme palette in `tests/unit/lib/design-system/theme.test.ts` (protanopia, deuteranopia, tritanopia)
-- [ ] T063 [P] Create stretch-goal preset CSS and components (storytelling, card-stack, asymmetric, cinematic) in `src/styles/presets/` and `src/components/layout-presets/` (optional — post-MVP)
+- [x] T063 [P] Create stretch-goal preset CSS and components (storytelling, card-stack, asymmetric, cinematic) in `src/styles/presets/` and `src/components/layout-presets/` (optional — post-MVP)
+- [x] T072 [P] Add `layout_preset` and `theme_json` to `getWeddingRSVPs` and `getMyWeddingRSVPs` server actions in `src/app/actions/admin.ts`
+- [x] T073 [P] Create `updateWeddingPreset` server action in `src/app/actions/admin.ts` (validates preset name, verifies auth/lock, updates DB, revalidates paths)
+- [x] T074 [P] Create `PresetSelector` component in `src/components/preset-selector.tsx` (dropdown with 7 presets, disabled when locked, success/error feedback)
+- [x] T075 [P] Add `PresetSelector` to admin wedding detail page `src/app/(auth)/admin/weddings/[id]/page.tsx` (Details tab, inside BentoGrid)
+- [x] T076 [P] Add `PresetSelector` to couple dashboard `src/app/(auth)/dashboard/page.tsx`
+- [x] T077 [P] Write component tests for `PresetSelector` in `tests/component/preset-selector.test.tsx` (render, select, success, error, locked)
+- [x] T078 [P] Write unit tests for `updateWeddingPreset` in `tests/unit/actions/admin-preset.test.ts` (auth, invalid preset, locked wedding, success)
 - [x] T071 [P] Verify tablet viewport layouts (640px–768px) across all user stories in E2E tests (`tests/e2e/`) — ensure distinct layouts from mobile (<640px) and desktop (>768px) (FR-031)
 - [x] T064 Run full test suite (`npm run test && npm run test:e2e --workers=1`)
 - [x] T065 Run Lighthouse audit for mobile performance targets (FCP <2.5s on 4G throttling, 375px viewport)

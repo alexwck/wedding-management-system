@@ -3,6 +3,10 @@ import { render, screen, cleanup } from "@testing-library/react";
 import { PresetBento } from "@/components/layout-presets/preset-bento";
 import { PresetMinimalist } from "@/components/layout-presets/preset-minimalist";
 import { PresetMagazine } from "@/components/layout-presets/preset-magazine";
+import { PresetStorytelling } from "@/components/layout-presets/preset-storytelling";
+import { PresetCardStack } from "@/components/layout-presets/preset-card-stack";
+import { PresetAsymmetric } from "@/components/layout-presets/preset-asymmetric";
+import { PresetCinematic } from "@/components/layout-presets/preset-cinematic";
 import { ThemeProvider } from "@/lib/design-system/theme";
 
 const mockWedding = {
@@ -83,6 +87,82 @@ describe("Layout Presets", () => {
       </ThemeProvider>
     );
     const container = screen.getByText("Alice & Bob").closest(".preset-bento");
+    expect(container).toBeInTheDocument();
+  });
+
+  it("PresetStorytelling renders couple name", () => {
+    render(
+      <ThemeProvider globalTheme={mockTheme}>
+        <PresetStorytelling wedding={mockWedding} theme={mockTheme} />
+      </ThemeProvider>
+    );
+    expect(screen.getByText("Alice & Bob")).toBeInTheDocument();
+  });
+
+  it("PresetStorytelling applies preset class", () => {
+    render(
+      <ThemeProvider globalTheme={mockTheme}>
+        <PresetStorytelling wedding={mockWedding} theme={mockTheme} />
+      </ThemeProvider>
+    );
+    const container = screen.getByText("Alice & Bob").closest(".preset-storytelling");
+    expect(container).toBeInTheDocument();
+  });
+
+  it("PresetCardStack renders couple name", () => {
+    render(
+      <ThemeProvider globalTheme={mockTheme}>
+        <PresetCardStack wedding={mockWedding} theme={mockTheme} />
+      </ThemeProvider>
+    );
+    expect(screen.getByText("Alice & Bob")).toBeInTheDocument();
+  });
+
+  it("PresetCardStack applies preset class", () => {
+    render(
+      <ThemeProvider globalTheme={mockTheme}>
+        <PresetCardStack wedding={mockWedding} theme={mockTheme} />
+      </ThemeProvider>
+    );
+    const container = screen.getByText("Alice & Bob").closest(".preset-card-stack");
+    expect(container).toBeInTheDocument();
+  });
+
+  it("PresetAsymmetric renders couple name", () => {
+    render(
+      <ThemeProvider globalTheme={mockTheme}>
+        <PresetAsymmetric wedding={mockWedding} theme={mockTheme} />
+      </ThemeProvider>
+    );
+    expect(screen.getByText("Alice & Bob")).toBeInTheDocument();
+  });
+
+  it("PresetAsymmetric applies preset class", () => {
+    render(
+      <ThemeProvider globalTheme={mockTheme}>
+        <PresetAsymmetric wedding={mockWedding} theme={mockTheme} />
+      </ThemeProvider>
+    );
+    const container = screen.getByText("Alice & Bob").closest(".preset-asymmetric");
+    expect(container).toBeInTheDocument();
+  });
+
+  it("PresetCinematic renders couple name", () => {
+    render(
+      <ThemeProvider globalTheme={mockTheme}>
+        <PresetCinematic wedding={mockWedding} theme={mockTheme} />
+      </ThemeProvider>
+    );
+    expect(screen.getByText("Alice & Bob")).toBeInTheDocument();
+  });
+
+  it("PresetCinematic applies preset class", () => {
+    render(
+      <ThemeProvider globalTheme={mockTheme}>
+        <PresetCinematic wedding={mockWedding} theme={mockTheme} />
+      </ThemeProvider>
+    );
+    const container = screen.getByText("Alice & Bob").closest(".preset-cinematic");
     expect(container).toBeInTheDocument();
   });
 });
