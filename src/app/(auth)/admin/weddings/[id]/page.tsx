@@ -7,6 +7,7 @@ import { WeddingDatePicker } from "@/components/wedding-date-picker";
 import { RSVPSection } from "@/components/rsvp-section";
 import { EditableCoupleName } from "@/components/editable-couple-name";
 import { LockToggle } from "@/components/lock-toggle";
+import { PresetSelector } from "@/components/preset-selector";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GlassPanel } from "@/components/glassmorphism/glass-panel";
 import { BentoGrid } from "@/components/bento/bento-grid";
@@ -95,6 +96,14 @@ export default async function ManageWeddingPage({ params }: ManageWeddingPagePro
                   isAdmin={true}
                 />
               </GlassPanel>
+            </BentoItem>
+
+            <BentoItem colSpan={2} rowSpan={1}>
+              <PresetSelector
+                weddingId={wedding.id}
+                currentPreset={wedding.layoutPreset ?? "bento"}
+                isLocked={wedding.isLocked}
+              />
             </BentoItem>
           </BentoGrid>
         </TabsContent>

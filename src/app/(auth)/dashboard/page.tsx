@@ -4,6 +4,7 @@ import { RVPSummary } from "@/components/rsvp-summary";
 import { VenueEditor } from "@/components/venue-editor";
 import { WeddingDatePicker } from "@/components/wedding-date-picker";
 import { EditableCoupleName } from "@/components/editable-couple-name";
+import { PresetSelector } from "@/components/preset-selector";
 
 export default async function CoupleDashboard() {
   const result = await getMyWeddingRSVPs();
@@ -97,6 +98,12 @@ export default async function CoupleDashboard() {
           <div className="glass-panel rounded-xl p-6">
             <RVPSummary summary={summary} />
           </div>
+
+          <PresetSelector
+            weddingId={wedding.id}
+            currentPreset={wedding.layoutPreset ?? "bento"}
+            isLocked={wedding.isLocked}
+          />
 
           {summary.total === 0 && (
             <div className="text-center py-8 text-muted-foreground">
