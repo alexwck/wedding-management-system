@@ -8,6 +8,7 @@ import { RSVPSection } from "@/components/rsvp-section";
 import { EditableCoupleName } from "@/components/editable-couple-name";
 import { LockToggle } from "@/components/lock-toggle";
 import { PresetSelector } from "@/components/preset-selector";
+import { DEFAULT_PRESET } from "@/lib/design-system/preset-loader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GlassPanel } from "@/components/glassmorphism/glass-panel";
 import { BentoGrid } from "@/components/bento/bento-grid";
@@ -101,7 +102,7 @@ export default async function ManageWeddingPage({ params }: ManageWeddingPagePro
             <BentoItem colSpan={2} rowSpan={1}>
               <PresetSelector
                 weddingId={wedding.id}
-                currentPreset={wedding.layoutPreset ?? "bento"}
+                currentPreset={wedding.layoutPreset ?? DEFAULT_PRESET}
                 isLocked={wedding.isLocked}
               />
             </BentoItem>

@@ -5,6 +5,7 @@ import { VenueEditor } from "@/components/venue-editor";
 import { WeddingDatePicker } from "@/components/wedding-date-picker";
 import { EditableCoupleName } from "@/components/editable-couple-name";
 import { PresetSelector } from "@/components/preset-selector";
+import { DEFAULT_PRESET } from "@/lib/design-system/preset-loader";
 
 export default async function CoupleDashboard() {
   const result = await getMyWeddingRSVPs();
@@ -101,7 +102,7 @@ export default async function CoupleDashboard() {
 
           <PresetSelector
             weddingId={wedding.id}
-            currentPreset={wedding.layoutPreset ?? "bento"}
+            currentPreset={wedding.layoutPreset ?? DEFAULT_PRESET}
             isLocked={wedding.isLocked}
           />
 

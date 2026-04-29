@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import { PresetSelector } from "@/components/preset-selector";
 
 const mockUpdateWeddingPreset = vi.fn();
@@ -22,7 +22,7 @@ describe("PresetSelector", () => {
       <PresetSelector weddingId={1} currentPreset="bento" />
     );
     expect(screen.getByText("Minimalist")).toBeInTheDocument();
-    expect(screen.getByText("Bento Box")).toBeInTheDocument();
+    expect(screen.getByText("Bento")).toBeInTheDocument();
     expect(screen.getByText("Storytelling")).toBeInTheDocument();
     expect(screen.getByText("Magazine")).toBeInTheDocument();
     expect(screen.getByText("Card Stack")).toBeInTheDocument();
@@ -46,10 +46,9 @@ describe("PresetSelector", () => {
     const select = screen.getByRole("combobox");
     fireEvent.change(select, { target: { value: "cinematic" } });
 
-    // Wait for transition
-    await new Promise((r) => setTimeout(r, 50));
-
-    expect(mockUpdateWeddingPreset).toHaveBeenCalledWith(1, "cinematic");
+    await waitFor(() => {
+      expect(mockUpdateWeddingPreset).toHaveBeenCalledWith(1, "cinematic");
+    });
   });
 
   it("shows success message when update succeeds", async () => {
@@ -60,9 +59,9 @@ describe("PresetSelector", () => {
     const select = screen.getByRole("combobox");
     fireEvent.change(select, { target: { value: "minimalist" } });
 
-    await new Promise((r) => setTimeout(r, 50));
-
-    expect(screen.getByText("Layout preset updated.")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/updated to Minimalist/i)).toBeInTheDocument();
+    });
   });
 
   it("shows error message when update fails", async () => {
@@ -73,9 +72,9 @@ describe("PresetSelector", () => {
     const select = screen.getByRole("combobox");
     fireEvent.change(select, { target: { value: "minimalist" } });
 
-    await new Promise((r) => setTimeout(r, 50));
-
-    expect(screen.getByText("Failed to update layout preset.")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("Failed to update layout preset.")).toBeInTheDocument();
+    });
   });
 
   it("disables select when locked", () => {

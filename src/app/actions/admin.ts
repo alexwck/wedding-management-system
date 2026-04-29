@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { nanoid } from "nanoid";
+import { VALID_PRESET_NAMES } from "@/lib/design-system/preset-loader";
 import { createCoupleSchema, coupleNameSchema } from "@/lib/validations/admin";
 import { weddingUpdateSchema, weddingDateSchema, timezoneSchema, focalPointSchema } from "@/lib/validations/wedding";
 import type { User } from "@supabase/supabase-js";
@@ -635,16 +636,6 @@ export async function toggleWeddingLock(weddingId: number) {
   return { success: true as const, isLocked: data.is_locked };
 }
 
-const validPresetNames = [
-  "minimalist",
-  "bento",
-  "storytelling",
-  "magazine",
-  "card-stack",
-  "asymmetric",
-  "cinematic",
-] as const;
-
 export async function updateWeddingPreset(weddingId: number, layoutPreset: string) {
   const supabase = await createClient();
   const {
@@ -655,13 +646,13 @@ export async function updateWeddingPreset(weddingId: number, layoutPreset: strin
     return { success: false as const, error: "Not authenticated." };
   }
 
-  if (!validPresetNames.includes(layoutPreset as (typeof validPresetNames)[number])) {
+  if (!VALID_PRESET_NAMES.includes(layoutPreset as (typeof VALID_PRESET_NAMES)[number])) {
     return { success: false as const, error: "Invalid preset name." };
   }
 
   const adminClient = createAdminClient();
   const authCheck = await verifyWeddingAccess(user, weddingId, adminClient);
-  if (!authCheck.success) return { success: false, error: "unauthorized" as const, message: authCheck.error };
+  if (!authCheck.success) return { success: false as const, error: authCheck.error };
   if (authCheck.isLocked) return { success: false as const, error: "This wedding has been locked. No edits are permitted." };
 
   const { data, error } = await adminClient
@@ -677,6 +668,7 @@ export async function updateWeddingPreset(weddingId: number, layoutPreset: strin
 
   revalidatePath(`/admin/weddings/${weddingId}`);
   revalidatePath(`/w/${data.slug}`);
+  revalidatePath(`/w/${data.slug}/rsvp`);
   revalidatePath("/dashboard");
 
   return { success: true as const, layoutPreset: data.layout_preset };
