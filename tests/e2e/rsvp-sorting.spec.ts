@@ -1,6 +1,13 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("RSVP table sorting (US3)", () => {
+  test.beforeEach(async ({ page }, testInfo) => {
+    // Mobile view uses cards without sortable columns — skip sorting tests on mobile
+    const viewport = page.viewportSize();
+    if (viewport && viewport.width < 768) {
+      testInfo.skip();
+    }
+  });
   test.beforeEach(async ({ page }) => {
     await page.goto("/auth/login");
     await page.fill('input[id="email"]', "admin@example.com");
@@ -9,8 +16,14 @@ test.describe("RSVP table sorting (US3)", () => {
     await page.waitForURL(/\/admin/, { timeout: 10000 });
   });
 
-  test("default sort is newest first (submitted descending)", async ({ page }) => {
+  async function openRsvpTab(page: import("@playwright/test").Page) {
     await page.goto("/admin/weddings/1");
+    await page.click('button:has-text("RSVPs")');
+    await expect(page.locator("text=RSVP Responses")).toBeVisible();
+  }
+
+  test("default sort is newest first (submitted descending)", async ({ page }) => {
+    await openRsvpTab(page);
 
     // RSVP section should be visible
     await expect(page.locator("text=RSVP Responses")).toBeVisible();
@@ -22,7 +35,7 @@ test.describe("RSVP table sorting (US3)", () => {
   });
 
   test("sort indicators are visible on sortable columns", async ({ page }) => {
-    await page.goto("/admin/weddings/1");
+    await openRsvpTab(page);
 
     // Guest name header should have sort indicator
     const guestHeader = page.locator("th", { hasText: /Guest/ });
@@ -43,7 +56,7 @@ test.describe("RSVP table sorting (US3)", () => {
   });
 
   test("clicking guest name header sorts alphabetically", async ({ page }) => {
-    await page.goto("/admin/weddings/1");
+    await openRsvpTab(page);
 
     const guestHeader = page.locator("th", { hasText: /Guest/ });
     await guestHeader.click();
@@ -53,7 +66,7 @@ test.describe("RSVP table sorting (US3)", () => {
   });
 
   test("clicking status header groups by status", async ({ page }) => {
-    await page.goto("/admin/weddings/1");
+    await openRsvpTab(page);
 
     const statusHeader = page.locator("th", { hasText: /Status/ });
     await statusHeader.click();
@@ -63,7 +76,7 @@ test.describe("RSVP table sorting (US3)", () => {
   });
 
   test("clicking same column toggles ascending/descending", async ({ page }) => {
-    await page.goto("/admin/weddings/1");
+    await openRsvpTab(page);
 
     const guestHeader = page.locator("th", { hasText: /Guest/ });
 
