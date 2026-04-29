@@ -173,6 +173,13 @@ git config core.hooksPath .githooks
 - **RSVP single-page design**: Wedding public page (`/w/[slug]`) is a single scrollable page: hero → venue section → RSVP form. No separate `/w/[slug]/rsvp` route. RSVP CTA smooth scrolls to `#rsvp` anchor. Gradient fallback hero for weddings without template image.
 - **Editable couple name**: `EditableCoupleName` component — click to edit, blur/Enter to save, Escape to cancel. Calls `updateCoupleName` server action. Read-only when wedding is locked. Used on both admin and couple pages.
 - **Template image cache-bust**: `uploadTemplateImage` appends `?t=${Date.now()}` to the public URL. `TemplatePreview` uses uploaded URL (with cache-bust) after upload. Button renamed from "Preview" to "Adjust Crop."
+- **"use client" proxy bug**: A module with `"use client"` exporting arrays/objects with methods (e.g. `VALID_PRESET_NAMES.includes()`) breaks when imported by a server component — Next.js client reference proxying strips methods. Symptom: `...includes is not a function`. Fix: remove `"use client"` from constant-exporting modules.
+- **E2E RSVP confirmation card**: After RSVP submission, a token cookie triggers server re-render showing `RsvpConfirmationCard` with heading "Your RSVP" (not the transient "Thank You" message). Tests re-visiting `/w/[slug]` after submission must assert the confirmation card, not the form success message.
+- **E2E hydration waits**: `await page.waitForLoadState("networkidle")` after `page.goto()` before interacting with file inputs or client components. Without it, `setInputFiles` and clicks on hydrated elements can silently fail.
+- **E2E strict mode violations**: `locator("text=...")` resolves to all matching elements. Use `.first()` or more specific selectors (e.g. `h3.text-lg`) to avoid strict mode violations when multiple headings/buttons share text.
+- **ResponsiveTable mobile**: Desktop renders `<Table>` with sortable `<th>` headers; mobile (`md:hidden`) renders `<GlassCard>` items without sort capability. Column sorting E2E tests should skip on mobile viewports (`viewport.width < 768`).
+- **ESLint ignore**: `.claude/skills/` contains template/example code and should be in `.eslintignore`.
+- **Auth guard return shape**: `getAuthAndVerifyAccess` returns `{ user, isLocked, error }`. Unit test mocks must include `isLocked` property or destructuring will fail.
 
 ## Active Technologies
 - TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, Tailwind CSS v4, shadcn/ui (Nova theme), react-hook-form, zod, exceljs, cmdk
