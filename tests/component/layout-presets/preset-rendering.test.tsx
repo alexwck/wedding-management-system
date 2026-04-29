@@ -90,79 +90,29 @@ describe("Layout Presets", () => {
     expect(container).toBeInTheDocument();
   });
 
-  it("PresetStorytelling renders couple name", () => {
+  const stretchPresets = [
+    { name: "PresetStorytelling", Component: PresetStorytelling, className: "preset-storytelling" },
+    { name: "PresetCardStack", Component: PresetCardStack, className: "preset-card-stack" },
+    { name: "PresetAsymmetric", Component: PresetAsymmetric, className: "preset-asymmetric" },
+    { name: "PresetCinematic", Component: PresetCinematic, className: "preset-cinematic" },
+  ];
+
+  it.each(stretchPresets)("$name renders couple name", ({ Component }) => {
     render(
       <ThemeProvider globalTheme={mockTheme}>
-        <PresetStorytelling wedding={mockWedding} theme={mockTheme} />
+        <Component wedding={mockWedding} theme={mockTheme} />
       </ThemeProvider>
     );
     expect(screen.getByText("Alice & Bob")).toBeInTheDocument();
   });
 
-  it("PresetStorytelling applies preset class", () => {
+  it.each(stretchPresets)("$name applies preset class", ({ Component, className }) => {
     render(
       <ThemeProvider globalTheme={mockTheme}>
-        <PresetStorytelling wedding={mockWedding} theme={mockTheme} />
+        <Component wedding={mockWedding} theme={mockTheme} />
       </ThemeProvider>
     );
-    const container = screen.getByText("Alice & Bob").closest(".preset-storytelling");
-    expect(container).toBeInTheDocument();
-  });
-
-  it("PresetCardStack renders couple name", () => {
-    render(
-      <ThemeProvider globalTheme={mockTheme}>
-        <PresetCardStack wedding={mockWedding} theme={mockTheme} />
-      </ThemeProvider>
-    );
-    expect(screen.getByText("Alice & Bob")).toBeInTheDocument();
-  });
-
-  it("PresetCardStack applies preset class", () => {
-    render(
-      <ThemeProvider globalTheme={mockTheme}>
-        <PresetCardStack wedding={mockWedding} theme={mockTheme} />
-      </ThemeProvider>
-    );
-    const container = screen.getByText("Alice & Bob").closest(".preset-card-stack");
-    expect(container).toBeInTheDocument();
-  });
-
-  it("PresetAsymmetric renders couple name", () => {
-    render(
-      <ThemeProvider globalTheme={mockTheme}>
-        <PresetAsymmetric wedding={mockWedding} theme={mockTheme} />
-      </ThemeProvider>
-    );
-    expect(screen.getByText("Alice & Bob")).toBeInTheDocument();
-  });
-
-  it("PresetAsymmetric applies preset class", () => {
-    render(
-      <ThemeProvider globalTheme={mockTheme}>
-        <PresetAsymmetric wedding={mockWedding} theme={mockTheme} />
-      </ThemeProvider>
-    );
-    const container = screen.getByText("Alice & Bob").closest(".preset-asymmetric");
-    expect(container).toBeInTheDocument();
-  });
-
-  it("PresetCinematic renders couple name", () => {
-    render(
-      <ThemeProvider globalTheme={mockTheme}>
-        <PresetCinematic wedding={mockWedding} theme={mockTheme} />
-      </ThemeProvider>
-    );
-    expect(screen.getByText("Alice & Bob")).toBeInTheDocument();
-  });
-
-  it("PresetCinematic applies preset class", () => {
-    render(
-      <ThemeProvider globalTheme={mockTheme}>
-        <PresetCinematic wedding={mockWedding} theme={mockTheme} />
-      </ThemeProvider>
-    );
-    const container = screen.getByText("Alice & Bob").closest(".preset-cinematic");
+    const container = screen.getByText("Alice & Bob").closest(`.${className}`);
     expect(container).toBeInTheDocument();
   });
 });

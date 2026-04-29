@@ -3,6 +3,8 @@
 import React from "react";
 import type { LayoutPresetProps } from "./layout-preset-props";
 
+export const DEFAULT_PRESET = "bento" as const;
+
 export type PresetName =
   | "minimalist"
   | "bento"
@@ -84,6 +86,8 @@ export const PRESET_REGISTRY: Record<
   asymmetric: { component: PresetAsymmetric, css: () => loadPresetCss("asymmetric") },
   cinematic: { component: PresetCinematic, css: () => loadPresetCss("cinematic") },
 };
+
+export const VALID_PRESET_NAMES: PresetName[] = Object.keys(PRESET_REGISTRY) as PresetName[];
 
 export function loadPreset(name: PresetName): Promise<void> {
   const preset = PRESET_REGISTRY[name];

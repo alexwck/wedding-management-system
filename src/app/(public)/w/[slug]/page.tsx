@@ -11,6 +11,7 @@ import { DEFAULT_THEME, mergeTheme } from "@/lib/design-system/theme-config";
 import { getRsvpByToken } from "@/lib/rsvp-token";
 import { PresetWrapper } from "@/components/preset-wrapper";
 import type { PresetName } from "@/lib/design-system/preset-loader";
+import { DEFAULT_PRESET, VALID_PRESET_NAMES } from "@/lib/design-system/preset-loader";
 
 interface PublicLandingPageProps {
   params: Promise<{ slug: string }>;
@@ -65,18 +66,9 @@ export default async function PublicLandingPage({ params }: PublicLandingPagePro
   const hasVenueData =
     wedding.venue || wedding.venue_address || wedding.venue_lat || wedding.venue_lng;
 
-  const validPresets: PresetName[] = [
-    "minimalist",
-    "bento",
-    "storytelling",
-    "magazine",
-    "card-stack",
-    "asymmetric",
-    "cinematic",
-  ];
-  const activePreset: PresetName = validPresets.includes(wedding.layout_preset as PresetName)
+  const activePreset: PresetName = VALID_PRESET_NAMES.includes(wedding.layout_preset as PresetName)
     ? (wedding.layout_preset as PresetName)
-    : "bento";
+    : DEFAULT_PRESET;
 
   // Load theme
   const weddingTheme =

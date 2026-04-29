@@ -1,45 +1,59 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { updateWeddingPreset } from "@/app/actions/admin";
 import { GlassPanel } from "@/components/glassmorphism/glass-panel";
+import type { PresetName } from "@/lib/design-system/preset-loader";
+import { PRESET_REGISTRY } from "@/lib/design-system/preset-loader";
 
-const PRESET_OPTIONS = [
-  { value: "minimalist", label: "Minimalist" },
-  { value: "bento", label: "Bento Box" },
-  { value: "storytelling", label: "Storytelling" },
-  { value: "magazine", label: "Magazine" },
-  { value: "card-stack", label: "Card Stack" },
-  { value: "asymmetric", label: "Asymmetric" },
-  { value: "cinematic", label: "Cinematic" },
-];
+const PRESET_OPTIONS = (Object.keys(PRESET_REGISTRY) as PresetName[]).map((value) => ({
+  value,
+  label: value
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" "),
+}));
 
 interface PresetSelectorProps {
   weddingId: number;
-  currentPreset: string;
+  currentPreset: PresetName;
   isLocked?: boolean;
+}
+
+function presetLabel(name: PresetName): string {
+  return PRESET_OPTIONS.find((o) => o.value === name)?.label ?? name;
 }
 
 export function PresetSelector({ weddingId, currentPreset, isLocked }: PresetSelectorProps) {
   const [selected, setSelected] = useState(currentPreset);
-  const [message, setMessage] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
+  const [isPending, setIsPending] = useState(false);
 
-  async function handleChange(value: string) {
-    if (isLocked) return;
-    setMessage(null);
-    setSelected(value);
+  useEffect(() => {
+    setSelected(currentPreset);
+  }, [currentPreset]);
 
-    startTransition(async () => {
-      const result = await updateWeddingPreset(weddingId, value);
-      if (result.success) {
-        setMessage("Layout preset updated.");
-      } else {
-        setMessage(result.error || "Failed to update preset.");
-        setSelected(currentPreset);
+  const handleChange = useCallback(
+    async (value: string) => {
+      if (isLocked) return;
+      setMessage(null);
+      setSelected(value as PresetName);
+      setIsPending(true);
+
+      try {
+        const result = await updateWeddingPreset(weddingId, value);
+        if (result.success) {
+          setMessage({ text: `Layout preset updated to ${presetLabel(result.layoutPreset)}.`, isError: false });
+        } else {
+          setMessage({ text: result.error || "Failed to update preset.", isError: true });
+          setSelected(currentPreset);
+        }
+      } finally {
+        setIsPending(false);
       }
-    });
-  }
+    },
+    [weddingId, currentPreset, isLocked]
+  );
 
   return (
     <GlassPanel padding="md" radius="md" className="space-y-3">
@@ -60,8 +74,8 @@ export function PresetSelector({ weddingId, currentPreset, isLocked }: PresetSel
         ))}
       </select>
       {message && (
-        <p className={`text-sm ${message.includes("Failed") || message.includes("locked") || message.includes("Not authenticated") ? "text-destructive" : "text-green-600"}`}>
-          {message}
+        <p className={`text-sm ${message.isError ? "text-destructive" : "text-green-600"}`}>
+          {message.text}
         </p>
       )}
     </GlassPanel>

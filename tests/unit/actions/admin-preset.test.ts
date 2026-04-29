@@ -1,18 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { updateWeddingPreset } from "@/app/actions/admin";
-
-// Mock Supabase clients
-const mockSingle = vi.fn();
-const mockSelect = vi.fn(() => ({ single: mockSingle }));
-const mockUpdate = vi.fn(() => ({ eq: vi.fn(() => ({ select: mockSelect })) }));
-const mockFrom = vi.fn(() => ({
-  select: vi.fn(() => ({ eq: vi.fn(() => ({ single: mockSingle })) })),
-  update: mockUpdate,
-}));
-
-const mockAdminClient = {
-  from: mockFrom,
-};
+import { createMockSupabaseClient } from "../helpers/supabase-mock";
 
 const mockAuthGetUser = vi.fn();
 const mockClient = {
@@ -20,7 +8,7 @@ const mockClient = {
 };
 
 vi.mock("@/lib/supabase/admin", () => ({
-  createAdminClient: () => mockAdminClient,
+  createAdminClient: vi.fn(),
 }));
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -30,6 +18,8 @@ vi.mock("@/lib/supabase/server", () => ({
 vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
+
+import { createAdminClient } from "@/lib/supabase/admin";
 
 describe("updateWeddingPreset", () => {
   beforeEach(() => {
@@ -56,8 +46,12 @@ describe("updateWeddingPreset", () => {
     mockAuthGetUser.mockResolvedValue({
       data: { user: { id: "user-1", app_metadata: { role: "admin" } } },
     });
-    mockSingle.mockResolvedValueOnce({ data: { is_locked: false, slug: "test-wedding" } });
-    mockSingle.mockResolvedValueOnce({ data: { slug: "test-wedding", layout_preset: "cinematic" } });
+
+    const mockAdmin = createMockSupabaseClient([
+      { data: { is_locked: false, slug: "test-wedding" } },
+      { data: { slug: "test-wedding", layout_preset: "cinematic" } },
+    ]);
+    vi.mocked(createAdminClient).mockReturnValue(mockAdmin as unknown as ReturnType<typeof createAdminClient>);
 
     const result = await updateWeddingPreset(1, "cinematic");
     expect(result.success).toBe(true);
@@ -68,7 +62,11 @@ describe("updateWeddingPreset", () => {
     mockAuthGetUser.mockResolvedValue({
       data: { user: { id: "user-1", app_metadata: { role: "admin" } } },
     });
-    mockSingle.mockResolvedValueOnce({ data: { is_locked: true, slug: "test-wedding" } });
+
+    const mockAdmin = createMockSupabaseClient([
+      { data: { is_locked: true, slug: "test-wedding" } },
+    ]);
+    vi.mocked(createAdminClient).mockReturnValue(mockAdmin as unknown as ReturnType<typeof createAdminClient>);
 
     const result = await updateWeddingPreset(1, "cinematic");
     expect(result.success).toBe(false);
