@@ -197,7 +197,6 @@ git config core.hooksPath .githooks
 - 003-ux-polish-floorplan-fixes: Floor plan editor UX polish, Supabase Auth + Storage integration
 
 <!-- SPECKIT START -->
-## Active Plan
-
-- **Feature**: [011-homepage-redesign](specs/011-homepage-redesign/plan.md) — Homepage redesign for mobile conversion with glassmorphism and bento layouts
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
 <!-- SPECKIT END -->
