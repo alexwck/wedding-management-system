@@ -7,7 +7,7 @@
 
 ## Summary
 
-Deploy the wedding management system to production using Vercel (hosting) and Supabase (database/auth). The technical approach uses: GitHub Actions for CI/CD with automated migrations, `@sentry/nextjs` for error monitoring, Supabase pgbouncer for connection pooling, and comprehensive `DEPLOYMENT.md` documentation. No staging environment — local development and production only.
+Deploy the wedding management system to production using Vercel (hosting) and Supabase (database/auth). The technical approach uses: GitHub Actions for CI/CD with automated migrations, `@sentry/nextjs` for error monitoring, direct database connection (port 5432, no pgbouncer on Free plan), and comprehensive `DEPLOYMENT.md` documentation. No staging environment — local development and production only.
 
 ---
 
