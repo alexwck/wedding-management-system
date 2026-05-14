@@ -89,6 +89,7 @@
 - [ ] T021 [US2] Test branch protection: open a PR with a failing test — verify merge is blocked
 - [ ] T022 [US2] Test auto-deploy: merge a passing PR to main — verify Vercel auto-deploys within 5 minutes
 - [ ] T023 [US2] Verify CI failure messages include: job name, link to Actions run, first 10 lines of error
+- [ ] T023a [US2] Verify FR-004b compliance: Create test PR with intentional lint failure, verify error message includes job name, Actions link, first 10 lines of output, suggested fix
 
 **Checkpoint**: At this point, User Story 2 is complete — CI/CD pipeline enforces quality gates
 
@@ -114,6 +115,7 @@
 - [ ] T033 [US3] Verify error appears in Sentry Dashboard → Issues within 30 seconds
 - [ ] T034 [US3] Revert test error and redeploy
 - [ ] T035 [US3] Verify local development does NOT send errors to Sentry (check console for warning)
+- [ ] T035a [US3] Verify SEC-003 compliance: Check Supabase Dashboard → Authentication → Policies confirms RLS enabled on all tables (users, weddings, rsvps, floor_plans, seat_assignments)
 
 **Checkpoint**: At this point, User Story 3 is complete — production errors are monitored and reported
 
@@ -187,6 +189,7 @@
 - [ ] T053 [P] Run full checklist validation: `specs/012-production-deployment/checklists/deployment.md`
 - [ ] T054 [P] Update CLAUDE.md with plan reference (already done via /speckit-plan)
 - [ ] T055 [P] Verify all spec clarifications integrated and consistent
+- [ ] T056 [P] Verify SC-010 compliance: Open a test PR, verify preview deployment URL generated within 3 minutes, comment contains deploy link
 
 ---
 
@@ -228,11 +231,11 @@
 | **Setup** | T001, T002, T003, T004 | All 4 tasks — different files |
 | **Foundational** | T005, T006, T007 | All 3 tasks — different files |
 | **US1** | T008-T016 | Sequential (deployment pipeline) |
-| **US2** | T017-T023 | T017-T019 parallel, T020 manual, T021-T023 sequential |
-| **US3** | T024-T035 | T024-T028 parallel, T029-T035 sequential |
+| **US2** | T017-T023a | T017-T019 parallel, T020 manual, T021-T023a sequential |
+| **US3** | T024-T035a | T024-T028 parallel, T029-T035a sequential |
 | **US4** | T036-T042 | Sequential (documentation validation) |
 | **US5** | T043-T048 | T043-T045 parallel, T046-T048 parallel |
-| **Polish** | T049-T055 | All 7 tasks — different files |
+| **Polish** | T049-T056 | All 8 tasks — different files |
 
 ---
 
@@ -293,3 +296,4 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Manual steps (account creation, dashboard config) cannot be automated — follow DEPLOYMENT.md
 - Free plan limits require weekly monitoring — set calendar reminders
+- Total tasks: 56 (T001-T056) across 8 phases
