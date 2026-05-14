@@ -1,0 +1,200 @@
+# =============================================================================
+# CI/CD Workflow: Wedding Management System
+# =============================================================================
+# Triggers:
+#   - Pull requests to main: runs lint, type-check, test
+#   - Push to main: runs all checks + deploys to production via Vercel
+#
+# Required Branch Protection (configure in GitHub Settings → Branches):
+#   - Require status checks to pass before merging
+#   - Select checks: lint, type-check, test
+# =============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Prevent concurrent workflows on same branch/PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 20.x
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Lint: ESLint static analysis
+  # ---------------------------------------------------------------------------
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+  # ---------------------------------------------------------------------------
+  # Type Check: TypeScript compilation verification
+  # ---------------------------------------------------------------------------
+  type-check:
+    name: type-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run TypeScript type check
+        run: npm exec tsc -- --noEmit
+
+  # ---------------------------------------------------------------------------
+  # Test: Vitest unit tests
+  # ---------------------------------------------------------------------------
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test
+
+  # ---------------------------------------------------------------------------
+  # Deploy: Production deployment (main branch only)
+  # ---------------------------------------------------------------------------
+  # Prerequisites:
+  #   - VERCEL_TOKEN: GitHub Secrets (vercel.com/account/tokens)
+  #   - SUPABASE_ACCESS_TOKEN: GitHub Secrets (supabase.com/dashboard/account/tokens)
+  #   - SUPABASE_DB_PASSWORD: GitHub Secrets (database password from project creation)
+  #
+  # Deployment Flow:
+  #   1. Run Supabase migrations (db push)
+  #   2. Deploy to Vercel production
+  # ---------------------------------------------------------------------------
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [lint, type-check, test]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Install Supabase CLI
+        run: npm install -g supabase
+
+      - name: Install dependencies
+        run: npm ci
+
+      # -------------------------------------------------------------------------
+      # Step 1: Run Supabase Migrations
+      # -------------------------------------------------------------------------
+      # Migrations run BEFORE deployment to ensure schema is ready for new code
+      # Wrapped in transaction - rolls back cleanly on failure
+      # -------------------------------------------------------------------------
+      - name: Run Supabase migrations
+        id: migrate
+        run: |
+          echo "Linking to Supabase project..."
+          supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+
+          echo "Running database migrations..."
+          supabase db push
+
+          echo "Migration completed at $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+
+      # -------------------------------------------------------------------------
+      # Step 2: Deploy to Vercel Production
+      # -------------------------------------------------------------------------
+      # Uses Vercel CLI for programmatic deployment
+      # Last known-good deployment serves traffic until new deploy succeeds
+      # -------------------------------------------------------------------------
+      - name: Deploy to Vercel production
+        id: deploy
+        run: |
+          echo "Pulling Vercel environment..."
+          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+          echo "Building project..."
+          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+          echo "Deploying to production..."
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+
+          echo "Deployment URL: $DEPLOYMENT_URL"
+          echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      # -------------------------------------------------------------------------
+      # Post-Deployment: Report deployment details
+      # -------------------------------------------------------------------------
+      - name: Report deployment
+        if: always()
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Migration Status**: ${{ steps.migrate.outcome }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployment Status**: ${{ steps.deploy.outcome }}" >> $GITHUB_STEP_SUMMARY
+          if [ -n "${{ steps.deploy.outputs.deployment_url }}" ]; then
+            echo "- **Production URL**: ${{ steps.deploy.outputs.deployment_url }}" >> $GITHUB_STEP_SUMMARY
+          fi
