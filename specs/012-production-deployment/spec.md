@@ -115,8 +115,7 @@ Environment variables and secrets are managed consistently between local develop
 - **FR-005a**: System MUST use `@sentry/nextjs` SDK (v8+) with App Router support for automatic error capture, source maps, and performance monitoring.
 - **FR-006**: Error monitoring MUST NOT activate in local development — only production builds report errors.
 - **FR-007**: Repository MUST include a `.env.example` file documenting all required environment variables with descriptions.
-- **FR-008**: Repository MUST include `DEPLOYMENT.md` in the root directory with documented steps for creating the first admin account on a fresh deployment.
-- **FR-008a**: `DEPLOYMENT.md` MUST be tracked in git and use redacted placeholders (e.g., `<YOUR_VALUE>`) for sensitive values rather than committing real secrets.
+- **FR-008**: Repository MUST include `DEPLOYMENT.md` in the root directory with documented steps for creating the first admin account on a fresh deployment. File MUST be tracked in git and use redacted placeholders (e.g., `<YOUR_VALUE>`) for sensitive values rather than committing real secrets.
 - **FR-009**: All production secrets (database URLs, API keys) MUST be stored as encrypted environment variables — never in the repository.
 - **FR-010**: The application MUST continue serving traffic normally when the error monitoring service is unreachable (observability must never break core functionality).
 - **FR-011**: Database migrations in production MUST run before deploying the new application code to avoid schema mismatch.
@@ -125,7 +124,7 @@ Environment variables and secrets are managed consistently between local develop
 - **FR-012a**: System MUST use direct database connection (Supabase Free plan does not include pgbouncer). Application SHOULD monitor connection usage and alert if approaching 60-connection limit.
 - **FR-013**: System MUST provide rollback capability via Vercel "Promote to Production" — administrator can restore last known-good deployment within 2 minutes.
 - **FR-014**: System MUST monitor Free plan resource usage (database size, bandwidth, MAU) — administrator MUST check Supabase Dashboard → Usage weekly.
-- **FR-015**: System MUST alert administrator when any Free plan resource exceeds 80% utilization (database >400MB, bandwidth >1.6GB, MAU >40K).
+- **FR-015**: System MUST alert administrator when any Free plan resource exceeds 80% utilization (database >400MB, bandwidth >1.6GB, MAU >40K). Alert mechanism: administrator MUST check Supabase Dashboard → Usage and Vercel Dashboard → Usage weekly — automated alerts not available on Free plans.
 - **FR-016**: System MUST support upgrade path from Free to Pro plan — enabling pgbouncer requires only connection string change in Vercel environment variables.
 - **FR-017**: GitHub Actions CI workflow MUST file location be `.github/workflows/ci.yml` with jobs: `lint`, `type-check`, `test`.
 - **FR-018**: Sentry configuration MUST include three files: `sentry.client.config.ts` (browser errors), `sentry.server.config.ts` (server actions/API), `sentry.edge.config.ts` (edge functions).
@@ -144,11 +143,10 @@ Environment variables and secrets are managed consistently between local develop
 ### Security Requirements
 
 - **SEC-001**: All secrets (database URLs, API keys, Sentry DSN) MUST be stored in Vercel encrypted environment variables — never in repository, `.env` files, or client-side code.
-- **SEC-002**: `.env.example` MUST use placeholder syntax `<YOUR_VALUE_HERE>` for all sensitive values — never real credentials or example secrets.
-- **SEC-003**: Supabase `service_role` key MUST only be used server-side in server actions — never exposed to browser via `NEXT_PUBLIC_` prefix.
-- **SEC-004**: RLS (Row-Level Security) policies MUST be enabled on all Supabase tables before production deployment.
-- **SEC-005**: Admin bootstrap process MUST require email verification for first admin account — Supabase Auth magic link or password confirmation.
-- **SEC-006**: Authentication session tokens MUST use secure, httpOnly cookies with SameSite=strict attribute.
+- **SEC-002**: Supabase `service_role` key MUST only be used server-side in server actions — never exposed to browser via `NEXT_PUBLIC_` prefix.
+- **SEC-003**: RLS (Row-Level Security) policies MUST be enabled on all Supabase tables before production deployment.
+- **SEC-004**: Admin bootstrap process MUST require email verification for first admin account — Supabase Auth magic link or password confirmation.
+- **SEC-005**: Authentication session tokens MUST use secure, httpOnly cookies with SameSite=strict attribute.
 
 ## Success Criteria *(mandatory)*
 
