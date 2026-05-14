@@ -16,7 +16,7 @@ test.describe("Couple views RSVP dashboard", () => {
     await expect(page.locator("text=Declining")).toBeVisible();
   });
 
-  test("couple can view RSVP list page", async ({ page }) => {
+  test("couple can view RSVP list page", async ({ page, viewport }) => {
     // Login as a couple user
     await page.goto("/auth/login");
     await page.fill('input[id="email"]', "alex@example.com");
@@ -28,12 +28,17 @@ test.describe("Couple views RSVP dashboard", () => {
     // Navigate to RSVPs page
     await page.goto("/dashboard/rsvps");
 
-    // Should see RSVP table
-    await expect(page.locator("table")).toBeVisible();
+    // On mobile, GlassCards replace the table
+    if (viewport && viewport.width < 768) {
+      await expect(page.locator(".md\\:hidden .glass-panel").first()).toBeVisible();
+    } else {
+      // Should see RSVP table
+      await expect(page.locator("table")).toBeVisible();
 
-    // Table should have guest name and status columns
-    await expect(page.locator("th", { hasText: "Guest" })).toBeVisible();
-    await expect(page.locator("th", { hasText: "Status" })).toBeVisible();
+      // Table should have guest name and status columns
+      await expect(page.locator("th", { hasText: "Guest" })).toBeVisible();
+      await expect(page.locator("th", { hasText: "Status" })).toBeVisible();
+    }
   });
 
   test("couple cannot access another couple's data", async ({ page }) => {

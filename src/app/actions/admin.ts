@@ -386,6 +386,12 @@ export async function getCouples() {
   return { success: true, couples };
 }
 
+function revalidateWeddingPaths(weddingId: number, slug: string) {
+  revalidatePath(`/admin/weddings/${weddingId}`);
+  revalidatePath(`/w/${slug}`);
+  revalidatePath("/dashboard");
+}
+
 async function verifyWeddingAccess(
   user: User,
   weddingId: number,
@@ -470,10 +476,7 @@ export async function updateWeddingDetails(formData: FormData) {
     };
   }
 
-  revalidatePath(`/admin/weddings/${weddingId}`);
-  revalidatePath(`/w/${data.slug}`);
-  revalidatePath(`/w/${data.slug}/rsvp`);
-  revalidatePath("/dashboard");
+  revalidateWeddingPaths(weddingId, data.slug);
 
   return { success: true, wedding: data };
 }
@@ -509,10 +512,7 @@ export async function updateWeddingDate(weddingId: number, weddingDate: string |
     return { success: false as const, error: "Failed to update wedding date." };
   }
 
-  revalidatePath(`/admin/weddings/${weddingId}`);
-  revalidatePath(`/w/${data.slug}`);
-  revalidatePath(`/w/${data.slug}/rsvp`);
-  revalidatePath("/dashboard");
+  revalidateWeddingPaths(weddingId, data.slug);
 
   return { success: true as const };
 }
@@ -548,10 +548,7 @@ export async function updateWeddingTimezone(weddingId: number, timezone: string)
     return { success: false as const, error: "Failed to update timezone." };
   }
 
-  revalidatePath(`/admin/weddings/${weddingId}`);
-  revalidatePath(`/w/${data.slug}`);
-  revalidatePath(`/w/${data.slug}/rsvp`);
-  revalidatePath("/dashboard");
+  revalidateWeddingPaths(weddingId, data.slug);
 
   return { success: true as const };
 }
@@ -703,9 +700,7 @@ export async function updateCoupleName(weddingId: number, coupleName: string) {
     return { success: false as const, error: "Failed to update couple name." };
   }
 
-  revalidatePath(`/admin/weddings/${weddingId}`);
-  revalidatePath(`/w/${data.slug}`);
-  revalidatePath("/dashboard");
+  revalidateWeddingPaths(weddingId, data.slug);
 
   return { success: true as const, coupleName: data.couple_name };
 }

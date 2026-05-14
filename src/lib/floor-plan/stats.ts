@@ -1,6 +1,5 @@
 import type { FloorPlanItem } from "@/types/floor-plan";
 import type { SeatAssignmentMap } from "@/types/seat-assignment";
-import { isTableType } from "./constants";
 
 export interface CanvasStatsResult {
   roundTableCount: number;
@@ -52,6 +51,3 @@ export function getTableSummaryText(stats: CanvasStatsResult): string {
   return parts.length > 0 ? parts.join(", ") : "0 Tables";
 }
 
-export function isTableItem(item: FloorPlanItem): item is FloorPlanItem & { type: "round_table" | "long_table" } {
-  return isTableType(item.type);
-}

@@ -1,7 +1,11 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Couple floor plan — User Story 1", () => {
-  test("couple can navigate to floor plan page, set dimensions, reload and verify persistence", async ({ page }) => {
+  test("couple can navigate to floor plan page, set dimensions, reload and verify persistence", async ({ page, viewport }) => {
+    test.skip(
+      viewport && viewport.width < 640,
+      "Floor plan requires a larger screen (min-width: 640px)"
+    );
     // Login as a couple user
     await page.goto("/auth/login");
     await page.fill('input[id="email"]', "alex@example.com");
@@ -46,7 +50,11 @@ test.describe("Couple floor plan — User Story 1", () => {
     await expect(heightAfter).toHaveValue("60");
   });
 
-  test("canvas renders with the configured dimensions", async ({ page }) => {
+  test("canvas renders with the configured dimensions", async ({ page, viewport }) => {
+    test.skip(
+      viewport && viewport.width < 640,
+      "Floor plan requires a larger screen (min-width: 640px)"
+    );
     await page.goto("/auth/login");
     await page.fill('input[id="email"]', "alex@example.com");
     await page.fill('input[id="password"]', "couple123");
@@ -62,7 +70,11 @@ test.describe("Couple floor plan — User Story 1", () => {
     await expect(canvas).toBeVisible();
   });
 
-  test("dimension inputs are validated (max 300)", async ({ page }) => {
+  test("dimension inputs are validated (max 300)", async ({ page, viewport }) => {
+    test.skip(
+      viewport && viewport.width < 640,
+      "Floor plan requires a larger screen (min-width: 640px)"
+    );
     await page.goto("/auth/login");
     await page.fill('input[id="email"]', "alex@example.com");
     await page.fill('input[id="password"]', "couple123");
@@ -87,7 +99,11 @@ test.describe("Couple floor plan — User Story 1", () => {
 });
 
 test.describe("Admin floor plan — User Story 1", () => {
-  test("admin can navigate to a wedding's floor plan page and set dimensions", async ({ page }) => {
+  test("admin can navigate to a wedding's floor plan page and set dimensions", async ({ page, viewport }) => {
+    test.skip(
+      viewport && viewport.width < 640,
+      "Floor plan requires a larger screen (min-width: 640px)"
+    );
     // Login as admin
     await page.goto("/auth/login");
     await page.fill('input[id="email"]', "admin@example.com");

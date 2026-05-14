@@ -1,8 +1,11 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Save blocked when items out of bounds", () => {
-  test("OOB items block save with message, in-bounds items allow save", async ({ page, browserName }) => {
-    test.skip(browserName !== "chromium", "Chromium only to avoid DB race conditions");
+  test("OOB items block save with message, in-bounds items allow save", async ({ page, browserName, viewport }) => {
+    test.skip(
+      browserName !== "chromium" || (viewport && viewport.width < 640),
+      "Chromium only to avoid DB race conditions; floor plan requires min-width 640px"
+    );
 
     await page.goto("/auth/login");
     await page.fill('input[id="email"]', "alex@example.com");

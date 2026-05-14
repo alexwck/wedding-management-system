@@ -1,7 +1,12 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Item resize (US6)", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, viewport }) => {
+    test.skip(
+      viewport && viewport.width < 640,
+      "Floor plan requires a larger screen (min-width: 640px)"
+    );
+
     await page.goto("/auth/login");
     await page.fill('input[id="email"]', "alex@example.com");
     await page.fill('input[id="password"]', "couple123");

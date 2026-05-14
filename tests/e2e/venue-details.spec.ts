@@ -75,8 +75,11 @@ test.describe("Admin venue editing (US1)", () => {
   test("admin can see venue editor on wedding detail page", async ({ page }) => {
     await page.goto("/admin/weddings/1");
 
+    // Switch to the Venue tab
+    await page.getByRole("tab", { name: "Venue" }).click();
+
     // Venue editor section should be visible
-    await expect(page.locator("h3", { hasText: "Venue Details" })).toBeVisible();
+    await expect(page.locator("h3", { hasText: "Venue Details" }).first()).toBeVisible();
     await expect(page.locator('input[id="venue"]')).toBeVisible();
     await expect(page.locator('input[id="venue_address"]')).toBeVisible();
     await expect(page.locator('textarea[id="welcome_message"]')).toBeVisible();
@@ -84,6 +87,9 @@ test.describe("Admin venue editing (US1)", () => {
 
   test("admin can update venue name", async ({ page }) => {
     await page.goto("/admin/weddings/1");
+
+    // Switch to the Venue tab
+    await page.getByRole("tab", { name: "Venue" }).click();
 
     // Clear and set new venue name
     const venueInput = page.locator('input[id="venue"]');

@@ -165,6 +165,7 @@ export function FloorPlanCanvas({
   const stageRef = useRef<Konva.Stage>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
+  const focusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const assignmentMapRef = useRef(seatAssignments.assignmentMap);
   assignmentMapRef.current = seatAssignments.assignmentMap;
   const unassignedGuestsRef = useRef(seatAssignments.unassignedGuests);
@@ -177,6 +178,12 @@ export function FloorPlanCanvas({
       state.setAllItems(initialFloorPlan.items);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (focusTimeoutRef.current) clearTimeout(focusTimeoutRef.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -570,7 +577,8 @@ export function FloorPlanCanvas({
       if (!item) return;
       setEditingLabelId(id);
       setEditingLabelValue(item.label);
-      setTimeout(() => editInputRef.current?.focus(), 50);
+      if (focusTimeoutRef.current) clearTimeout(focusTimeoutRef.current);
+      focusTimeoutRef.current = setTimeout(() => editInputRef.current?.focus(), 50);
     },
     [state.items, isLocked],
   );

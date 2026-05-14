@@ -1,7 +1,12 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Floor plan item placement", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, browserName, viewport }) => {
+    test.skip(
+      viewport && viewport.width < 640,
+      "Floor plan requires a larger screen (min-width: 640px)"
+    );
+
     await page.goto("/auth/login");
     await page.fill('input[id="email"]', "alex@example.com");
     await page.fill('input[id="password"]', "couple123");

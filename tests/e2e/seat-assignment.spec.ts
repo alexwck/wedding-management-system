@@ -10,17 +10,23 @@ test.describe("Seat assignment flow", () => {
     await expect(page).toHaveURL(/\/admin/, { timeout: 15000 });
   });
 
-  test("admin can navigate to wedding floor plan", async ({ page }) => {
+  test("admin can navigate to wedding floor plan", async ({ page, viewport }) => {
     // Go to weddings list
     await page.goto("/admin/weddings");
-    await expect(page.locator("table")).toBeVisible();
 
-    // Click first wedding to view details
-    const firstWeddingLink = page.locator("table tbody tr:first-child a").first();
-    if (await firstWeddingLink.isVisible()) {
+    // On mobile, cards replace the table — find wedding links inside the responsive cards
+    if (viewport && viewport.width < 768) {
+      const mobileLinks = page.locator(".md\\:hidden a[href*='/admin/weddings/']");
+      await expect(mobileLinks.first()).toBeVisible();
+      await mobileLinks.first().click();
+    } else {
+      await expect(page.locator("table")).toBeVisible();
+
+      // Click first wedding to view details
+      const firstWeddingLink = page.locator("table tbody tr:first-child a").first();
       await firstWeddingLink.click();
-      await expect(page).toHaveURL(/\/admin\/weddings\/\d+/);
     }
+    await expect(page).toHaveURL(/\/admin\/weddings\/\d+/);
   });
 
   test("floor plan page loads with canvas", async ({ page }) => {

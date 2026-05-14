@@ -11,8 +11,11 @@ function roundText(count: number) {
 }
 
 test.describe("Undo/redo state restoration", () => {
-  test("undo removes placed items and redo restores them", async ({ page, browserName }) => {
-    test.skip(browserName !== "chromium", "Chromium only to avoid DB race conditions");
+  test("undo removes placed items and redo restores them", async ({ page, browserName, viewport }) => {
+    test.skip(
+      browserName !== "chromium" || (viewport && viewport.width < 640),
+      "Chromium only to avoid DB race conditions; floor plan requires min-width 640px"
+    );
 
     await page.goto("/auth/login");
     await page.fill('input[id="email"]', "alex@example.com");
@@ -48,8 +51,11 @@ test.describe("Undo/redo state restoration", () => {
     await expect(page.locator('[data-testid="canvas-stats"]')).toContainText(roundText(initialTables + 1), { timeout: 5000 });
   });
 
-  test("undo restores venue dimensions", async ({ page, browserName }) => {
-    test.skip(browserName !== "chromium", "Chromium only to avoid DB race conditions");
+  test("undo restores venue dimensions", async ({ page, browserName, viewport }) => {
+    test.skip(
+      browserName !== "chromium" || (viewport && viewport.width < 640),
+      "Chromium only to avoid DB race conditions; floor plan requires min-width 640px"
+    );
 
     await page.goto("/auth/login");
     await page.fill('input[id="email"]', "alex@example.com");
@@ -78,8 +84,11 @@ test.describe("Undo/redo state restoration", () => {
     await expect(widthInput).toHaveValue(initialWidth);
   });
 
-  test("undo/redo buttons in toolbar work", async ({ page, browserName }) => {
-    test.skip(browserName !== "chromium", "Chromium only to avoid DB race conditions");
+  test("undo/redo buttons in toolbar work", async ({ page, browserName, viewport }) => {
+    test.skip(
+      browserName !== "chromium" || (viewport && viewport.width < 640),
+      "Chromium only to avoid DB race conditions; floor plan requires min-width 640px"
+    );
 
     await page.goto("/auth/login");
     await page.fill('input[id="email"]', "alex@example.com");
