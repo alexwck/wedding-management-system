@@ -77,7 +77,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Verify `.github/workflows/ci.yml` includes all required jobs: `lint`, `type-check`, `test`
+- [X] T017 [US2] Verify `.github/workflows/ci.yml` includes all required jobs: `lint`, `type-check`, `test`
 - [ ] T018 [US2] Push workflow to GitHub: `git add .github/workflows/ci.yml && git push`
 - [ ] T019 [US2] Verify GitHub Actions runs on next push — check Actions tab for workflow execution
 - [ ] T020 [US2] Configure GitHub branch protection (manual step):
@@ -105,16 +105,16 @@
 
 - [ ] T024 [US3] Create Sentry account and project at [sentry.io](https://sentry.io) (manual step)
 - [ ] T025 [US3] Run Sentry wizard: `npx @sentry/wizard@latest -i nextjs` — follow prompts to auto-configure
-- [ ] T026 [US3] Verify `sentry.client.config.ts` exists with correct DSN and `enabled: NODE_ENV === "production"`
-- [ ] T027 [US3] Verify `sentry.server.config.ts` exists with correct DSN and production-only enabled
-- [ ] T028 [US3] Verify `sentry.edge.config.ts` exists (for future edge function support)
+- [X] T026 [US3] Verify `sentry.client.config.ts` exists with correct DSN and `enabled: NODE_ENV === "production"`
+- [X] T027 [US3] Verify `sentry.server.config.ts` exists with correct DSN and production-only enabled
+- [X] T028 [US3] Verify `sentry.edge.config.ts` exists (for future edge function support)
 - [ ] T029 [US3] Add `SENTRY_DSN` to Vercel environment variables (production only)
 - [ ] T030 [US3] Deploy Sentry configuration: `vercel --prod`
 - [ ] T031 [US3] Test error monitoring: temporarily add `throw new Error("test")` to a server action
 - [ ] T032 [US3] Trigger test error in production — navigate to affected page
 - [ ] T033 [US3] Verify error appears in Sentry Dashboard → Issues within 30 seconds
 - [ ] T034 [US3] Revert test error and redeploy
-- [ ] T035 [US3] Verify local development does NOT send errors to Sentry (check console for warning)
+- [X] T035 [US3] Verify local development does NOT send errors to Sentry (check console for warning)
 - [ ] T035a [US3] Verify SEC-003 compliance: Check Supabase Dashboard → Authentication → Policies confirms RLS enabled on all tables (users, weddings, rsvps, floor_plans, seat_assignments)
 
 **Checkpoint**: At this point, User Story 3 is complete — production errors are monitored and reported
@@ -129,11 +129,11 @@
 
 ### Implementation for User Story 4
 
-- [ ] T036 [US4] Verify `DEPLOYMENT.md` Section 6 includes step-by-step admin account creation instructions
-- [ ] T037 [US4] Verify `DEPLOYMENT.md` includes both options:
+- [X] T036 [US4] Verify `DEPLOYMENT.md` Section 6 includes step-by-step admin account creation instructions
+- [X] T037 [US4] Verify `DEPLOYMENT.md` includes both options:
   - Option A: Email signup via Supabase magic link
   - Option B: Manual creation via Supabase Dashboard → Authentication → Users
-- [ ] T038 [US4] Verify `DEPLOYMENT.md` includes admin role grant instructions:
+- [X] T038 [US4] Verify `DEPLOYMENT.md` includes admin role grant instructions:
   - Supabase Dashboard → Users → Edit user metadata → `{"role": "admin"}`
 - [ ] T039 [US4] Test bootstrap: follow DEPLOYMENT.md on production deployment — create admin account
 - [ ] T040 [US4] Verify admin can log in and access admin dashboard at `/admin`
