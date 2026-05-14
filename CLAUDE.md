@@ -198,5 +198,6 @@ git config core.hooksPath .githooks
 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan
+shell commands, and other important information, read the current plan:
+specs/012-production-deployment/plan.md (Production Deployment)
 <!-- SPECKIT END -->

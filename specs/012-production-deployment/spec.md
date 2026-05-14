@@ -92,7 +92,7 @@ Environment variables and secrets are managed consistently between local develop
 
 ### Edge Cases
 
-- What happens when the Supabase production database hits its connection limit? The application uses Supabase's built-in pgbouncer (Transaction mode) to pool connections and prevent exhaustion. If the pooler itself is at capacity, the application displays a user-friendly error page rather than crashing.
+- What happens when the Supabase production database hits its connection limit (Free plan: 60 max)? The application displays a user-friendly error page. Mitigation: optimize queries, reduce function concurrency, or upgrade to Pro plan for pgbouncer support.
 - What happens when a database migration fails in production? The migration should be wrapped in a transaction so it rolls back cleanly, and the site continues running on the previous schema version.
 - How does the system behave when Sentry is temporarily unreachable? The application must continue functioning normally — Sentry failure must never block page rendering or API responses.
 - How are existing database backups handled? Production data must be backed up regularly — Supabase automatic backups are sufficient for recovery.
@@ -119,7 +119,7 @@ Environment variables and secrets are managed consistently between local develop
 - **FR-011**: Database migrations in production MUST run before deploying the new application code to avoid schema mismatch.
 - **FR-011a**: Migrations MUST be executed automatically via GitHub Actions using the Supabase CLI as a pre-deployment step before triggering Vercel deploy.
 - **FR-012**: The production deployment MUST use the same build output as local development (no environment-specific code paths that alter application behavior).
-- **FR-012a**: System MUST use Supabase's built-in pgbouncer connection pooler (Transaction mode) to prevent database connection exhaustion from Vercel Functions.
+- **FR-012a**: System MUST use direct database connection (Supabase Free plan does not include pgbouncer). Application SHOULD monitor connection usage and alert if approaching 60-connection limit.
 
 ### Key Entities
 
@@ -146,7 +146,8 @@ Environment variables and secrets are managed consistently between local develop
 - Q: How should database migrations be executed in production? → A: Automated pre-deployment via GitHub Actions using Supabase CLI before Vercel deploy.
 - Q: How should branch protection be enforced for pull requests? → A: Enable GitHub Branch Protection rules on `main` requiring status checks (lint, type-check, test) to pass before merging.
 - Q: Where should admin bootstrap documentation live and should it be gitignored? → A: `DEPLOYMENT.md` in repository root, tracked in git with redacted placeholders for sensitive values (not gitignored).
-- Q: How should database connections be pooled for Vercel Functions? → A: Use Supabase's built-in pgbouncer connection pooler (Transaction mode) via the pooled connection string.
+- Q: How should database connections be pooled for Vercel Functions? → A: Use direct connection (port 5432) — pgbouncer NOT available on Supabase Free plan. Monitor connection usage; upgrade to Pro if approaching 60-connection limit.
+- Q: Should production use paid or free plans? → A: **Free plans** for both Vercel (Hobby) and Supabase (Free tier). Suitable for small wedding apps with limited traffic.
 
 ---
 
@@ -155,8 +156,8 @@ Environment variables and secrets are managed consistently between local develop
 - **No EKS, Helm, or Terraform needed**: Vercel is the hosting platform and handles infrastructure provisioning natively. There is no Kubernetes cluster to manage. Supabase is a managed Postgres service — no self-hosted database infrastructure. Terraform would add unnecessary complexity for a single-project Vercel + Supabase stack.
 - **No ArgoCD**: ArgoCD is a GitOps tool designed for Kubernetes deployments. Since the application runs on Vercel (which has native Git-based auto-deploy), ArgoCD has no cluster to deploy to and would provide no value. Vercel's built-in Git integration serves the same role (git push → auto deploy).
 - **No staging environment**: Only local development and production are maintained, as specified by the user. Preview deployments per PR are available via Vercel at no extra cost but are not treated as a formal staging environment.
-- **Supabase production project** will be on a paid plan (the free tier has usage limits unsuitable for production). The exact plan depends on expected usage.
-- **Vercel production project** will be on Hobby or Pro plan depending on team size and bandwidth needs.
+- **Supabase production project** will use the **Free plan** (MSS: 500MB database, 2GB bandwidth/month, 50K monthly active users for Auth). Suitable for small weddings with limited RSVP traffic.
+- **Vercel production project** will use the **Hobby (Free) plan** (unlimited production deployments, 100GB bandwidth/month, personal use only). Commercial use requires Pro plan.
 - **Email delivery** for Supabase Auth (magic links, password resets) uses Supabase's built-in email service by default. A custom SMTP provider can be configured later.
 - **Domain name** is out of scope — the app will use the default Vercel provided domain unless the user separately configures a custom domain.
 - **Supabase backups** are handled automatically by Supabase on paid plans (daily backups with point-in-time recovery).
