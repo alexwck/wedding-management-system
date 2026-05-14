@@ -92,7 +92,7 @@ Environment variables and secrets are managed consistently between local develop
 
 ### Edge Cases
 
-- What happens when the Supabase production database hits its connection limit? The application should display a user-friendly error page rather than crashing.
+- What happens when the Supabase production database hits its connection limit? The application uses Supabase's built-in pgbouncer (Transaction mode) to pool connections and prevent exhaustion. If the pooler itself is at capacity, the application displays a user-friendly error page rather than crashing.
 - What happens when a database migration fails in production? The migration should be wrapped in a transaction so it rolls back cleanly, and the site continues running on the previous schema version.
 - How does the system behave when Sentry is temporarily unreachable? The application must continue functioning normally — Sentry failure must never block page rendering or API responses.
 - How are existing database backups handled? Production data must be backed up regularly — Supabase automatic backups are sufficient for recovery.
@@ -107,14 +107,19 @@ Environment variables and secrets are managed consistently between local develop
 - **FR-002**: System MUST have a production Vercel project linked to the GitHub repository for automatic deployments.
 - **FR-003**: System MUST deploy to production automatically when commits are pushed to the main branch.
 - **FR-004**: System MUST run lint, type-check, and all unit tests via GitHub Actions on every pull request before merging is allowed (branch protection).
+- **FR-004a**: GitHub repository MUST have branch protection rules enabled on `main` with "Require status checks to pass before merging" for checks: `lint`, `type-check`, `test`.
 - **FR-005**: System MUST report unhandled production errors to a centralized monitoring service (Sentry) within 30 seconds of occurrence.
+- **FR-005a**: System MUST use `@sentry/nextjs` SDK (v8+) with App Router support for automatic error capture, source maps, and performance monitoring.
 - **FR-006**: Error monitoring MUST NOT activate in local development — only production builds report errors.
 - **FR-007**: Repository MUST include a `.env.example` file documenting all required environment variables with descriptions.
-- **FR-008**: System MUST provide documented steps for creating the first admin account on a fresh deployment.
+- **FR-008**: Repository MUST include `DEPLOYMENT.md` in the root directory with documented steps for creating the first admin account on a fresh deployment.
+- **FR-008a**: `DEPLOYMENT.md` MUST be tracked in git and use redacted placeholders (e.g., `<YOUR_VALUE>`) for sensitive values rather than committing real secrets.
 - **FR-009**: All production secrets (database URLs, API keys) MUST be stored as encrypted environment variables — never in the repository.
 - **FR-010**: The application MUST continue serving traffic normally when the error monitoring service is unreachable (observability must never break core functionality).
 - **FR-011**: Database migrations in production MUST run before deploying the new application code to avoid schema mismatch.
+- **FR-011a**: Migrations MUST be executed automatically via GitHub Actions using the Supabase CLI as a pre-deployment step before triggering Vercel deploy.
 - **FR-012**: The production deployment MUST use the same build output as local development (no environment-specific code paths that alter application behavior).
+- **FR-012a**: System MUST use Supabase's built-in pgbouncer connection pooler (Transaction mode) to prevent database connection exhaustion from Vercel Functions.
 
 ### Key Entities
 
@@ -132,6 +137,18 @@ Environment variables and secrets are managed consistently between local develop
 - **SC-005**: Production uptime is 99.5% or higher (excluding planned maintenance during provider-level incidents).
 - **SC-006**: Production database migrations can be executed without application downtime (the app continues serving traffic during schema changes).
 - **SC-007**: The first admin account can be created in under 5 minutes by following the documented bootstrapping procedure.
+
+## Clarifications
+
+### Session 2026-05-14
+
+- Q: Which Sentry integration approach should be used? → A: Use `@sentry/nextjs` SDK (v8+) with App Router support for automatic error capture, source maps, and performance monitoring.
+- Q: How should database migrations be executed in production? → A: Automated pre-deployment via GitHub Actions using Supabase CLI before Vercel deploy.
+- Q: How should branch protection be enforced for pull requests? → A: Enable GitHub Branch Protection rules on `main` requiring status checks (lint, type-check, test) to pass before merging.
+- Q: Where should admin bootstrap documentation live and should it be gitignored? → A: `DEPLOYMENT.md` in repository root, tracked in git with redacted placeholders for sensitive values (not gitignored).
+- Q: How should database connections be pooled for Vercel Functions? → A: Use Supabase's built-in pgbouncer connection pooler (Transaction mode) via the pooled connection string.
+
+---
 
 ## Assumptions
 
