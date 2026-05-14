@@ -57,6 +57,15 @@ indicators) and that E2E tests only cover for the happy path.
 user story in the specification MUST have at least one E2E test covering
 its primary acceptance scenario.
 
+**Infrastructure Exception**: Infrastructure and deployment features (CI/CD
+pipelines, hosting configuration, monitoring setup, environment variable
+management) are exempt from E2E testing requirements. These features are
+validated through operational checklists and manual verification steps
+documented in deployment guides (e.g., `DEPLOYMENT.md`). This exception
+exists because infrastructure features do not have user-facing UI flows —
+they are validated through deployment verification and operational
+monitoring rather than browser-based user journeys.
+
 #### Unit Testing Conventions
 
 - **Shared test infrastructure**: Reusable mock helpers and factory functions
@@ -256,4 +265,4 @@ All PRs and code reviews MUST verify compliance with these principles.
 When a principle conflicts with a practical need, the principle is
 changed through the amendment process — not ignored.
 
-**Version**: 2.2.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-04-24
+**Version**: 2.3.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-05-15
