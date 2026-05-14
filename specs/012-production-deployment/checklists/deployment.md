@@ -158,7 +158,7 @@
 | CHK010 (Free plan monitoring) | Added FR-014, FR-015: Weekly monitoring, 80% alert thresholds, Assumptions table |
 | CHK017 (Personal use boundary) | Added to Assumptions: Vercel Hobby personal use only, commercial requires Pro |
 | CHK038-CHK040 (Recovery) | Added to Edge Cases: rollback, connection exhaustion, Free→Pro upgrade path |
-| CHK041-CHK046 (Security) | Added SEC-001 to SEC-006: secrets management, RLS, admin bootstrap, session cookies |
+| CHK041-CHK046 (Security) | Added SEC-001 to SEC-005: secrets management, RLS, admin bootstrap, session cookies |
 | CHK047-CHK055 (Free plan) | Added Assumptions tables with limits, thresholds, mitigations for all providers |
 | CHK056-CHK060 (Dependencies) | Added to Assumptions, resolved CHK060 conflict (backups clarified) |
 | CHK061-CHK065 (Traceability) | Created `.env.example`, `DEPLOYMENT.md`, `ci.yml`, Sentry configs |
@@ -190,10 +190,12 @@
 - Requirement Consistency: 5 items
 - Acceptance Criteria Quality: 5 items
 - Scenario Coverage: 13 items (Primary: 3, Alternate: 2, Exception: 5, Recovery: 3)
-- Security Requirements: 6 items
+- Security Requirements: 5 items (SEC-001 to SEC-005)
 - Free Plan Constraints: 9 items
 - Dependencies & Assumptions: 5 items
 - Traceability & Documentation: 5 items
 - Ambiguities & Conflicts: 5 items
 
 **Status**: ✅ All 24 gaps resolved, 5 ambiguities clarified, 1 conflict fixed
+
+**Note**: FR-008 and FR-008a merged into single FR-008 (2026-05-15). SEC-002 removed as redundant; SEC-003 through SEC-006 renumbered to SEC-002 through SEC-005. Security Requirements category now has 5 items (not 6).
