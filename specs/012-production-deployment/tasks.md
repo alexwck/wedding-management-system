@@ -152,7 +152,7 @@
 
 ### Implementation for User Story 5
 
-- [ ] T043 [US5] Verify `.env.example` documents all 10+ required environment variables:
+- [X] T043 [US5] Verify `.env.example` documents all 10+ required environment variables:
   - `NEXT_PUBLIC_SUPABASE_URL`
   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
   - `SUPABASE_SERVICE_ROLE_KEY`
@@ -162,14 +162,14 @@
   - `SENTRY_PROJECT` (optional)
   - `SENTRY_AUTH_TOKEN` (optional)
   - `VERCEL_TOKEN` (optional)
-- [ ] T044 [US5] Verify `.env.example` uses `<PLACEHOLDER>` syntax for all sensitive values (no real secrets)
-- [ ] T045 [US5] Verify `.env.example` includes comments describing:
+- [X] T044 [US5] Verify `.env.example` uses `<PLACEHOLDER>` syntax for all sensitive values (no real secrets)
+- [X] T045 [US5] Verify `.env.example` includes comments describing:
   - Where to get each value (dashboard path)
   - Which environments apply (local/production/all)
   - Free plan connection string format (port 5432)
 - [ ] T046 [US5] Audit Vercel environment variables: confirm no development-only values in production
 - [ ] T047 [US5] Verify secrets are encrypted at rest in Vercel (Dashboard → Settings → Environment Variables)
-- [ ] T048 [US5] Verify no `.env.local` or secrets committed to git: `git ls-files | grep -i env`
+- [X] T048 [US5] Verify no `.env.local` or secrets committed to git: `git ls-files | grep -i env`
 
 **Checkpoint**: At this point, User Story 5 is complete — environment config is documented and secure
 
@@ -179,16 +179,16 @@
 
 **Purpose**: Improvements that affect multiple user stories and final validation
 
-- [ ] T049 [P] Verify all Free plan monitoring requirements documented in DEPLOYMENT.md:
+- [X] T049 [P] Verify all Free plan monitoring requirements documented in DEPLOYMENT.md:
   - Supabase: 500MB DB, 2GB bandwidth, 50K MAU, 60 connections
   - Vercel: 100GB bandwidth, personal use only
   - Sentry: 10K errors/month, 7-day retention
-- [ ] T050 [P] Verify rollback procedure documented in DEPLOYMENT.md: Vercel "Promote to Production"
-- [ ] T051 [P] Verify monthly backup procedure documented (Supabase Free plan limitation)
-- [ ] T052 [P] Add weekly usage monitoring reminder to DEPLOYMENT.md (calendar invite suggestion)
+- [X] T050 [P] Verify rollback procedure documented in DEPLOYMENT.md: Vercel "Promote to Production"
+- [X] T051 [P] Verify monthly backup procedure documented (Supabase Free plan limitation)
+- [X] T052 [P] Add weekly usage monitoring reminder to DEPLOYMENT.md (calendar invite suggestion)
 - [ ] T053 [P] Run full checklist validation: `specs/012-production-deployment/checklists/deployment.md`
-- [ ] T054 [P] Update CLAUDE.md with plan reference (already done via /speckit-plan)
-- [ ] T055 [P] Verify all spec clarifications integrated and consistent
+- [X] T054 [P] Update CLAUDE.md with plan reference (already done via /speckit-plan)
+- [X] T055 [P] Verify all spec clarifications integrated and consistent
 - [ ] T056 [P] Verify SC-010 compliance: Open a test PR, verify preview deployment URL generated within 3 minutes, comment contains deploy link
 
 ---
