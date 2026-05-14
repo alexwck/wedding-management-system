@@ -22,10 +22,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create `.github/workflows/` directory for CI/CD workflows
-- [ ] T002 [P] Create Sentry configuration files at repository root (client, server, edge)
-- [ ] T003 [P] Update `.env.example` with all required environment variables and `<PLACEHOLDER>` syntax
-- [ ] T004 Install Sentry SDK: `npm install @sentry/nextjs`
+- [X] T001 [P] Create `.github/workflows/` directory for CI/CD workflows
+- [X] T002 [P] Create Sentry configuration files at repository root (client, server, edge)
+- [X] T003 [P] Update `.env.example` with all required environment variables and `<PLACEHOLDER>` syntax
+- [X] T004 Install Sentry SDK: `npm install @sentry/nextjs`
 
 ---
 
@@ -35,9 +35,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Create `DEPLOYMENT.md` in repository root with complete admin bootstrap documentation
-- [ ] T006 [P] Create `.github/workflows/ci.yml` with GitHub Actions CI/CD pipeline
-- [ ] T007 Update `spec.md` with any remaining gap resolutions from checklist
+- [X] T005 [P] Create `DEPLOYMENT.md` in repository root with complete admin bootstrap documentation
+- [X] T006 [P] Create `.github/workflows/ci.yml` with GitHub Actions CI/CD pipeline
+- [X] T007 Update `spec.md` with any remaining gap resolutions from checklist
 
 **Checkpoint**: Foundation ready — user story implementation can now begin in parallel
 
