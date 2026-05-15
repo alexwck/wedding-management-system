@@ -208,6 +208,17 @@ source of truth for glass styling — no hardcoded values in components.
 Glass panels are visually effective against dark or image-rich
 backgrounds; layout decisions should ensure sufficient contrast.
 
+### X. No Experimental Features
+
+Configuration and code MUST NOT use `experimental` blocks, unstable APIs,
+or beta features. All features MUST be stable and documented in official
+release notes. This avoids build failures when platforms update (e.g.,
+Next.js `experimental.serverActions` moved or removed without notice).
+
+If a stable alternative does not exist, the feature requirement MUST be
+re-scoped to work within stable APIs — not implemented with experimental
+workarounds.
+
 ## Technology Constraints
 
 - **Framework**: Next.js (App Router) with TypeScript (strict mode)
@@ -265,4 +276,4 @@ All PRs and code reviews MUST verify compliance with these principles.
 When a principle conflicts with a practical need, the principle is
 changed through the amendment process — not ignored.
 
-**Version**: 2.3.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-05-15
+**Version**: 2.4.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-05-16
