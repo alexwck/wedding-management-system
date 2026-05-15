@@ -38,7 +38,7 @@ Sentry.init({
   integrations: [
     // Session replay captures DOM mutations, clicks, console logs
     Sentry.replayIntegration({
-      maskAllText: false, // Show user input in replays (helpful for debugging)
+      maskAllText: true, // Hide user input in replays (RSVP forms contain personal data)
       blockAllMedia: true, // Block media for privacy/performance
     }),
 
