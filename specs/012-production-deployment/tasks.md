@@ -51,19 +51,19 @@
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] Create Supabase production project via supabase.com dashboard (manual step — documented in DEPLOYMENT.md)
-- [ ] T009 [US1] Run `supabase link --project-ref <PROJECT_REF>` to link local CLI to production
-- [ ] T010 [US1] Run `supabase db push` to apply all migrations to production database
-- [ ] T011 [US1] Verify production schema matches local: `supabase db diff --use-migra`
-- [ ] T012 [US1] Create Vercel production project: `vercel --prod` (link to GitHub repository)
-- [ ] T013 [US1] Configure Vercel environment variables in Dashboard → Settings → Environment Variables:
+- [X] T008 [US1] Create Supabase production project via supabase.com dashboard (manual step — documented in DEPLOYMENT.md)
+- [X] T009 [US1] Run `supabase link --project-ref <PROJECT_REF>` to link local CLI to production
+- [X] T010 [US1] Run `supabase db push` to apply all migrations to production database
+- [X] T011 [US1] Verify production schema matches local: `supabase db diff --use-migra`
+- [X] T012 [US1] Create Vercel production project: `vercel --prod` (link to GitHub repository)
+- [X] T013 [US1] Configure Vercel environment variables in Dashboard → Settings → Environment Variables:
   - `NEXT_PUBLIC_SUPABASE_URL` (all envs)
   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` (all envs)
   - `SUPABASE_SERVICE_ROLE_KEY` (production only)
   - `DATABASE_URL` (production only, direct connection port 5432)
-- [ ] T014 [US1] Deploy to production: `vercel --prod`
-- [ ] T015 [US1] Verify production deployment: navigate to `https://<project>.vercel.app` and confirm login page loads
-- [ ] T016 [US1] Test wedding page: navigate to `/w/[slug]` and verify venue details + RSVP form render
+- [X] T014 [US1] Deploy to production: `vercel --prod`
+- [X] T015 [US1] Verify production deployment: navigate to `https://<project>.vercel.app` and confirm login page loads
+- [X] T016 [US1] Test wedding page: navigate to `/w/[slug]` and verify venue details + RSVP form render
 
 **Checkpoint**: At this point, User Story 1 should be fully functional — production is live and accessible
 
@@ -78,18 +78,18 @@
 ### Implementation for User Story 2
 
 - [X] T017 [US2] Verify `.github/workflows/ci.yml` includes all required jobs: `lint`, `type-check`, `test`
-- [ ] T018 [US2] Push workflow to GitHub: `git add .github/workflows/ci.yml && git push`
-- [ ] T019 [US2] Verify GitHub Actions runs on next push — check Actions tab for workflow execution
-- [ ] T020 [US2] Configure GitHub branch protection (manual step):
+- [X] T018 [US2] Push workflow to GitHub: `git add .github/workflows/ci.yml && git push`
+- [X] T019 [US2] Verify GitHub Actions runs on next push — check Actions tab for workflow execution
+- [X] T020 [US2] Configure GitHub branch protection (manual step):
   - Settings → Branches → Add branch protection rule
   - Branch pattern: `main`
   - Enable: "Require a pull request before merging"
   - Enable: "Require status checks to pass before merging"
   - Select checks: `lint`, `type-check`, `test`
-- [ ] T021 [US2] Test branch protection: open a PR with a failing test — verify merge is blocked
-- [ ] T022 [US2] Test auto-deploy: merge a passing PR to main — verify Vercel auto-deploys within 5 minutes
-- [ ] T023 [US2] Verify CI failure messages include: job name, link to Actions run, first 10 lines of error
-- [ ] T023a [US2] Verify FR-004b compliance: Create test PR with intentional lint failure, verify error message includes job name, Actions link, first 10 lines of output, suggested fix
+- [X] T021 [US2] Test branch protection: open a PR with a failing test — verify merge is blocked
+- [X] T022 [US2] Test auto-deploy: merge a passing PR to main — verify Vercel auto-deploys within 5 minutes
+- [X] T023 [US2] Verify CI failure messages include: job name, link to Actions run, first 10 lines of error
+- [X] T023a [US2] Verify FR-004b compliance: Create test PR with intentional lint failure, verify error message includes job name, Actions link, first 10 lines of output, suggested fix
 
 **Checkpoint**: At this point, User Story 2 is complete — CI/CD pipeline enforces quality gates
 
@@ -103,19 +103,19 @@
 
 ### Implementation for User Story 3
 
-- [ ] T024 [US3] Create Sentry account and project at [sentry.io](https://sentry.io) (manual step)
-- [ ] T025 [US3] Run Sentry wizard: `npx @sentry/wizard@latest -i nextjs` — follow prompts to auto-configure
+- [X] T024 [US3] Create Sentry account and project at [sentry.io](https://sentry.io) (manual step)
+- [X] T025 [US3] Run Sentry wizard: `npx @sentry/wizard@latest -i nextjs` — follow prompts to auto-configure
 - [X] T026 [US3] Verify `sentry.client.config.ts` exists with correct DSN and `enabled: NODE_ENV === "production"`
 - [X] T027 [US3] Verify `sentry.server.config.ts` exists with correct DSN and production-only enabled
 - [X] T028 [US3] Verify `sentry.edge.config.ts` exists (for future edge function support)
-- [ ] T029 [US3] Add `SENTRY_DSN` to Vercel environment variables (production only)
-- [ ] T030 [US3] Deploy Sentry configuration: `vercel --prod`
-- [ ] T031 [US3] Test error monitoring: temporarily add `throw new Error("test")` to a server action
-- [ ] T032 [US3] Trigger test error in production — navigate to affected page
-- [ ] T033 [US3] Verify error appears in Sentry Dashboard → Issues within 30 seconds
-- [ ] T034 [US3] Revert test error and redeploy
+- [X] T029 [US3] Add `SENTRY_DSN` to Vercel environment variables (production only)
+- [X] T030 [US3] Deploy Sentry configuration: `vercel --prod`
+- [X] T031 [US3] Test error monitoring: temporarily add `throw new Error("test")` to a server action
+- [X] T032 [US3] Trigger test error in production — navigate to affected page
+- [X] T033 [US3] Verify error appears in Sentry Dashboard → Issues within 30 seconds
+- [X] T034 [US3] Revert test error and redeploy
 - [X] T035 [US3] Verify local development does NOT send errors to Sentry (check console for warning)
-- [ ] T035a [US3] Verify SEC-003 compliance: Check Supabase Dashboard → Authentication → Policies confirms RLS enabled on all tables (users, weddings, rsvps, floor_plans, seat_assignments)
+- [X] T035a [US3] Verify SEC-003 compliance: Check Supabase Dashboard → Authentication → Policies confirms RLS enabled on all tables (users, weddings, rsvps, floor_plans, seat_assignments)
 
 **Checkpoint**: At this point, User Story 3 is complete — production errors are monitored and reported
 
@@ -135,10 +135,10 @@
   - Option B: Manual creation via Supabase Dashboard → Authentication → Users
 - [X] T038 [US4] Verify `DEPLOYMENT.md` includes admin role grant instructions:
   - Supabase Dashboard → Users → Edit user metadata → `{"role": "admin"}`
-- [ ] T039 [US4] Test bootstrap: follow DEPLOYMENT.md on production deployment — create admin account
-- [ ] T040 [US4] Verify admin can log in and access admin dashboard at `/admin`
-- [ ] T041 [US4] Verify admin can create additional admin and couple accounts from admin panel
-- [ ] T042 [US4] Verify local development setup works: copy `.env.example` to `.env.local`, run `npm run dev`, create local admin
+- [X] T039 [US4] Test bootstrap: follow DEPLOYMENT.md on production deployment — create admin account
+- [X] T040 [US4] Verify admin can log in and access admin dashboard at `/admin`
+- [X] T041 [US4] Verify admin can create additional admin and couple accounts from admin panel
+- [X] T042 [US4] Verify local development setup works: copy `.env.example` to `.env.local`, run `npm run dev`, create local admin
 
 **Checkpoint**: At this point, User Story 4 is complete — admin bootstrap is documented and tested
 
@@ -167,8 +167,8 @@
   - Where to get each value (dashboard path)
   - Which environments apply (local/production/all)
   - Free plan connection string format (port 5432)
-- [ ] T046 [US5] Audit Vercel environment variables: confirm no development-only values in production
-- [ ] T047 [US5] Verify secrets are encrypted at rest in Vercel (Dashboard → Settings → Environment Variables)
+- [X] T046 [US5] Audit Vercel environment variables: confirm no development-only values in production
+- [X] T047 [US5] Verify secrets are encrypted at rest in Vercel (Dashboard → Settings → Environment Variables)
 - [X] T048 [US5] Verify no `.env.local` or secrets committed to git: `git ls-files | grep -i env`
 
 **Checkpoint**: At this point, User Story 5 is complete — environment config is documented and secure
@@ -186,10 +186,10 @@
 - [X] T050 [P] Verify rollback procedure documented in DEPLOYMENT.md: Vercel "Promote to Production"
 - [X] T051 [P] Verify monthly backup procedure documented (Supabase Free plan limitation)
 - [X] T052 [P] Add weekly usage monitoring reminder to DEPLOYMENT.md (calendar invite suggestion)
-- [ ] T053 [P] Run full checklist validation: `specs/012-production-deployment/checklists/deployment.md`
+- [X] T053 [P] Run full checklist validation: `specs/012-production-deployment/checklists/deployment.md`
 - [X] T054 [P] Update CLAUDE.md with plan reference (already done via /speckit-plan)
 - [X] T055 [P] Verify all spec clarifications integrated and consistent
-- [ ] T056 [P] Verify SC-010 compliance: Open a test PR, verify preview deployment URL generated within 3 minutes, comment contains deploy link
+- [X] T056 [P] Verify SC-010 compliance: Open a test PR, verify preview deployment URL generated within 3 minutes, comment contains deploy link
 
 ---
 
