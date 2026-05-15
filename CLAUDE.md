@@ -182,7 +182,10 @@ git config core.hooksPath .githooks
 - **Auth guard return shape**: `getAuthAndVerifyAccess` returns `{ user, isLocked, error }`. Unit test mocks must include `isLocked` property or destructuring will fail.
 - **Production builds use webpack**: `npm run build` uses `--webpack` flag — Turbopack has middleware chunking bugs ("expected chunkable module for async reference")
 - **Sentry Replay privacy**: `sentry.client.config.ts` uses `maskAllText: true` to hide RSVP form data in session replays
-- **Production deployment**: Follow `DEPLOYMENT.md` — Supabase migrations (`supabase db push`), Vercel env vars, Sentry DSN, manual admin bootstrap into `public.users`
+- **Production deployment**: Follow `DEPLOYMENT.md` — Supabase migrations (`supabase db push`), Vercel env vars (`TURBOPACK=0` for production), Sentry DSN, manual admin bootstrap into `public.users`
+- **Node.js 26 deprecation**: `module.register()` warning is internal to Next.js/Sentry — ignore until upstream updates
+- **React 19 testing**: Use `getBy*` queries (not `getAllBy*`) in component tests — React 19 double-renders in jsdom
+- **Playwright browsers**: After updating Playwright, run `npx playwright install` to download browser binaries
 
 ## Active Technologies
 - TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, Tailwind CSS v4, shadcn/ui (Nova theme), react-hook-form, zod, exceljs, cmdk

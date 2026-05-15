@@ -223,6 +223,15 @@ workarounds.
 rather than Turbopack. Turbopack has known middleware chunking bugs that cause
 production build failures (e.g., "expected chunkable module for async reference").
 
+**Dependencies**: All npm packages MUST be stable releases (no `-alpha`,
+`-beta`, `-rc`, `-canary`, or `-dev` versions). After updating Playwright
+or other test tools, run `npx playwright install` to download browsers.
+
+**Node.js Deprecations**: The `module.register()` deprecation warning from
+Node.js 26+ is an internal runtime issue used by Next.js and Sentry. It does
+not affect application code and can be safely ignored until upstream packages
+update to use `module.registerHooks()`.
+
 ## Technology Constraints
 
 - **Framework**: Next.js (App Router) with TypeScript (strict mode)
@@ -280,4 +289,4 @@ All PRs and code reviews MUST verify compliance with these principles.
 When a principle conflicts with a practical need, the principle is
 changed through the amendment process — not ignored.
 
-**Version**: 2.4.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-05-16
+**Version**: 2.5.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-05-16

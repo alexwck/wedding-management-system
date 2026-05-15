@@ -125,7 +125,7 @@ https://wedding-management-system-<hash>.vercel.app
 | `SUPABASE_SERVICE_ROLE_KEY` | `<service-role-key-from_step_1>` | **Production only** |
 | `DATABASE_URL` | `postgresql://...:5432/postgres` (from Step 1) | **Production only** |
 | `SENTRY_DSN` | `https://...` (from Step 6) | **Production only** |
-| `TURBOPACK` | `0` | **Production only** (avoids middleware chunking bug) |
+| `TURBOPACK` | `0` | **Production only** (forces webpack, avoids Turbopack middleware bug) |
 
 3. Click **Save** after each variable
 
