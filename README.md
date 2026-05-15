@@ -214,6 +214,15 @@ tests/
 - **Template crop repositioning** — Drag-to-crop on template preview image to choose visible portion. Stored as 0-100 percentages (`template_focal_x`, `template_focal_y`). Landing page uses `object-cover` with CSS `object-position` for display. Reset to NULL on image replace.
 - **Venue details** — Weddings have optional venue fields (name, address, lat/lng, welcome message). Address autocomplete uses Nominatim (free, client-side, no API key). Public RSVP page shows an OpenStreetMap iframe embed with Google Maps/Waze navigation buttons. Landing page shows venue info overlay in the gradient area above the RSVP button.
 
+## Production Deployment
+
+See [`DEPLOYMENT.md`](DEPLOYMENT.md) for complete production deployment instructions including:
+- Supabase project setup and migrations
+- Vercel deployment and environment configuration
+- Sentry error monitoring setup
+- Admin account bootstrap
+- Free plan monitoring and backups
+
 ## Troubleshooting
 
 **Supabase won't start** — Make sure Podman is running (`podman info`). If containers are stuck, try `supabase stop && supabase start`.
