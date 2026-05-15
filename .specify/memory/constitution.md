@@ -219,6 +219,10 @@ If a stable alternative does not exist, the feature requirement MUST be
 re-scoped to work within stable APIs — not implemented with experimental
 workarounds.
 
+**Build Configuration**: Production builds MUST use webpack (`--webpack` flag)
+rather than Turbopack. Turbopack has known middleware chunking bugs that cause
+production build failures (e.g., "expected chunkable module for async reference").
+
 ## Technology Constraints
 
 - **Framework**: Next.js (App Router) with TypeScript (strict mode)

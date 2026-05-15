@@ -81,9 +81,6 @@ Sentry.init({
     // Prisma integration (if using Prisma ORM)
     // Sentry.prismaIntegration(),
 
-    // Database integration for raw SQL
-    Sentry.postIntegration(),
-
     // Express integration (if using custom server)
     // Sentry.expressIntegration(),
   ],
