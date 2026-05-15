@@ -180,6 +180,9 @@ git config core.hooksPath .githooks
 - **ResponsiveTable mobile**: Desktop renders `<Table>` with sortable `<th>` headers; mobile (`md:hidden`) renders `<GlassCard>` items without sort capability. Column sorting E2E tests should skip on mobile viewports (`viewport.width < 768`).
 - **ESLint ignore**: `.claude/skills/` contains template/example code and should be in `.eslintignore`.
 - **Auth guard return shape**: `getAuthAndVerifyAccess` returns `{ user, isLocked, error }`. Unit test mocks must include `isLocked` property or destructuring will fail.
+- **Turbopack middleware bug**: Turbopack causes middleware chunking issues — disable via `turbo: undefined` in `next.config.ts` (see Vercel issue #8984)
+- **Sentry Replay privacy**: `sentry.client.config.ts` uses `maskAllText: true` to hide RSVP form data in session replays
+- **Production deployment**: Follow `DEPLOYMENT.md` — Supabase migrations (`supabase db push`), Vercel env vars, Sentry DSN, manual admin bootstrap into `public.users`
 
 ## Active Technologies
 - TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, Tailwind CSS v4, shadcn/ui (Nova theme), react-hook-form, zod, exceljs, cmdk
