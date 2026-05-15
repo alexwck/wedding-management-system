@@ -2,6 +2,11 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { RSVPTable } from "@/components/rsvp-table";
 
+// Helper to query within desktop table (visible on md+ screens)
+function getDesktopTable() {
+  return screen.getByRole("table");
+}
+
 function makeRsvps(count: number) {
   return Array.from({ length: count }, (_, i) => ({
     id: i + 1,
@@ -30,8 +35,10 @@ describe("RSVPTable", () => {
     const rsvps = makeRsvps(5);
     render(<RSVPTable rsvps={rsvps} />);
 
-    expect(screen.getAllByText("Guest 1").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("Guest 5").length).toBeGreaterThanOrEqual(1);
+    const table = getDesktopTable();
+    expect(table).toBeInTheDocument();
+    expect(table).toHaveTextContent("Guest 1");
+    expect(table).toHaveTextContent("Guest 5");
   });
 
   it("paginates at 25 rows per page", () => {
@@ -39,10 +46,11 @@ describe("RSVPTable", () => {
     render(<RSVPTable rsvps={rsvps} />);
 
     expect(screen.getByText("Page 1 of 2")).toBeInTheDocument();
-    expect(screen.getAllByText("Guest 1").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("Guest 25").length).toBeGreaterThanOrEqual(1);
+    const table = getDesktopTable();
+    expect(table).toHaveTextContent("Guest 1");
+    expect(table).toHaveTextContent("Guest 25");
     // Guest 26 should not be on page 1
-    expect(screen.queryAllByText("Guest 26").length).toBe(0);
+    expect(table).not.toHaveTextContent("Guest 26");
   });
 
   it("navigates to next page", () => {
@@ -53,8 +61,11 @@ describe("RSVPTable", () => {
     fireEvent.click(nextButton);
 
     expect(screen.getByText("Page 2 of 2")).toBeInTheDocument();
-    expect(screen.getAllByText("Guest 26").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("Guest 30").length).toBeGreaterThanOrEqual(1);
+    const table = getDesktopTable();
+    expect(table).toHaveTextContent("Guest 26");
+    expect(table).toHaveTextContent("Guest 30");
+    // Guest 1 should not be on page 2
+    expect(table).not.toHaveTextContent("Guest 1");
   });
 
   it("disables previous button on first page", () => {
