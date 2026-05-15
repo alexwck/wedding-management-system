@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Disable Turbopack for production builds (known bug with middleware chunking)
+  // See: https://github.com/vercel/turbo/issues/8984
   experimental: {
+    turbo: undefined,
     serverActions: {
       bodySizeLimit: "6mb",
     },
