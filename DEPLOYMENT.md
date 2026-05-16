@@ -32,6 +32,7 @@ This guide walks you through deploying the wedding management system to producti
 - [ ] Node.js 20+ installed locally (`node --version`)
 - [ ] npm installed (`npm --version`)
 - [ ] Supabase CLI installed (`npm install -g supabase`)
+- [ ] Vercel CLI installed (`npm install -g vercel` or `brew install vercel-cli`)
 
 ---
 
