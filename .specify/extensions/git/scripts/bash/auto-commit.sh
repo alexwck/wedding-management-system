@@ -138,3 +138,16 @@ _git_out=$(git add . 2>&1) || { echo "[specify] Error: git add failed: $_git_out
 _git_out=$(git commit -q -m "$_commit_msg" 2>&1) || { echo "[specify] Error: git commit failed: $_git_out" >&2; exit 1; }
 
 echo "✓ Changes committed ${_phase} ${_command_name}" >&2
+
+# Run cleanup after implementation completes
+if [ "$EVENT_NAME" = "after_implement" ]; then
+    _cleanup_script="$SCRIPT_DIR/cleanup-noise.sh"
+    if [ -x "$_cleanup_script" ]; then
+        echo "[cleanup] Running noise cleanup after implementation..."
+        "$_cleanup_script"
+        # Stage and commit cleanup changes
+        _git_out=$(git add . 2>&1) || true
+        _git_out=$(git commit -q -m "[Spec Kit] Auto-commit after implement_cleanup" 2>&1) || { echo "[specify] Note: cleanup commit skipped (no changes)" >&2; }
+        echo "✓ Noise cleanup complete" >&2
+    fi
+fi

@@ -51,6 +51,9 @@ auto_commit:
   after_implement:
     enabled: true
     message: "feat: implementation progress"
+  after_implement_cleanup:
+    enabled: true
+    message: "chore: remove speckit-generated noise"
   after_checklist:
     enabled: true
     message: "docs: add checklist"
