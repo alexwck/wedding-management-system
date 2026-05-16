@@ -2,7 +2,7 @@
 # CI/CD Workflow: Wedding Management System
 # =============================================================================
 # Triggers:
-#   - Pull requests to main: runs lint, type-check, test
+#   - Pull requests to main: runs lint, type-check, test + preview deployment
 #   - Push to main: runs all checks + deploys to production via Vercel
 #
 # Required Branch Protection (configure in GitHub Settings → Branches):
@@ -197,4 +197,102 @@ jobs:
           echo "- **Deployment Status**: ${{ steps.deploy.outcome }}" >> $GITHUB_STEP_SUMMARY
           if [ -n "${{ steps.deploy.outputs.deployment_url }}" ]; then
             echo "- **Production URL**: ${{ steps.deploy.outputs.deployment_url }}" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ---------------------------------------------------------------------------
+  # Preview Deploy: Vercel preview deployment for PRs
+  # ---------------------------------------------------------------------------
+  # Creates a preview deployment for each PR after checks pass
+  # Vercel also auto-deploys PRs — this adds GitHub status checks and
+  # ensures deployment only happens after lint/type-check/test pass
+  #
+  # Prerequisites:
+  #   - VERCEL_TOKEN: GitHub Secrets (vercel.com/account/tokens)
+  #   - SUPABASE_ACCESS_TOKEN: GitHub Secrets (supabase.com/dashboard/account/tokens)
+  #   - SUPABASE_DB_PASSWORD: GitHub Secrets (database password)
+  #   - SUPABASE_PROJECT_REF: GitHub Secrets (your Supabase project ref)
+  # ---------------------------------------------------------------------------
+  preview:
+    name: preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [lint, type-check, test]
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Install Supabase CLI
+        run: npm install -g supabase
+
+      - name: Install dependencies
+        run: npm ci
+
+      # -------------------------------------------------------------------------
+      # Step 1: Run Supabase Migrations (preview database)
+      # -------------------------------------------------------------------------
+      - name: Run Supabase migrations
+        id: migrate
+        run: |
+          echo "Linking to Supabase project..."
+          supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+
+          echo "Running database migrations..."
+          supabase db push
+
+          echo "Migration completed at $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+
+      # -------------------------------------------------------------------------
+      # Step 2: Deploy to Vercel Preview
+      # -------------------------------------------------------------------------
+      # Creates preview deployment with unique URL
+      # Vercel automatically adds PR comment with preview link
+      # -------------------------------------------------------------------------
+      - name: Deploy to Vercel preview
+        id: preview-deploy
+        run: |
+          echo "Pulling Vercel environment..."
+          vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+          echo "Building project..."
+          vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+          echo "Deploying to preview..."
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+
+          echo "Preview URL: $DEPLOYMENT_URL"
+          echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      # -------------------------------------------------------------------------
+      # Post-Deployment: Report preview details
+      # -------------------------------------------------------------------------
+      - name: Report preview deployment
+        if: always()
+        run: |
+          echo "## Preview Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **PR**: #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Migration Status**: ${{ steps.migrate.outcome }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Preview Status**: ${{ steps.preview-deploy.outcome }}" >> $GITHUB_STEP_SUMMARY
+          if [ -n "${{ steps.preview-deploy.outputs.deployment_url }}" ]; then
+            echo "- **Preview URL**: ${{ steps.preview-deploy.outputs.deployment_url }}" >> $GITHUB_STEP_SUMMARY
           fi
