@@ -56,3 +56,12 @@ next-env.d.ts
 
 # Supabase
 .supabase/
+.supabase/.temp/
+
+# speckit-generated noise (auto-deleted after implement)
+specs/*/quickstart.md
+specs/*/checklists/requirements.md
+.specify/feature.json
+.specify/init-options.json
+.specify/integration.json
+.specify/workflows/workflow-registry.json
