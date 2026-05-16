@@ -194,19 +194,39 @@ use Zod schemas to catch malformed data. Concurrent writes to the same
 resource MUST be guarded (in-flight flags, atomic operations, or
 optimistic locking) to prevent silent data loss.
 
-### IX. Glassmorphism Design System
+### IX. Design System Adherence (DESIGN.md)
 
-All card-like surfaces (forms, overlays, toolbars, modals, panels)
-MUST use the glassmorphism design system defined in `globals.css`. The
-`.glass-panel` utility class provides the canonical styling: `backdrop-filter:
-blur(16px)`, `background: rgba(255,255,255,0.3)`, `border: 1px solid
-rgba(255,255,255,0.2)`, and `box-shadow: 0 8px 32px rgba(0,0,0,0.08)`.
+All UI code MUST strictly adhere to the design system defined in
+`DESIGN.md` at the project root. This document is the single source of
+truth for CSS tokens, layouts, shadow systems, and motion guidelines.
 
-CSS variables (`--glass-bg`, `--glass-bg-heavy`, `--glass-border`,
-`--glass-shadow`, `--glass-blur`, `--radius-glass`) are the single
-source of truth for glass styling — no hardcoded values in components.
-Glass panels are visually effective against dark or image-rich
-backgrounds; layout decisions should ensure sufficient contrast.
+**CSS Tokens**: All styling MUST map to DESIGN.md tokens:
+- Glass surfaces: `rgba(255, 255, 255, 0.25)` light / `rgba(255, 255, 255, 0.08)` dark
+- Backdrop blur: `16px` standard, `24px` elevated modals
+- Shadows: `0 8px 32px 0 rgba(0, 0, 0, 0.08)` (dual-shadow for depth)
+- Inner shadows: `inset 0 2px 4px 0 rgba(0, 0, 0, 0.05)` for recessed inputs
+- Corner radius: `12px` buttons/pills, `24px` cards, `32px` containers
+- Typography: Inter (400/500/600) for body, Playfair Display/Cormorant
+  Garamond (600+) for display headers
+
+**Motion & Animation**: All interactive elements MUST implement:
+- Global transitions: `300ms` standard, `150ms` micro-interactions
+- Easing: `cubic-bezier(0.4, 0, 0.2, 1)`
+- Hover: `translateY(-2px)` with shadow intensification
+- Active/Click: `scale(0.98)` with shadow reduction
+- Page entrance: Staggered `opacity: 0→1` + `translateY: 20px→0px`
+
+**Layouts**: Component layouts MUST follow DESIGN.md architecture:
+- Sidebar: Fixed `280px` width, full-height glass panel
+- Main canvas: Responsive with `40px` padding
+- Layering: Increasing backdrop-blur and border-opacity by hierarchy
+
+**No hardcoded values**: Components MUST use CSS variables from
+`globals.css` that mirror DESIGN.md tokens. Hardcoded color/shadow
+values in component files are prohibited — centralize in design tokens.
+
+**Compliance**: Every PR with UI changes MUST verify DESIGN.md alignment
+in code review. Deviations require principle amendment, not silent bypass.
 
 ### X. No Experimental Features
 
@@ -289,4 +309,19 @@ All PRs and code reviews MUST verify compliance with these principles.
 When a principle conflicts with a practical need, the principle is
 changed through the amendment process — not ignored.
 
-**Version**: 2.5.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-05-16
+<!--
+SYNC IMPACT REPORT (v2.6.0):
+- Version change: 2.5.0 → 2.6.0 (MINOR: Principle IX materially expanded)
+- Modified principles: IX (Glassmorphism Design System → Design System Adherence)
+  - Old: Basic glass-panel utility reference
+  - New: Strict DESIGN.md enforcement with explicit CSS tokens, motion guidelines, layout rules
+- Added sections: None
+- Removed sections: None
+- Templates requiring updates:
+  - ✅ .specify/templates/plan-template.md - Constitution Check section aligns
+  - ✅ .specify/templates/spec-template.md - No design-specific sections
+  - ✅ .specify/templates/tasks-template.md - No design-specific tasks
+- Follow-up TODOs: None
+-->
+
+**Version**: 2.6.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-05-17
