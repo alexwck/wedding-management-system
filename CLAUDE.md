@@ -182,7 +182,9 @@ git config core.hooksPath .githooks
 - **Auth guard return shape**: `getAuthAndVerifyAccess` returns `{ user, isLocked, error }`. Unit test mocks must include `isLocked` property or destructuring will fail.
 - **Production builds use webpack**: `npm run build` uses `--webpack` flag — Turbopack has middleware chunking bugs ("expected chunkable module for async reference")
 - **Sentry Replay privacy**: `sentry.client.config.ts` uses `maskAllText: true` to hide RSVP form data in session replays
-- **Production deployment**: Follow `DEPLOYMENT.md` — Supabase migrations (`supabase db push`), Vercel env vars (`TURBOPACK=0` for production), Sentry DSN, manual admin bootstrap into `public.users`
+- **Production deployment**: Follow `DEPLOYMENT.md` — Supabase migrations (`supabase db push`), Vercel env vars (`TURBOPACK=0` for production), Sentry DSN, manual admin bootstrap
+- **Admin app_metadata requirement**: Middleware checks `user.app_metadata?.role` — creating user in Supabase Dashboard isn't enough. Run SQL: `UPDATE auth.users SET raw_app_meta_data = jsonb_set(COALESCE(raw_app_meta_data, '{}'), '{role}', '"admin"') WHERE id = 'uuid'`
+- **CI/CD preview deployments**: GitHub Actions runs `preview` job on PRs after checks pass — deploys to Vercel preview. Vercel also auto-deploys PRs; CI job adds gated status checks
 - **Node.js 26 deprecation**: `module.register()` warning is internal to Next.js/Sentry — ignore until upstream updates
 - **React 19 testing**: Use `getBy*` queries (not `getAllBy*`) in component tests — React 19 double-renders in jsdom
 - **Playwright browsers**: After updating Playwright, run `npx playwright install` to download browser binaries
