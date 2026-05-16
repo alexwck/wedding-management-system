@@ -204,28 +204,46 @@ If you cannot receive emails (e.g., custom domain not configured):
 
 4. Click **Create user**
 
-5. Navigate to production URL and login with credentials
+5. Copy the user's **UUID** (shown in the user list)
 
-### Granting Admin Role
-
-By default, new users have `couple` role. To grant `admin` role:
-
-1. Go to Supabase Dashboard → Authentication → Users
-
-2. Find your admin user in the list
-
-3. Click user → **Edit user metadata**
-
-4. Add custom claim:
-   ```json
-   {
-     "role": "admin"
-   }
+6. Go to Supabase Dashboard → SQL Editor and run:
+   ```sql
+   -- Grant admin role via app_metadata (required for middleware auth)
+   UPDATE auth.users 
+   SET raw_app_metadata = jsonb_set(
+     COALESCE(raw_app_metadata, '{}'::jsonb),
+     '{role}',
+     '"admin"'
+   )
+   WHERE id = 'YOUR_USER_UUID_HERE';
    ```
 
-5. Click **Save**
+7. Also insert a row into `public.users`:
+   ```sql
+   INSERT INTO public.users (id, role, display_name)
+   VALUES ('YOUR_USER_UUID_HERE', 'admin', 'Admin');
+   ```
 
-6. Logout and login again — you should now see the admin dashboard
+8. Navigate to production URL and login with credentials
+
+9. **Important**: Logout and login again after updating app_metadata — the session must refresh to pick up the new role
+
+### Granting Admin Role (Existing User)
+
+By default, new users have `couple` role. To grant `admin` role to an existing user:
+
+1. Go to Supabase Dashboard → SQL Editor
+
+2. Run this query to find the user's UUID:
+   ```sql
+   SELECT id, email, raw_app_metadata 
+   FROM auth.users 
+   WHERE email = 'YOUR_ADMIN_EMAIL';
+   ```
+
+3. Run the update query from Step 6 above with the user's UUID
+
+4. **Logout and login again** — sessions cache `app_metadata` at login time
 
 ---
 
