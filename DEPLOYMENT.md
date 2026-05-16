@@ -209,9 +209,10 @@ If you cannot receive emails (e.g., custom domain not configured):
 6. Go to Supabase Dashboard → SQL Editor and run:
    ```sql
    -- Grant admin role via app_metadata (required for middleware auth)
+   -- Note: column is raw_app_meta_data (with underscore)
    UPDATE auth.users 
-   SET raw_app_metadata = jsonb_set(
-     COALESCE(raw_app_metadata, '{}'::jsonb),
+   SET raw_app_meta_data = jsonb_set(
+     COALESCE(raw_app_meta_data, '{}'::jsonb),
      '{role}',
      '"admin"'
    )
@@ -236,7 +237,7 @@ By default, new users have `couple` role. To grant `admin` role to an existing u
 
 2. Run this query to find the user's UUID:
    ```sql
-   SELECT id, email, raw_app_metadata 
+   SELECT id, email, raw_app_meta_data 
    FROM auth.users 
    WHERE email = 'YOUR_ADMIN_EMAIL';
    ```
