@@ -34,18 +34,9 @@ export function TemplatePreview({
   focalY,
 }: TemplatePreviewProps) {
   const [open, setOpen] = useState(false);
-  const [offset, setOffset] = useState<CropOffset | null>(
-    focalX !== null && focalY !== null ? { x: focalX, y: focalY } : null,
-  );
-
-  // Sync with prop changes when dialog reopens or server data updates
-  useEffect(() => {
-    if (focalX !== null && focalY !== null) {
-      setOffset({ x: focalX, y: focalY });
-    } else {
-      setOffset(null);
-    }
-  }, [focalX, focalY]);
+  // Derive initial offset from props; reset on dialog open/close via key
+  const initialOffset = focalX !== null && focalY !== null ? { x: focalX, y: focalY } : null;
+  const [offset, setOffset] = useState<CropOffset | null>(initialOffset);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const dragging = useRef(false);
@@ -166,7 +157,7 @@ export function TemplatePreview({
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen} key={`${focalX}-${focalY}`}>
       <DialogTrigger render={(props) => <button {...props} type="button" className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-2xl backdrop-blur-sm transition-all duration-300 bg-white/20 text-slate-800 hover:bg-white/30 border border-white/30" >Adjust Crop</button>}>
       </DialogTrigger>
       <DialogContent className="glass-panel max-w-3xl">

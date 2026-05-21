@@ -22,7 +22,7 @@ describe("GlassPanel", () => {
 
   it("applies glass-light class when variant is light", () => {
     render(<GlassPanel variant="light" data-testid="panel">Test</GlassPanel>);
-    expect(screen.getByTestId("panel").className).toContain("glass-light");
+    expect(screen.getByTestId("panel").className).toContain("glass-panel--light");
   });
 
   it("applies glass-dark class when variant is dark", () => {
