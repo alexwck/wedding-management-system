@@ -1,17 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-# Tool Calling Guidelines
-- Always provide ALL required parameters (path, content, etc.) in every tool call.
-- Do not omit code or use comments like "// ... rest of code" inside write_file calls.
-- Format tool calls as pure JSON within the designated XML tags.
-
-# Compact Instructions
-When auto-compacting, always preserve:
-- Current project architecture and Next.js 16 file structure.
-- Progress of the current speckit-implement task.
-- Exact file paths for any active bug fixes.
+Project context for the wedding management system.
 
 ## Project Overview
 
@@ -148,7 +137,7 @@ git config core.hooksPath .githooks
 - **Chair rotation**: Chairs (circles) don't independently rotate — only reposition (x/y) when their parent table rotates. `handleRotationEnd` applies rotation delta to chair positions via trig but omits `rotation` from the update.
 - **Compact top bar**: Floor plan editor uses a single `glass-panel` bar at top (W/H inputs, undo/redo, zoom, save). No floating overlays at top of canvas. `containerRef` is on the inner canvas-area div so Stage dimensions exclude the 40px bar.
 - **Canvas auto-centering**: `handleFitToScreen()` runs once on mount via `useEffect` with `hasFittedRef` guard, triggered when ResizeObserver reports actual container dimensions.
-- **Glassmorphism design system**: The app uses a `.glass-panel` CSS utility class defined in `globals.css` with `backdrop-filter: blur(16px)`, `background: rgba(255,255,255,0.3)`, `border: 1px solid rgba(255,255,255,0.2)`, and `box-shadow: 0 8px 32px rgba(0,0,0,0.08)`. All card-like surfaces (forms, overlays, toolbars, modals) should use this pattern. CSS variables: `--glass-bg`, `--glass-bg-heavy`, `--glass-border`, `--glass-shadow`, `--glass-blur`, `--radius-glass`. Dark backgrounds make glass panels pop.
+- **Nova Glass v2.0.0**: Design system (DESIGN.md) with pastel gradient background, 3 glass variants (`.glass-medium` 10%, `.glass-light` 20%, `.glass-dark`), 800ms entrance animations with custom easing `cubic-bezier(0.16,1,0.3,1)`. All card-like surfaces use glass variants with `backdrop-filter: blur(16px)`. CSS variables: `--glass-medium`, `--glass-light`, `--glass-dark`, `--bg-gradient`, `--button-primary`, `--input-base`.
 - **Turbopack stale routes**: After migrations or route changes, the dev server may serve 404 for routes it hasn't compiled. Fix: touch a file in the route directory (`touch src/app/\(public\)/w/\[slug\]/rsvp/page.tsx`) or restart the dev server. Always `curl` a page before debugging E2E failures.
 - **E2E mobile click interception**: The mobile nav (`md:hidden fixed z-50`) overlays sidebar buttons on small viewports. Use `{ force: true }` on Playwright clicks for floor plan catalog items when targeting Mobile Chrome.
 - **Undo history**: `canUndo` is true only after 2+ pushes (index > 0). Adding one item pushes the pre-add state but index stays at 0. Tests verifying undo must add at least 2 items before asserting `canUndo=true`.
@@ -177,8 +166,8 @@ git config core.hooksPath .githooks
 - **E2E RSVP confirmation card**: After RSVP submission, a token cookie triggers server re-render showing `RsvpConfirmationCard` with heading "Your RSVP" (not the transient "Thank You" message). Tests re-visiting `/w/[slug]` after submission must assert the confirmation card, not the form success message.
 - **E2E hydration waits**: `await page.waitForLoadState("networkidle")` after `page.goto()` before interacting with file inputs or client components. Without it, `setInputFiles` and clicks on hydrated elements can silently fail.
 - **E2E strict mode violations**: `locator("text=...")` resolves to all matching elements. Use `.first()` or more specific selectors (e.g. `h3.text-lg`) to avoid strict mode violations when multiple headings/buttons share text.
-- **ResponsiveTable mobile**: Desktop renders `<Table>` with sortable `<th>` headers; mobile (`md:hidden`) renders `<GlassCard>` items without sort capability. Column sorting E2E tests should skip on mobile viewports (`viewport.width < 768`).
-- **ESLint ignore**: `.claude/skills/` contains template/example code and should be in `.eslintignore`.
+- **ResponsiveTable mobile**: Desktop renders `<Table>` with sortable `<th>` headers; mobile (`md:hidden`) renders `<GlassPanel>` items without sort capability. Column sorting E2E tests should skip on mobile viewports (`viewport.width < 768`).
+- **ESLint ignore**: `.claude/skills/`, `.specify/`, and `specs/` are ignored via `globalIgnores()` in `eslint.config.mjs` — the `.eslintignore` file is not supported by ESLint v9 flat config.
 - **Auth guard return shape**: `getAuthAndVerifyAccess` returns `{ user, isLocked, error }`. Unit test mocks must include `isLocked` property or destructuring will fail.
 - **Production builds use webpack**: `npm run build` uses `--webpack` flag — Turbopack has middleware chunking bugs ("expected chunkable module for async reference")
 - **Sentry Replay privacy**: `sentry.client.config.ts` uses `maskAllText: true` to hide RSVP form data in session replays
@@ -189,23 +178,49 @@ git config core.hooksPath .githooks
 - **React 19 testing**: Use `getBy*` queries (not `getAllBy*`) in component tests — React 19 double-renders in jsdom
 - **Playwright browsers**: After updating Playwright, run `npx playwright install` to download browser binaries
 
-## Active Technologies
-- TypeScript (strict mode) with Next.js 16 (App Router) + React 19 + react-konva, konva, Tailwind CSS v4, shadcn/ui (Nova theme), react-hook-form, zod, exceljs, cmdk
-- Supabase PostgreSQL — `seat_assignments`, `rsvps`, `floor_plans`, `weddings` (with `timezone`, `template_focal_x`, `template_focal_y`, `is_locked`, venue columns)
-- XLSX export via `exceljs` with base64 buffer transfer pattern
-
-## Recent Changes
-- 010-ux-polish-admin-rsvp: Admin lock/unlock for weddings (`is_locked` column), catalog collision blocking (`canPlaceItem` dry-run), 5-state save model with OOB prevention, RSVP single-page redesign (hero + venue + RSVP in one scrollable page, gradient fallback hero), editable couple name component, template image cache-bust + "Adjust Crop" rename, undo/redo audit (all 10 actions verified)
-- 009-ux-polish-bugfixes: Drag-to-crop template repositioning (replaces click focal point), collapsible guest panel with assigned/unassigned sections, canvas stats (table/chair/assignment counts), undo tracks all state (items + assignments + dimensions), number input undo dedup, center-based rendering for all items (offsetX/Y), merged rotation+resize handler, callback stability via refs, chair count scoped unassign, password confirmation for couple creation, resize handles for non-table items (Stage/Pillar/Walkway/Misc) with per-type min/max bounds
-- 008-dashboard-ux-fixes: Side-by-side dashboard layout (template left, details right), wedding date picker with timezone, collapsible sortable RSVP table, template preview with click-to-set focal point, fixed XLSX export (base64 transfer), removed Google Sheets export, fixed floor plan catalog overflow, chair count controls in top toolbar, collision detection for child chairs during drag, undo initial state fix, venue suggestion dropdown styling, memoized CanvasItem component, extracted checkDragCollisions and ChairCountControls helpers
-- 007-venue-details-maps: Added venue name, address (with Nominatim autocomplete), welcome message, embedded OSM map, and navigation buttons. Venue editor on admin/couple pages, venue info on landing page, venue section with map on RSVP form.
-- 006-guest-seat-assignment: Guest-to-chair seat assignments with drag-and-drop, unassigned guests panel, assignment dialog
-- 005-fix-coords-ui-layout: Fixed Konva coordinate system (Circle center vs Rect top-left), added compact glass-panel top bar, real-time label tracking during drag, canvas auto-centering on load, chair rotation removal (chairs follow parent table only)
-- 004-app-wide-ux-redesign: App-wide content density improvements across all pages
-- 003-ux-polish-floorplan-fixes: Floor plan editor UX polish, Supabase Auth + Storage integration
+- **Floor plan mobile UX**: The `useCanvasViewport` hook (`window.innerWidth < 768`) drives a progressive-disclosure layout. On mobile, sidebars collapse into a bottom action bar (Guests / Catalog / Menu FAB) and bottom drawers using `@/components/ui/sheet`. Tapping a canvas node opens the `MobileItemEditor` sheet with large numeric inputs for rotation, dimensions, and chair count. Transformer anchors scale dynamically: `anchorSize={Math.max(10 / stageScale, 15)}` so they stay touchable regardless of zoom.
+- **GlassButton motion stability**: `whileHover={{ scale: 1.02 }}` uses scale-only (no `y` translation) so Playwright clicks don't hit "element not stable" timeouts during hover-to-click transitions.
+- **Touch target minimums**: All interactive buttons use `min-w-[44px] min-h-[44px]`. Catalog collapse toggles and chair count `+`/`-` controls are enlarged to meet WCAG 2.5.5.
+- **Canvas skeleton screen**: While `initialFloorPlan` loads, a pulsing `bg-slate-200/30 animate-pulse` overlay covers the canvas area instead of blank white.
+- **Undo/redo toast feedback**: `showToast()` displays a transient "Undo: restored previous state" / "Redo: restored next state" message for mobile users when canvas changes may be off-screen.
+- **Device-check soft gate**: `FloorPlanDeviceCheck` no longer blocks mobile users entirely. It shows a soft warning banner on `window.innerWidth < 640` while still rendering the canvas and drawers.
 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-specs/012-production-deployment/plan.md (Production Deployment)
+specs/013-update-design-stitch/plan.md (Update Design Based on Stitch Redesign)
 <!-- SPECKIT END -->
+
+## Floor Plan Mobile UX
+
+The floor plan editor adapts to mobile viewports via progressive disclosure rather than blocking access.
+
+### `useCanvasViewport` Hook
+- Detects mobile via `window.innerWidth < 768` (`isMobile`) and small screens via `< 640` (`isSmallScreen`).
+- Uses `ResizeObserver` with dimension equality guards and debounced refit to prevent infinite loops.
+- Returns a stable memoized object so callbacks depending on `viewport` don't recreate on every render.
+
+### Bottom-Drawer Pattern
+- On mobile (`viewport.isMobile`), the left (guest panel) and right (item catalog) sidebars are hidden.
+- A fixed bottom action bar (`h-14 glass-panel`) provides buttons to open:
+  - **Guest drawer** — `<Sheet side="bottom">` containing `<GuestPanel />`
+  - **Catalog drawer** — `<Sheet side="bottom">` containing `<ItemCatalog />`
+- A center FAB (primary) closes any open drawer or acts as a menu toggle.
+
+### `MobileItemEditor` Sheet
+- When a canvas item is selected on mobile, a bottom sheet opens with touch-friendly controls:
+  - Label editing via `<Input>`
+  - Rotation (+/- 15°) with `min-w-[44px] min-h-[44px]` buttons
+  - Dimension inputs (W/H) for resizable items
+  - Chair count +/- with disabled states
+  - Delete action with destructive styling
+- All controls use `GlassButton` with `min-w-[44px] min-h-[44px]`.
+
+### Konva Anchor Scaling
+- Transformer anchor size: `anchorSize={Math.max(10 / stageScale, 15)}`
+- Ensures anchors remain tappable even when the stage is zoomed out.
+
+### `GlassButton` Playwright Stability
+- `GlassButton` uses `motion.button` with `whileHover={{ scale: 1.02 }}` and `whileTap={{ scale: 0.98 }}`.
+- The `y` translation was removed from hover because it triggers Playwright's "element not stable" check during hover-to-click sequences.
+- Scale-only hover preserves animation UX while keeping E2E tests reliable.

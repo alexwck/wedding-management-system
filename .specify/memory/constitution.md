@@ -183,6 +183,16 @@ for touch-only handlers). Every interactive canvas node (Konva or
 equivalent) MUST include both event types. Mobile viewports MUST be
 tested as part of the development workflow — mobile is not an afterthought.
 
+**Progressive Disclosure for Complex Tools**: Features that are desktop-native
+by default (e.g., drag-resize, precision positioning, dense data tables)
+MUST provide a simplified mobile alternative rather than a hard block.
+Examples:
+- Floor plan editor uses bottom drawers for guest panel and item catalog,
+  a touch-friendly bottom sheet for item properties (rotation, dimensions,
+  chair count), and dynamically scaled transformer anchors.
+- Touch targets MUST be at least `44×44` physical pixels (`min-w-[44px]
+  min-h-[44px]`).
+
 ### VIII. Data Integrity
 
 Serialization boundaries — where data crosses from one layer to another
@@ -200,21 +210,21 @@ All UI code MUST strictly adhere to the design system defined in
 `DESIGN.md` at the project root. This document is the single source of
 truth for CSS tokens, layouts, shadow systems, and motion guidelines.
 
-**CSS Tokens**: All styling MUST map to DESIGN.md tokens:
-- Glass surfaces: `rgba(255, 255, 255, 0.25)` light / `rgba(255, 255, 255, 0.08)` dark
-- Backdrop blur: `16px` standard, `24px` elevated modals
+**CSS Tokens**: All styling MUST map to DESIGN.md tokens (Nova Glass v2.0.0):
+- Background: Pastel gradient `linear-gradient(135deg, #fce7f3, #e0e7ff, #d1fae5)`
+- Glass variants: `.glass-medium` (10%), `.glass-light` (20%), `.glass-dark` (20%)
+- Backdrop blur: `16px` standard, `8px` subtle (inputs), `24px` elevated
 - Shadows: `0 8px 32px 0 rgba(0, 0, 0, 0.08)` (dual-shadow for depth)
 - Inner shadows: `inset 0 2px 4px 0 rgba(0, 0, 0, 0.05)` for recessed inputs
-- Corner radius: `12px` buttons/pills, `24px` cards, `32px` containers
-- Typography: Inter (400/500/600) for body, Playfair Display/Cormorant
-  Garamond (600+) for display headers
+- Corner radius: `12px` (xl) buttons/pills, `16px` (2xl) inputs, `24px` (3xl) cards
+- Typography: Inter (400/500/600) for body, Playfair Display/Cormorant (600+) for headers
 
 **Motion & Animation**: All interactive elements MUST implement:
-- Global transitions: `300ms` standard, `150ms` micro-interactions
-- Easing: `cubic-bezier(0.4, 0, 0.2, 1)`
+- Entrance duration: `800ms` with custom easing `cubic-bezier(0.16, 1, 0.3, 1)`
+- Standard transitions: `300ms`, micro: `150ms`
 - Hover: `translateY(-2px)` with shadow intensification
 - Active/Click: `scale(0.98)` with shadow reduction
-- Page entrance: Staggered `opacity: 0→1` + `translateY: 20px→0px`
+- Staggered lists: 100ms delay increments per item
 
 **Layouts**: Component layouts MUST follow DESIGN.md architecture:
 - Sidebar: Fixed `280px` width, full-height glass panel
@@ -324,4 +334,4 @@ SYNC IMPACT REPORT (v2.6.0):
 - Follow-up TODOs: None
 -->
 
-**Version**: 2.6.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-05-17
+**Version**: 2.7.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-05-18
