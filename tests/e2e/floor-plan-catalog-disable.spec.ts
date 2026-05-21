@@ -1,8 +1,12 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Catalog disable when canvas full", () => {
-  test("catalog items become disabled when canvas is too small", async ({ page, browserName }) => {
+  test("catalog items become disabled when canvas is too small", async ({ page, browserName, viewport }) => {
     test.skip(browserName !== "chromium", "Chromium only to avoid DB race conditions");
+    test.skip(
+      viewport && viewport.width < 640,
+      "Catalog disable test requires desktop viewport"
+    );
 
     await page.goto("/auth/login");
     await page.fill('input[id="email"]', "alex@example.com");

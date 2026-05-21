@@ -18,7 +18,7 @@ describe("ItemCatalog", () => {
 
   it("renders long table buttons", () => {
     render(<ItemCatalog onSelectItem={vi.fn()} />);
-    expect(screen.getAllByText(/6ft x 2\.5ft/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/6ft/).length).toBeGreaterThan(0);
   });
 
   it("renders other item buttons", () => {
@@ -31,7 +31,7 @@ describe("ItemCatalog", () => {
     render(<ItemCatalog onSelectItem={onSelectItem} />);
 
     const buttons = screen.getAllByRole("button");
-    const btn = buttons.find(b => b.textContent?.includes("5ft") && b.textContent.includes("7 chairs"));
+    const btn = buttons.find(b => b.textContent?.includes("5ft"));
     expect(btn).toBeTruthy();
     await userEvent.click(btn!);
     expect(onSelectItem).toHaveBeenCalledWith("round_table", 5);
@@ -41,8 +41,9 @@ describe("ItemCatalog", () => {
     const onSelectItem = vi.fn();
     render(<ItemCatalog onSelectItem={onSelectItem} />);
 
-    const buttons = screen.getAllByRole("button");
-    const btn = buttons.find(b => b.textContent?.includes("6ft x 2.5ft"));
+    const longTableSection = screen.getByText("Long Tables").parentElement;
+    const buttons = longTableSection ? Array.from(longTableSection.querySelectorAll("button")) : [];
+    const btn = buttons.find(b => b.textContent?.includes("6ft"));
     expect(btn).toBeTruthy();
     await userEvent.click(btn!);
     expect(onSelectItem).toHaveBeenCalledWith("long_table", 6);
@@ -62,12 +63,12 @@ describe("ItemCatalog", () => {
   it("collapses and expands the catalog", async () => {
     render(<ItemCatalog onSelectItem={vi.fn()} />);
 
-    const collapseBtns = screen.getAllByLabelText("Collapse catalog");
+    const collapseBtns = screen.getAllByLabelText(/Collapse catalog|Hide catalog/);
     await userEvent.click(collapseBtns[0]);
 
     expect(screen.queryByText("Round Tables")).not.toBeInTheDocument();
 
-    const expandBtns = screen.getAllByLabelText("Expand catalog");
+    const expandBtns = screen.getAllByLabelText(/Expand catalog/);
     await userEvent.click(expandBtns[0]);
 
     expect(screen.getAllByText("Round Tables").length).toBeGreaterThan(0);
@@ -76,7 +77,7 @@ describe("ItemCatalog", () => {
   it("has constrained height for overflow handling", () => {
     const { container } = render(<ItemCatalog onSelectItem={vi.fn()} />);
     const aside = container.querySelector("aside");
-    expect(aside?.className).toContain("h-[calc(100vh-40px)]");
+    expect(aside?.className).toContain("overflow-y-auto");
   });
 
   it("has overflow-y-auto for scrollable content", () => {

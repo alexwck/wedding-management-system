@@ -25,19 +25,19 @@ describe("GlassButton", () => {
   it("applies primary variant", () => {
     render(<GlassButton variant="primary">Click</GlassButton>);
     const btn = screen.getByRole("button", { name: "Click" });
-    expect(btn.className).toContain("glass-button--primary");
+    expect(btn.className).toContain("bg-slate-900/80");
   });
 
   it("applies secondary variant", () => {
     render(<GlassButton variant="secondary">Click</GlassButton>);
     const btn = screen.getByRole("button", { name: "Click" });
-    expect(btn.className).toContain("glass-button--secondary");
+    expect(btn.className).toContain("glass-light");
   });
 
   it("applies ghost variant", () => {
     render(<GlassButton variant="ghost">Click</GlassButton>);
     const btn = screen.getByRole("button", { name: "Click" });
-    expect(btn.className).toContain("glass-button--ghost");
+    expect(btn.className).toContain("bg-transparent");
   });
 
   it("applies size sm", () => {

@@ -1,10 +1,5 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
-
-// Mock GradientBackdrop to avoid complex styling issues
-vi.mock("@/components/gradient-backdrop", () => ({
-  GradientBackdrop: () => <div data-testid="gradient" />,
-}));
 
 import { LandingPage } from "@/components/landing-page";
 
@@ -20,17 +15,6 @@ describe("LandingPage", () => {
     );
     const img = screen.getByRole("img");
     expect(img).toHaveAttribute("alt", "Alice & Bob wedding invitation");
-  });
-
-  it("renders RSVP CTA with #rsvp anchor", () => {
-    render(
-      <LandingPage
-        coupleName="Alice & Bob"
-        templateImageUrl="/test.jpg"
-      />,
-    );
-    const rsvpLink = screen.getAllByRole("link").find((l) => l.textContent === "RSVP Now")!;
-    expect(rsvpLink).toHaveAttribute("href", "#rsvp");
   });
 
   it("renders template image with correct src", () => {

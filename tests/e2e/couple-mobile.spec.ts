@@ -66,14 +66,14 @@ test.describe("Couple mobile dashboard flow (US3)", () => {
     await expect(saveButton).toBeVisible();
   });
 
-  test("floor plan page shows device-not-supported on mobile", async ({ page }) => {
+  test("floor plan page shows soft warning on mobile", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await loginAsCouple(page);
 
     await page.goto("/dashboard/floor-plan");
 
-    // Should see small-screen blocking message
-    await expect(page.locator("text=/Floor plan editing requires a larger screen/i")).toBeVisible();
+    // Canvas is visible on mobile with the adaptive layout
+    await expect(page.locator('[data-testid="floor-plan-canvas"]')).toBeVisible();
   });
 
   test("hamburger navigation opens and has correct links", async ({ page }) => {

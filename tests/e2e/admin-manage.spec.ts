@@ -1,6 +1,25 @@
 import { test, expect } from "@playwright/test";
 
+async function ensureWeddingUnlocked(page: import("@playwright/test").Page) {
+  await page.goto('/auth/login');
+  await page.fill('input[id="email"]', 'admin@example.com');
+  await page.fill('input[id="password"]', 'admin123');
+  await page.click('button[type="submit"]');
+  await page.waitForURL(/\/admin/, { timeout: 10000 });
+
+  await page.goto('/admin/weddings/1');
+  const unlockBtn = page.getByRole('button', { name: 'Unlock wedding' });
+  if (await unlockBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+    await unlockBtn.click();
+    await page.getByRole('button', { name: 'Lock wedding' }).waitFor({ state: 'visible', timeout: 5000 });
+  }
+}
+
 test.describe("Admin manages weddings", () => {
+  test.beforeEach(async ({ page }) => {
+    await ensureWeddingUnlocked(page);
+  });
+
   test("admin can login and upload a template image", async ({ page }) => {
     // Login
     await page.goto("/auth/login");
@@ -45,11 +64,15 @@ test.describe("Admin manages weddings", () => {
     await expect(page).toHaveURL(/\/admin/);
 
     // Dashboard should show admin content
-    await expect(page.locator("h2", { hasText: "Admin Dashboard" })).toBeVisible();
+    await expect(page.locator("h1", { hasText: "Admin Dashboard Overview" })).toBeVisible();
   });
 });
 
 test.describe("Admin manages couple accounts (US4)", () => {
+  test.beforeEach(async ({ page }) => {
+    await ensureWeddingUnlocked(page);
+  });
+
   test("admin can create a couple account and wedding is created", async ({ page }) => {
     // Login as admin
     await page.goto("/auth/login");

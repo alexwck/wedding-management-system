@@ -1,12 +1,20 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Guest RSVP mobile flow (US1)", () => {
+  test.beforeEach(async ({ context }) => {
+    // Clear RSVP token cookies so prior test submissions don't show confirmation card
+    const cookies = await context.cookies();
+    const rsvpCookies = cookies.filter((c) => c.name.startsWith("rsvp_token_"));
+    if (rsvpCookies.length > 0) {
+      await context.clearCookies(rsvpCookies);
+    }
+  });
   test("guest sees hero and can complete RSVP on mobile", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto("/w/test-wedding-1");
 
     // Hero visible
-    await expect(page.locator("h1")).toBeVisible();
+    await expect(page.locator("h1").first()).toBeVisible();
 
     // RSVP form visible after scroll or on page
     const rsvpSection = page.locator("#rsvp");
@@ -91,11 +99,11 @@ test.describe("Guest RSVP mobile flow (US1)", () => {
     await page.goto("/w/test-wedding-1");
 
     // Hero and RSVP form visible
-    await expect(page.locator("h1")).toBeVisible();
+    await expect(page.locator("h1").first()).toBeVisible();
     await expect(page.locator("#rsvp")).toBeVisible();
 
     // At 768px, venue nav buttons use sm:flex-row (side by side), distinct from mobile stacked
-    const venueButtons = page.locator('a:has-text("Open in Maps")');
+    const venueButtons = page.locator('button:has-text("Open in Maps")');
     await expect(venueButtons).toBeVisible();
   });
 });

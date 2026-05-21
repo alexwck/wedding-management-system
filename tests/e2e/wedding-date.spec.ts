@@ -44,7 +44,7 @@ test.describe("Wedding date flow (US1)", () => {
       await page.goto("/w/test-wedding-1");
 
       // Should show the couple name
-      await expect(page.locator("h2", { hasText: "Alex & Sam" })).toBeVisible();
+      await expect(page.locator("h1").filter({ hasText: /^Alex & Sam$/ })).toBeVisible();
 
       // Should show a wedding date with timezone offset (format: "Month Day, Year at H:MM PM GMT±N")
       const dateEl = page.locator("p").filter({ hasText: /\d{4} at \d+:\d+ [AP]M GMT[+-]\d+/ });

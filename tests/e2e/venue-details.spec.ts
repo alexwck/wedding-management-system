@@ -5,7 +5,7 @@ test.describe("Venue details on landing page (US2)", () => {
     await page.goto("/w/test-wedding-1");
 
     // Venue info glass-panel should be visible (couple name heading)
-    await expect(page.locator("h2", { hasText: "Alex & Sam" })).toBeVisible();
+    await expect(page.locator("h1").filter({ hasText: /^Alex & Sam$/ })).toBeVisible();
 
     // Welcome message should be visible
     await expect(page.getByText("We can't wait to celebrate with you!").first()).toBeVisible();
@@ -15,9 +15,9 @@ test.describe("Venue details on landing page (US2)", () => {
     const dateEl = page.locator("p").filter({ hasText: /\d{4} at \d+:\d+ [AP]M GMT[+-]\d+/ });
     await expect(dateEl).toBeVisible();
 
-    // RSVP button still visible
-    const ctaButton = page.locator("a", { hasText: "RSVP Now" });
-    await expect(ctaButton).toBeVisible();
+    // RSVP form is inline (no separate CTA button)
+    await expect(page.locator("text=/RSVP for/")).toBeVisible();
+    await expect(page.locator('button[type="submit"]')).toBeVisible();
   });
 
   test("landing page without template image returns 404", async ({ page }) => {

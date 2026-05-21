@@ -1,6 +1,23 @@
 import { test, expect, type Page } from "@playwright/test";
 
 test.describe("Admin mobile management flow (US2)", () => {
+
+  test.beforeEach(async ({ page }) => {
+    // Ensure wedding 1 starts unlocked to prevent state leakage between tests
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "admin@example.com");
+    await page.fill('input[id="password"]', "admin123");
+    await page.click('button[type="submit"]');
+    await page.waitForURL(/\/admin/, { timeout: 10000 });
+
+    await page.goto("/admin/weddings/1");
+    const unlockBtn = page.getByRole("button", { name: "Unlock wedding" });
+    if (await unlockBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await unlockBtn.click();
+      await page.getByRole("button", { name: "Lock wedding" }).waitFor({ state: "visible", timeout: 5000 });
+    }
+  });
+
   async function loginAsAdmin(page: Page) {
     await page.goto("/auth/login");
     await page.fill('input[id="email"]', "admin@example.com");
@@ -49,7 +66,7 @@ test.describe("Admin mobile management flow (US2)", () => {
     await expect(page.locator('h3:has-text("RSVP Responses")').first()).toBeVisible();
   });
 
-  test("floor plan page shows device-not-supported on mobile", async ({ page }) => {
+  test("floor plan page shows soft warning on mobile", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await loginAsAdmin(page);
 
@@ -62,8 +79,8 @@ test.describe("Admin mobile management flow (US2)", () => {
     // Navigate to floor plan
     await page.locator('a:has-text("Floor Plan")').click();
 
-    // Should see small-screen blocking message
-    await expect(page.locator("text=/Floor plan editing requires a larger screen/i")).toBeVisible();
+    // Canvas is visible on mobile with the adaptive layout
+    await expect(page.locator('[data-testid="floor-plan-canvas"]')).toBeVisible();
   });
 
   test("admin can toggle wedding lock on mobile", async ({ page }) => {
@@ -109,10 +126,10 @@ test.describe("Admin mobile management flow (US2)", () => {
 
     // Nav links should be visible in sheet (scope to dialog to avoid matching hidden desktop sidebar)
     const dialog = page.locator('[role="dialog"]');
-    await expect(dialog.getByText("Overview")).toBeVisible();
-    await expect(dialog.getByText("Weddings")).toBeVisible();
-    await expect(dialog.getByText("Couples")).toBeVisible();
-    await expect(dialog.getByText("Logout")).toBeVisible();
+    await expect(dialog.getByRole('link', { name: 'Overview' })).toBeVisible();
+    await expect(dialog.getByRole('link', { name: 'Weddings' })).toBeVisible();
+    await expect(dialog.getByRole('link', { name: 'Couples' })).toBeVisible();
+    await expect(dialog.getByRole('button', { name: 'Logout' })).toBeVisible();
   });
 
   test("tablet viewport shows desktop table instead of mobile cards", async ({ page }) => {

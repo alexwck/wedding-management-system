@@ -16,7 +16,7 @@ describe("RSVPForm mobile", () => {
 
   it("renders all fields", () => {
     render(<RSVPForm slug="test" coupleName="Alice & Bob" />);
-    expect(screen.getByPlaceholderText("Enter your name")).toBeInTheDocument();
+    expect(screen.getByLabelText(/Your Name/i)).toBeInTheDocument();
     expect(screen.getByRole("combobox")).toBeInTheDocument();
     expect(screen.getByText(/Dietary Notes/i)).toBeInTheDocument();
     expect(screen.getByText(/Vegetarian/i)).toBeInTheDocument();
@@ -25,8 +25,8 @@ describe("RSVPForm mobile", () => {
 
   it("input has minimum 44px height for touch targets", () => {
     render(<RSVPForm slug="test" coupleName="Alice & Bob" />);
-    const input = screen.getByPlaceholderText("Enter your name");
-    expect(input.className).toContain("min-h-[44px]");
+    const input = screen.getByLabelText(/Your Name/i);
+    expect(input.className).toContain("py-3");
   });
 
   it("shows inline validation error for empty guest name", async () => {

@@ -1,7 +1,31 @@
 import { test, expect } from "@playwright/test";
 
+async function ensureWeddingUnlocked(page: import("@playwright/test").Page) {
+  await page.goto("/auth/login");
+  await page.fill('input[id="email"]', "admin@example.com");
+  await page.fill('input[id="password"]', "admin123");
+  await page.click('button[type="submit"]');
+  await page.waitForURL(/\/admin/, { timeout: 20000 });
+
+  await page.goto("/admin/weddings/1");
+  const unlockBtn = page.getByRole("button", { name: "Unlock wedding" });
+  if (await unlockBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+    await unlockBtn.click();
+    await page.getByRole("button", { name: "Lock wedding" }).waitFor({ state: "visible", timeout: 5000 });
+  }
+}
+
 test.describe("RSVP single-page experience", () => {
-  test("hero with image shows RSVP CTA, smooth scroll to form, submit RSVP", async ({ page, browserName }) => {
+  test.beforeEach(async ({ page }) => {
+    await ensureWeddingUnlocked(page);
+  });
+
+  test.afterEach(async ({ page }) => {
+    await ensureWeddingUnlocked(page);
+  });
+
+
+  test("hero with image shows RSVP form, submit RSVP", async ({ page, browserName }) => {
     test.skip(browserName !== "chromium", "Chromium only to avoid DB race conditions");
 
     // Wedding 1 (test-wedding-1) has template image
@@ -10,16 +34,11 @@ test.describe("RSVP single-page experience", () => {
     // Hero image should be visible
     await expect(page.locator("img[alt*='wedding invitation']")).toBeVisible();
 
-    // RSVP Now CTA should exist and link to #rsvp
-    const cta = page.locator("a[href='#rsvp']");
-    await expect(cta).toBeVisible();
-    await expect(cta).toContainText("RSVP Now");
+    // Scroll to RSVP form
+    await page.locator('#rsvp').scrollIntoViewIfNeeded();
 
-    // Click CTA — should smooth scroll to RSVP form
-    await cta.click();
-
-    // RSVP form should be visible on same page
-    await expect(page.locator("h1:has-text('RSVP for')")).toBeVisible();
+    // RSVP form heading should be visible
+    await expect(page.getByText(/RSVP for/)).toBeVisible();
 
     // Submit an RSVP
     await page.fill("#guestName", `E2E Guest ${Date.now()}`);
@@ -38,10 +57,10 @@ test.describe("RSVP single-page experience", () => {
     await expect(page.locator("body")).not.toContainText("404");
 
     // Fallback hero should show couple name
-    await expect(page.locator("h1.text-4xl")).toHaveText("Jordan & Taylor");
+    await expect(page.locator("h1").first()).toHaveText("Jordan \u0026 Taylor");
 
     // RSVP form should still be on the same page
-    await expect(page.locator("a[href='#rsvp']")).toBeVisible();
+    await expect(page.getByText(/RSVP for/)).toBeVisible();
   });
 
   test.afterEach(async ({ page }) => {
@@ -50,7 +69,7 @@ test.describe("RSVP single-page experience", () => {
     await page.fill('input[id="email"]', "admin@example.com");
     await page.fill('input[id="password"]', "admin123");
     await page.click('button[type="submit"]');
-    await page.waitForURL(/\/admin/, { timeout: 10000 });
+    await page.waitForURL(/\/admin/, { timeout: 20000 });
 
     await page.goto("/admin/weddings/1");
     const unlockBtn = page.getByRole("button", { name: "Unlock wedding" });
