@@ -72,7 +72,7 @@ export function EditableCoupleName({ weddingId, coupleName, isLocked }: Editable
           maxLength={100}
           className="text-2xl font-bold bg-transparent border-0 border-b-2 border-primary rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary w-full max-w-md"
         />
-        {saving && <span className="text-sm text-muted-foreground">Saving...</span>}
+        {saving && <span className="text-sm text-slate-500">Saving...</span>}
       </div>
     );
   }
@@ -84,16 +84,16 @@ export function EditableCoupleName({ weddingId, coupleName, isLocked }: Editable
       title={!isLocked ? "Click to edit couple name" : undefined}
     >
       <div className="flex items-center gap-2">
-        <h2 className="text-2xl font-bold">{value}</h2>
+        <h2 className="text-2xl font-bold text-slate-800">{value}</h2>
         {!isLocked && (
-          <Pencil className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+          <Pencil className="h-4 w-4 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
         )}
       </div>
-      <p className="text-xs text-muted-foreground mt-0.5">
+      <p className="text-xs text-slate-500 mt-0.5">
         This name is shown to guests on the wedding page
       </p>
       {error && (
-        <p className="text-xs text-destructive mt-0.5">{error}</p>
+        <p className="text-xs text-rose-600 mt-0.5">{error}</p>
       )}
     </div>
   );

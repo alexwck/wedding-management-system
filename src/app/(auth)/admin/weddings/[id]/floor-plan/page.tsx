@@ -1,9 +1,8 @@
-import { notFound, redirect } from "next/navigation";
-import { getFloorPlan } from "@/app/actions/floor-plan";
+import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 import { FloorPlanCanvas } from "@/components/floor-plan/floor-plan-canvas";
 import { FloorPlanDeviceCheck } from "@/components/floor-plan/device-check";
+import { getFloorPlan } from "@/app/actions/floor-plan";
 
 interface AdminFloorPlanPageProps {
   params: Promise<{ id: string }>;
@@ -17,17 +16,10 @@ export default async function AdminFloorPlanPage({ params }: AdminFloorPlanPageP
     notFound();
   }
 
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user || user.app_metadata?.role !== "admin") {
-    redirect("/auth/login");
-  }
-
-  const adminClient = createAdminClient();
-  const { data: wedding } = await adminClient
+  const supabase = createAdminClient();
+  const { data: wedding } = await supabase
     .from("weddings")
-    .select("id, couple_name, is_locked")
+    .select("id, is_locked")
     .eq("id", weddingId)
     .single();
 
@@ -35,27 +27,27 @@ export default async function AdminFloorPlanPage({ params }: AdminFloorPlanPageP
     notFound();
   }
 
-  const result = await getFloorPlan(weddingId);
+  const result = await getFloorPlan(wedding.id);
 
   if (!result.success) {
     return (
       <div className="p-6">
-        <p className="text-destructive">{result.error}</p>
+        <p className="text-rose-600">{result.error}</p>
       </div>
     );
   }
 
   const canvas = (
     <FloorPlanCanvas
-      weddingId={weddingId}
+      weddingId={wedding.id}
       initialFloorPlan={result.floorPlan}
       isLocked={wedding.is_locked}
     />
   );
 
   return (
-    <div className="flex-1 min-h-0 min-w-0">
-      <FloorPlanDeviceCheck readOnlyPreview={canvas}>
+    <div className="flex-1 min-h-0 min-w-0 h-full">
+      <FloorPlanDeviceCheck>
         {canvas}
       </FloorPlanDeviceCheck>
     </div>

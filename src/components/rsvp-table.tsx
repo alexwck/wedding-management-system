@@ -9,10 +9,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { GlassButton } from "@/components/glassmorphism/glass-button";
 import { Input } from "@/components/ui/input";
-import { GlassCard } from "@/components/glassmorphism/glass-card";
+import { GlassPanel } from "@/components/glassmorphism/glass-panel";
 
 interface RSVPGuest {
   id: number;
@@ -61,6 +60,8 @@ function sortRsvps(rsvps: RSVPGuest[], key: SortKey, dir: SortDir): RSVPGuest[] 
 
     if (aVal < bVal) return dir === "asc" ? -1 : 1;
     if (aVal > bVal) return dir === "asc" ? 1 : -1;
+    if (a.id < b.id) return dir === "asc" ? -1 : 1;
+    if (a.id > b.id) return dir === "asc" ? 1 : -1;
     return 0;
   });
 }
@@ -161,9 +162,9 @@ export function RSVPTable({ rsvps }: RSVPTableProps) {
                 <TableCell className="font-medium">{rsvp.guestName}</TableCell>
                 <TableCell>
                   {rsvp.status === "attending" ? (
-                    <Badge variant="default">Attending</Badge>
+                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100/50 text-emerald-700">Attending</span>
                   ) : (
-                    <Badge variant="destructive">Declining</Badge>
+                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-rose-100/50 text-rose-700">Declining</span>
                   )}
                 </TableCell>
                 <TableCell className="max-w-[300px] truncate">
@@ -185,7 +186,7 @@ export function RSVPTable({ rsvps }: RSVPTableProps) {
       {/* Mobile cards */}
       <div className="md:hidden space-y-3">
         {paged.map((rsvp) => (
-          <GlassCard key={rsvp.id} variant="default" className="p-4">
+          <GlassPanel key={rsvp.id} variant="medium" className="p-4">
             <div className="flex items-start justify-between">
               <div>
                 <p className="font-medium">{rsvp.guestName}</p>
@@ -194,9 +195,9 @@ export function RSVPTable({ rsvps }: RSVPTableProps) {
                 </p>
               </div>
               {rsvp.status === "attending" ? (
-                <Badge variant="default">Attending</Badge>
+                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100/50 text-emerald-700">Attending</span>
               ) : (
-                <Badge variant="destructive">Declining</Badge>
+                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-rose-100/50 text-rose-700">Declining</span>
               )}
             </div>
             <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
@@ -217,32 +218,32 @@ export function RSVPTable({ rsvps }: RSVPTableProps) {
                 <dd>{rsvp.needsBabyChair ? "Yes" : "No"}</dd>
               </div>
             </dl>
-          </GlassCard>
+          </GlassPanel>
         ))}
       </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between pt-2">
-          <Button
-            variant="outline"
+          <GlassButton
+            variant="ghost"
             size="sm"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={currentPage <= 1}
           >
             Previous
-          </Button>
+          </GlassButton>
           <span className="text-sm text-muted-foreground">
             Page {currentPage} of {totalPages}
           </span>
-          <Button
-            variant="outline"
+          <GlassButton
+            variant="ghost"
             size="sm"
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage >= totalPages}
           >
             Next
-          </Button>
+          </GlassButton>
         </div>
       )}
     </div>

@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { nanoid } from "nanoid";
-import { VALID_PRESET_NAMES } from "@/lib/design-system/preset-loader";
 import { createCoupleSchema, coupleNameSchema } from "@/lib/validations/admin";
 import { weddingUpdateSchema, weddingDateSchema, timezoneSchema, focalPointSchema } from "@/lib/validations/wedding";
 import type { User } from "@supabase/supabase-js";
@@ -68,7 +67,7 @@ export async function getWeddingRSVPs(weddingId: number) {
 
   const { data: wedding, error: weddingError } = await supabase
     .from("weddings")
-    .select("id, couple_name, slug, wedding_date, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message, timezone, template_focal_x, template_focal_y, is_locked, layout_preset, theme_json")
+    .select("id, couple_name, slug, wedding_date, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message, timezone, template_focal_x, template_focal_y, is_locked, theme_json")
     .eq("id", weddingId)
     .single();
 
@@ -120,7 +119,6 @@ export async function getWeddingRSVPs(weddingId: number) {
       templateFocalX: wedding.template_focal_x,
       templateFocalY: wedding.template_focal_y,
       isLocked: wedding.is_locked,
-      layoutPreset: wedding.layout_preset,
       themeJson: wedding.theme_json,
     },
     rsvps: await enrichRsvpsWithSeats(supabase, weddingId, rsvpList),
@@ -290,7 +288,7 @@ export async function getMyWeddingRSVPs() {
 
   const { data: wedding, error: weddingError } = await supabase
     .from("weddings")
-    .select("id, couple_name, slug, wedding_date, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message, timezone, template_focal_x, template_focal_y, is_locked, layout_preset, theme_json")
+    .select("id, couple_name, slug, wedding_date, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message, timezone, template_focal_x, template_focal_y, is_locked, theme_json")
     .eq("user_id", user.id)
     .single();
 
@@ -344,7 +342,6 @@ export async function getMyWeddingRSVPs() {
       templateFocalX: wedding.template_focal_x,
       templateFocalY: wedding.template_focal_y,
       isLocked: wedding.is_locked,
-      layoutPreset: wedding.layout_preset,
       themeJson: wedding.theme_json,
     },
     rsvps: await enrichRsvpsWithSeats(adminClient, wedding.id, rsvpList),
@@ -631,42 +628,6 @@ export async function toggleWeddingLock(weddingId: number) {
   revalidatePath("/dashboard/floor-plan");
 
   return { success: true as const, isLocked: data.is_locked };
-}
-
-export async function updateWeddingPreset(weddingId: number, layoutPreset: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user || user.app_metadata?.role !== "admin") {
-    return { success: false as const, error: "Admin access required." };
-  }
-
-  if (!VALID_PRESET_NAMES.includes(layoutPreset as (typeof VALID_PRESET_NAMES)[number])) {
-    return { success: false as const, error: "Invalid preset name." };
-  }
-
-  const adminClient = createAdminClient();
-
-  const lockCheck = await verifyWeddingNotLocked(weddingId);
-  if (!lockCheck.ok) return { success: false as const, error: lockCheck.error };
-
-  const { data, error } = await adminClient
-    .from("weddings")
-    .update({ layout_preset: layoutPreset })
-    .eq("id", weddingId)
-    .select("slug, layout_preset")
-    .single();
-
-  if (error || !data) {
-    return { success: false as const, error: "Failed to update layout preset." };
-  }
-
-  revalidatePath(`/admin/weddings/${weddingId}`);
-  revalidatePath(`/w/${data.slug}`);
-
-  return { success: true as const, layoutPreset: data.layout_preset };
 }
 
 export async function updateCoupleName(weddingId: number, coupleName: string) {

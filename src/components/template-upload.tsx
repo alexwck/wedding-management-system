@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { uploadTemplateImage } from "@/app/actions/upload";
-import { Button } from "@/components/ui/button";
+import { GlassButton } from "@/components/glassmorphism/glass-button";
 import { TemplatePreview } from "@/components/template-preview";
 
 interface TemplateUploadProps {
@@ -75,17 +75,17 @@ export function TemplateUpload({ weddingId, currentImageUrl, focalX, focalY }: T
           type="file"
           accept="image/png,image/jpeg"
           onChange={handleFileChange}
-          className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 file:min-h-[44px]"
+          className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-slate-900/80 file:text-white hover:file:bg-slate-800/90 file:min-h-[44px]"
         />
       </div>
 
       {error && (
-        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+        <div className="rounded-lg border border-rose-400/50 bg-rose-100/20 p-3 text-sm text-rose-600">
           {error}
         </div>
       )}
       {success && (
-        <div className="rounded-lg border border-green-500/50 bg-green-500/10 p-3 text-sm text-green-700">
+        <div className="rounded-lg border border-emerald-400/50 bg-emerald-100/20 p-3 text-sm text-emerald-700">
           Template uploaded successfully!
         </div>
       )}
@@ -101,13 +101,13 @@ export function TemplateUpload({ weddingId, currentImageUrl, focalX, focalY }: T
         </div>
       )}
 
-      <Button
+      <GlassButton
         onClick={handleUpload}
         disabled={uploading || !hasFile}
-        className="w-full sm:w-auto min-h-[44px]"
+        className="w-full sm:w-auto"
       >
         {uploading ? "Uploading..." : "Upload Template"}
-      </Button>
+      </GlassButton>
 
       {currentImageUrl && (
         <TemplatePreview

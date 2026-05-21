@@ -8,7 +8,7 @@ import {
   type CreateCoupleFormData,
 } from "@/lib/validations/admin";
 import { createCoupleAccount } from "@/app/actions/admin";
-import { Button } from "@/components/ui/button";
+import { GlassButton } from "@/components/glassmorphism/glass-button";
 import { Input } from "@/components/ui/input";
 import {
   Form,
@@ -159,9 +159,9 @@ export function CreateCoupleForm() {
             )}
           />
 
-          <Button type="submit" disabled={form.formState.isSubmitting} className="w-full min-h-[44px]">
+          <GlassButton type="submit" disabled={form.formState.isSubmitting} variant="primary" size="lg" className="w-full">
             {form.formState.isSubmitting ? "Creating..." : "Create Couple"}
-          </Button>
+          </GlassButton>
         </form>
       </Form>
     </div>

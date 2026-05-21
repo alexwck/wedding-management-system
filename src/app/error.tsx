@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { GlassButton } from "@/components/glassmorphism/glass-button";
 
 export default function Error({
   error,
@@ -16,14 +16,14 @@ export default function Error({
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
-      <div className="glass-panel rounded-xl p-8 max-w-md">
-        <h1 className="text-4xl font-bold">Something went wrong</h1>
-        <p className="mt-4 text-muted-foreground">
+      <div className="glass-panel rounded-glass p-8 max-w-md">
+        <h1 className="text-4xl font-serif font-bold text-slate-800">Something went wrong</h1>
+        <p className="mt-4 text-slate-500">
           An unexpected error occurred. Please try again.
         </p>
-        <Button onClick={reset} className="mt-6">
+        <GlassButton onClick={reset} className="mt-6" variant="primary">
           Try Again
-        </Button>
+        </GlassButton>
       </div>
     </div>
   );

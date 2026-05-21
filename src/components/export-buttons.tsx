@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { GlassButton } from "@/components/glassmorphism/glass-button";
 import { exportToXlsx } from "@/app/actions/export";
 
 interface ExportButtonsProps {
@@ -41,16 +41,16 @@ export function ExportButtons({ weddingId }: ExportButtonsProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <Button
-        variant="outline"
+      <GlassButton
+        variant="secondary"
         size="sm"
         onClick={handleXlsxExport}
         disabled={isXlsxExporting}
       >
         {isXlsxExporting ? "Downloading..." : "Download as XLSX"}
-      </Button>
+      </GlassButton>
       {message && (
-        <span className="text-sm text-muted-foreground">{message}</span>
+        <span className="text-sm text-slate-500">{message}</span>
       )}
     </div>
   );

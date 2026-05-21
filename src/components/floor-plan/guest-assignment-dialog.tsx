@@ -14,7 +14,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Button } from "@/components/ui/button";
+import { GlassButton } from "@/components/glassmorphism/glass-button";
 import type { UnassignedGuest } from "@/types/seat-assignment";
 
 function getEmptyMessage(unassignedCount: number, isOccupied: boolean): string {
@@ -87,14 +87,14 @@ export function GuestAssignmentDialog({
               <p className="text-sm text-muted-foreground">Currently seated</p>
               <p className="font-medium">{currentGuestName}</p>
             </div>
-            <Button
-              variant="outline"
+            <GlassButton
+              variant="ghost"
               size="sm"
               onClick={handleUnassign}
               disabled={isProcessing}
             >
               Unassign
-            </Button>
+            </GlassButton>
           </div>
         )}
 

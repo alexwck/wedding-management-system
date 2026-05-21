@@ -22,6 +22,7 @@ interface RotationTransformerProps {
   onTransformEnd: (itemId: string, result: TransformResult) => void;
   venueWidth?: number;
   venueHeight?: number;
+  stageScale?: number;
 }
 
 export function RotationTransformer({
@@ -32,6 +33,7 @@ export function RotationTransformer({
   onTransformEnd,
   venueWidth,
   venueHeight,
+  stageScale = 1,
 }: RotationTransformerProps) {
   const transformerRef = useRef<Konva.Transformer>(null);
 
@@ -52,6 +54,10 @@ export function RotationTransformer({
       ref={transformerRef}
       rotateEnabled={true}
       resizeEnabled={canResize}
+      anchorSize={Math.max(10 / stageScale, 15)}
+      anchorStrokeWidth={Math.max(1 / stageScale, 0.5)}
+      borderStrokeWidth={Math.max(1 / stageScale, 0.5)}
+      rotateAnchorOffset={Math.max(30 / stageScale, 40)}
       enabledAnchors={canResize ? [
         "top-left",
         "top-right",
@@ -85,7 +91,6 @@ export function RotationTransformer({
       }}
       rotationSnaps={ROTATION_SNAPS}
       rotationSnapTolerance={5}
-      rotateAnchorOffset={30}
       onTransformEnd={() => {
         const node = transformerRef.current?.nodes()[0];
         if (node && selectedItemId) {

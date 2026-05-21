@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { GlassButton } from "@/components/glassmorphism/glass-button";
 
 interface TemplatePreviewProps {
   weddingId: number;
@@ -98,11 +98,8 @@ export function TemplatePreview({
   }, []);
 
   useEffect(() => {
-    if (!open) return;
     const onMove = (e: MouseEvent) => {
       if (!dragging.current) return;
-      e.preventDefault();
-
       const img = imgRef.current;
       if (!img) return;
 
@@ -160,12 +157,11 @@ export function TemplatePreview({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={(props) => <Button variant="outline" size="sm" {...props} />}>
-          Adjust Crop
+      <DialogTrigger render={(props) => <button {...props} type="button" className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-2xl backdrop-blur-sm transition-all duration-300 bg-white/20 text-slate-800 hover:bg-white/30 border border-white/30" >Adjust Crop</button>}>
       </DialogTrigger>
       <DialogContent className="glass-panel max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Adjust Image Crop</DialogTitle>
+          <DialogTitle className="text-slate-800">Adjust Image Crop</DialogTitle>
         </DialogHeader>
         <div
           className="relative overflow-hidden rounded-lg bg-black"
@@ -190,21 +186,21 @@ export function TemplatePreview({
           />
         </div>
         <div className="flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-slate-500">
             {offset
               ? `Crop offset: ${offset.x.toFixed(1)}%, ${offset.y.toFixed(1)}%`
               : "Drag the image to choose the visible portion"}
           </p>
-          <Button size="sm" onClick={handleSave} disabled={!offset || saving}>
+          <GlassButton size="sm" onClick={handleSave} disabled={!offset || saving}>
             {saving ? "Saving..." : "Save Crop"}
-          </Button>
+          </GlassButton>
         </div>
         {saveError && (
-          <div className="flex items-center gap-2 text-sm text-destructive">
+          <div className="flex items-center gap-2 text-sm text-rose-600">
             <span>Failed to save: {saveError}</span>
-            <Button variant="outline" size="sm" onClick={handleSave}>
+            <GlassButton variant="secondary" size="sm" onClick={handleSave}>
               Retry
-            </Button>
+            </GlassButton>
           </div>
         )}
       </DialogContent>

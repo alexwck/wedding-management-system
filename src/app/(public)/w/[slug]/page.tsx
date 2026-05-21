@@ -8,9 +8,6 @@ import { RSVPSectionClient } from "@/components/rsvp-section-client";
 import { ThemeProvider } from "@/lib/design-system/theme";
 import { DEFAULT_THEME } from "@/lib/design-system/theme-config";
 import { getRsvpByToken } from "@/lib/rsvp-token";
-import { PresetWrapper } from "@/components/preset-wrapper";
-import type { PresetName } from "@/lib/design-system/preset-loader";
-import { DEFAULT_PRESET, VALID_PRESET_NAMES } from "@/lib/design-system/preset-loader";
 
 interface PublicLandingPageProps {
   params: Promise<{ slug: string }>;
@@ -53,7 +50,7 @@ export default async function PublicLandingPage({ params }: PublicLandingPagePro
   const { data: wedding, error } = await supabase
     .from("weddings")
     .select(
-      "id, couple_name, slug, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message, wedding_date, timezone, template_focal_x, template_focal_y, is_locked, layout_preset, theme_json"
+      "id, couple_name, slug, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message, wedding_date, timezone, template_focal_x, template_focal_y, is_locked, theme_json"
     )
     .eq("slug", slug)
     .single();
@@ -64,10 +61,6 @@ export default async function PublicLandingPage({ params }: PublicLandingPagePro
 
   const hasVenueData =
     wedding.venue || wedding.venue_address || wedding.venue_lat || wedding.venue_lng;
-
-  const activePreset: PresetName = VALID_PRESET_NAMES.includes(wedding.layout_preset as PresetName)
-    ? (wedding.layout_preset as PresetName)
-    : DEFAULT_PRESET;
 
   // Load theme
   const weddingTheme =
@@ -90,8 +83,16 @@ export default async function PublicLandingPage({ params }: PublicLandingPagePro
 
   return (
     <ThemeProvider globalTheme={DEFAULT_THEME} weddingTheme={weddingTheme}>
-      <PresetWrapper preset={activePreset}>
-      <div className="scroll-smooth">
+      {wedding.template_image_url ? (
+        <div
+          className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat grayscale-20 brightness-[0.85]"
+          style={{ backgroundImage: `url(${wedding.template_image_url})` }}
+        />
+      ) : (
+        <div className="fixed inset-0 z-0 bg-gradient-everafter" />
+      )}
+      <div className="fixed inset-0 z-0 bg-white/10 backdrop-blur-[2px]" />
+      <div className="relative z-10 max-w-5xl mx-auto px-6 py-20 flex flex-col items-center gap-12 scroll-smooth">
         <LandingPage
           coupleName={wedding.couple_name}
           templateImageUrl={wedding.template_image_url}
@@ -103,7 +104,7 @@ export default async function PublicLandingPage({ params }: PublicLandingPagePro
           focalY={wedding.template_focal_y}
         />
 
-        <div className="max-w-xl mx-auto px-4 py-12 space-y-6">
+        <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           {hasVenueData && (
             <VenueSection
               venueName={wedding.venue}
@@ -124,7 +125,6 @@ export default async function PublicLandingPage({ params }: PublicLandingPagePro
           </div>
         </div>
       </div>
-      </PresetWrapper>
     </ThemeProvider>
   );
 }

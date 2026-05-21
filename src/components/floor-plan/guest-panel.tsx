@@ -5,6 +5,7 @@ import type { UnassignedGuest, SeatAssignmentMap } from "@/types/seat-assignment
 import type { FloorPlanItem } from "@/types/floor-plan";
 import { isTableType } from "@/lib/floor-plan/constants";
 import { CanvasStats } from "./canvas-stats";
+import { PanelLeftClose } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -16,6 +17,8 @@ interface GuestPanelProps {
   assignmentMap: SeatAssignmentMap;
   items: FloorPlanItem[];
   isLoading: boolean;
+  collapsible?: boolean;
+  onToggle?: (visible: boolean) => void;
 }
 
 interface AssignedGuestEntry {
@@ -67,9 +70,12 @@ export function GuestPanel({
   assignmentMap,
   items,
   isLoading,
+  collapsible = true,
+  onToggle,
 }: GuestPanelProps) {
   const [unassignedOpen, setUnassignedOpen] = useState(true);
   const [assignedOpen, setAssignedOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   const assignedGuests = useMemo(
     () => getAssignedGuests(assignmentMap, items),
@@ -82,7 +88,7 @@ export function GuestPanel({
 
   if (isLoading) {
     return (
-      <div className="w-56 shrink-0 border-r glass-panel overflow-y-auto">
+      <div className="w-56 shrink-0 bg-[#f5f7fc] shadow-lg border border-slate-200/60 rounded-xl overflow-y-auto">
         <div className="p-3">
           <p className="text-sm text-muted-foreground">Loading guests...</p>
         </div>
@@ -91,9 +97,27 @@ export function GuestPanel({
   }
 
   return (
-    <div className="w-56 shrink-0 border-r glass-panel flex flex-col relative z-[60]">
-      {/* Canvas stats - always visible at top */}
-      <CanvasStats items={items} assignmentMap={assignmentMap} />
+    <aside
+      className="w-56 shrink-0 bg-[#f5f7fc] shadow-lg border border-slate-200/60 rounded-xl flex flex-col relative h-full transition-all duration-300"
+    >
+      {/* Inline header */}
+      <div className="flex items-center justify-between px-3 py-2 border-b border-white/10 shrink-0">
+        <h3 className="text-sm font-semibold text-slate-700">Guests</h3>
+        {collapsible && (
+          <button
+            type="button"
+            onClick={() => onToggle ? onToggle(false) : setCollapsed(!collapsed)}
+            className="p-1.5 rounded hover:bg-white/20 transition-colors min-w-[32px] min-h-[32px] flex items-center justify-center"
+            aria-label={onToggle ? "Hide guest panel" : (collapsed ? "Expand guest panel" : "Collapse guest panel")}
+          >
+            <PanelLeftClose className="h-4 w-4 text-slate-500" />
+          </button>
+        )}
+      </div>
+      {!collapsed && (
+        <>
+          {/* Canvas stats - always visible at top */}
+          <CanvasStats items={items} assignmentMap={assignmentMap} />
 
       {/* Unassigned section */}
       <Collapsible open={unassignedOpen} onOpenChange={setUnassignedOpen}>
@@ -122,7 +146,7 @@ export function GuestPanel({
                 {unassignedGuests.map((guest) => (
                   <li
                     key={guest.id}
-                    className="text-sm py-1 px-2 rounded hover:bg-white/20 truncate"
+                    className="text-sm py-1 px-2 rounded hover:bg-white/20 truncate min-h-[44px] flex items-center active:bg-white/30"
                   >
                     {guest.guestName}
                   </li>
@@ -157,7 +181,7 @@ export function GuestPanel({
                 {assignedGuests.map((entry) => (
                   <li
                     key={entry.guestName}
-                    className="text-sm py-1 px-2 rounded hover:bg-white/20 truncate"
+                    className="text-sm py-1 px-2 rounded hover:bg-white/20 truncate min-h-[44px] flex items-center active:bg-white/30"
                   >
                     {entry.guestName} — {entry.tableLabel}
                   </li>
@@ -167,6 +191,8 @@ export function GuestPanel({
           </div>
         </CollapsibleContent>
       </Collapsible>
-    </div>
+        </>
+      )}
+    </aside>
   );
 }
