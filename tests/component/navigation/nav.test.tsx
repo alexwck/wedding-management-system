@@ -48,7 +48,7 @@ describe("Nav", () => {
   it("marks active link with correct styling", () => {
     render(<Nav title="Couple Dashboard" items={defaultItems} />);
     const activeLink = screen.getByText("Dashboard").closest("a");
-    expect(activeLink).toHaveClass("bg-primary/10", "text-primary");
+    expect(activeLink).toHaveClass("glass-light", "text-slate-900");
   });
 
   it("renders logout button", () => {

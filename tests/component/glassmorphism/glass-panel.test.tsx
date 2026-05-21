@@ -15,9 +15,19 @@ describe("GlassPanel", () => {
     expect(screen.getByText("Hello")).toBeInTheDocument();
   });
 
-  it("applies glass-panel class", () => {
+  it("applies glass-medium class by default", () => {
     render(<GlassPanel data-testid="panel">Test</GlassPanel>);
-    expect(screen.getByTestId("panel").className).toContain("glass-panel");
+    expect(screen.getByTestId("panel").className).toContain("glass-medium");
+  });
+
+  it("applies glass-light class when variant is light", () => {
+    render(<GlassPanel variant="light" data-testid="panel">Test</GlassPanel>);
+    expect(screen.getByTestId("panel").className).toContain("glass-light");
+  });
+
+  it("applies glass-dark class when variant is dark", () => {
+    render(<GlassPanel variant="dark" data-testid="panel">Test</GlassPanel>);
+    expect(screen.getByTestId("panel").className).toContain("glass-dark");
   });
 
   it("applies padding none", () => {

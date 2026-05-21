@@ -12,7 +12,8 @@ test.describe("Guest panel (US2)", () => {
     await expect(page.locator('[data-testid="floor-plan-canvas"]')).toBeVisible({ timeout: 10000 });
   });
 
-  test("guest panel shows unassigned section expanded by default", async ({ page }) => {
+  test("guest panel shows unassigned section expanded by default", async ({ page, viewport }) => {
+    test.skip(viewport && viewport.width < 640, "Guest panel is in a drawer on mobile");
     const unassignedHeader = page.locator("button", { hasText: /unassigned/i });
     await expect(unassignedHeader).toBeVisible({ timeout: 5000 });
 
@@ -20,7 +21,8 @@ test.describe("Guest panel (US2)", () => {
     expect(ariaExpanded).toBe("true");
   });
 
-  test("guest panel shows assigned section collapsed by default", async ({ page }) => {
+  test("guest panel shows assigned section collapsed by default", async ({ page, viewport }) => {
+    test.skip(viewport && viewport.width < 640, "Guest panel is in a drawer on mobile");
     const assignedHeader = page.locator("button", { hasText: /^assigned/i });
     await expect(assignedHeader).toBeVisible({ timeout: 5000 });
 

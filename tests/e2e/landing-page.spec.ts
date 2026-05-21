@@ -1,21 +1,16 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Landing page rendering", () => {
-  test("guest sees landing page with CTA button on desktop", async ({ page }) => {
-    // Visit a wedding landing page with known slug
-    // (seed data should provide a test slug)
+  test("guest sees landing page with RSVP form inline on desktop", async ({ page }) => {
     await page.goto("/w/test-wedding-1");
 
     // Should render the wedding image
     const img = page.locator("img");
     await expect(img).toBeVisible();
 
-    // Should show CTA button
-    const ctaButton = page.locator("a", { hasText: "RSVP Now" });
-    await expect(ctaButton).toBeVisible();
-
-    // CTA should link to RSVP anchor on same page
-    await expect(ctaButton).toHaveAttribute("href", "#rsvp");
+    // RSVP form should be visible inline (no separate CTA button)
+    await expect(page.locator("text=/RSVP for/")).toBeVisible();
+    await expect(page.locator('button[type="submit"]')).toBeVisible();
   });
 
   test("guest sees landing page on mobile viewport", async ({ page }) => {
@@ -26,9 +21,9 @@ test.describe("Landing page rendering", () => {
     const img = page.locator("img");
     await expect(img).toBeVisible();
 
-    // Should show CTA button
-    const ctaButton = page.locator("a", { hasText: "RSVP Now" });
-    await expect(ctaButton).toBeVisible();
+    // RSVP form should be visible inline
+    await expect(page.locator("text=/RSVP for/")).toBeVisible();
+    await expect(page.locator('button[type="submit"]')).toBeVisible();
   });
 
   test("invalid slug shows not found", async ({ page }) => {

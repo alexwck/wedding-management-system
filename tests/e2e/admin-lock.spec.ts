@@ -62,6 +62,7 @@ test.describe("Admin lock/unlock wedding", () => {
 
     // Floor plan should be view-only
     await page.goto("/dashboard/floor-plan");
+    await page.reload();
     await expect(page.locator("#venue-width")).toBeDisabled({ timeout: 10000 });
     await expect(page.locator("#venue-height")).toBeDisabled();
     await expect(page.locator('[data-testid="save-now"]')).not.toBeVisible();

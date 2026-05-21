@@ -17,7 +17,7 @@ test.describe("Save blocked when items out of bounds", () => {
     await expect(page.locator('[data-testid="floor-plan-canvas"]')).toBeVisible({ timeout: 10000 });
 
     // Place a round table so there's something to drag OOB
-    const roundTableBtn = page.locator("button", { hasText: /5ft.*chairs/i }).first();
+    const roundTableBtn = page.locator("button", { hasText: /5ft/i }).first();
     await expect(roundTableBtn).toBeVisible({ timeout: 10000 });
     await roundTableBtn.click();
 

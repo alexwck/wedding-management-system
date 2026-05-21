@@ -10,7 +10,7 @@ function getDesktopTable() {
 function makeRsvps(count: number) {
   return Array.from({ length: count }, (_, i) => ({
     id: i + 1,
-    guestName: `Guest ${i + 1}`,
+    guestName: `Guest ${String(i + 1).padStart(2, "0")}`,
     status: "attending" as const,
     dietaryNotes: null,
     isVegetarian: false,
@@ -37,17 +37,20 @@ describe("RSVPTable", () => {
 
     const table = getDesktopTable();
     expect(table).toBeInTheDocument();
-    expect(table).toHaveTextContent("Guest 1");
-    expect(table).toHaveTextContent("Guest 5");
+    expect(table).toHaveTextContent("Guest 01");
+    expect(table).toHaveTextContent("Guest 05");
   });
 
   it("paginates at 25 rows per page", () => {
     const rsvps = makeRsvps(30);
     render(<RSVPTable rsvps={rsvps} />);
 
+    // Sort by guest name ascending for deterministic pagination
+    fireEvent.click(screen.getAllByRole("columnheader")[0]);
+
     expect(screen.getByText("Page 1 of 2")).toBeInTheDocument();
     const table = getDesktopTable();
-    expect(table).toHaveTextContent("Guest 1");
+    expect(table).toHaveTextContent("Guest 01");
     expect(table).toHaveTextContent("Guest 25");
     // Guest 26 should not be on page 1
     expect(table).not.toHaveTextContent("Guest 26");
@@ -57,6 +60,9 @@ describe("RSVPTable", () => {
     const rsvps = makeRsvps(30);
     render(<RSVPTable rsvps={rsvps} />);
 
+    // Sort by guest name ascending for deterministic pagination
+    fireEvent.click(screen.getAllByRole("columnheader")[0]);
+
     const nextButton = screen.getByRole("button", { name: /next/i });
     fireEvent.click(nextButton);
 
@@ -65,7 +71,7 @@ describe("RSVPTable", () => {
     expect(table).toHaveTextContent("Guest 26");
     expect(table).toHaveTextContent("Guest 30");
     // Guest 1 should not be on page 2
-    expect(table).not.toHaveTextContent("Guest 1");
+    expect(table).not.toHaveTextContent("Guest 01");
   });
 
   it("disables previous button on first page", () => {
