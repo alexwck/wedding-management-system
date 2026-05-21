@@ -37,6 +37,15 @@ export function TemplatePreview({
   const [offset, setOffset] = useState<CropOffset | null>(
     focalX !== null && focalY !== null ? { x: focalX, y: focalY } : null,
   );
+
+  // Sync with prop changes when dialog reopens or server data updates
+  useEffect(() => {
+    if (focalX !== null && focalY !== null) {
+      setOffset({ x: focalX, y: focalY });
+    } else {
+      setOffset(null);
+    }
+  }, [focalX, focalY]);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const dragging = useRef(false);
@@ -149,6 +158,7 @@ export function TemplatePreview({
     if (result.success) {
       setSaving(false);
       setOpen(false);
+      window.location.reload();
     } else {
       setSaving(false);
       setSaveError(result.error ?? "Failed to save crop position");
@@ -165,7 +175,7 @@ export function TemplatePreview({
         </DialogHeader>
         <div
           className="relative overflow-hidden rounded-lg bg-black"
-          style={{ aspectRatio: "16/9" }}
+          style={{ aspectRatio: "3/2" }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -184,6 +194,17 @@ export function TemplatePreview({
             onTouchEnd={handlePointerUp}
             onDragStart={(e) => e.preventDefault()}
           />
+          {/* Visual crop guide overlay */}
+          <div className="absolute inset-0 pointer-events-none">
+            {/* Center crosshair */}
+            <div className="absolute top-1/2 left-0 w-full h-px bg-white/40" />
+            <div className="absolute left-1/2 top-0 w-px h-full bg-white/40" />
+            {/* Corner brackets */}
+            <div className="absolute top-2 left-2 w-6 h-6 border-t-2 border-l-2 border-white/60" />
+            <div className="absolute top-2 right-2 w-6 h-6 border-t-2 border-r-2 border-white/60" />
+            <div className="absolute bottom-2 left-2 w-6 h-6 border-b-2 border-l-2 border-white/60" />
+            <div className="absolute bottom-2 right-2 w-6 h-6 border-b-2 border-r-2 border-white/60" />
+          </div>
         </div>
         <div className="flex items-center justify-between">
           <p className="text-xs text-slate-500">
