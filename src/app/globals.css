@@ -161,10 +161,6 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   }
 
-  .dark .glass-medium {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-  }
 
   /* Standard glass utility (alias for glass-medium) */
   .glass {
@@ -188,10 +184,6 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
   }
 
-  .dark .glass-light {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-  }
 
   /* glass-dark: Footers, dark overlays */
   .glass-dark {
@@ -202,10 +194,6 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   }
 
-  .dark .glass-dark {
-    background: rgba(0, 0, 0, 0.40);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
 
   /* Legacy aliases for backwards compatibility - same styles as glass-medium */
   .glass-panel {
@@ -216,10 +204,6 @@
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
     border-radius: 24px;
   }
-  .dark .glass-panel {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-  }
   .glass-panel--light {
     background: rgba(255, 255, 255, 0.20);
     backdrop-filter: blur(8px);
@@ -227,10 +211,6 @@
     border: 1px solid rgba(255, 255, 255, 0.30);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
     border-radius: 16px;
-  }
-  .dark .glass-panel--light {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
   }
   .glass-panel--heavy {
     background: rgba(0, 0, 0, 0.20);
@@ -248,15 +228,7 @@
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
     border-radius: 24px;
   }
-  .dark .glass-panel--opaque {
-    background: rgba(255, 255, 255, 0.45);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-  }
 
-  .dark .glass-panel--heavy {
-    background: rgba(0, 0, 0, 0.40);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
 
   /* Nova Glass v2.0.0 - Motion Classes (T016) */
 
@@ -337,17 +309,7 @@
     outline: none;
   }
 
-  .dark .input-recessed {
-    background: rgba(255, 255, 255, 0.10);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-  }
 
-  .dark .input-recessed:focus {
-    background: rgba(255, 255, 255, 0.20);
-    border-color: rgba(255, 255, 255, 0.30);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(255, 255, 255, 0.30);
-  }
 
   /* Nova Glass v2.0.0 - Button Variants */
 
@@ -402,33 +364,11 @@
   }
 
   /* Dark mode overrides */
-  .dark .glass-button--primary {
-    background: rgba(255, 255, 255, 0.20);
-    color: white;
-  }
 
-  .dark .glass-button--primary:hover {
-    background: rgba(255, 255, 255, 0.30);
-  }
 
-  .dark .glass-button--secondary {
-    background: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.90);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-  }
 
-  .dark .glass-button--secondary:hover {
-    background: rgba(255, 255, 255, 0.12);
-  }
 
-  .dark .glass-button--ghost {
-    color: rgba(255, 255, 255, 0.70);
-  }
 
-  .dark .glass-button--ghost:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.90);
-  }
 
   /* Nova Glass v2.0.0 - Status Pills */
   .status-pill {
