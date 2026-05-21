@@ -6,7 +6,6 @@ import { LandingPage } from "@/components/landing-page";
 import { VenueSection } from "@/components/venue-section";
 import { RSVPSectionClient } from "@/components/rsvp-section-client";
 import { ThemeProvider } from "@/lib/design-system/theme";
-import { DEFAULT_THEME } from "@/lib/design-system/theme-config";
 import { getRsvpByToken } from "@/lib/rsvp-token";
 
 interface PublicLandingPageProps {
@@ -50,7 +49,7 @@ export default async function PublicLandingPage({ params }: PublicLandingPagePro
   const { data: wedding, error } = await supabase
     .from("weddings")
     .select(
-      "id, couple_name, slug, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message, wedding_date, timezone, template_focal_x, template_focal_y, is_locked, theme_json"
+      "id, couple_name, slug, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message, wedding_date, timezone, template_focal_x, template_focal_y, is_locked"
     )
     .eq("slug", slug)
     .single();
@@ -61,12 +60,6 @@ export default async function PublicLandingPage({ params }: PublicLandingPagePro
 
   const hasVenueData =
     wedding.venue || wedding.venue_address || wedding.venue_lat || wedding.venue_lng;
-
-  // Load theme
-  const weddingTheme =
-    typeof wedding.theme_json === "object" && wedding.theme_json !== null
-      ? (wedding.theme_json as Record<string, unknown>)
-      : null;
 
   // Check for returning guest token
   const cookieStore = await cookies();
@@ -82,7 +75,7 @@ export default async function PublicLandingPage({ params }: PublicLandingPagePro
   }
 
   return (
-    <ThemeProvider globalTheme={DEFAULT_THEME} weddingTheme={weddingTheme}>
+    <ThemeProvider>
       {wedding.template_image_url ? (
         <div
           className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat grayscale-20 brightness-[0.85]"

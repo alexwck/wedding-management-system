@@ -67,7 +67,7 @@ export async function getWeddingRSVPs(weddingId: number) {
 
   const { data: wedding, error: weddingError } = await supabase
     .from("weddings")
-    .select("id, couple_name, slug, wedding_date, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message, timezone, template_focal_x, template_focal_y, is_locked, theme_json")
+    .select("id, couple_name, slug, wedding_date, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message, timezone, template_focal_x, template_focal_y, is_locked")
     .eq("id", weddingId)
     .single();
 
@@ -119,7 +119,6 @@ export async function getWeddingRSVPs(weddingId: number) {
       templateFocalX: wedding.template_focal_x,
       templateFocalY: wedding.template_focal_y,
       isLocked: wedding.is_locked,
-      themeJson: wedding.theme_json,
     },
     rsvps: await enrichRsvpsWithSeats(supabase, weddingId, rsvpList),
     summary,
@@ -288,7 +287,7 @@ export async function getMyWeddingRSVPs() {
 
   const { data: wedding, error: weddingError } = await supabase
     .from("weddings")
-    .select("id, couple_name, slug, wedding_date, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message, timezone, template_focal_x, template_focal_y, is_locked, theme_json")
+    .select("id, couple_name, slug, wedding_date, template_image_url, venue, venue_address, venue_lat, venue_lng, welcome_message, timezone, template_focal_x, template_focal_y, is_locked")
     .eq("user_id", user.id)
     .single();
 
@@ -342,7 +341,6 @@ export async function getMyWeddingRSVPs() {
       templateFocalX: wedding.template_focal_x,
       templateFocalY: wedding.template_focal_y,
       isLocked: wedding.is_locked,
-      themeJson: wedding.theme_json,
     },
     rsvps: await enrichRsvpsWithSeats(adminClient, wedding.id, rsvpList),
     summary,
