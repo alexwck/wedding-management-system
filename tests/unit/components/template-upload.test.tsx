@@ -5,6 +5,10 @@ vi.mock("@/app/actions/upload", () => ({
   uploadTemplateImage: vi.fn(),
 }));
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: vi.fn() }),
+}));
+
 import { TemplateUpload } from "@/components/template-upload";
 import { uploadTemplateImage } from "@/app/actions/upload";
 
@@ -211,8 +215,8 @@ describe("TemplateUpload", () => {
     });
 
     await waitFor(() => {
-      const doneButtons = screen.getAllByRole("button", { name: /upload template/i });
-      expect(doneButtons[0]).not.toBeDisabled();
+      // After upload, hasFile resets so button returns to disabled state
+      expect(screen.getByText("Template uploaded successfully!")).toBeInTheDocument();
     });
   });
 
