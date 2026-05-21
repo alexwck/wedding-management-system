@@ -65,3 +65,6 @@ specs/*/checklists/requirements.md
 .specify/init-options.json
 .specify/integration.json
 .specify/workflows/workflow-registry.json
+
+# Playwright snapshots (generated during --update-snapshots, not committed)
+*.test.ts-snapshots/
