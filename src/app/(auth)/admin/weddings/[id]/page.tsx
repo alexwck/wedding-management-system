@@ -9,6 +9,7 @@ import { EditableCoupleName } from "@/components/editable-couple-name";
 import { LockToggle } from "@/components/lock-toggle";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GlassPanel } from "@/components/glassmorphism/glass-panel";
+import { NewTabLink } from "@/components/new-tab-link";
 import { GlassButton } from "@/components/glassmorphism/glass-button";
 
 interface ManageWeddingPageProps {
@@ -41,14 +42,9 @@ export default async function ManageWeddingPage({ params }: ManageWeddingPagePro
           <EditableCoupleName weddingId={wedding.id} coupleName={wedding.coupleName} isLocked={wedding.isLocked} />
           <p className="text-slate-500 text-sm mt-1">
             Public link:{" "}
-            <a
-              href={publicUrl}
-              className="text-slate-800 hover:underline font-medium"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <NewTabLink href={publicUrl} className="text-slate-800 hover:underline font-medium">
               {publicUrl}
-            </a>
+            </NewTabLink>
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -115,14 +111,9 @@ export default async function ManageWeddingPage({ params }: ManageWeddingPagePro
           <GlassPanel padding="md" radius="md">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-slate-800">Guest Preview</h3>
-              <a
-                href={publicUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-slate-800 hover:underline font-medium"
-              >
+              <NewTabLink href={publicUrl} className="text-sm text-slate-800 hover:underline font-medium">
                 Open in new tab
-              </a>
+              </NewTabLink>
             </div>
             <div className="w-full rounded-lg overflow-hidden border">
               <iframe

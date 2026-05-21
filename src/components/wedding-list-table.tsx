@@ -1,8 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { ExternalLink, Layout } from "lucide-react";
+import { ExternalLink, Layout, Pencil } from "lucide-react";
+import { NewTabLink } from "@/components/new-tab-link";
 import { GlassPanel } from "@/components/glassmorphism/glass-panel";
 
 interface WeddingRow {
@@ -29,6 +31,8 @@ function getStatusColor(status: string) {
 }
 
 export function WeddingListTable({ weddings }: WeddingListTableProps) {
+  const router = useRouter();
+
   return (
     <div>
       {/* Desktop table */}
@@ -52,8 +56,9 @@ export function WeddingListTable({ weddings }: WeddingListTableProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
                 className="hover:bg-white/10 transition-colors cursor-pointer group"
+                onClick={() => router.push(`/admin/weddings/${wedding.id}`)}
               >
-                <td className="px-6 py-5 font-semibold text-slate-800">
+                <td className="px-6 py-5 font-semibold text-slate-800" onClick={(e) => e.stopPropagation()}>
                   <Link href={`/admin/weddings/${wedding.id}`} className="hover:underline">
                     {wedding.couple_name}
                   </Link>
@@ -70,8 +75,15 @@ export function WeddingListTable({ weddings }: WeddingListTableProps) {
                 <td className="px-6 py-5 text-slate-500">
                   {wedding.template_image_url ? "Uploaded" : "Missing"}
                 </td>
-                <td className="px-6 py-5">
+                <td className="px-6 py-5" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-3">
+                    <Link
+                      href={`/admin/weddings/${wedding.id}`}
+                      className="p-2 rounded-xl glass hover:bg-white/40 text-slate-600 hover:text-slate-900 transition-all"
+                      title="Edit Wedding"
+                    >
+                      <Pencil size={18} />
+                    </Link>
                     <Link
                       href={`/admin/weddings/${wedding.id}/floor-plan`}
                       className="p-2 rounded-xl glass hover:bg-white/40 text-slate-600 hover:text-slate-900 transition-all"
@@ -79,15 +91,13 @@ export function WeddingListTable({ weddings }: WeddingListTableProps) {
                     >
                       <Layout size={18} />
                     </Link>
-                    <Link
+                    <NewTabLink
                       href={`/w/${wedding.slug}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="p-2 rounded-xl glass hover:bg-white/40 text-slate-600 hover:text-slate-900 transition-all"
                       title="View Page"
                     >
                       <ExternalLink size={18} />
-                    </Link>
+                    </NewTabLink>
                   </div>
                 </td>
               </motion.tr>
@@ -135,21 +145,26 @@ export function WeddingListTable({ weddings }: WeddingListTableProps) {
               </div>
               <div className="flex justify-end gap-3 pt-2">
                 <Link
+                  href={`/admin/weddings/${wedding.id}`}
+                  className="p-2 rounded-xl glass hover:bg-white/40 text-slate-600 hover:text-slate-900 transition-all"
+                  title="Edit Wedding"
+                >
+                  <Pencil size={18} />
+                </Link>
+                <Link
                   href={`/admin/weddings/${wedding.id}/floor-plan`}
                   className="p-2 rounded-xl glass hover:bg-white/40 text-slate-600 hover:text-slate-900 transition-all"
                   title="Floor Plan"
                 >
                   <Layout size={18} />
                 </Link>
-                <Link
+                <NewTabLink
                   href={`/w/${wedding.slug}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="p-2 rounded-xl glass hover:bg-white/40 text-slate-600 hover:text-slate-900 transition-all"
                   title="View Page"
                 >
                   <ExternalLink size={18} />
-                </Link>
+                </NewTabLink>
               </div>
             </dl>
           </GlassPanel>
