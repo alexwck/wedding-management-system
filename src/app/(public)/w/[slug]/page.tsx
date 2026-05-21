@@ -84,7 +84,12 @@ export default async function PublicLandingPage({ params }: PublicLandingPagePro
       ) : (
         <div className="fixed inset-0 z-0 bg-gradient-everafter" />
       )}
-      <div className="fixed inset-0 z-0 bg-white/10 backdrop-blur-[2px]" />
+      <div
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{
+          background: "linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 25%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0.82) 70%, rgba(255,255,255,0.92) 100%)",
+        }}
+      />
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-20 flex flex-col items-center gap-12 scroll-smooth">
         <LandingPage
           coupleName={wedding.couple_name}

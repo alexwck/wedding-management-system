@@ -13,7 +13,7 @@ interface LandingPageProps {
   focalY?: number | null;
 }
 
-function formatWeddingDate(date: string | null | undefined, tz?: string | null): string | null {
+function formatWeddingDateOnly(date: string | null | undefined, tz?: string | null): string | null {
   if (!date) return null;
   try {
     const d = new Date(date);
@@ -22,12 +22,26 @@ function formatWeddingDate(date: string | null | undefined, tz?: string | null):
       year: "numeric",
       month: "long",
       day: "numeric",
+    };
+    if (tz) opts.timeZone = tz;
+    return d.toLocaleDateString("en-US", opts);
+  } catch {
+    return null;
+  }
+}
+
+function formatWeddingTimeOnly(date: string | null | undefined, tz?: string | null): string | null {
+  if (!date) return null;
+  try {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return null;
+    const opts: Intl.DateTimeFormatOptions = {
       hour: "numeric",
       minute: "2-digit",
       timeZoneName: "shortOffset",
     };
     if (tz) opts.timeZone = tz;
-    return d.toLocaleDateString("en-US", opts);
+    return d.toLocaleTimeString("en-US", opts);
   } catch {
     return null;
   }
@@ -58,9 +72,14 @@ export function LandingPage({ coupleName, templateImageUrl, weddingDate, timezon
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 text-white">
           <h1 className="text-5xl sm:text-6xl md:text-7xl font-serif mb-4 text-glow">{coupleName}</h1>
           {weddingDate && (
-            <p className="text-base sm:text-lg font-medium opacity-90 tracking-wide uppercase">
-              {formatWeddingDate(weddingDate, timezone)}
-            </p>
+            <div className="flex flex-col items-center gap-1">
+              <p className="text-base sm:text-lg font-medium opacity-90 tracking-wide uppercase">
+                {formatWeddingDateOnly(weddingDate, timezone)}
+              </p>
+              <p className="text-sm sm:text-base font-medium opacity-80 tracking-wide uppercase">
+                {formatWeddingTimeOnly(weddingDate, timezone)}
+              </p>
+            </div>
           )}
         </div>
       </div>
