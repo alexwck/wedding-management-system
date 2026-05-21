@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import type { ThemeContextValue } from "@/types/theme";
+import type { ThemeConfiguration, ThemeContextValue } from "@/types/theme";
 import { DEFAULT_THEME } from "./theme-config";
 import type { ThemeProviderProps } from "./theme-config";
 
@@ -18,7 +18,10 @@ export function useTheme(): ThemeContextValue {
 }
 
 export function ThemeProvider({ children, globalTheme }: ThemeProviderProps) {
-  const theme = globalTheme ?? DEFAULT_THEME;
+  const theme: Required<ThemeConfiguration> = {
+    ...DEFAULT_THEME,
+    ...globalTheme,
+  };
 
   return (
     <ThemeContext.Provider value={{ theme, isGlobalDefault: true }}>
