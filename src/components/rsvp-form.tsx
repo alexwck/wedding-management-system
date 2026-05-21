@@ -82,7 +82,7 @@ export function RSVPForm({ slug, coupleName, isLocked, initialData, onSubmitSucc
 
   if (isLocked) {
     return (
-      <GlassPanel className="p-8 md:p-10 text-center" variant="medium">
+      <GlassPanel className="p-8 md:p-10 text-center" variant="strong">
         <h1 className="text-2xl font-serif text-slate-800">RSVP is now closed</h1>
         <p className="text-slate-500 mt-2">
           {coupleName}&apos;s wedding is no longer accepting RSVPs.
@@ -93,7 +93,7 @@ export function RSVPForm({ slug, coupleName, isLocked, initialData, onSubmitSucc
 
   if (serverMessage?.type === "success") {
     return (
-      <GlassPanel className="p-8 md:p-10 text-center" variant="medium">
+      <GlassPanel className="p-8 md:p-10 text-center" variant="strong">
         <h1 className="text-2xl font-serif text-slate-800">Thank You!</h1>
         <p className="text-slate-500 mt-2">{serverMessage.text}</p>
       </GlassPanel>
@@ -101,7 +101,7 @@ export function RSVPForm({ slug, coupleName, isLocked, initialData, onSubmitSucc
   }
 
   return (
-    <GlassPanel variant="medium" className="p-8 md:p-10 flex flex-col gap-6" delay={0.3}>
+    <GlassPanel variant="strong" className="p-8 md:p-10 flex flex-col gap-6" delay={0.3}>
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -147,7 +147,7 @@ export function RSVPForm({ slug, coupleName, isLocked, initialData, onSubmitSucc
               <label htmlFor="status" className="text-sm font-medium text-slate-600 ml-1">Status</label>
               <select
                 id="status"
-                className="w-full bg-white/40 border border-white/40 rounded-2xl px-4 py-3 outline-hidden focus:ring-2 focus:ring-white/50 focus:bg-white/60 transition-all duration-300"
+                className="w-full bg-white/60 border border-white/50 rounded-2xl px-4 py-3 outline-hidden focus:ring-2 focus:ring-white/50 focus:bg-white/80 transition-all duration-300"
                 {...form.register("status")}
               >
                 <option value="attending">Attending</option>
@@ -163,7 +163,7 @@ export function RSVPForm({ slug, coupleName, isLocked, initialData, onSubmitSucc
             <label htmlFor="dietaryNotes" className="text-sm font-medium text-slate-600 ml-1">Dietary Notes</label>
             <textarea
               id="dietaryNotes"
-              className="w-full bg-white/40 border border-white/40 rounded-2xl px-4 py-3 outline-hidden focus:ring-2 focus:ring-white/50 focus:bg-white/60 transition-all duration-300 placeholder:text-slate-400 min-h-[100px]"
+              className="w-full bg-white/60 border border-white/50 rounded-2xl px-4 py-3 outline-hidden focus:ring-2 focus:ring-white/50 focus:bg-white/80 transition-all duration-300 placeholder:text-slate-400 min-h-[100px]"
               placeholder="Allergies? Preferences?"
               {...form.register("dietaryNotes")}
             />

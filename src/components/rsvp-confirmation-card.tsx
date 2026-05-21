@@ -17,7 +17,7 @@ export interface RsvpConfirmationCardProps {
 
 export function RsvpConfirmationCard({ rsvp, onEdit, isLocked }: RsvpConfirmationCardProps) {
   return (
-    <GlassPanel className="p-8 md:p-10 space-y-4 text-center" variant="medium">
+    <GlassPanel className="p-8 md:p-10 space-y-4 text-center" variant="strong">
       <h2 className="text-2xl font-serif text-slate-800">Your RSVP</h2>
       <div className="space-y-2 text-sm text-slate-500">
         <p><span className="font-medium text-slate-800">Name:</span> {rsvp.guest_name}</p>

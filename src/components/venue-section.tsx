@@ -51,7 +51,7 @@ export function VenueSection({
   };
 
   return (
-    <GlassPanel variant="medium" className="p-8 md:p-10 flex flex-col items-center text-center gap-6 h-full" delay={0.2}>
+    <GlassPanel variant="strong" className="p-8 md:p-10 flex flex-col items-center text-center gap-6 h-full" delay={0.2}>
       <h2 className="text-2xl font-serif text-slate-800 self-start">Venue Details</h2>
 
       <div className="w-20 h-20 glass rounded-3xl flex items-center justify-center">
