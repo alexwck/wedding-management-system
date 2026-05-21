@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getMyWeddingRSVPs } from "@/app/actions/admin";
 import { RSVPSection } from "@/components/rsvp-section";
 import { ExportButtons } from "@/components/export-buttons";
+import { GlassPanel } from "@/components/glassmorphism/glass-panel";
 
 export default async function RSVPListPage() {
   const result = await getMyWeddingRSVPs();
@@ -9,10 +10,12 @@ export default async function RSVPListPage() {
   if (!result.success || !result.wedding || !result.rsvps || !result.summary) {
     return (
       <div className="max-w-4xl mx-auto space-y-6">
-        <h2 className="text-2xl font-bold">RSVPs</h2>
-        <p className="text-destructive">
-          {result.message || "Failed to load RSVP data."}
-        </p>
+        <h2 className="text-3xl font-serif text-slate-800">RSVPs</h2>
+        <GlassPanel variant="light" className="p-8 text-center">
+          <p className="text-rose-600">
+            {result.message || "Failed to load RSVP data."}
+          </p>
+        </GlassPanel>
       </div>
     );
   }
@@ -22,11 +25,11 @@ export default async function RSVPListPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">
+        <h2 className="text-3xl font-serif text-slate-800">
           RSVPs — {wedding.coupleName}
         </h2>
         <div className="flex items-center gap-4">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-slate-500">
             {summary.total} response{summary.total !== 1 ? "s" : ""}
           </div>
           <ExportButtons weddingId={wedding.id} />
@@ -38,7 +41,7 @@ export default async function RSVPListPage() {
       <div className="text-center">
         <Link
           href="/dashboard"
-          className="text-sm text-primary hover:underline"
+          className="text-sm text-slate-800 hover:underline font-medium"
         >
           Back to Overview
         </Link>

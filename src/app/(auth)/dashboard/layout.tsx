@@ -1,9 +1,9 @@
 import { Nav } from "@/components/nav";
-import { Breadcrumbs } from "@/components/breadcrumbs";
+import { AdminLayoutContent } from "@/components/admin-layout-content";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden p-6 gap-6">
       <Nav
         title="Dashboard"
         items={[
@@ -12,9 +12,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           { href: "/dashboard/floor-plan", label: "Floor Plan", section: "Planning" },
         ]}
       />
-      <main className="flex-1 p-6 pt-20 md:pt-6 flex flex-col overflow-x-hidden">
-        <Breadcrumbs className="mb-4" />
-        {children}
+      <main className="flex-1 overflow-y-auto rounded-3xl">
+        <AdminLayoutContent
+          breadcrumbCrumbs={[
+            { label: "Dashboard", href: "/dashboard" },
+            { label: "Overview" },
+          ]}
+        >
+          {children}
+        </AdminLayoutContent>
       </main>
     </div>
   );

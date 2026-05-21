@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { updateWeddingDate, updateWeddingTimezone } from "@/app/actions/admin";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { GlassInput } from "@/components/glassmorphism/glass-input";
+import { GlassButton } from "@/components/glassmorphism/glass-button";
 import { TimezoneCombobox } from "@/components/timezone-combobox";
 
 interface WeddingDatePickerProps {
@@ -43,32 +43,32 @@ export function WeddingDatePicker({
   }
 
   return (
-    <div className="glass-panel rounded-lg p-4 space-y-3">
-      <h3 className="text-sm font-medium">Wedding Date & Time</h3>
+    <div className="space-y-3">
+      <h3 className="text-sm font-medium text-slate-800">Wedding Date & Time</h3>
 
       <div className="flex items-center gap-2">
-        <Input
+        <GlassInput
           type="datetime-local"
           value={date}
           onChange={(e) => setDate(e.target.value)}
           className="flex-1"
         />
-        <Button size="sm" onClick={handleDateSave} disabled={saving}>
+        <GlassButton size="sm" onClick={handleDateSave} disabled={saving}>
           {saving ? "Saving..." : "Save"}
-        </Button>
+        </GlassButton>
       </div>
 
       {isAdmin && (
         <div className="flex items-center gap-2">
           <TimezoneCombobox value={tz} onChange={setTz} />
-          <Button size="sm" onClick={handleTimezoneSave} disabled={saving}>
+          <GlassButton size="sm" onClick={handleTimezoneSave} disabled={saving}>
             Save
-          </Button>
+          </GlassButton>
         </div>
       )}
 
       {message && (
-        <p className="text-xs text-muted-foreground">{message}</p>
+        <p className="text-xs text-slate-500">{message}</p>
       )}
     </div>
   );

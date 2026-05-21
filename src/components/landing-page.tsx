@@ -1,4 +1,6 @@
-import { GradientBackdrop } from "@/components/gradient-backdrop";
+"use client";
+
+import { motion } from "motion/react";
 
 interface LandingPageProps {
   coupleName: string;
@@ -31,64 +33,37 @@ function formatWeddingDate(date: string | null | undefined, tz?: string | null):
   }
 }
 
-export function LandingPage({ coupleName, templateImageUrl, venueName, welcomeMessage, weddingDate, timezone, focalX, focalY }: LandingPageProps) {
+export function LandingPage({ coupleName, templateImageUrl, weddingDate, timezone, focalX, focalY }: LandingPageProps) {
   const hasImage = !!templateImageUrl;
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center bg-black">
-      <GradientBackdrop variant="landing" className="opacity-30" />
-
-      {hasImage ? (
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img
-          src={templateImageUrl}
-          alt={`${coupleName} wedding invitation`}
-          className="w-full h-full object-cover max-w-3xl"
-          style={focalX != null && focalY != null ? { objectPosition: `${focalX}% ${focalY}%` } : undefined}
-        />
-      ) : (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="glass-panel rounded-2xl p-12 text-center text-white max-w-lg space-y-4">
-            <h1 className="text-4xl font-bold">{coupleName}</h1>
-            {weddingDate && (
-              <p className="text-lg opacity-90">{formatWeddingDate(weddingDate, timezone)}</p>
-            )}
-            {venueName && (
-              <p className="text-base opacity-80">{venueName}</p>
-            )}
-            {welcomeMessage && (
-              <p className="text-sm opacity-70">{welcomeMessage}</p>
-            )}
-          </div>
-        </div>
-      )}
-
-      <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/60 to-transparent">
-        {hasImage && (venueName || welcomeMessage || weddingDate) && (
-          <div className="max-w-3xl mx-auto mb-6">
-            <div className="glass-panel rounded-xl p-4 text-center text-white space-y-2">
-              <h2 className="text-xl font-bold">{coupleName}</h2>
-              {weddingDate && (
-                <p className="text-sm opacity-90">{formatWeddingDate(weddingDate, timezone)}</p>
-              )}
-              {venueName && (
-                <p className="text-sm opacity-90">{venueName}</p>
-              )}
-              {welcomeMessage && (
-                <p className="text-sm opacity-80">{welcomeMessage}</p>
-              )}
-            </div>
-          </div>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+      className="w-full flex flex-col items-center"
+    >
+      <div className="w-full max-w-2xl aspect-[3/2] rounded-[40px] overflow-hidden glass relative shadow-2xl">
+        {hasImage ? (
+          <img
+            src={templateImageUrl!}
+            alt={`${coupleName} wedding invitation`}
+            className="w-full h-full object-cover"
+            style={focalX != null && focalY != null ? { objectPosition: `${focalX}% ${focalY}%` } : undefined}
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-rose-200/50 via-purple-200/50 to-emerald-200/50" />
         )}
-        <div className="max-w-3xl mx-auto flex justify-center">
-          <a
-            href="#rsvp"
-            className="glass-panel inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground text-lg px-10 py-4 font-medium hover:bg-primary/80 transition-colors"
-          >
-            RSVP Now
-          </a>
+        <div className="absolute inset-0 bg-black/10" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 text-white">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl font-serif mb-4 text-glow">{coupleName}</h1>
+          {weddingDate && (
+            <p className="text-base sm:text-lg font-medium opacity-90 tracking-wide uppercase">
+              {formatWeddingDate(weddingDate, timezone)}
+            </p>
+          )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

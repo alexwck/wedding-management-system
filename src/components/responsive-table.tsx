@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { GlassCard } from "@/components/glassmorphism/glass-card";
+import { GlassPanel } from "@/components/glassmorphism/glass-panel";
 
 interface ResponsiveTableColumn<T> {
   key: string;
@@ -75,9 +75,9 @@ export function ResponsiveTable<T>({
       {/* Mobile cards */}
       <div className="md:hidden space-y-3">
         {data.map((row) => (
-          <GlassCard
+          <GlassPanel
             key={keyExtractor(row)}
-            variant="default"
+            variant="medium"
             className={cn("p-4", mobileCardClassName)}
           >
             <dl className="space-y-2">
@@ -90,7 +90,7 @@ export function ResponsiveTable<T>({
                 </div>
               ))}
             </dl>
-          </GlassCard>
+          </GlassPanel>
         ))}
       </div>
     </div>

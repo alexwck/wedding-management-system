@@ -1,17 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { GradientBackdrop } from "@/components/gradient-backdrop";
+import { Toaster } from "sonner";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Wedding RSVP",
@@ -24,13 +13,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased scroll-pt-20 md:scroll-pt-0`}
-    >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
-        <GradientBackdrop />
+    <html lang="en" className="h-full antialiased scroll-pt-20 md:scroll-pt-0">
+      <body className="min-h-full flex flex-col font-sans">
         {children}
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            className: "glass-panel text-slate-800 border border-white/20 shadow-lg",
+          }}
+        />
       </body>
     </html>
   );

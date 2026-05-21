@@ -1,15 +1,14 @@
 "use client";
 
 import React from "react";
-import { GlassCard } from "@/components/glassmorphism/glass-card";
+import { GlassPanel } from "@/components/glassmorphism/glass-panel";
 import { Monitor } from "lucide-react";
 
 interface FloorPlanDeviceCheckProps {
   children: React.ReactNode;
-  readOnlyPreview?: React.ReactNode;
 }
 
-export function FloorPlanDeviceCheck({ children, readOnlyPreview }: FloorPlanDeviceCheckProps) {
+export function FloorPlanDeviceCheck({ children }: FloorPlanDeviceCheckProps) {
   const [isSmallScreen, setIsSmallScreen] = React.useState(false);
 
   React.useEffect(() => {
@@ -19,25 +18,24 @@ export function FloorPlanDeviceCheck({ children, readOnlyPreview }: FloorPlanDev
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  if (!isSmallScreen) {
-    return <>{children}</>;
-  }
-
+  // Always render children - the canvas itself handles mobile layout
+  // Show a soft warning banner on small screens
   return (
-    <div className="space-y-6 p-4">
-      <GlassCard variant="heavy" className="p-6 text-center space-y-4">
-        <Monitor className="mx-auto h-10 w-10 text-muted-foreground" />
-        <h2 className="text-lg font-semibold">Floor plan editing requires a larger screen</h2>
-        <p className="text-sm text-muted-foreground">
-          Please use a tablet or desktop device to edit the floor plan.
-        </p>
-      </GlassCard>
-
-      {readOnlyPreview && (
-        <div className="opacity-70 pointer-events-none select-none">
-          {readOnlyPreview}
+    <>
+      {isSmallScreen && (
+        <div className="shrink-0 z-40">
+          <GlassPanel variant="dark" className="p-3 text-center space-y-2 rounded-none">
+            <div className="flex items-center justify-center gap-2">
+              <Monitor className="h-5 w-5 text-muted-foreground" />
+              <span className="text-sm font-medium">Floor plan editing works best on a larger screen</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              For the best experience, please use a tablet or desktop device.
+            </p>
+          </GlassPanel>
         </div>
       )}
-    </div>
+      {children}
+    </>
   );
 }

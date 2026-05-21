@@ -1,21 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { rsvpSchema, type RSVPFormData } from "@/lib/validations/rsvp";
 import { submitRSVP } from "@/app/actions/rsvp";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { GlassPanel } from "@/components/glassmorphism/glass-panel";
+import { GlassInput } from "@/components/glassmorphism/glass-input";
+import { GlassButton } from "@/components/glassmorphism/glass-button";
+import { motion } from "motion/react";
+import { Leaf, Baby } from "lucide-react";
 
 interface RSVPFormProps {
   slug: string;
@@ -77,7 +71,6 @@ export function RSVPForm({ slug, coupleName, isLocked, initialData, onSubmitSucc
         text: "Connection failed. Your response is preserved. Please try again.",
       });
 
-      // Auto-retry once on first failure
       if (retryCount === 0) {
         setRetryCount((c) => c + 1);
         setTimeout(() => {
@@ -89,40 +82,43 @@ export function RSVPForm({ slug, coupleName, isLocked, initialData, onSubmitSucc
 
   if (isLocked) {
     return (
-      <div className="max-w-xl w-full text-center space-y-4 glass-panel rounded-xl p-8">
-        <h1 className="text-2xl font-bold text-foreground">RSVP is now closed</h1>
-        <p className="text-muted-foreground">
+      <GlassPanel className="p-8 md:p-10 text-center" variant="medium">
+        <h1 className="text-2xl font-serif text-slate-800">RSVP is now closed</h1>
+        <p className="text-slate-500 mt-2">
           {coupleName}&apos;s wedding is no longer accepting RSVPs.
         </p>
-      </div>
+      </GlassPanel>
     );
   }
 
   if (serverMessage?.type === "success") {
     return (
-      <div className="max-w-xl w-full text-center space-y-4 glass-panel rounded-xl p-8">
-        <h1 className="text-2xl font-bold text-foreground">Thank You!</h1>
-        <p className="text-muted-foreground">{serverMessage.text}</p>
-      </div>
+      <GlassPanel className="p-8 md:p-10 text-center" variant="medium">
+        <h1 className="text-2xl font-serif text-slate-800">Thank You!</h1>
+        <p className="text-slate-500 mt-2">{serverMessage.text}</p>
+      </GlassPanel>
     );
   }
 
   return (
-    <div className="max-w-xl w-full space-y-6 glass-panel rounded-xl p-6">
-      <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold text-foreground">
-            RSVP for {coupleName}&apos;s Wedding
-          </h1>
-        </div>
+    <GlassPanel variant="medium" className="p-8 md:p-10 flex flex-col gap-6" delay={0.3}>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <h1 className="text-2xl font-serif text-slate-800 mb-6">
+          RSVP for {coupleName}&apos;s Wedding
+        </h1>
 
         {serverMessage?.type === "error" && (
-          <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+          <div className="rounded-2xl border border-rose-400/50 bg-rose-100/20 p-3 text-sm text-rose-600">
             {serverMessage.text}
           </div>
         )}
 
         {serverMessage?.type === "network" && (
-          <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-3 text-sm text-amber-700 space-y-2">
+          <div className="rounded-2xl border border-amber-400/50 bg-amber-100/20 p-3 text-sm text-amber-700 space-y-2">
             <p>{serverMessage.text}</p>
             <button
               type="button"
@@ -134,111 +130,96 @@ export function RSVPForm({ slug, coupleName, isLocked, initialData, onSubmitSucc
           </div>
         )}
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="guestName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Your Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      id="guestName"
-                      placeholder="Enter your name"
-                      className="min-h-[44px] w-full"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <GlassInput
+                label="Your Name"
+                placeholder="Your Name"
+                id="guestName"
+                {...form.register("guestName")}
+              />
+              {form.formState.errors.guestName && (
+                <p className="text-sm text-rose-600 mt-1 ml-1">{form.formState.errors.guestName.message}</p>
               )}
-            />
-
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <FormControl>
-                    <select
-                      id="status"
-                      className="h-[44px] w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                      value={field.value}
-                      onChange={field.onChange}
-                    >
-                      <option value="attending">Attending</option>
-                      <option value="declining">Declining</option>
-                    </select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+            </div>
+            <div className="space-y-1.5 flex-1">
+              <label htmlFor="status" className="text-sm font-medium text-slate-600 ml-1">Status</label>
+              <select
+                id="status"
+                className="w-full bg-white/40 border border-white/40 rounded-2xl px-4 py-3 outline-hidden focus:ring-2 focus:ring-white/50 focus:bg-white/60 transition-all duration-300"
+                {...form.register("status")}
+              >
+                <option value="attending">Attending</option>
+                <option value="declining">Declining</option>
+              </select>
+              {form.formState.errors.status && (
+                <p className="text-sm text-rose-600 mt-1 ml-1">{form.formState.errors.status.message}</p>
               )}
-            />
+            </div>
+          </div>
 
-            <FormField
-              control={form.control}
-              name="dietaryNotes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Dietary Notes</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      id="dietaryNotes"
-                      placeholder="Any dietary requirements? (optional)"
-                      className="min-h-[44px] w-full"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+          <div className="space-y-1.5">
+            <label htmlFor="dietaryNotes" className="text-sm font-medium text-slate-600 ml-1">Dietary Notes</label>
+            <textarea
+              id="dietaryNotes"
+              className="w-full bg-white/40 border border-white/40 rounded-2xl px-4 py-3 outline-hidden focus:ring-2 focus:ring-white/50 focus:bg-white/60 transition-all duration-300 placeholder:text-slate-400 min-h-[100px]"
+              placeholder="Allergies? Preferences?"
+              {...form.register("dietaryNotes")}
             />
+          </div>
 
-            <FormField
-              control={form.control}
+          <div className="flex gap-6">
+            <Controller
               name="isVegetarian"
-              render={({ field }) => (
-                <FormItem className="flex items-center gap-2 space-y-0">
-                  <FormControl>
-                    <input
-                      id="isVegetarian"
-                      type="checkbox"
-                      className="size-4 rounded border border-input accent-primary"
-                      checked={field.value}
-                      onChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel>Vegetarian</FormLabel>
-                </FormItem>
-              )}
-            />
-
-            <FormField
               control={form.control}
-              name="needsBabyChair"
               render={({ field }) => (
-                <FormItem className="flex items-center gap-2 space-y-0">
-                  <FormControl>
-                    <input
-                      id="needsBabyChair"
-                      type="checkbox"
-                      className="size-4 rounded border border-input accent-primary"
-                      checked={field.value}
-                      onChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel>Baby Chair</FormLabel>
-                </FormItem>
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <div className={`w-5 h-5 rounded border border-white/40 flex items-center justify-center transition-all active:scale-95 ${field.value ? 'bg-emerald-400' : 'bg-white/20'}`}>
+                    {field.value && <Leaf size={12} className="text-white" />}
+                  </div>
+                  <input
+                    id="isVegetarian"
+                    type="checkbox"
+                    className="hidden"
+                    checked={field.value}
+                    onChange={field.onChange}
+                  />
+                  <span className="text-sm font-medium text-slate-600 group-hover:text-slate-800 transition-colors">Vegetarian</span>
+                </label>
               )}
             />
 
-            <Button type="submit" disabled={form.formState.isSubmitting} className="w-full min-h-[44px]">
-              {form.formState.isSubmitting ? "Submitting..." : "Submit RSVP"}
-            </Button>
-          </form>
-        </Form>
-    </div>
+            <Controller
+              name="needsBabyChair"
+              control={form.control}
+              render={({ field }) => (
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <div className={`w-5 h-5 rounded border border-white/40 flex items-center justify-center transition-all active:scale-95 ${field.value ? 'bg-blue-400' : 'bg-white/20'}`}>
+                    {field.value && <Baby size={12} className="text-white" />}
+                  </div>
+                  <input
+                    id="needsBabyChair"
+                    type="checkbox"
+                    className="hidden"
+                    checked={field.value}
+                    onChange={field.onChange}
+                  />
+                  <span className="text-sm font-medium text-slate-600 group-hover:text-slate-800 transition-colors">Baby Chair</span>
+                </label>
+              )}
+            />
+          </div>
+
+          <GlassButton
+            type="submit"
+            disabled={form.formState.isSubmitting}
+            className="w-full mt-4 h-14 text-lg"
+          >
+            {form.formState.isSubmitting ? "Submitting..." : "Submit RSVP"}
+          </GlassButton>
+        </form>
+      </motion.div>
+    </GlassPanel>
   );
 }

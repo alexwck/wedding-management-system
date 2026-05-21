@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
-import { Stage, Layer, Rect } from "react-konva";
+import { toast } from "sonner";
+import { Stage, Layer, Rect, Line, Text } from "react-konva";
 import type Konva from "konva";
 import { useFloorPlanState } from "./hooks/use-floor-plan-state";
 import { useAutoSave } from "./hooks/use-auto-save";
@@ -13,7 +14,7 @@ import { ItemCatalog } from "./item-catalog";
 import { GuestAssignmentDialog } from "./guest-assignment-dialog";
 import { GuestPanel } from "./guest-panel";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { GlassButton } from "@/components/glassmorphism/glass-button";
 import { FloorPlanToolbar } from "./floor-plan-toolbar";
 import { RotationTransformer } from "./rotation-transformer";
 import type { TransformResult } from "./rotation-transformer";
@@ -28,6 +29,15 @@ import {
 } from "@/lib/floor-plan/constants";
 import { isItemOutOfBounds, checkItemCollisions } from "@/lib/floor-plan/collision";
 import { canPlaceItem } from "@/lib/floor-plan/placement";
+import { useCanvasViewport } from "./hooks/use-canvas-viewport";
+import { MobileItemEditor } from "./mobile-item-editor";
+import { Users, Box, HelpCircle, PanelLeft } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import type { FloorPlan, FloorPlanItem, ItemType } from "@/types/floor-plan";
 import { redistributeChairs, getMaxChairCount } from "./hooks/use-chair-generation";
 
@@ -96,15 +106,15 @@ function ChairCountControls({
     <>
       <div className="w-px h-6 bg-border" />
       <span className="text-xs text-muted-foreground">Chairs:</span>
-      <Button
-        variant="outline"
+      <GlassButton
+        variant="ghost"
         size="sm"
         onClick={() => onChange(tableId, count - 1, true)}
         disabled={count <= 0}
-        className="h-7 w-7 p-0"
+        className="min-w-[44px] min-h-[44px]"
       >
         -
-      </Button>
+      </GlassButton>
       <Input
         data-testid="chair-count-input"
         type="number"
@@ -115,15 +125,15 @@ function ChairCountControls({
         onBlur={onCommit}
         className="w-14 h-7 text-xs text-center"
       />
-      <Button
-        variant="outline"
+      <GlassButton
+        variant="ghost"
         size="sm"
         onClick={() => onChange(tableId, count + 1, true)}
         disabled={count >= max}
-        className="h-7 w-7 p-0"
+        className="min-w-[44px] min-h-[44px]"
       >
         +
-      </Button>
+      </GlassButton>
       <span className="text-xs text-muted-foreground">/{max}</span>
     </>
   );
@@ -153,17 +163,20 @@ export function FloorPlanCanvas({
   const [editingDimId, setEditingDimId] = useState<string | null>(null);
   const venueEditStarted = useRef(false);
   const chairCountEditStarted = useRef(false);
-  const [containerWidth, setContainerWidth] = useState(800);
-  const [containerHeight, setContainerHeight] = useState(600);
-  const [stageScale, setStageScale] = useState(1);
-  const [stagePosition, setStagePosition] = useState({ x: 0, y: 0 });
+  const [mobileEditorOpen, setMobileEditorOpen] = useState(false);
+  const [activeDrawer, setActiveDrawer] = useState<"guests" | "catalog" | null>(null);
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showGuestPanel, setShowGuestPanel] = useState(true);
+  const [showCatalog, setShowCatalog] = useState(true);
+  const [adminNavCollapsed, setAdminNavCollapsed] = useState(false);
+
+
   const lastTouchDist = useRef(0);
   const lastTouchCenter = useRef<{ x: number; y: number } | null>(null);
-  const hasFittedRef = useRef(false);
   const hasPushedInitialRef = useRef(false);
+  const hasInitialFitRef = useRef(false);
 
   const stageRef = useRef<Konva.Stage>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
   const focusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const assignmentMapRef = useRef(seatAssignments.assignmentMap);
@@ -186,16 +199,7 @@ export function FloorPlanCanvas({
     };
   }, []);
 
-  useEffect(() => {
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        setContainerWidth(entry.contentRect.width);
-        setContainerHeight(entry.contentRect.height);
-      }
-    });
-    if (containerRef.current) observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, []);
+
 
   const selectedItem = state.items.find((i) => i.id === selectedItemId) ?? null;
 
@@ -210,6 +214,10 @@ export function FloorPlanCanvas({
   const canvasWidth = state.width * FEET_TO_PIXELS;
   const canvasHeight = state.height * FEET_TO_PIXELS;
 
+  const viewport = useCanvasViewport(canvasWidth, canvasHeight);
+  const fitToScreenRef = useRef(viewport.handleFitToScreen);
+  fitToScreenRef.current = viewport.handleFitToScreen;
+
   const outOfBoundsIds = useMemo(
     () => new Set(state.getOutOfBoundsItems().map((i) => i.id)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -218,6 +226,18 @@ export function FloorPlanCanvas({
 
   const unavailableCatalogItems = useMemo(() => {
     const unavailable = new Set<string>();
+    if (isLocked) {
+      // When locked, mark all catalog items as unavailable for ARIA labeling
+      for (const entry of ITEM_CATALOG) {
+        const key = entry.type === "round_table"
+          ? `round_table-${(entry as typeof entry & { diameter: number }).diameter}`
+          : entry.type === "long_table"
+            ? `long_table-${(entry as typeof entry & { length: number }).length}`
+            : entry.type;
+        unavailable.add(key);
+      }
+      return unavailable;
+    }
     for (const entry of ITEM_CATALOG) {
       const sizeVariant = entry.type === "round_table"
         ? (entry as typeof entry & { diameter: number }).diameter
@@ -234,7 +254,7 @@ export function FloorPlanCanvas({
       }
     }
     return unavailable;
-  }, [state.items, state.width, state.height]);
+  }, [state.items, state.width, state.height, isLocked]);
 
   const handleWheel = useCallback((e: Konva.KonvaEventObject<WheelEvent>) => {
     e.evt.preventDefault();
@@ -256,20 +276,20 @@ export function FloorPlanCanvas({
       y: (pointer.y - stage.y()) / oldScale,
     };
 
-    setStageScale(newScale);
-    setStagePosition({
+    viewport.setStageScale(newScale);
+    viewport.setStagePosition({
       x: pointer.x - mousePointTo.x * newScale,
       y: pointer.y - mousePointTo.y * newScale,
     });
-  }, []);
+  }, [viewport]);
 
   const handleStageDragEnd = useCallback(
     (e: Konva.KonvaEventObject<DragEvent>) => {
       const stage = e.target.getStage();
       if (!stage || e.target !== stage) return;
-      setStagePosition({ x: stage.x(), y: stage.y() });
+      viewport.setStagePosition({ x: stage.x(), y: stage.y() });
     },
-    [],
+    [viewport],
   );
 
   const handleTouchMove = useCallback(
@@ -309,8 +329,8 @@ export function FloorPlanCanvas({
         const dx = center.x - lastTouchCenter.current.x;
         const dy = center.y - lastTouchCenter.current.y;
 
-        setStageScale(newScale);
-        setStagePosition({
+        viewport.setStageScale(newScale);
+        viewport.setStagePosition({
           x: center.x - mousePointTo.x * newScale + dx,
           y: center.y - mousePointTo.y * newScale + dy,
         });
@@ -319,7 +339,7 @@ export function FloorPlanCanvas({
       lastTouchDist.current = dist;
       lastTouchCenter.current = center;
     },
-    [],
+    [viewport],
   );
 
   const handleTouchEnd = useCallback(() => {
@@ -342,38 +362,68 @@ export function FloorPlanCanvas({
       y: (center.y - stage.y()) / oldScale,
     };
 
-    setStageScale(newScale);
-    setStagePosition({
+    viewport.setStageScale(newScale);
+    viewport.setStagePosition({
       x: center.x - mousePointTo.x * newScale,
       y: center.y - mousePointTo.y * newScale,
     });
-  }, []);
+  }, [viewport]);
 
-  const handleFitToScreen = useCallback(() => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const padding = 32;
-    const availWidth = rect.width - padding;
-    const availHeight = rect.height - padding;
 
-    const scaleX = availWidth / canvasWidth;
-    const scaleY = availHeight / canvasHeight;
+  const handleCenterView = useCallback(() => {
+    if (!viewport.containerRef.current || state.items.length === 0) return;
+    const rect = viewport.containerRef.current.getBoundingClientRect();
+    const padding = 48;
+    const availW = rect.width - padding;
+    const availH = rect.height - padding;
+
+    // Compute bounding box of all items
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const item of state.items) {
+      const pw = item.width * FEET_TO_PIXELS;
+      const ph = item.height * FEET_TO_PIXELS;
+      const px = item.x * FEET_TO_PIXELS;
+      const py = item.y * FEET_TO_PIXELS;
+      minX = Math.min(minX, px);
+      minY = Math.min(minY, py);
+      maxX = Math.max(maxX, px + pw);
+      maxY = Math.max(maxY, py + ph);
+    }
+
+    const contentW = maxX - minX;
+    const contentH = maxY - minY;
+    const scaleX = availW / contentW;
+    const scaleY = availH / contentH;
     const newScale = Math.min(scaleX, scaleY, 1);
 
-    const offsetX = (rect.width - canvasWidth * newScale) / 2;
-    const offsetY = (rect.height - canvasHeight * newScale) / 2;
+    const offsetX = rect.width / 2 - (minX + contentW / 2) * newScale;
+    const offsetY = rect.height / 2 - (minY + contentH / 2) * newScale;
 
-    setStageScale(newScale);
-    setStagePosition({ x: offsetX, y: offsetY });
-  }, [canvasWidth, canvasHeight]);
+    viewport.setStageScale(newScale);
+    viewport.setStagePosition({ x: offsetX, y: offsetY });
+  }, [viewport, state.items]);
 
   // Center canvas on initial load once container dimensions are measured
+  // Guarded by ref to prevent infinite loop with ResizeObserver
+
   useEffect(() => {
-    if (!hasFittedRef.current && containerWidth > 0 && containerHeight > 0) {
-      hasFittedRef.current = true;
-      handleFitToScreen();
+    if (!hasInitialFitRef.current && viewport.containerWidth > 0 && viewport.containerHeight > 0) {
+      hasInitialFitRef.current = true;
+      fitToScreenRef.current();
     }
-  }, [containerWidth, containerHeight, handleFitToScreen]);
+  }, [viewport.containerWidth, viewport.containerHeight]);
+
+  // Track admin nav collapse/expand state
+  useEffect(() => {
+    const onExpand = () => setAdminNavCollapsed(false);
+    const onCollapse = () => setAdminNavCollapsed(true);
+    window.addEventListener("expand-nav", onExpand);
+    window.addEventListener("collapse-nav", onCollapse);
+    return () => {
+      window.removeEventListener("expand-nav", onExpand);
+      window.removeEventListener("collapse-nav", onCollapse);
+    };
+  }, []);
 
   const pushHistory = useCallback(() => {
     undoRedo.pushState(
@@ -384,6 +434,12 @@ export function FloorPlanCanvas({
       unassignedGuestsRef.current,
     );
   }, [undoRedo, state.items, state.width, state.height]);
+
+  useEffect(() => {
+    if (viewport.isMobile && selectedItemId) {
+      setMobileEditorOpen(true);
+    }
+  }, [viewport.isMobile, selectedItemId]);
 
   useEffect(() => {
     if (hasPushedInitialRef.current) return;
@@ -689,9 +745,21 @@ export function FloorPlanCanvas({
     [state, seatAssignments],
   );
 
-  const handleUndo = useCallback(() => restoreSnapshot(undoRedo.undo()), [undoRedo, restoreSnapshot]);
+  const handleUndo = useCallback(() => {
+    const snapshot = undoRedo.undo();
+    if (snapshot) {
+      toast("Undo: restored previous state");
+    }
+    restoreSnapshot(snapshot);
+  }, [undoRedo, restoreSnapshot]);
 
-  const handleRedo = useCallback(() => restoreSnapshot(undoRedo.redo()), [undoRedo, restoreSnapshot]);
+  const handleRedo = useCallback(() => {
+    const snapshot = undoRedo.redo();
+    if (snapshot) {
+      toast("Redo: restored next state");
+    }
+    restoreSnapshot(snapshot);
+  }, [undoRedo, restoreSnapshot]);
 
   const handleGuestAssign = useCallback(
     async (rsvpId: number, chairItemId: string, tableItemId: string, guestName: string) => {
@@ -750,6 +818,8 @@ export function FloorPlanCanvas({
     setDialogTableId(tableId);
   }, [isLocked]);
 
+
+
   const saveStatusText = (() => {
     switch (saveStatus) {
       case "saving": return "Saving\u2026";
@@ -772,21 +842,24 @@ export function FloorPlanCanvas({
   const selectedChairCount = selectedItem?.metadata?.chairCount ?? 0;
 
   return (
-    <div className="flex h-full overflow-x-auto md:overflow-hidden">
-      {/* Left sidebar: guest panel */}
-      <GuestPanel
-        unassignedGuests={seatAssignments.unassignedGuests}
-        assignmentMap={seatAssignments.assignmentMap}
-        items={state.items}
-        isLoading={seatAssignments.isLoading}
-      />
-
-      <div
-        data-testid="floor-plan-canvas"
-        className="flex-1 min-w-[350px] md:min-w-[250px] flex flex-col bg-muted/30 relative overflow-hidden isolate"
-      >
-        {/* Compact top bar */}
-        <div className="h-10 shrink-0 glass-panel border-b flex items-center px-3 gap-3 z-30 rounded-none">
+    <div className="flex flex-col h-full overflow-hidden relative">
+      {/* Toolbar — full width above sidebars + canvas */}
+      <div className="shrink-0 h-10 glass-panel border-b flex items-center px-3 gap-3">
+          {/* Admin nav expand button */}
+          {adminNavCollapsed && (
+            <>
+              <GlassButton
+                variant="ghost"
+                size="sm"
+                onClick={() => window.dispatchEvent(new CustomEvent("expand-nav"))}
+                className="hidden md:inline-flex"
+                aria-label="Expand navigation"
+              >
+                <PanelLeft className="h-4 w-4" />
+              </GlassButton>
+              <div className="w-px h-6 bg-border" />
+            </>
+          )}
           {/* Venue dimensions */}
           <div className="flex items-center gap-1.5">
             <label htmlFor="venue-width" className="text-xs font-medium">
@@ -830,24 +903,37 @@ export function FloorPlanCanvas({
             canRedo={undoRedo.canRedo && !isLocked}
             onUndo={handleUndo}
             onRedo={handleRedo}
-            zoomPercent={stageScale * 100}
+            zoomPercent={viewport.stageScale * 100}
             onZoomIn={() => handleZoom("in")}
             onZoomOut={() => handleZoom("out")}
-            onFitToScreen={handleFitToScreen}
+            onFitToScreen={viewport.handleFitToScreen}
+            onCenterView={handleCenterView}
           />
+
+          {/* Sidebar expand buttons */}
+          {!showGuestPanel && (
+            <GlassButton variant="ghost" size="sm" onClick={() => setShowGuestPanel(true)} aria-label="Show guest panel" className="hidden md:inline-flex">
+              <Users className="h-4 w-4" />
+            </GlassButton>
+          )}
+          {!showCatalog && (
+            <GlassButton variant="ghost" size="sm" onClick={() => setShowCatalog(true)} aria-label="Show catalog" className="hidden md:inline-flex">
+              <Box className="h-4 w-4" />
+            </GlassButton>
+          )}
 
           {selectedItemId && (
             <>
               <div className="w-px h-6 bg-border" />
-              <Button
-                variant="outline"
+              <GlassButton
+                variant="ghost"
                 size="sm"
                 onClick={handleDelete}
                 disabled={isLocked}
                 className="text-destructive"
               >
                 Delete
-              </Button>
+              </GlassButton>
             </>
           )}
 
@@ -877,7 +963,7 @@ export function FloorPlanCanvas({
               role="status"
               aria-live="polite"
               data-testid="save-status"
-              className={`text-sm whitespace-nowrap ${
+              className={`text-sm whitespace-nowrap hidden md:inline ${
                 saveStatus === "blocked"
                   ? "text-yellow-700"
                   : saveStatus === "error"
@@ -888,34 +974,40 @@ export function FloorPlanCanvas({
               {saveStatusText}
             </span>
             {(saveStatus === "unsaved" || saveStatus === "error") && (
-              <Button
-                variant="outline"
+              <GlassButton
+                variant="primary"
                 size="sm"
+                onClick={() => saveNow()}
                 data-testid="save-now"
-                onClick={saveNow}
-                className="h-7 text-xs"
+                className="hidden md:inline-flex"
               >
-                Save
-              </Button>
+                Save Now
+              </GlassButton>
             )}
           </>
           )}
         </div>
 
-        {/* Canvas area */}
-        <div className="flex-1 min-h-0 min-w-0 relative">
+      {/* Main content: canvas with floating overlay sidebars */}
+      <div className="flex-1 relative overflow-hidden">
+        {/* Canvas fills the entire container */}
         <div
-          ref={containerRef}
-          className="absolute inset-0 overflow-hidden isolate"
+          ref={viewport.containerRef}
+          data-testid="floor-plan-canvas"
+          className="absolute inset-0 overflow-hidden isolate bg-slate-50"
+          style={{
+            backgroundImage: 'radial-gradient(circle, #cbd5e1 1px, transparent 1px)',
+            backgroundSize: '24px 24px',
+          }}
         >
         <Stage
           ref={stageRef}
-          width={containerWidth}
-          height={containerHeight}
-          scaleX={stageScale}
-          scaleY={stageScale}
-          x={stagePosition.x}
-          y={stagePosition.y}
+          width={viewport.containerWidth}
+          height={viewport.containerHeight}
+          scaleX={viewport.stageScale}
+          scaleY={viewport.stageScale}
+          x={viewport.stagePosition.x}
+          y={viewport.stagePosition.y}
           draggable
           onClick={handleStageClick}
           onTap={handleStageClick as unknown as (evt: Konva.KonvaEventObject<TouchEvent>) => void}
@@ -923,8 +1015,24 @@ export function FloorPlanCanvas({
           onWheel={handleWheel}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
+          data-testid="floor-plan-canvas"
         >
           <Layer>
+            {/* Origin crosshair */}
+            <Line
+              points={[-2000, 0, 2000, 0]}
+              stroke="#e2e8f0"
+              strokeWidth={1}
+              opacity={0.5}
+            />
+            <Line
+              points={[0, -2000, 0, 2000]}
+              stroke="#e2e8f0"
+              strokeWidth={1}
+              opacity={0.5}
+            />
+
+            {/* Venue boundary box */}
             <Rect
               name="background"
               x={0}
@@ -932,8 +1040,19 @@ export function FloorPlanCanvas({
               width={canvasWidth}
               height={canvasHeight}
               fill="white"
-              stroke="#e5e7eb"
-              strokeWidth={1}
+              stroke="#94a3b8"
+              strokeWidth={2}
+              dash={[8, 4]}
+            />
+
+            {/* Venue dimensions label */}
+            <Text
+              x={8}
+              y={-20}
+              text={`Venue: ${state.width}' x ${state.height}'`}
+              fontSize={12}
+              fill="#64748b"
+              fontFamily="Inter, sans-serif"
             />
             {state.items.map((item) => (
               <CanvasItem
@@ -959,6 +1078,7 @@ export function FloorPlanCanvas({
               onTransformEnd={handleTransformEnd}
               venueWidth={state.width}
               venueHeight={state.height}
+              stageScale={viewport.stageScale}
             />
           </Layer>
         </Stage>
@@ -993,9 +1113,9 @@ export function FloorPlanCanvas({
                 className="border rounded px-2 py-1 text-sm w-40"
                 maxLength={50}
               />
-              <Button size="sm" onClick={commitLabelEdit}>
+              <GlassButton size="sm" onClick={commitLabelEdit}>
                 Done
-              </Button>
+              </GlassButton>
             </div>
           </div>
         )}
@@ -1048,12 +1168,161 @@ export function FloorPlanCanvas({
             </div>
           </div>
         )}
+        {!isNewFloorPlan && state.items.length === 0 && (
+          <div className="absolute inset-0 bg-slate-200/30 animate-pulse" aria-label="Loading floor plan" />
+        )}
         </div>
+
+        {/* Floating left sidebar — slides in/out */}
+        <div className="hidden md:block absolute left-0 top-0 bottom-0 z-20 overflow-hidden pointer-events-none">
+          <div className={`h-full transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-auto ${showGuestPanel ? 'translate-x-0' : '-translate-x-full'}`}>
+            <GuestPanel
+              unassignedGuests={seatAssignments.unassignedGuests}
+              assignmentMap={seatAssignments.assignmentMap}
+              items={state.items}
+              isLoading={seatAssignments.isLoading}
+              collapsible={true}
+              onToggle={() => setShowGuestPanel(false)}
+            />
+          </div>
+        </div>
+
+        {/* Floating right catalog palette — slides in/out */}
+        <div className="hidden md:block absolute top-12 right-2 z-20 overflow-hidden pointer-events-none max-h-[calc(100%-3.5rem)]">
+          <div className={`transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-auto ${showCatalog ? 'translate-x-0' : 'translate-x-full'}`}>
+            <ItemCatalog onSelectItem={handleSelectItem} disabled={isLocked} unavailableItems={unavailableCatalogItems} collapsible={true} onToggle={() => setShowCatalog(false)} />
+          </div>
         </div>
       </div>
 
-      {/* Right sidebar: item catalog */}
-      <ItemCatalog onSelectItem={handleSelectItem} disabled={isLocked} unavailableItems={unavailableCatalogItems} />
+      {/* Mobile bottom action bar */}
+      {viewport.isMobile && (
+        <div className="absolute bottom-0 left-0 right-0 z-50 md:hidden shrink-0 h-14 glass-panel border-t flex items-center justify-around px-2">
+          <GlassButton
+            variant={activeDrawer === "guests" ? "primary" : "ghost"}
+            size="sm"
+            onClick={() => setActiveDrawer(activeDrawer === "guests" ? null : "guests")}
+            className="flex-col gap-0.5 h-12"
+          >
+            <Users className="h-4 w-4" />
+            <span className="text-[10px]">Guests</span>
+          </GlassButton>
+          <GlassButton
+            variant="primary"
+            size="sm"
+            onClick={() => setShowShortcuts(true)}
+            className="rounded-full w-12 h-12 -mt-4 shadow-lg"
+            aria-label="Keyboard shortcuts"
+          >
+            <HelpCircle className="h-5 w-5" />
+          </GlassButton>
+          <GlassButton
+            variant={activeDrawer === "catalog" ? "primary" : "ghost"}
+            size="sm"
+            onClick={() => setActiveDrawer(activeDrawer === "catalog" ? null : "catalog")}
+            className="flex-col gap-0.5 h-12"
+          >
+            <Box className="h-4 w-4" />
+            <span className="text-[10px]">Catalog</span>
+          </GlassButton>
+        </div>
+      )}
+
+      {/* Mobile guest drawer */}
+      {viewport.isMobile && activeDrawer === "guests" && (
+        <Sheet open onOpenChange={() => setActiveDrawer(null)}>
+          <SheetContent side="bottom" className="glass-panel border-t border-white/20 max-h-[60vh] p-0">
+            <div className="overflow-y-auto [&>*]:w-full">
+              <GuestPanel
+                unassignedGuests={seatAssignments.unassignedGuests}
+                assignmentMap={seatAssignments.assignmentMap}
+                items={state.items}
+                isLoading={seatAssignments.isLoading}
+                collapsible={false}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
+
+      {/* Mobile catalog drawer */}
+      {viewport.isMobile && activeDrawer === "catalog" && (
+        <Sheet open onOpenChange={() => setActiveDrawer(null)}>
+          <SheetContent side="bottom" className="glass-panel border-t border-white/20 max-h-[60vh] p-0">
+            <div className="overflow-y-auto [&>*]:w-full">
+              <ItemCatalog onSelectItem={handleSelectItem} disabled={isLocked} unavailableItems={unavailableCatalogItems} collapsible={false} />
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
+
+
+
+
+
+      {/* Mobile keyboard shortcuts */}
+      {viewport.isMobile && showShortcuts && (
+        <Sheet open onOpenChange={() => setShowShortcuts(false)}>
+          <SheetContent side="bottom" className="glass-panel border-t border-white/20 max-h-[60vh]">
+            <SheetHeader className="pb-2 border-b border-white/10">
+              <SheetTitle className="font-serif text-slate-800 text-base">Keyboard Shortcuts</SheetTitle>
+            </SheetHeader>
+            <div className="overflow-y-auto py-3 px-2">
+              <ul className="space-y-3 text-sm">
+                <li className="flex justify-between"><span className="text-slate-500">Undo</span><kbd className="font-mono text-xs bg-white/30 px-2 py-0.5 rounded border border-white/20">Ctrl + Z</kbd></li>
+                <li className="flex justify-between"><span className="text-slate-500">Redo</span><kbd className="font-mono text-xs bg-white/30 px-2 py-0.5 rounded border border-white/20">Ctrl + Shift + Z</kbd></li>
+                <li className="flex justify-between"><span className="text-slate-500">Delete selected</span><kbd className="font-mono text-xs bg-white/30 px-2 py-0.5 rounded border border-white/20">Delete</kbd></li>
+                <li className="flex justify-between"><span className="text-slate-500">Zoom in</span><kbd className="font-mono text-xs bg-white/30 px-2 py-0.5 rounded border border-white/20">Ctrl + +</kbd></li>
+                <li className="flex justify-between"><span className="text-slate-500">Zoom out</span><kbd className="font-mono text-xs bg-white/30 px-2 py-0.5 rounded border border-white/20">Ctrl + -</kbd></li>
+                <li className="flex justify-between"><span className="text-slate-500">Fit to screen</span><kbd className="font-mono text-xs bg-white/30 px-2 py-0.5 rounded border border-white/20">Ctrl + 0</kbd></li>
+              </ul>
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
+
+      {/* Mobile item editor */}
+      {viewport.isMobile && selectedItem && (
+        <MobileItemEditor
+          item={selectedItem}
+          isOpen={mobileEditorOpen}
+          onClose={() => {
+            setMobileEditorOpen(false);
+            setSelectedItemId(null);
+          }}
+          onRotate={(id, degrees) => {
+            const item = state.items.find((i) => i.id === id);
+            if (!item) return;
+            pushHistory();
+            state.updateItem(id, { rotation: (item.rotation || 0) + degrees });
+          }}
+          onResize={(id, width, height) => {
+            pushHistory();
+            state.updateItem(id, { width, height });
+          }}
+          onDelete={(id) => {
+            pushHistory();
+            const childChairs = state.items.filter(
+              (item) => item.type === "chair" && item.parentItemId === id,
+            );
+            for (const chair of childChairs) {
+              if (seatAssignments.assignmentMap[chair.id]) {
+                void seatAssignments.unassignGuest(chair.id);
+              }
+            }
+            state.removeItem(id);
+            setSelectedItemId(null);
+            setMobileEditorOpen(false);
+          }}
+          onChairCountChange={(id, count) => handleChairCountChange(id, count, true)}
+          maxChairs={selectedTableMaxChairs}
+          currentChairs={selectedChairCount}
+          onLabelChange={(id, label) => {
+            pushHistory();
+            state.updateItem(id, { label });
+          }}
+        />
+      )}
 
       {/* Guest assignment dialog */}
       {dialogChairId && dialogTableId && (

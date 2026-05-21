@@ -4,6 +4,8 @@ import { RVPSummary } from "@/components/rsvp-summary";
 import { VenueEditor } from "@/components/venue-editor";
 import { WeddingDatePicker } from "@/components/wedding-date-picker";
 import { EditableCoupleName } from "@/components/editable-couple-name";
+import { GlassPanel } from "@/components/glassmorphism/glass-panel";
+import { GlassButton } from "@/components/glassmorphism/glass-button";
 
 export default async function CoupleDashboard() {
   const result = await getMyWeddingRSVPs();
@@ -11,8 +13,8 @@ export default async function CoupleDashboard() {
   if (!result.success || !result.wedding || !result.summary) {
     return (
       <div className="max-w-4xl mx-auto space-y-6">
-        <h2 className="text-2xl font-bold">Dashboard</h2>
-        <p className="text-destructive">
+        <h2 className="text-3xl font-serif text-slate-800">Dashboard</h2>
+        <p className="text-rose-600">
           {result.message || "Failed to load wedding data."}
         </p>
       </div>
@@ -24,20 +26,20 @@ export default async function CoupleDashboard() {
   return (
     <div className="space-y-6">
       {wedding.isLocked && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-amber-800">
-          <p className="font-medium">This wedding has been locked by admin.</p>
-          <p className="text-sm mt-1">Contact your admin if you need to make changes.</p>
-        </div>
+        <GlassPanel variant="light" className="p-4">
+          <p className="font-medium text-amber-800">This wedding has been locked by admin.</p>
+          <p className="text-sm mt-1 text-amber-700">Contact your admin if you need to make changes.</p>
+        </GlassPanel>
       )}
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <EditableCoupleName weddingId={wedding.id} coupleName={wedding.coupleName} isLocked={wedding.isLocked} />
-          <p className="text-muted-foreground text-sm mt-1">
+          <p className="text-slate-500 text-sm mt-1">
             Public link:{" "}
             <a
               href={`/w/${wedding.slug}`}
-              className="text-primary hover:underline"
+              className="text-slate-800 hover:underline font-medium"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -46,19 +48,19 @@ export default async function CoupleDashboard() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Link
-            href="/dashboard/rsvps"
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 min-h-[44px] inline-flex items-center"
-          >
-            View All RSVPs
+          <Link href="/dashboard/rsvps">
+            <GlassButton variant="primary">
+              View All RSVPs
+            </GlassButton>
           </Link>
           <a
             href={`/w/${wedding.slug}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent min-h-[44px] inline-flex items-center"
           >
-            Preview as Guest
+            <GlassButton variant="secondary">
+              Preview as Guest
+            </GlassButton>
           </a>
         </div>
       </div>
@@ -67,41 +69,47 @@ export default async function CoupleDashboard() {
         {/* Left column: Template */}
         <div className="lg:col-span-1">
           {wedding.templateImageUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={wedding.templateImageUrl}
-              alt={`${wedding.coupleName} template`}
-              className="w-full rounded-lg object-contain"
-            />
+            <GlassPanel variant="medium" className="p-4">
+              <img
+                src={wedding.templateImageUrl}
+                alt={`${wedding.coupleName} template`}
+                className="w-full rounded-2xl object-contain"
+              />
+            </GlassPanel>
           )}
         </div>
 
         {/* Right column: Date, Venue, Summary */}
         <div className="lg:col-span-2 space-y-6">
-          <WeddingDatePicker
-            weddingId={wedding.id}
-            currentDate={wedding.weddingDate}
-            timezone={wedding.timezone}
-            isAdmin={false}
-          />
+          <GlassPanel variant="medium">
+            <WeddingDatePicker
+              weddingId={wedding.id}
+              currentDate={wedding.weddingDate}
+              timezone={wedding.timezone}
+              isAdmin={false}
+            />
+          </GlassPanel>
 
-          <VenueEditor
-            weddingId={wedding.id}
-            initialVenue={wedding.venue}
-            initialAddress={wedding.venueAddress}
-            initialLat={wedding.venueLat}
-            initialLng={wedding.venueLng}
-            initialWelcomeMessage={wedding.welcomeMessage}
-          />
+          <GlassPanel variant="medium">
+            <h3 className="text-lg font-semibold mb-4 text-slate-800">Venue Details</h3>
+            <VenueEditor
+              weddingId={wedding.id}
+              initialVenue={wedding.venue}
+              initialAddress={wedding.venueAddress}
+              initialLat={wedding.venueLat}
+              initialLng={wedding.venueLng}
+              initialWelcomeMessage={wedding.welcomeMessage}
+            />
+          </GlassPanel>
 
-          <div className="glass-panel rounded-xl p-6">
+          <GlassPanel variant="medium" className="p-6">
             <RVPSummary summary={summary} />
-          </div>
+          </GlassPanel>
 
           {summary.total === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
+            <GlassPanel variant="light" className="p-8 text-center text-slate-500">
               No RSVPs yet. Share your wedding link with guests!
-            </div>
+            </GlassPanel>
           )}
         </div>
       </div>

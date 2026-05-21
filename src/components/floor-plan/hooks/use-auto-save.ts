@@ -42,7 +42,6 @@ export function useAutoSave({
   const oobCount = items.filter((item) => isItemOutOfBounds(item, width, height)).length;
 
   const save = useCallback(async () => {
-    console.log("save() called, enabled:", enabled, "savingRef:", savingRef.current);
     if (!enabled) return;
     if (savingRef.current) return;
 
@@ -59,7 +58,6 @@ export function useAutoSave({
 
     savingRef.current = true;
     setSaveStatus("saving");
-    console.log("save() set status to saving");
     const result = await saveFloorPlan(weddingId, {
       width: currentW,
       height: currentH,

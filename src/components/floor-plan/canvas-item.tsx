@@ -56,6 +56,7 @@ export const CanvasItem = memo(function CanvasItem({
     onDragMove: (e: Konva.KonvaEventObject<DragEvent>) => onDragMove(item.id, e),
     onClick: () => onSelect(item.id),
     onDblClick: () => onDblClick(item.id),
+    onTap: () => onSelect(item.id),
   };
 
   let element: React.ReactNode;

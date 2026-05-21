@@ -23,7 +23,7 @@ export default async function CoupleFloorPlanPage() {
   if (!wedding) {
     return (
       <div className="p-6">
-        <p className="text-muted-foreground">No wedding found for your account.</p>
+        <p className="text-slate-500">No wedding found for your account.</p>
       </div>
     );
   }
@@ -33,7 +33,7 @@ export default async function CoupleFloorPlanPage() {
   if (!result.success) {
     return (
       <div className="p-6">
-        <p className="text-destructive">{result.error}</p>
+        <p className="text-rose-600">{result.error}</p>
       </div>
     );
   }
@@ -47,8 +47,8 @@ export default async function CoupleFloorPlanPage() {
   );
 
   return (
-    <div className="flex-1 min-h-0 min-w-0">
-      <FloorPlanDeviceCheck readOnlyPreview={canvas}>
+    <div className="flex-1 min-h-0 min-w-0 h-full">
+      <FloorPlanDeviceCheck>
         {canvas}
       </FloorPlanDeviceCheck>
     </div>

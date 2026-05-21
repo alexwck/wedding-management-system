@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { GlassCard } from "@/components/glassmorphism/glass-card";
+import { GlassPanel } from "@/components/glassmorphism/glass-panel";
 import { GlassButton } from "@/components/glassmorphism/glass-button";
 
 export default async function Home() {
@@ -20,16 +20,15 @@ export default async function Home() {
   }
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center bg-black overflow-hidden">
-      {/* Gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-rose-900/40 via-purple-900/30 to-indigo-900/40" />
-      <div className="absolute inset-0 backdrop-blur-sm" />
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-pink-200/40 blur-[100px] animate-pulse" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-blue-200/40 blur-[100px] animate-pulse delay-1000" />
 
-      <GlassCard className="relative z-10 max-w-lg w-full mx-4 p-8 md:p-12 text-center space-y-6">
-        <h1 className="text-4xl md:text-5xl font-bold text-white">
+      <GlassPanel className="relative z-10 max-w-lg w-full mx-4 p-8 md:p-12 text-center space-y-6" variant="medium">
+        <h1 className="text-4xl md:text-5xl font-serif font-bold text-slate-800">
           Wedding Management
         </h1>
-        <p className="text-lg text-white/80">
+        <p className="text-lg text-slate-600">
           Create beautiful wedding landing pages and manage RSVPs with ease.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -39,7 +38,7 @@ export default async function Home() {
             </GlassButton>
           </Link>
         </div>
-      </GlassCard>
+      </GlassPanel>
     </div>
   );
 }
