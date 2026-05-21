@@ -1,11 +1,16 @@
+"use client";
+
 import React from "react";
+import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
 export interface GlassPanelProps {
   children: React.ReactNode;
   className?: string;
+  variant?: "medium" | "light" | "dark";
   padding?: "none" | "sm" | "md" | "lg";
   radius?: "sm" | "md" | "lg" | "glass";
+  delay?: number;
 }
 
 const paddingMap = {
@@ -22,16 +27,29 @@ const radiusMap = {
   glass: "rounded-glass",
 };
 
-export const GlassPanel = React.forwardRef<HTMLElement, GlassPanelProps>(
-  ({ children, className, padding = "md", radius = "glass", ...props }, ref) => {
+const variantMap = {
+  medium: "glass-medium glass-panel",
+  light: "glass-light glass-panel glass-panel--light",
+  dark: "glass-dark glass-panel glass-panel--dark",
+};
+
+export const GlassPanel = React.forwardRef<HTMLDivElement, GlassPanelProps>(
+  ({ children, className, variant = "medium", padding = "md", radius = "glass", delay = 0, ...props }, ref) => {
     return (
-      <div
-        ref={ref as React.Ref<HTMLDivElement>}
-        className={cn("glass-panel", paddingMap[padding], radiusMap[radius], className)}
+      <motion.div
+        ref={ref}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: 0.8,
+          delay,
+          ease: [0.16, 1, 0.3, 1],
+        }}
+        className={cn(variantMap[variant], paddingMap[padding], radiusMap[radius], className)}
         {...props}
       >
         {children}
-      </div>
+      </motion.div>
     );
   },
 );
