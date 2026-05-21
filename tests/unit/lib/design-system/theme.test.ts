@@ -1,5 +1,8 @@
+import React from "react";
 import { describe, it, expect } from "vitest";
+import { render, screen } from "@testing-library/react";
 import { DEFAULT_THEME } from "@/lib/design-system/theme-config";
+import { ThemeProvider, useTheme } from "@/lib/design-system/theme";
 
 // Color blindness simulation matrices (simplified RGB transformations)
 const BLINDNESS_MATRICES = {
@@ -94,5 +97,29 @@ describe("Theme defaults", () => {
   it("has border opacity between 0 and 1", () => {
     expect(DEFAULT_THEME.borderOpacity).toBeGreaterThanOrEqual(0);
     expect(DEFAULT_THEME.borderOpacity).toBeLessThanOrEqual(1);
+  });
+});
+
+describe("ThemeProvider", () => {
+  function ThemeConsumer() {
+    const { theme } = useTheme();
+
+    return React.createElement("div", {
+      "data-testid": "theme-values",
+      "data-primary": theme.primaryColor,
+      "data-accent": theme.accentColor,
+      "data-border-opacity": theme.borderOpacity.toString(),
+    });
+  }
+
+  it("merges partial globalTheme values with default theme settings", () => {
+    render(
+      React.createElement(ThemeProvider, { globalTheme: { primaryColor: "#000000" } }, React.createElement(ThemeConsumer))
+    );
+
+    const themeValues = screen.getByTestId("theme-values");
+    expect(themeValues).toHaveAttribute("data-primary", "#000000");
+    expect(themeValues).toHaveAttribute("data-accent", DEFAULT_THEME.accentColor);
+    expect(themeValues).toHaveAttribute("data-border-opacity", DEFAULT_THEME.borderOpacity.toString());
   });
 });

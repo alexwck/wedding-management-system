@@ -32,4 +32,10 @@ test.describe("Landing page rendering", () => {
     // Should show not found message
     await expect(page.locator("text=/not found/i")).toBeVisible();
   });
+
+  test("landing page displays the seeded couple name", async ({ page }) => {
+    await page.goto("/w/test-wedding-1");
+
+    await expect(page.locator("h1", { hasText: "Alex & Sam" }).first()).toBeVisible();
+  });
 });
