@@ -5,6 +5,7 @@ import { VenueEditor } from "@/components/venue-editor";
 import { WeddingDatePicker } from "@/components/wedding-date-picker";
 import { EditableCoupleName } from "@/components/editable-couple-name";
 import { GlassPanel } from "@/components/glassmorphism/glass-panel";
+import { NewTabLink } from "@/components/new-tab-link";
 import { GlassButton } from "@/components/glassmorphism/glass-button";
 
 export default async function CoupleDashboard() {
@@ -37,14 +38,9 @@ export default async function CoupleDashboard() {
           <EditableCoupleName weddingId={wedding.id} coupleName={wedding.coupleName} isLocked={wedding.isLocked} />
           <p className="text-slate-500 text-sm mt-1">
             Public link:{" "}
-            <a
-              href={`/w/${wedding.slug}`}
-              className="text-slate-800 hover:underline font-medium"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <NewTabLink href={`/w/${wedding.slug}`} className="text-slate-800 hover:underline font-medium">
               /w/{wedding.slug}
-            </a>
+            </NewTabLink>
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -53,15 +49,11 @@ export default async function CoupleDashboard() {
               View All RSVPs
             </GlassButton>
           </Link>
-          <a
-            href={`/w/${wedding.slug}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <NewTabLink href={`/w/${wedding.slug}`}>
             <GlassButton variant="secondary">
               Preview as Guest
             </GlassButton>
-          </a>
+          </NewTabLink>
         </div>
       </div>
 
