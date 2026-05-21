@@ -2,10 +2,10 @@
 
 import React from "react";
 import type { ThemeContextValue } from "@/types/theme";
-import { DEFAULT_THEME, mergeTheme } from "./theme-config";
+import { DEFAULT_THEME } from "./theme-config";
 import type { ThemeProviderProps } from "./theme-config";
 
-export { DEFAULT_THEME, mergeTheme } from "./theme-config";
+export { DEFAULT_THEME } from "./theme-config";
 export type { ThemeProviderProps } from "./theme-config";
 
 export const ThemeContext = React.createContext<ThemeContextValue>({
@@ -17,16 +17,11 @@ export function useTheme(): ThemeContextValue {
   return React.useContext(ThemeContext);
 }
 
-export function ThemeProvider({ children, globalTheme, weddingTheme }: ThemeProviderProps) {
-  const theme = React.useMemo(() => {
-    const merged = mergeTheme(globalTheme ?? DEFAULT_THEME, weddingTheme);
-    return merged;
-  }, [globalTheme, weddingTheme]);
-
-  const isGlobalDefault = !weddingTheme;
+export function ThemeProvider({ children, globalTheme }: ThemeProviderProps) {
+  const theme = globalTheme ?? DEFAULT_THEME;
 
   return (
-    <ThemeContext.Provider value={{ theme, isGlobalDefault }}>
+    <ThemeContext.Provider value={{ theme, isGlobalDefault: true }}>
       {children}
     </ThemeContext.Provider>
   );
