@@ -145,7 +145,7 @@
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.40);
+    background: rgba(255, 255, 255, 0.55);
   }
 }
 
@@ -194,8 +194,17 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   }
 
+  /* glass-strong: Heavy readability backing (55% opacity) */
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  }
 
-  /* Legacy aliases for backwards compatibility - same styles as glass-medium */
+
+  /* Glass panel base and light modifier */
   .glass-panel {
     background: rgba(255, 255, 255, 0.10);
     backdrop-filter: blur(16px);
@@ -211,22 +220,6 @@
     border: 1px solid rgba(255, 255, 255, 0.30);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
     border-radius: 16px;
-  }
-  .glass-panel--heavy {
-    background: rgba(0, 0, 0, 0.20);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
-    border-radius: 24px;
-  }
-  .glass-panel--opaque {
-    background: rgba(255, 255, 255, 0.50);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
-    border-radius: 24px;
   }
 
 
@@ -293,7 +286,7 @@
 
   /* Nova Glass v2.0.0 - Recessed Input Styling (T041) */
   .input-recessed {
-    background: rgba(255, 255, 255, 0.40);
+    background: rgba(255, 255, 255, 0.55);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -425,7 +418,7 @@
   }
 
   @supports not (backdrop-filter: blur(1px)) {
-    .glass-medium, .glass-light, .glass-dark, .glass-panel {
+    .glass-medium, .glass-light, .glass-dark, .glass-strong, .glass-panel {
       background: oklch(1 0 0 / 0.85);
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
