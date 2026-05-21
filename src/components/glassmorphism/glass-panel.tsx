@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 export interface GlassPanelProps {
   children: React.ReactNode;
   className?: string;
-  variant?: "medium" | "light" | "dark";
+  variant?: "medium" | "light" | "dark" | "strong";
   padding?: "none" | "sm" | "md" | "lg";
   radius?: "sm" | "md" | "lg" | "glass";
   delay?: number;
@@ -29,8 +29,9 @@ const radiusMap = {
 
 const variantMap = {
   medium: "glass-medium glass-panel",
-  light: "glass-light glass-panel glass-panel--light",
-  dark: "glass-dark glass-panel glass-panel--dark",
+  light: "glass-panel--light",
+  dark: "glass-dark glass-panel",
+  strong: "glass-strong glass-panel",
 };
 
 export const GlassPanel = React.forwardRef<HTMLDivElement, GlassPanelProps>(
