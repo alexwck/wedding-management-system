@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { uploadTemplateImage } from "@/app/actions/upload";
 import { GlassButton } from "@/components/glassmorphism/glass-button";
 import { TemplatePreview } from "@/components/template-preview";
@@ -13,12 +14,17 @@ interface TemplateUploadProps {
 }
 
 export function TemplateUpload({ weddingId, currentImageUrl, focalX, focalY }: TemplateUploadProps) {
+  const router = useRouter();
   const [preview, setPreview] = useState<string | null>(currentImageUrl);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [hasFile, setHasFile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setPreview(currentImageUrl);
+  }, [currentImageUrl]);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -60,6 +66,8 @@ export function TemplateUpload({ weddingId, currentImageUrl, focalX, focalY }: T
     if (result.success) {
       setPreview(result.imageUrl ?? null);
       setSuccess(true);
+      setHasFile(false);
+      router.refresh();
     } else {
       setError(result.message ?? "Upload failed");
     }
@@ -97,6 +105,11 @@ export function TemplateUpload({ weddingId, currentImageUrl, focalX, focalY }: T
             src={preview}
             alt="Template preview"
             className="w-full h-full object-cover"
+            style={
+              focalX != null && focalY != null
+                ? { objectPosition: `${focalX}% ${focalY}%` }
+                : undefined
+            }
           />
         </div>
       )}
@@ -109,10 +122,15 @@ export function TemplateUpload({ weddingId, currentImageUrl, focalX, focalY }: T
         {uploading ? "Uploading..." : "Upload Template"}
       </GlassButton>
 
-      {currentImageUrl && (
+      {hasFile && (
+        <p className="text-xs text-slate-500">
+          Upload the template first before adjusting the crop.
+        </p>
+      )}
+      {!hasFile && (preview || currentImageUrl) && (
         <TemplatePreview
           weddingId={weddingId}
-          imageUrl={currentImageUrl}
+          imageUrl={preview ?? currentImageUrl ?? ""}
           focalX={focalX ?? null}
           focalY={focalY ?? null}
         />
