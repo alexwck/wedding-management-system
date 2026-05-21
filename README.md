@@ -5,7 +5,8 @@ A wedding RSVP management system where admins upload Canva-designed invitation t
 ## Tech Stack
 
 - **Framework**: Next.js 16 (App Router) with TypeScript (strict mode)
-- **UI**: shadcn/ui, Tailwind CSS, react-hook-form, zod
+- **UI**: shadcn/ui, Tailwind CSS v4, react-hook-form, zod, motion (animations)
+- **Design System**: Nova Glass v2.0.0 — glassmorphism with pastel gradients, custom glass panel/button/input primitives
 - **Canvas**: react-konva + konva (interactive 2D floor plan editor)
 - **Database & Auth**: Supabase (PostgreSQL with RLS, Auth, Storage)
 - **Testing**: Vitest + React Testing Library (unit), Playwright (E2E)
@@ -15,6 +16,7 @@ A wedding RSVP management system where admins upload Canva-designed invitation t
 - [Node.js](https://nodejs.org/) 20+
 - [npm](https://www.npmjs.com/) 10+
 - [Supabase CLI](https://supabase.com/docs/guides/cli) — install via [Homebrew](https://brew.sh/): `brew install supabase/tap/supabase`
+- [Vercel CLI](https://vercel.com/docs/cli) — install via [Homebrew](https://brew.sh/): `brew install vercel-cli`
 - [Podman](https://podman.io/) — install via Homebrew: `brew install podman` (Supabase CLI uses it under the hood instead of Docker)
 
 > **Note**: The Supabase CLI detects Podman automatically if Docker is not installed. No extra configuration needed — just make sure Podman is running before starting Supabase.
@@ -152,6 +154,8 @@ npx playwright test --ui                       # interactive mode
 
 The test suite runs against two projects: **Desktop Chrome** and **Mobile Chrome** (Pixel 5 viewport).
 
+**Test isolation**: Floor-plan E2E tests mutate DB state (save items, change dimensions). Run `supabase db reset` before the full E2E suite if prior runs mutated floor-plan data.
+
 ## Project Structure
 
 ```
@@ -207,8 +211,8 @@ tests/
 - **RSVP deduplication** — unique constraint on `(wedding_id, LOWER(guest_name))` plus application-level check
 - **Auth** — Supabase Auth with `proxy.ts` (not `middleware.ts` — renamed for Next.js 16 compat) protecting `/dashboard/*` and `/admin/*` routes; root `/` redirects based on auth state; cross-role blocking (admins can't reach `/dashboard`, couples can't reach `/admin`); logout via server action
 - **Image uploads** — stored in Supabase Storage `wedding-templates` bucket; 5MB max, PNG/JPG only; client + server validation
-- **Floor plan editor** — Interactive 2D canvas with react-konva. Supports drag-and-drop, rotation/resize, collision detection, chair generation, pan/zoom, undo/redo, auto-save, and guest-to-chair seat assignments. Compact glass-panel top bar.
-- **Design system** — Glassmorphism UI pattern using `.glass-panel` CSS utility (backdrop-filter blur, semi-transparent backgrounds, subtle borders). All card-like surfaces use this consistent design language. Dropdown overlays use `bg-background shadow-md` for opaque readability.
+- **Floor plan editor** — Interactive 2D canvas with react-konva. Supports drag-and-drop, rotation/resize, collision detection, chair generation, pan/zoom, undo/redo, auto-save, and guest-to-chair seat assignments. Compact glass-panel top bar. Mobile uses progressive disclosure: bottom action bar + drawers for guest list and item catalog, plus a touch-friendly item editor sheet.
+- **Design system** — Nova Glass v2.0.0 (DESIGN.md): pastel gradient background, 3 glass variants (`.glass-medium`/`.glass-light`/`.glass-dark`), 800ms entrance animations with custom easing. All card-like surfaces use glass variants with `backdrop-filter: blur(16px)`. Dropdown overlays use `bg-background shadow-md` for opaque readability.
 - **RSVP management** — Collapsible RSVP section with sortable table, summary cards, and embedded XLSX export (base64 buffer transfer). Google Sheets export removed.
 - **Wedding date/timezone** — Native `datetime-local` input for wedding date with searchable IANA timezone selector (cmdk). Stored as TIMESTAMPTZ with UTC conversion. Displayed with `shortOffset` timezone format.
 - **Template crop repositioning** — Drag-to-crop on template preview image to choose visible portion. Stored as 0-100 percentages (`template_focal_x`, `template_focal_y`). Landing page uses `object-cover` with CSS `object-position` for display. Reset to NULL on image replace.
@@ -232,5 +236,9 @@ See [`DEPLOYMENT.md`](DEPLOYMENT.md) for complete production deployment instruct
 **Port conflicts** — Supabase uses ports 54321 (API), 54322 (DB), 54323 (Studio). Make sure they're free.
 
 **E2E tests flaky with duplicate names** — Tests generate unique guest names with timestamps to avoid collisions when running across parallel browser projects.
+
+**E2E floor-plan test isolation** — Floor-plan E2E tests mutate DB state (save items, change dimensions). Run `supabase db reset` before the full E2E suite if prior runs mutated floor-plan data.
+
+**Mobile floor-plan editing** — The editor is fully functional on mobile via bottom drawers and a touch-optimized item editor. A soft warning banner appears on very small screens (`<640px`) but editing remains possible.
 
 **"Body exceeded 1 MB limit" on upload** — The Next.js server action body size limit is configured to 6MB in `next.config.ts`. If you see this error after changing the upload size limit, make sure `experimental.serverActions.bodySizeLimit` is set higher than your `MAX_FILE_SIZE` validation constant.
