@@ -2,10 +2,6 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Admin seat view", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "admin@example.com");
-    await page.fill('input[id="password"]', "admin123");
-    await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/admin/);
   });
 

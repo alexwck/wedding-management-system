@@ -3,10 +3,6 @@ import { test, expect } from "@playwright/test";
 test.describe("Dashboard layout (US2)", () => {
   test.describe("Admin page layout", () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto("/auth/login");
-      await page.fill('input[id="email"]', "admin@example.com");
-      await page.fill('input[id="password"]', "admin123");
-      await page.click('button[type="submit"]');
       await expect(page).toHaveURL(/\/admin/);
     });
 
@@ -41,10 +37,6 @@ test.describe("Dashboard layout (US2)", () => {
 
   test.describe("Couple dashboard layout", () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto("/auth/login");
-      await page.fill('input[id="email"]', "alex@example.com");
-      await page.fill('input[id="password"]', "couple123");
-      await page.click('button[type="submit"]');
       await expect(page).toHaveURL(/\/dashboard/);
     });
 

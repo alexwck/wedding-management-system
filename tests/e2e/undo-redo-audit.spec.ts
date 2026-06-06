@@ -17,10 +17,6 @@ test.describe("Undo/redo state restoration", () => {
       "Chromium only to avoid DB race conditions; floor plan requires min-width 640px"
     );
 
-    await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "alex@example.com");
-    await page.fill('input[id="password"]', "couple123");
-    await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
 
     await page.goto("/dashboard/floor-plan");
@@ -29,7 +25,7 @@ test.describe("Undo/redo state restoration", () => {
     const initialTables = await getTableCount(page);
 
     // Place first round table
-    const roundTableBtn = page.locator("button", { hasText: /5ft.*chairs/i }).first();
+    const roundTableBtn = page.getByRole('button', { name: /^5ft$/ }).first();
     await expect(roundTableBtn).toBeVisible({ timeout: 10000 });
     await roundTableBtn.click();
 
@@ -57,10 +53,6 @@ test.describe("Undo/redo state restoration", () => {
       "Chromium only to avoid DB race conditions; floor plan requires min-width 640px"
     );
 
-    await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "alex@example.com");
-    await page.fill('input[id="password"]', "couple123");
-    await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
 
     await page.goto("/dashboard/floor-plan");
@@ -90,10 +82,6 @@ test.describe("Undo/redo state restoration", () => {
       "Chromium only to avoid DB race conditions; floor plan requires min-width 640px"
     );
 
-    await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "alex@example.com");
-    await page.fill('input[id="password"]', "couple123");
-    await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
 
     await page.goto("/dashboard/floor-plan");
@@ -102,7 +90,7 @@ test.describe("Undo/redo state restoration", () => {
     const initialTables = await getTableCount(page);
 
     // Place two items to enable undo
-    const roundTableBtn2 = page.locator("button", { hasText: /5ft.*chairs/i }).first();
+    const roundTableBtn2 = page.getByRole('button', { name: /^5ft$/ }).first();
     await expect(roundTableBtn2).toBeVisible({ timeout: 10000 });
     await roundTableBtn2.click();
     await expect(page.locator('[data-testid="canvas-stats"]')).toContainText(roundText(initialTables + 1), { timeout: 5000 });

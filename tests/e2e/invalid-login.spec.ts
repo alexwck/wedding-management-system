@@ -1,5 +1,10 @@
 import { test, expect } from "@playwright/test";
 
+// This spec intentionally tests the login UI from a clean slate.
+// test.use({ storageState: empty }) overrides the project default (admin)
+// so the form is exercised end-to-end. Per FR-003 in specs/014-e2e-speedup/spec.md.
+test.use({ storageState: { cookies: [], origins: [] } });
+
 test.describe("Invalid login", () => {
   test("shows error for wrong credentials", async ({ page }) => {
     await page.goto("/auth/login");

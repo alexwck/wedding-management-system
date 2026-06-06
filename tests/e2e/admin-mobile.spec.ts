@@ -3,11 +3,6 @@ import { test, expect, type Page } from "@playwright/test";
 test.describe("Admin mobile management flow (US2)", () => {
 
   test.beforeEach(async ({ page }) => {
-    // Ensure wedding 1 starts unlocked to prevent state leakage between tests
-    await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "admin@example.com");
-    await page.fill('input[id="password"]', "admin123");
-    await page.click('button[type="submit"]');
     await page.waitForURL(/\/admin/, { timeout: 10000 });
 
     await page.goto("/admin/weddings/1");
@@ -19,10 +14,6 @@ test.describe("Admin mobile management flow (US2)", () => {
   });
 
   async function loginAsAdmin(page: Page) {
-    await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "admin@example.com");
-    await page.fill('input[id="password"]', "admin123");
-    await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/admin/, { timeout: 15000 });
   }
 

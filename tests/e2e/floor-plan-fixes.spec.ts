@@ -3,10 +3,6 @@ import { test, expect } from "@playwright/test";
 test.describe("Floor plan bug fixes (US6 & US7)", () => {
   test.describe("Item catalog overflow fix (US6)", () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto("/auth/login");
-      await page.fill('input[id="email"]', "alex@example.com");
-      await page.fill('input[id="password"]', "couple123");
-      await page.click('button[type="submit"]');
       await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
       await page.goto("/dashboard/floor-plan");
 
@@ -61,10 +57,6 @@ test.describe("Floor plan bug fixes (US6 & US7)", () => {
 
   test.describe("Chair count editing (US7)", () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto("/auth/login");
-      await page.fill('input[id="email"]', "admin@example.com");
-      await page.fill('input[id="password"]', "admin123");
-      await page.click('button[type="submit"]');
       await expect(page).toHaveURL(/\/admin/);
       await page.goto("/admin/weddings/1/floor-plan");
 
