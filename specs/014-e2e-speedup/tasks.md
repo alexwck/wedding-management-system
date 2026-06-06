@@ -13,6 +13,14 @@
 
 ---
 
+## Phase 0: Baseline (Blocking Pre-Setup)
+
+**Purpose**: Capture the SC-001 baseline before any code change so the success criterion is measurable.
+
+**CRITICAL**: Phase 1 cannot start until this phase is complete.
+
+- [ ] T000 [P] Capture baseline wall time: on a clean dev server (Supabase up, `npm run dev` running), run `time npx playwright test --project=chromium` and record the wall-clock result. Commit the number in minutes to [plan.md Performance Goals](/Users/alexabelle/Documents/Development/wedding-management-system/specs/014-e2e-speedup/plan.md) (replace the `<TBD>` placeholder). The number is SC-001's denominator. If the baseline is already <= 4 minutes, raise this with the user before continuing (the speedup may not be worth the refactor risk).
+
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure

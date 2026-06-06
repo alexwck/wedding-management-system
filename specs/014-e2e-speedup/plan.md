@@ -14,7 +14,7 @@ Cut local Playwright E2E wall time by (1) authenticating once per run via a `set
 **Testing**: Playwright E2E (`tests/e2e/`, 37 spec files, 2743 LoC (32 in scope for refactor, 5 out of scope)). Existing 448 unit tests + 50 unit files are out of scope.
 **Target Platform**: Local dev (macOS / Linux dev machines) and CI (GitHub Actions preview job).
 **Project Type**: Monolithic Next.js app; this work is purely in `playwright.config.ts`, `package.json`, `.gitignore`, and a refactor of `tests/e2e/*.spec.ts` to remove duplicated login helpers.
-**Performance Goals**: `npx playwright test --project=chromium` should drop to <= 40% of the current wall time on the developer's machine. The win has three components in priority order:
+**Performance Goals**: `npx playwright test --project=chromium` should drop to **<= 4 minutes wall time AND <= 40% of the captured baseline** on the developer's machine. Baseline is captured in T000 before Phase 1 starts and recorded here. As of 2026-06-06, the captured baseline is **<TBD>** (placeholder; T000 to fill). The win has three components in priority order:
   1. Auth-once-per-run: removes ~32 redundant `/auth/login` POSTs and dashboard renders per run. (P1)
   2. Mobile-gated-on-CI: cuts the spec matrix in half locally (from 2 projects to 1). (P2)
   3. Prod-build opt-in: avoids Turbopack's on-demand compile and the "stale 404" gotcha. (P3)
@@ -67,7 +67,7 @@ AGENTS.md                                  # Document the new workflow
 - Konva/canvas perf (separate feature; not in this spec).
 - Vercel preview / CI workflow YAML (the speedup benefits CI automatically once the config changes; no new workflow needed).
 
-## Phase 0: Research
+## Phase 0a: Research
 
 ### R-1. Playwright `setup` project mechanics
 

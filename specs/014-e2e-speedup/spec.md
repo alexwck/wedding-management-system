@@ -62,6 +62,18 @@
 - 3 do not log in and are out of scope for the refactor: `duplicate-rsvp.spec.ts`, `landing-page.spec.ts`, `lighthouse-audit.spec.ts` (the last uses `chrome-launcher` directly).
 - 2 use a higher-level helper (`admin-lock.spec.ts`, `rsvp-flow.spec.ts`): the helper itself is preserved with the login block kept inside, so the refactor for those files is "do nothing" plus a clarifying comment.
 
+## Clarifications
+
+### Session 2026-06-06
+
+- Q: Baseline wall-time gate for SC-001 (option)? -> A: A - Pin baseline + target. SC-001 becomes "wall time <= 4 min on the dev machine, AND <= 40% of the captured baseline of X min." Two concrete numbers, one ratio sanity check. (Integration pending baseline measurement.)
+
+- Q: Default storageState per project? -> A: A - `chromium=admin`, `Mobile Chrome=couple`. Matches the role skew of each project (desktop ~85% admin, mobile skews couple/public). `couple-dashboard.spec.ts` and `couple-mobile.spec.ts` add `test.use({ storageState: "playwright/.auth/couple.json" })` to opt in. Every other spec uses the project default.
+
+- Q: `test:e2e:prod` build policy? -> A: B - Reuse existing build when present. Script runs `next build` only if `.next/BUILD_ID` is missing or older than `package.json` mtime; otherwise starts the server. Matches the project's existing `reuseExistingServer` pattern in playwright.config.ts.
+
+- Q: Baseline capture policy? -> A: A - New task added to tasks.md. Owner (the user, or whoever runs the implementation) runs `time npx playwright test --project=chromium` against a clean dev server, records the wall time, and commits the number to plan.md Performance Goals block. Result becomes SC-001's denominator. Required before Phase 1 of implementation begins; Phase 1 cannot start until the baseline is recorded.
+
 ## Edge Cases
 
 - **Flaky from storageState**: If the auth state file is stale (e.g. user was deleted in seed reset) the suite will fail in confusing ways. The setup project must run before specs that depend on it, and CI must re-run setup whenever the DB is reseeded.
@@ -75,10 +87,10 @@
 ### Functional
 
 - **FR-001**: Add a `setup` project to `playwright.config.ts` that signs in as `admin@example.com` (admin) and `alex@example.com` (couple) once per run, writing `playwright/.auth/admin.json` and `playwright/.auth/couple.json` to disk.
-- **FR-002**: Configure the `chromium` and `Mobile Chrome` projects to depend on the `setup` project and load the appropriate storageState by default, with an opt-out mechanism for login-flow and logout-flow specs.
+- **FR-002**: Configure `chromium` to load `playwright/.auth/admin.json` by default and `Mobile Chrome` to load `playwright/.auth/couple.json` by default. Both projects depend on the `setup` project. Per-spec opt-out is `test.use({ storageState: "playwright/.auth/{role}.json" })` for the non-default role, or `test.use({ storageState: { cookies: [], origins: [] } })` for fresh-context specs (login flow, logout, invalid login).
 - **FR-003**: Refactor every spec in `tests/e2e/` that performs a UI login to use the shared storageState by default. Specs that need a fresh context (login UI, logout, invalid login) must call `test.use({ storageState: { cookies: [], origins: [] } })`.
 - **FR-004**: Make the `Mobile Chrome` project conditional on `process.env.CI`. When unset, the project is excluded from `playwright.config.ts`'s `projects` array.
-- **FR-005**: Add an opt-in script `test:e2e:prod` to `package.json` that runs `next build && next start` (or delegates to Playwright's `webServer` with a `build`-based command) and then `playwright test`.
+- **FR-005**: Add an opt-in script `test:e2e:prod` to `package.json` that runs `playwright test` with `PW_USE_PROD=1`. The Playwright `webServer` block runs `next build` only when `.next/BUILD_ID` is missing or older than `package.json` mtime; otherwise it runs `next start` directly. This matches the project's existing `webServer.reuseExistingServer` pattern.
 - **FR-006**: Add `playwright/.auth/` to `.gitignore` so generated storage state is never committed.
 - **FR-007**: Document the new dev workflow in `AGENTS.md` (run-filter pattern, when to enable mobile, when to use prod build).
 
@@ -97,7 +109,7 @@
 
 ## Success Criteria
 
-- **SC-001 (Speed)**: `time npx playwright test --project=chromium` on the developer machine completes in <= 40% of the baseline time. The primary savings come from one login per run instead of ~32, and from skipping Turbopack dev on local runs that don't need it.
+- **SC-001 (Speed)**: `time npx playwright test --project=chromium` on the developer machine completes in **<= 4 minutes wall time AND <= 40% of the captured baseline**. The baseline (T-pending, to be captured in Phase 1) is the wall time of the same command on this branch *before* any code change from feature 014 lands. The primary savings come from one login per run instead of ~32, and from skipping Turbopack dev on local runs that don't need it.
 - **SC-002 (Coverage unchanged)**: All 37 E2E spec files and their scenarios are preserved. No spec is dropped or weakened. The 32 specs that currently perform inline login continue to cover the same flows via storageState; the 5 that do not log in are unchanged.
 - **SC-003 (CI parity)**: With `CI=1`, both `chromium` and `Mobile Chrome` projects run. Mobile project is not silently disabled.
 - **SC-004 (Auth reuse)**: During a single `npx playwright test` invocation, the number of `POST` requests to the Supabase auth endpoint is `<= 4` (one per role per context, plus any login-flow specs that explicitly opt out).
