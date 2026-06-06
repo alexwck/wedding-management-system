@@ -8,7 +8,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g. [US1], [US2], [US3], [US4])
+- **[Story]**: Which user story this task belongs to. Format is `[US1]`, `[US2]`, etc. (US1 = Faster dev loop, US2 = Auth reused, US3 = Configurable projects, US4 = Prod build opt-in). US1 and US2 ship in the same phase (the 30 refactor tasks); the spec uses `[US1]` as the parent label for those tasks and the phase heading calls out that US1+US2 ship together.
 - Include exact file paths in descriptions
 
 ---
@@ -52,7 +52,7 @@
 
 ---
 
-## Phase 3: User Story 1+2 - Faster runs + Auth reused (Priority: P1)
+## Phase 3: User Story 1 + User Story 2 (Priority: P1) - Faster runs + Auth reused
 
 **Goal**: Specs no longer perform inline login; they consume `storageState`. Login-flow specs opt out.
 
@@ -62,37 +62,37 @@
 
 For each file below: delete the inline `page.goto('/auth/login')` + fill + submit + `waitForURL` block. If the spec also has role-specific helpers (e.g. `ensureWeddingUnlocked` in `admin-lock.spec.ts`), keep the helper but rewrite its first 4 lines to either (a) no-op if `chromium` already has admin storage, or (b) explicitly call `loginAs()` only when the helper is invoked from a non-storageState context.
 
-- [ ] T006 [P] [US1/US2] Refactor `tests/e2e/access-control.spec.ts`
-- [ ] T007 [P] [US1/US2] Refactor `tests/e2e/accessibility-audit.spec.ts`
-- [ ] T008 [P] [US1/US2] Refactor `tests/e2e/admin-lock.spec.ts` (preserve `ensureWeddingUnlocked` helper)
-- [ ] T009 [P] [US1/US2] Refactor `tests/e2e/admin-manage.spec.ts`
-- [ ] T010 [P] [US1/US2] Refactor `tests/e2e/admin-mobile.spec.ts`
-- [ ] T011 [P] [US1/US2] Refactor `tests/e2e/admin-seat-view.spec.ts`
-- [ ] T012 [P] [US1/US2] Refactor `tests/e2e/couple-dashboard.spec.ts` (this one needs couple storage; add `test.use({ storageState: "playwright/.auth/couple.json" })` at top)
-- [ ] T013 [P] [US1/US2] Refactor `tests/e2e/couple-mobile.spec.ts` (couple storage)
-- [ ] T014 [P] [US1/US2] Refactor `tests/e2e/dashboard-layout.spec.ts`
-- [ ] T015 [P] [US1/US2] Refactor `tests/e2e/editable-couple-name.spec.ts`
-- [ ] T016 [P] [US1/US2] Refactor `tests/e2e/floor-plan-catalog-disable.spec.ts`
-- [ ] T017 [P] [US1/US2] Refactor `tests/e2e/floor-plan-fixes.spec.ts`
-- [ ] T018 [P] [US1/US2] Refactor `tests/e2e/floor-plan-item-placement.spec.ts`
-- [ ] T019 [P] [US1/US2] Refactor `tests/e2e/floor-plan-save-oob.spec.ts`
-- [ ] T020 [P] [US1/US2] Refactor `tests/e2e/floor-plan.spec.ts`
-- [ ] T021 [P] [US1/US2] Refactor `tests/e2e/guest-panel.spec.ts`
-- [ ] T022 [P] [US1/US2] Refactor `tests/e2e/guest-rsvp-mobile.spec.ts`
-- [ ] T023 [P] [US1/US2] Refactor `tests/e2e/item-resize.spec.ts`
-- [ ] T024 [P] [US1/US2] Refactor `tests/e2e/rsvp-dashboard-seats.spec.ts`
-- [ ] T025 [P] [US1/US2] Refactor `tests/e2e/rsvp-flow.spec.ts` (most of this spec is public-page work; only the optional admin pre-flight uses login)
-- [ ] T026 [P] [US1/US2] Refactor `tests/e2e/rsvp-single-page.spec.ts`
-- [ ] T027 [P] [US1/US2] Refactor `tests/e2e/rsvp-sorting.spec.ts`
-- [ ] T028 [P] [US1/US2] Refactor `tests/e2e/seat-assignment.spec.ts`
-- [ ] T029 [P] [US1/US2] Refactor `tests/e2e/template-crop.spec.ts`
-- [ ] T030 [P] [US1/US2] Refactor `tests/e2e/template-focal-point.spec.ts`
-- [ ] T031 [P] [US1/US2] Refactor `tests/e2e/template-image-refresh.spec.ts`
-- [ ] T032 [P] [US1/US2] Refactor `tests/e2e/undo-redo-audit.spec.ts`
-- [ ] T033 [P] [US1/US2] Refactor `tests/e2e/upload.spec.ts`
-- [ ] T034 [P] [US1/US2] Refactor `tests/e2e/venue-details.spec.ts`
-- [ ] T035 [P] [US1/US2] Refactor `tests/e2e/wedding-date.spec.ts`
-- [ ] T036 [P] [US1/US2] Refactor `tests/e2e/xlsx-export.spec.ts`
+- [ ] T006 [P] [US1] Refactor `tests/e2e/access-control.spec.ts`
+- [ ] T007 [P] [US1] Refactor `tests/e2e/accessibility-audit.spec.ts`
+- [ ] T008 [P] [US1] Refactor `tests/e2e/admin-lock.spec.ts` (preserve `ensureWeddingUnlocked` helper)
+- [ ] T009 [P] [US1] Refactor `tests/e2e/admin-manage.spec.ts`
+- [ ] T010 [P] [US1] Refactor `tests/e2e/admin-mobile.spec.ts`
+- [ ] T011 [P] [US1] Refactor `tests/e2e/admin-seat-view.spec.ts`
+- [ ] T012 [P] [US1] Refactor `tests/e2e/couple-dashboard.spec.ts` (this one needs couple storage; add `test.use({ storageState: "playwright/.auth/couple.json" })` at top)
+- [ ] T013 [P] [US1] Refactor `tests/e2e/couple-mobile.spec.ts` (couple storage)
+- [ ] T014 [P] [US1] Refactor `tests/e2e/dashboard-layout.spec.ts`
+- [ ] T015 [P] [US1] Refactor `tests/e2e/editable-couple-name.spec.ts`
+- [ ] T016 [P] [US1] Refactor `tests/e2e/floor-plan-catalog-disable.spec.ts`
+- [ ] T017 [P] [US1] Refactor `tests/e2e/floor-plan-fixes.spec.ts`
+- [ ] T018 [P] [US1] Refactor `tests/e2e/floor-plan-item-placement.spec.ts`
+- [ ] T019 [P] [US1] Refactor `tests/e2e/floor-plan-save-oob.spec.ts`
+- [ ] T020 [P] [US1] Refactor `tests/e2e/floor-plan.spec.ts`
+- [ ] T021 [P] [US1] Refactor `tests/e2e/guest-panel.spec.ts`
+- [ ] T022 [P] [US1] Refactor `tests/e2e/guest-rsvp-mobile.spec.ts`
+- [ ] T023 [P] [US1] Refactor `tests/e2e/item-resize.spec.ts`
+- [ ] T024 [P] [US1] Refactor `tests/e2e/rsvp-dashboard-seats.spec.ts`
+- [ ] T025 [P] [US1] Refactor `tests/e2e/rsvp-flow.spec.ts` (most of this spec is public-page work; only the optional admin pre-flight uses login)
+- [ ] T026 [P] [US1] Refactor `tests/e2e/rsvp-single-page.spec.ts`
+- [ ] T027 [P] [US1] Refactor `tests/e2e/rsvp-sorting.spec.ts`
+- [ ] T028 [P] [US1] Refactor `tests/e2e/seat-assignment.spec.ts`
+- [ ] T029 [P] [US1] Refactor `tests/e2e/template-crop.spec.ts`
+- [ ] T030 [P] [US1] Refactor `tests/e2e/template-focal-point.spec.ts`
+- [ ] T031 [P] [US1] Refactor `tests/e2e/template-image-refresh.spec.ts`
+- [ ] T032 [P] [US1] Refactor `tests/e2e/undo-redo-audit.spec.ts`
+- [ ] T033 [P] [US1] Refactor `tests/e2e/upload.spec.ts`
+- [ ] T034 [P] [US1] Refactor `tests/e2e/venue-details.spec.ts`
+- [ ] T035 [P] [US1] Refactor `tests/e2e/wedding-date.spec.ts`
+- [ ] T036 [P] [US1] Refactor `tests/e2e/xlsx-export.spec.ts`
 
 ### Opt-out: specs that must keep a fresh context
 
@@ -105,7 +105,7 @@ For each file below: delete the inline `page.goto('/auth/login')` + fill + submi
 
 ---
 
-## Phase 4: User Story 3 - Mobile Chrome gated on CI (Priority: P2)
+## Phase 4: User Story 3 (Priority: P2) - Mobile Chrome gated on CI
 
 **Goal**: Default local run is `chromium` only; `CI=1` adds `Mobile Chrome`.
 
@@ -118,7 +118,7 @@ For each file below: delete the inline `page.goto('/auth/login')` + fill + submi
 
 ---
 
-## Phase 5: User Story 4 - Production build path (Priority: P3)
+## Phase 5: User Story 4 (Priority: P3) - Production build opt-in
 
 **Goal**: `PW_USE_PROD=1 npm run test:e2e` runs against `next start`.
 
@@ -131,7 +131,7 @@ For each file below: delete the inline `page.goto('/auth/login')` + fill + submi
 
 ---
 
-## Phase 6: Docs (AGENTS.md)
+## Phase 6: Polish - Docs (AGENTS.md)
 
 **Goal**: Future contributors know the new dev workflow and the trade-offs.
 
@@ -161,3 +161,79 @@ For each file below: delete the inline `page.goto('/auth/login')` + fill + submi
 - [ ] T053 [P] In `tests/e2e/admin-lock.spec.ts` and `tests/e2e/rsvp-flow.spec.ts`, add a one-line comment above the `ensureWeddingUnlocked` / inline-login block noting that the helper intentionally keeps its own login block because some flows need to log in as a different role mid-test.
 
 **Checkpoint**: All success criteria in spec.md (SC-001..SC-005) measured and met.
+
+---
+
+## Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Phase 0 (Baseline)**: No dependencies. Must complete before Phase 1 starts.
+- **Phase 1 (Setup)**: Depends on Phase 0. Can run after baseline is recorded.
+- **Phase 2 (Foundational)**: Depends on Phase 1. **BLOCKS all user stories** - the new
+  `playwright.config.ts` shape is required before any spec refactor.
+- **Phase 3 (US1 + US2)**: Depends on Phase 2. The 30 spec refactors are independent of
+  each other and can be parallelized across workers.
+- **Phase 4 (US3)**: Depends on Phase 2 (config change). Verification only - no new code.
+- **Phase 5 (US4)**: Depends on Phase 2 (config change). Verification only - no new code.
+- **Phase 6 (Docs)**: Depends on Phase 3, 4, 5 (documents the new workflow).
+- **Cross-cutting verification (T047-T053)**: Depends on all phases.
+
+### User Story Dependencies
+
+- **US1 (Faster dev loop)**: Can start after Phase 2. No dependency on US2-US4.
+- **US2 (Auth reused)**: Ships together with US1 (same refactor). No dependency on US3/US4.
+- **US3 (Configurable projects)**: Pure config change in Phase 2. Verified in Phase 4.
+- **US4 (Prod build opt-in)**: Pure config + script in Phase 2. Verified in Phase 5.
+
+### Within Each Phase
+
+- US1+US2 refactor tasks (T006-T036) are all `[P]` - they touch 30 different spec files and
+  have no inter-spec dependencies. Run them in any order, or in parallel up to worker count.
+- US1+US2 opt-out tasks (T037-T040) are `[P]` for the same reason.
+- The 3 out-of-scope verification tasks (T052) and the 2 helper-doc tasks (T053) are `[P]`.
+
+---
+
+## Parallel Opportunities
+
+- All Phase 1 tasks (T001-T003) are `[P]`.
+- All 30 US1+US2 refactor tasks (T006-T036) are `[P]` and can be parallelized.
+- All 4 US1+US2 opt-out tasks (T037-T040) are `[P]`.
+- The 3 out-of-scope verification tasks (T052) and 2 helper-doc tasks (T053) are `[P]`.
+- The 2 docs tasks (T045, T046) are `[P]`.
+
+---
+
+## Implementation Strategy
+
+### MVP First (User Story 1 + User Story 2)
+
+1. Complete Phase 0: Baseline (T000) - record current wall time.
+2. Complete Phase 1: Setup (T001-T003) - 3 independent infra files.
+3. Complete Phase 2: Foundational (T004-T005) - the config rewrite. This is the riskiest
+   step. **STOP and VALIDATE here**: `npx playwright test --list` shows the new project
+   shape; a smoke test (one spec) passes under the new config.
+4. Complete Phase 3: US1+US2 (T006-T040) - 35 refactor tasks. Run them in any order.
+5. **STOP and VALIDATE**: `npx playwright test --project=chromium` finishes, all 37 spec
+   files still execute, wall time drops below the SC-001 gate.
+6. The MVP delivers the bulk of the speedup. US3 (mobile gating) and US4 (prod build) are
+   smaller wins and can ship in the same release or a follow-up.
+
+### Incremental Delivery
+
+1. Phase 0 + Phase 1 + Phase 2 (T000-T005) - foundation ready; speedup not yet visible.
+2. Phase 3 (T006-T040) - 32 specs refactored; auth reuse working; **MVP**.
+3. Phase 4 (T041-T042) - mobile gated on CI; visible change in dev-loop command.
+4. Phase 5 (T043-T044) - prod build opt-in; opt-in command available.
+5. Phase 6 (T045-T046) - AGENTS.md updated; workflow documented.
+6. Cross-cutting verification (T047-T053) - SC-001..SC-005 measured; feature complete.
+
+### Pause / Checkpoint Plan
+
+- After Phase 2: run `npx playwright test tests/e2e/access-control.spec.ts --project=chromium`
+  as a smoke test. If it fails, debug the config before touching 30 specs.
+- After Phase 3 (every ~10 specs): run `npx playwright test --project=chromium` to catch
+  regressions early.
+- After Phase 6: run the full SC verification matrix in
+  [quickstart.md §"Verify all success criteria"](/Users/alexabelle/Documents/Development/wedding-management-system/specs/014-e2e-speedup/quickstart.md).
