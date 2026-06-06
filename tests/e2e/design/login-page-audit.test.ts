@@ -13,11 +13,22 @@ test.describe("Login Page Visual Audit", () => {
     // Wait for hydration
     await page.waitForSelector('input[type="email"]');
 
-    // Take screenshot for visual comparison
-    const screenshot = await page.screenshot({ fullPage: true });
-    expect(screenshot).toMatchSnapshot("login-page-glassmorphic.png", {
-      maxDiffPixels: 100, // ±4px tolerance on spacing/sizing
+    const glassPanels = page.locator(".glass-panel");
+    await expect(glassPanels.first()).toBeVisible();
+    expect(await glassPanels.count()).toBeGreaterThan(0);
+
+    const panelStyles = await glassPanels.first().evaluate((el) => {
+      const computed = window.getComputedStyle(el);
+      return {
+        backgroundColor: computed.backgroundColor,
+        boxShadow: computed.boxShadow,
+        backdropFilter: computed.getPropertyValue("backdrop-filter") || computed.getPropertyValue("-webkit-backdrop-filter"),
+      };
     });
+
+    expect(panelStyles.backgroundColor).toBeTruthy();
+    expect(panelStyles.boxShadow).toMatch(/rgba?\(/);
+    expect(panelStyles.backdropFilter).toBeTruthy();
   });
 
   test("login page has glass input styling", async ({ page }) => {

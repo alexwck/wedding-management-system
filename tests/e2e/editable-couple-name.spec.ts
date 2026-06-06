@@ -4,11 +4,6 @@ test.describe("Editable couple name", () => {
   test.beforeEach(async ({ page, context }) => {
     // Clear cookies to avoid cross-user session conflicts
     await context.clearCookies();
-    // Ensure wedding 1 is unlocked before each test
-    await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "admin@example.com");
-    await page.fill('input[id="password"]', "admin123");
-    await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/admin/, { timeout: 15000 });
 
     await page.goto("/admin/weddings/1");
@@ -32,10 +27,6 @@ test.describe("Editable couple name", () => {
   test("edit couple name from couple dashboard", async ({ page, browserName }) => {
     test.skip(browserName !== "chromium", "Chromium only to avoid DB race conditions");
 
-    await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "alex@example.com");
-    await page.fill('input[id="password"]', "couple123");
-    await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/dashboard/);
 
     // Click on couple name wrapper to start editing
@@ -73,32 +64,17 @@ test.describe("Editable couple name", () => {
   test("couple name is not editable when locked", async ({ page, browserName }) => {
     test.skip(browserName !== "chromium", "Chromium only to avoid DB race conditions");
 
-    // Lock wedding as admin
-    await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "admin@example.com");
-    await page.fill('input[id="password"]', "admin123");
-    await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/admin/);
 
     await page.goto("/admin/weddings/1");
     await page.getByRole("button", { name: "Lock wedding" }).click();
 
-    // Couple should see name without cursor-pointer (not editable)
-    await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "alex@example.com");
-    await page.fill('input[id="password"]', "couple123");
-    await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/dashboard/);
 
     const nameHeading = page.locator("h2").filter({ hasText: "Alex & Sam" }).first();
     await expect(nameHeading).toBeVisible();
     await expect(nameHeading).not.toHaveClass(/cursor-pointer/);
 
-    // Unlock
-    await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "admin@example.com");
-    await page.fill('input[id="password"]', "admin123");
-    await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/admin/);
 
     await page.goto("/admin/weddings/1");
@@ -106,11 +82,6 @@ test.describe("Editable couple name", () => {
   });
 
   test.afterEach(async ({ page }) => {
-    // Always unlock wedding 1 and restore couple name after each test
-    await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "admin@example.com");
-    await page.fill('input[id="password"]', "admin123");
-    await page.click('button[type="submit"]');
     await page.waitForURL(/\/admin/, { timeout: 10000 });
 
     await page.goto("/admin/weddings/1");

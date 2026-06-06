@@ -29,7 +29,7 @@ const radiusMap = {
 
 const variantMap = {
   medium: "glass-medium glass-panel",
-  light: "glass-panel--light",
+  light: "glass-panel glass-panel--light",
   dark: "glass-dark glass-panel",
   strong: "glass-strong glass-panel",
 };

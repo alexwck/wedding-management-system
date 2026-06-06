@@ -3,10 +3,6 @@ import { test, expect } from "@playwright/test";
 test.describe("Wedding date flow (US1)", () => {
   test.describe("Admin wedding date management", () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto("/auth/login");
-      await page.fill('input[id="email"]', "admin@example.com");
-      await page.fill('input[id="password"]', "admin123");
-      await page.click('button[type="submit"]');
       await expect(page).toHaveURL(/\/admin/);
     });
 
@@ -46,18 +42,14 @@ test.describe("Wedding date flow (US1)", () => {
       // Should show the couple name
       await expect(page.locator("h1").filter({ hasText: /^Alex & Sam$/ })).toBeVisible();
 
-      // Should show a wedding date with timezone offset (format: "Month Day, Year at H:MM PM GMT±N")
-      const dateEl = page.locator("p").filter({ hasText: /\d{4} at \d+:\d+ [AP]M GMT[+-]\d+/ });
-      await expect(dateEl).toBeVisible();
+      // Should show wedding date and time separately on the landing page
+      await expect(page.locator('p').filter({ hasText: /\w+ \d{1,2}, \d{4}/ })).toBeVisible();
+      await expect(page.locator('p').filter({ hasText: /\d{1,2}:\d{2} [AP]M GMT[+-]\d+/ })).toBeVisible();
     });
   });
 
   test.describe("Couple wedding date (no timezone selector)", () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto("/auth/login");
-      await page.fill('input[id="email"]', "alex@example.com");
-      await page.fill('input[id="password"]', "couple123");
-      await page.click('button[type="submit"]');
       await expect(page).toHaveURL(/\/dashboard/);
     });
 
