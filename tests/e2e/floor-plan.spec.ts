@@ -1,17 +1,17 @@
 import { test, expect } from "@playwright/test";
 
+// File-wide storageState: couple role is the modal test surface in this file. The 1 admin
+// test overrides to admin storageState inline; the 1 unauthenticated test overrides to empty.
+// Per FR-002 in specs/014-e2e-speedup/spec.md.
+test.use({ storageState: "playwright/.auth/couple.json" });
+
 test.describe("Couple floor plan — User Story 1", () => {
   test("couple can navigate to floor plan page, set dimensions, reload and verify persistence", async ({ page, viewport }) => {
     test.skip(
       viewport && viewport.width < 640,
       "Floor plan requires a larger screen (min-width: 640px)"
     );
-    // Login as a couple user
-    await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "alex@example.com");
-    await page.fill('input[id="password"]', "couple123");
-    await page.click('button[type="submit"]');
-
+    await page.goto("/dashboard");
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
 
     // Navigate to floor plan page
@@ -55,11 +55,7 @@ test.describe("Couple floor plan — User Story 1", () => {
       viewport && viewport.width < 640,
       "Floor plan requires a larger screen (min-width: 640px)"
     );
-    await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "alex@example.com");
-    await page.fill('input[id="password"]', "couple123");
-    await page.click('button[type="submit"]');
-
+    await page.goto("/dashboard");
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
 
     await page.goto("/dashboard/floor-plan");
@@ -75,11 +71,7 @@ test.describe("Couple floor plan — User Story 1", () => {
       viewport && viewport.width < 640,
       "Floor plan requires a larger screen (min-width: 640px)"
     );
-    await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "alex@example.com");
-    await page.fill('input[id="password"]', "couple123");
-    await page.click('button[type="submit"]');
-
+    await page.goto("/dashboard");
     await expect(page).toHaveURL(/\/dashboard/);
 
     await page.goto("/dashboard/floor-plan");
@@ -92,24 +84,24 @@ test.describe("Couple floor plan — User Story 1", () => {
     await expect(widthInput).toHaveValue("300");
   });
 
-  test("unauthenticated user cannot access floor plan page", async ({ page }) => {
-    await page.goto("/dashboard/floor-plan");
-    await expect(page).toHaveURL(/\/auth\/login/);
+  test.describe("unauthenticated", () => {
+    test.use({ storageState: { cookies: [], origins: [] } });
+
+    test("cannot access floor plan page", async ({ page }) => {
+      await page.goto("/dashboard/floor-plan");
+      await expect(page).toHaveURL(/\/auth\/login/);
+    });
   });
 });
 
 test.describe("Admin floor plan — User Story 1", () => {
+  test.use({ storageState: "playwright/.auth/admin.json" });
   test("admin can navigate to a wedding's floor plan page and set dimensions", async ({ page, viewport }) => {
     test.skip(
       viewport && viewport.width < 640,
       "Floor plan requires a larger screen (min-width: 640px)"
     );
-    // Login as admin
-    await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "admin@example.com");
-    await page.fill('input[id="password"]', "admin123");
-    await page.click('button[type="submit"]');
-
+    await page.goto("/admin");
     await expect(page).toHaveURL(/\/admin/);
 
     // Navigate to wedding 1's floor plan
