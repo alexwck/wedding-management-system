@@ -1,10 +1,5 @@
 import { test, expect } from "@playwright/test";
 
-// File-wide storageState: this spec tests the couple role. Per FR-002 in
-// specs/014-e2e-speedup/spec.md. The default project storageState is admin;
-// individual tests that need admin can override with `test.use({ storageState: admin })`.
-test.use({ storageState: "playwright/.auth/couple.json" });
-
 test.describe("Save blocked when items out of bounds", () => {
   test("OOB items block save with message, in-bounds items allow save", async ({ page, browserName, viewport }) => {
     test.skip(
@@ -12,6 +7,10 @@ test.describe("Save blocked when items out of bounds", () => {
       "Chromium only to avoid DB race conditions; floor plan requires min-width 640px"
     );
 
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "alex@example.com");
+    await page.fill('input[id="password"]', "couple123");
+    await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/dashboard/);
 
     await page.goto("/dashboard/floor-plan");

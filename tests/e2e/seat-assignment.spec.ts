@@ -2,6 +2,11 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Seat assignment flow", () => {
   test.beforeEach(async ({ page }) => {
+    // Login as admin
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "admin@example.com");
+    await page.fill('input[id="password"]', "admin123");
+    await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/admin/, { timeout: 15000 });
   });
 

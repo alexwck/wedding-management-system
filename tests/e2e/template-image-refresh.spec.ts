@@ -5,6 +5,10 @@ test.describe("Template image refresh", () => {
   test("Adjust Crop button exists and dialog opens with correct title", async ({ page, browserName }) => {
     test.skip(browserName !== "chromium", "Chromium only to avoid DB race conditions");
 
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "admin@example.com");
+    await page.fill('input[id="password"]', "admin123");
+    await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/admin/);
 
     await page.goto("/admin/weddings/1");
@@ -24,6 +28,10 @@ test.describe("Template image refresh", () => {
   test("upload new image updates preview immediately", async ({ page, browserName }) => {
     test.skip(browserName !== "chromium", "Chromium only to avoid DB race conditions");
 
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "admin@example.com");
+    await page.fill('input[id="password"]', "admin123");
+    await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/admin/);
 
     await page.goto("/admin/weddings/1");

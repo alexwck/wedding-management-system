@@ -76,7 +76,7 @@ For each file below: delete the inline `page.goto('/auth/login')` + fill + submi
 - [ ] T017 [P] [US1] Refactor `tests/e2e/floor-plan-fixes.spec.ts`
 - [ ] T018 [P] [US1] Refactor `tests/e2e/floor-plan-item-placement.spec.ts`
 - [x] T019 [P] [US1] Refactor `tests/e2e/floor-plan-save-oob.spec.ts`
-- [ ] T020 [P] [US1] Refactor `tests/e2e/floor-plan.spec.ts`
+- [x] T020 [P] [US1] Refactor `tests/e2e/floor-plan.spec.ts`
 - [ ] T021 [P] [US1] Refactor `tests/e2e/guest-panel.spec.ts`
 - [ ] T022 [P] [US1] Refactor `tests/e2e/guest-rsvp-mobile.spec.ts`
 - [ ] T023 [P] [US1] Refactor `tests/e2e/item-resize.spec.ts`
@@ -264,3 +264,34 @@ coverage at a glance. The mapping is also enforced by [checklists/requirements-q
 | US2 | Auth state reused across tests | T001, T004, T006-T036, T037-T040 |
 | US3 | Configurable browser projects | T004, T041, T042 |
 | US4 | Production build opt-in | T003, T004, T043, T044 |
+
+
+---
+
+## Final state (2026-06-06)
+
+After empirical testing, the broad Phase 3 refactor (32 specs) was reverted. The final
+state is:
+
+- **T000-T005** DONE (baseline + setup + config)
+- **T012** DONE (couple-dashboard.spec.ts opt-in)
+- **T013** NOT DONE (couple-mobile.spec.ts - reverted)
+- **T019** NOT DONE (floor-plan-save-oob.spec.ts - reverted)
+- **T020** DONE (floor-plan.spec.ts opt-in)
+- **T006-T011, T014-T018, T021-T036** NOT DONE (other 28 specs - reverted to inline login)
+- **T037-T040** NOT DONE (login-flow / invalid-login / logout / root-redirect opt-outs)
+- **T041-T042** DONE (config verifications)
+- **T043-T044** NOT DONE (prod build path - not run end-to-end)
+- **T045-T046** NOT DONE (AGENTS.md docs)
+- **T047-T053** PARTIAL (baseline + per-spec grep audits done; final timing measured)
+
+**Net result**: 153 pass / 7 fail on fresh DB, 8m 57s wall time. The 7 fails are pre-existing
+(3 design snapshot drift + 4 data-dependent). The setup project + storageState infrastructure
+is in place and works correctly for the 2 specs that opted in (couple-dashboard, floor-plan).
+The 30 other specs continue to use inline login.
+
+**SC-001 NOT MET** as documented in [plan.md Performance Goals](/Users/alexabelle/Documents/Development/wedding-management-system/specs/014-e2e-speedup/plan.md)
+and [research.md §R-7](/Users/alexabelle/Documents/Development/wedding-management-system/specs/014-e2e-speedup/research.md).
+The wall-time target of <= 4 min was not achievable via the spec-level storageState refactor
+in this codebase (Turbopack dev compilation + per-test page.goto cost more than the original
+inline login saved).

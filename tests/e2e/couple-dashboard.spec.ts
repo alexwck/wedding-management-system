@@ -36,6 +36,11 @@ test.describe("Couple views RSVP dashboard", () => {
   });
 
   test("couple cannot access another couple's data", async ({ page }) => {
+    // Login as couple1
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "alex@example.com");
+    await page.fill('input[id="password"]', "couple123");
+    await page.click('button[type="submit"]');
 
     await expect(page).toHaveURL(/\/dashboard/);
 

@@ -16,6 +16,10 @@ async function clickLogout(page: Page) {
 
 test.describe("Logout", () => {
   test("couple user can log out and is redirected to /auth/login", async ({ page }) => {
+    await page.goto("/auth/login");
+    await page.fill('input[type="email"]', "alex@example.com");
+    await page.fill('input[type="password"]', "couple123");
+    await page.click('button[type="submit"]');
     await page.waitForURL(/\/dashboard/);
 
     await clickLogout(page);
@@ -27,6 +31,10 @@ test.describe("Logout", () => {
   });
 
   test("admin user can log out", async ({ page }) => {
+    await page.goto("/auth/login");
+    await page.fill('input[type="email"]', "admin@example.com");
+    await page.fill('input[type="password"]', "admin123");
+    await page.click('button[type="submit"]');
     await page.waitForURL(/\/admin/);
 
     await clickLogout(page);

@@ -9,6 +9,10 @@ test.describe("RSVP table sorting (US3)", () => {
     }
   });
   test.beforeEach(async ({ page }) => {
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "admin@example.com");
+    await page.fill('input[id="password"]', "admin123");
+    await page.click('button[type="submit"]');
     await page.waitForURL(/\/admin/, { timeout: 10000 });
   });
 
