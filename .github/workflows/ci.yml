@@ -1,27 +1,47 @@
 # =============================================================================
 # CI/CD Workflow: Wedding Management System
 # =============================================================================
-# Triggers:
-#   - Pull requests to main: runs lint, type-check, test + preview deployment
-#   - Push to main: runs all checks + deploys to production via Vercel
+# Environment mapping:
+#   - Pull requests to main/staging: lint, type-check, test
+#   - Push to staging: checks + Supabase staging migrations + Vercel Preview deploy
+#   - Push to main: checks + Supabase production migrations + Vercel production deploy
+#   - Manual dispatch: deploy the selected GitHub environment from the selected ref
 #
-# Required Branch Protection (configure in GitHub Settings → Branches):
-#   - Require status checks to pass before merging
-#   - Select checks: lint, type-check, test
+# Required GitHub environments:
+#   - staging
+#   - production
+#
+# Each environment must define:
+#   Secrets: SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD, SUPABASE_PROJECT_ID,
+#            VERCEL_TOKEN
+#   Variables: VERCEL_ORG_ID, VERCEL_PROJECT_ID
 # =============================================================================
 
-name: CI
+name: CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
   pull_request:
-    branches: [main]
+    branches: [main, staging]
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: Environment to deploy
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
 
-# Prevent concurrent workflows on same branch/PR
+# Cancel superseded PR checks, but do not cancel in-flight push deployments after
+# a database migration may have started.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.inputs.target_environment || 'checks' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
 
 env:
   NODE_VERSION: 20.x
@@ -76,7 +96,7 @@ jobs:
         run: npm exec tsc -- --noEmit
 
   # ---------------------------------------------------------------------------
-  # Test: Vitest unit tests
+  # Test: Vitest unit/component tests
   # ---------------------------------------------------------------------------
   test:
     name: test
@@ -96,27 +116,34 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run unit tests
+      - name: Run tests
         run: npm run test
 
   # ---------------------------------------------------------------------------
-  # Deploy: Production deployment (main branch only)
+  # Deploy staging: staging branch or manual staging dispatch.
+  # Vercel target is Preview; GitHub/Supabase target is staging.
   # ---------------------------------------------------------------------------
-  # Prerequisites:
-  #   - VERCEL_TOKEN: GitHub Secrets (vercel.com/account/tokens)
-  #   - SUPABASE_ACCESS_TOKEN: GitHub Secrets (supabase.com/dashboard/account/tokens)
-  #   - SUPABASE_DB_PASSWORD: GitHub Secrets (database password from project creation)
-  #
-  # Deployment Flow:
-  #   1. Run Supabase migrations (db push)
-  #   2. Deploy to Vercel production
-  # ---------------------------------------------------------------------------
-  deploy:
-    name: deploy
+  deploy-staging:
+    name: deploy-staging
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     needs: [lint, type-check, test]
-    if: github.ref == 'refs/heads/main'
+    if: >
+      (github.event_name == 'push' && github.ref == 'refs/heads/staging') ||
+      (github.event_name == 'workflow_dispatch' && inputs.target_environment == 'staging')
+    environment:
+      name: staging
+      url: ${{ steps.deploy.outputs.deployment_url }}
+    concurrency:
+      group: deploy-staging
+      cancel-in-progress: false
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
 
     steps:
       - name: Checkout repository
@@ -130,94 +157,80 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v2
+        with:
+          version: latest
+
       - name: Install Vercel CLI
         run: npm install -g vercel
-
-      - name: Install Supabase CLI
-        run: npm install -g supabase
 
       - name: Install dependencies
         run: npm ci
 
-      # -------------------------------------------------------------------------
-      # Step 1: Run Supabase Migrations
-      # -------------------------------------------------------------------------
-      # Migrations run BEFORE deployment to ensure schema is ready for new code
-      # Wrapped in transaction - rolls back cleanly on failure
-      # -------------------------------------------------------------------------
-      - name: Run Supabase migrations
+      - name: Run Supabase staging migrations
         id: migrate
         run: |
-          echo "Linking to Supabase project..."
-          supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+          echo "Linking to Supabase staging project..."
+          supabase link --project-ref "$SUPABASE_PROJECT_ID"
 
-          echo "Running database migrations..."
+          echo "Running staging database migrations..."
           supabase db push
 
           echo "Migration completed at $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
 
-      # -------------------------------------------------------------------------
-      # Step 2: Deploy to Vercel Production
-      # -------------------------------------------------------------------------
-      # Uses Vercel CLI for programmatic deployment
-      # Last known-good deployment serves traffic until new deploy succeeds
-      # -------------------------------------------------------------------------
-      - name: Deploy to Vercel production
+      - name: Deploy to Vercel Preview
         id: deploy
         run: |
-          echo "Pulling Vercel environment..."
-          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          echo "Pulling Vercel Preview environment..."
+          vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
 
-          echo "Building project..."
-          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          echo "Building for Vercel Preview..."
+          vercel build --target=preview --token="$VERCEL_TOKEN"
 
-          echo "Deploying to production..."
-          DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "Deploying to Vercel Preview..."
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --target=preview --token="$VERCEL_TOKEN")
 
-          echo "Deployment URL: $DEPLOYMENT_URL"
-          echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          echo "deployment_url=$DEPLOYMENT_URL" >> "$GITHUB_OUTPUT"
+          echo "Preview URL: $DEPLOYMENT_URL"
 
-      # -------------------------------------------------------------------------
-      # Post-Deployment: Report deployment details
-      # -------------------------------------------------------------------------
-      - name: Report deployment
+      - name: Report staging deployment
         if: always()
         run: |
-          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Migration Status**: ${{ steps.migrate.outcome }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Deployment Status**: ${{ steps.deploy.outcome }}" >> $GITHUB_STEP_SUMMARY
+          echo "## Staging Deployment" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Commit**: ${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Branch**: ${{ github.ref_name }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Supabase Migration**: ${{ steps.migrate.outcome }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Vercel Preview Deployment**: ${{ steps.deploy.outcome }}" >> "$GITHUB_STEP_SUMMARY"
           if [ -n "${{ steps.deploy.outputs.deployment_url }}" ]; then
-            echo "- **Production URL**: ${{ steps.deploy.outputs.deployment_url }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Preview URL**: ${{ steps.deploy.outputs.deployment_url }}" >> "$GITHUB_STEP_SUMMARY"
           fi
 
   # ---------------------------------------------------------------------------
-  # Preview Deploy: Vercel preview deployment for PRs
+  # Deploy production: main branch or manual production dispatch
   # ---------------------------------------------------------------------------
-  # Creates a preview deployment for each PR after checks pass
-  # Vercel also auto-deploys PRs — this adds GitHub status checks and
-  # ensures deployment only happens after lint/type-check/test pass
-  #
-  # Prerequisites:
-  #   - VERCEL_TOKEN: GitHub Secrets (vercel.com/account/tokens)
-  #   - SUPABASE_ACCESS_TOKEN: GitHub Secrets (supabase.com/dashboard/account/tokens)
-  #   - SUPABASE_DB_PASSWORD: GitHub Secrets (database password)
-  #   - SUPABASE_PROJECT_REF: GitHub Secrets (your Supabase project ref)
-  # ---------------------------------------------------------------------------
-  preview:
-    name: preview
+  deploy-production:
+    name: deploy-production
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     needs: [lint, type-check, test]
-    if: github.event_name == 'pull_request'
+    if: >
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' && inputs.target_environment == 'production')
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.deployment_url }}
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
 
     steps:
       - name: Checkout repository
@@ -231,68 +244,52 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v2
+        with:
+          version: latest
+
       - name: Install Vercel CLI
         run: npm install -g vercel
-
-      - name: Install Supabase CLI
-        run: npm install -g supabase
 
       - name: Install dependencies
         run: npm ci
 
-      # -------------------------------------------------------------------------
-      # Step 1: Run Supabase Migrations (preview database)
-      # -------------------------------------------------------------------------
-      - name: Run Supabase migrations
+      - name: Run Supabase production migrations
         id: migrate
         run: |
-          echo "Linking to Supabase project..."
-          supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+          echo "Linking to Supabase production project..."
+          supabase link --project-ref "$SUPABASE_PROJECT_ID"
 
-          echo "Running database migrations..."
+          echo "Running production database migrations..."
           supabase db push
 
           echo "Migration completed at $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
 
-      # -------------------------------------------------------------------------
-      # Step 2: Deploy to Vercel Preview
-      # -------------------------------------------------------------------------
-      # Creates preview deployment with unique URL
-      # Vercel automatically adds PR comment with preview link
-      # -------------------------------------------------------------------------
-      - name: Deploy to Vercel preview
-        id: preview-deploy
+      - name: Deploy to Vercel production
+        id: deploy
         run: |
-          echo "Pulling Vercel environment..."
-          vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+          echo "Pulling Vercel production environment..."
+          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
 
-          echo "Building project..."
-          vercel build --token=${{ secrets.VERCEL_TOKEN }}
+          echo "Building for Vercel production..."
+          vercel build --prod --token="$VERCEL_TOKEN"
 
-          echo "Deploying to preview..."
-          DEPLOYMENT_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          echo "Deploying to Vercel production..."
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
 
-          echo "Preview URL: $DEPLOYMENT_URL"
-          echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          echo "deployment_url=$DEPLOYMENT_URL" >> "$GITHUB_OUTPUT"
+          echo "Production URL: $DEPLOYMENT_URL"
 
-      # -------------------------------------------------------------------------
-      # Post-Deployment: Report preview details
-      # -------------------------------------------------------------------------
-      - name: Report preview deployment
+      - name: Report production deployment
         if: always()
         run: |
-          echo "## Preview Deployment" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **PR**: #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Migration Status**: ${{ steps.migrate.outcome }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Preview Status**: ${{ steps.preview-deploy.outcome }}" >> $GITHUB_STEP_SUMMARY
-          if [ -n "${{ steps.preview-deploy.outputs.deployment_url }}" ]; then
-            echo "- **Preview URL**: ${{ steps.preview-deploy.outputs.deployment_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "## Production Deployment" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Commit**: ${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Branch**: ${{ github.ref_name }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Supabase Migration**: ${{ steps.migrate.outcome }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Vercel Deployment**: ${{ steps.deploy.outcome }}" >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "${{ steps.deploy.outputs.deployment_url }}" ]; then
+            echo "- **Production URL**: ${{ steps.deploy.outputs.deployment_url }}" >> "$GITHUB_STEP_SUMMARY"
           fi
