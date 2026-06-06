@@ -41,6 +41,7 @@ Main code lives in `src/app`, `src/components`, `src/lib`, `src/types`, `supabas
 - `docs/agent/floor-plan.md` - Konva floor-plan editor behavior and invariants
 - `docs/agent/ui-design.md` - UI/design guidance and links to `DESIGN.md`
 - `docs/agent/deployment.md` - production deployment notes and links to `DEPLOYMENT.md`
+- `docs/agent/model-routing.md` - which model runs implementation, lint, and test execution, and when to escalate
 
 ## Operating Rules
 
@@ -50,6 +51,14 @@ Main code lives in `src/app`, `src/components`, `src/lib`, `src/types`, `supabas
 - Validate at serialization and action boundaries with Zod; keep service-role Supabase access server-only.
 - Run the narrowest meaningful tests first, then broader checks when shared workflows are touched.
 - Do not let session lessons accrete here; update the smallest relevant `docs/agent/*.md`.
+
+## Model Routing
+
+Implementation, lint, and test execution default to the local Ollama cloud
+model via the `ollama-executor` skill (`.agents/skills/ollama-executor/SKILL.md`).
+The orchestrator only runs for research, planning, code review, and final
+judgment. See `docs/agent/model-routing.md` for the full routing and
+escalation policy.
 
 ## Testing Strategy
 

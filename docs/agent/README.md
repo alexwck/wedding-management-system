@@ -23,6 +23,7 @@ that match the current task.
 | `floor-plan.md` | You touch the Konva floor-plan editor, placement, collision, seats, canvas UI, or autosave. |
 | `ui-design.md` | You touch visual design, Tailwind v4, glassmorphism, responsive UI, or public wedding pages. |
 | `deployment.md` | You touch production config, Vercel, Supabase deployment, Sentry, CI preview, or admin bootstrap. |
+| `model-routing.md` | You need to know which model runs implementation, lint, and test execution, or when to escalate. |
 
 ## Maintenance Rules
 
