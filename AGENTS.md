@@ -51,6 +51,22 @@ Main code lives in `src/app`, `src/components`, `src/lib`, `src/types`, `supabas
 - Run the narrowest meaningful tests first, then broader checks when shared workflows are touched.
 - Do not let session lessons accrete here; update the smallest relevant `docs/agent/*.md`.
 
+## Testing Strategy
+
+The project follows a 3-tier testing pyramid enforced by the constitution
+([.specify/memory/constitution.md §XI](/Users/alexabelle/Documents/Development/wedding-management-system/.specify/memory/constitution.md))
+and documented per-feature under `specs/<feature>/qa/testing-strategy.md`.
+
+| Layer | Tool | Time budget | When to use |
+|---|---|---|---|
+| **Unit** | Vitest | 1-50 ms | Pure functions, validators, business rules, edge cases. Mock all external dependencies. |
+| **Component / Integration** | Vitest + RTL + jsdom | 50-500 ms | Component rendering, controlled state transitions, form input, prop plumbing. Mock at module boundaries. |
+| **E2E** | Playwright | 1-5 s+ | Critical user journeys, cross-system flows, UI/API integration. Real network, real browser, real DB. |
+
+**Push tests down.** If a behavior can be thoroughly tested at a lower layer, do not
+include it at a higher one. Each feature's `qa/testing-strategy.md` enumerates the new
+tests at each tier with one-sentence justifications and net-cost estimates.
+
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
