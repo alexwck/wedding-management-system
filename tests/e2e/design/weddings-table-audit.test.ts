@@ -9,23 +9,12 @@ test.describe("Weddings Table Visual Audit", () => {
   test("weddings table renders with glassmorphic styling", async ({ page }) => {
     await page.goto("/admin/weddings");
     await page.waitForLoadState("networkidle");
-    // Verify that the table container renders with glassmorphic styling.
-    const glassPanels = page.locator(".glass-panel");
-    await expect(glassPanels.first()).toBeVisible();
-    expect(await glassPanels.count()).toBeGreaterThan(0);
 
-    const panelStyles = await glassPanels.first().evaluate((el) => {
-      const computed = window.getComputedStyle(el);
-      return {
-        backgroundColor: computed.backgroundColor,
-        boxShadow: computed.boxShadow,
-        backdropFilter: computed.getPropertyValue("backdrop-filter") || computed.getPropertyValue("-webkit-backdrop-filter"),
-      };
+    // Take screenshot for visual comparison
+    const screenshot = await page.screenshot({ fullPage: true });
+    expect(screenshot).toMatchSnapshot("weddings-table-glassmorphic.png", {
+      maxDiffPixels: 200, // ±4px tolerance
     });
-
-    expect(panelStyles.backgroundColor).toBeTruthy();
-    expect(panelStyles.boxShadow).toMatch(/rgba?\(/);
-    expect(panelStyles.backdropFilter).toBeTruthy();
   });
 
   test("weddings table rows use glass hover states", async ({ page }) => {

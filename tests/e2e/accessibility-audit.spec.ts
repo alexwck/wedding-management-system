@@ -19,7 +19,10 @@ test.describe("Accessibility audit (axe-core)", () => {
   });
 
   test("admin wedding list meets WCAG 2.1 AA", async ({ page }) => {
-    await page.goto("/admin");
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "admin@example.com");
+    await page.fill('input[id="password"]', "admin123");
+    await page.click('button[type="submit"]');
     await page.waitForURL(/\/admin/, { timeout: 10000 });
 
     await page.goto("/admin/weddings");
@@ -29,17 +32,16 @@ test.describe("Accessibility audit (axe-core)", () => {
     expect(accessibilityScanResults.violations).toEqual([]);
   });
 
-  test.describe("couple", () => {
-    test.use({ storageState: "playwright/.auth/couple.json" });
+  test("couple dashboard meets WCAG 2.1 AA", async ({ page }) => {
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "alex@example.com");
+    await page.fill('input[id="password"]', "couple123");
+    await page.click('button[type="submit"]');
+    await page.waitForURL(/\/dashboard/, { timeout: 10000 });
 
-    test("dashboard meets WCAG 2.1 AA", async ({ page }) => {
-      await page.goto("/dashboard");
-      await page.waitForURL(/\/dashboard/, { timeout: 10000 });
-
-      const accessibilityScanResults = await new AxeBuilder({ page })
-        .withTags(["wcag21aa", "wcag2aa"])
-        .analyze();
-      expect(accessibilityScanResults.violations).toEqual([]);
-    });
+    const accessibilityScanResults = await new AxeBuilder({ page })
+      .withTags(["wcag21aa", "wcag2aa"])
+      .analyze();
+    expect(accessibilityScanResults.violations).toEqual([]);
   });
 });

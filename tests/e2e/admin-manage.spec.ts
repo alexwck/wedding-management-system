@@ -22,6 +22,11 @@ test.describe("Admin manages weddings", () => {
 
   test("admin can login and upload a template image", async ({ page }) => {
     // Login
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "admin@example.com");
+    await page.fill('input[id="password"]', "admin123");
+    await page.click('button[type="submit"]');
+
     // Should redirect to admin dashboard
     await expect(page).toHaveURL(/\/admin/);
 
@@ -51,6 +56,11 @@ test.describe("Admin manages weddings", () => {
   });
 
   test("admin dashboard shows all weddings", async ({ page }) => {
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "admin@example.com");
+    await page.fill('input[id="password"]', "admin123");
+    await page.click('button[type="submit"]');
+
     await expect(page).toHaveURL(/\/admin/);
 
     // Dashboard should show admin content
@@ -64,6 +74,11 @@ test.describe("Admin manages couple accounts (US4)", () => {
   });
 
   test("admin can create a couple account and wedding is created", async ({ page }) => {
+    // Login as admin
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "admin@example.com");
+    await page.fill('input[id="password"]', "admin123");
+    await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/admin/, { timeout: 15000 });
 
     // Navigate to couples page
@@ -100,6 +115,11 @@ test.describe("Admin manages couple accounts (US4)", () => {
   });
 
   test("admin can view any wedding's RSVP data", async ({ page }) => {
+    // Login as admin
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "admin@example.com");
+    await page.fill('input[id="password"]', "admin123");
+    await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/admin/);
 
     // Navigate directly to first wedding
@@ -113,6 +133,11 @@ test.describe("Admin manages couple accounts (US4)", () => {
   });
 
   test("couple creation form validates required fields", async ({ page }) => {
+    // Login as admin
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "admin@example.com");
+    await page.fill('input[id="password"]', "admin123");
+    await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/admin/);
 
     // Navigate to couples page

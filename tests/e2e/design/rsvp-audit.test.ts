@@ -37,37 +37,20 @@ test.describe("RSVP Experience Visual Audit", () => {
     await page.goto("/w/test-wedding-1");
     await page.waitForLoadState("networkidle");
 
-    // Wait for entrance animations to settle and for the RSVP section to stabilize
-    await page.waitForFunction(() => {
-      const el = document.querySelector('#rsvp');
-      if (!el) return false;
-      const cs = getComputedStyle(el as Element);
-      const opacityOk = cs.opacity === '1';
-      const transformOk = cs.transform === 'none' || cs.transform.includes('translateY(0)') || cs.transform.includes('matrix');
-      return opacityOk && transformOk;
-    }, null, { timeout: 5000 });
+    // Wait for entrance animations to settle
+    await page.waitForTimeout(500);
 
     // Scroll to RSVP section
     await page.locator("#rsvp").scrollIntoViewIfNeeded();
 
-    const panels = page.locator('#rsvp .glass-panel, #rsvp .glass-panel--light, #rsvp .glass-light, #rsvp .glass-dark, #rsvp .glass-strong');
-    await expect(panels.first()).toBeVisible();
-    const count = await panels.count();
-    expect(count).toBeGreaterThan(0);
+    // Take screenshot of RSVP section
+    const rsvpSection = page.locator("#rsvp");
+    await expect(rsvpSection).toBeVisible();
 
-    const firstPanelStyles = await panels.first().evaluate((el) => {
-      const cs = window.getComputedStyle(el as Element);
-      return {
-        backgroundColor: cs.backgroundColor,
-        boxShadow: cs.boxShadow,
-        backdropFilter: cs.getPropertyValue('backdrop-filter') || cs.getPropertyValue('-webkit-backdrop-filter'),
-      };
+    const screenshot = await rsvpSection.screenshot();
+    expect(screenshot).toMatchSnapshot("rsvp-form-glassmorphic.png", {
+      maxDiffPixels: 800, // ±4px tolerance
     });
-
-    expect(firstPanelStyles.backgroundColor).toBeTruthy();
-    expect(firstPanelStyles.boxShadow).toMatch(/rgba?\(/);
-    expect(firstPanelStyles.backdropFilter).toBeTruthy();
-    expect(firstPanelStyles.backdropFilter).not.toBe('');
   });
 
   test("RSVP form fields use glass styling", async ({ page }) => {

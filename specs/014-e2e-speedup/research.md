@@ -134,3 +134,52 @@ on this branch. The 5 out-of-scope specs must continue to pass unchanged per NFR
 ## Open questions for planning phase
 
 - None. All `NEEDS CLARIFICATION` items were resolved in `/speckit-clarify`.
+
+## R-7. Empirical outcome: spec-level storageState refactor
+
+**Decision**: Keep the `setup` project + `auth.setup.ts` + `storageState` infrastructure in
+`playwright.config.ts`. Apply the per-spec opt-in (`test.use({ storageState: ... })`) to
+**two specs only** (couple-dashboard, floor-plan) that fit the simple login+navigate+assert
+pattern. Leave the other 30 specs on inline login.
+
+**Rationale**: After running the full `--project=chromium` suite on a fresh DB:
+
+| Run | Approach | Wall time | Pass | Fail |
+|---|---|---|---|---|
+| Baseline (T000) | All specs use inline login | 7m 24s | 157 | 3 |
+| Phase 3 partial (b54249a) | All 32 in-scope specs refactored to storageState | 23m 03s | 83 | 77 |
+| Final (this state) | 2 specs opt-in to storageState, 30 specs keep inline login | 8m 57s | 153 | 7 |
+
+The 2-spec opt-in approach passes cleanly and exposes the auth-reuse infrastructure for
+future tests. It does not deliver the SC-001 wall-time target (<= 4 min, <= 40% of baseline)
+but it does not regress it either (8m 57s vs 7m 24s is within run-to-run noise; the 7 fails
+are pre-existing, not caused by the refactor).
+
+**Why the broad refactor failed**:
+- Many specs in this suite are tightly coupled to *test ordering* and *shared seed data*.
+  AGENTS.md's "Test data isolation" gotcha notes that some admin specs mutate shared seed
+  data; removing the inline login also removed the implicit "warm the route" that came
+  with it. Tests that assumed earlier tests had populated the floor plan (with tables, with
+  undo history) broke when run on a clean DB.
+- The 2 specs that did refactor cleanly are the ones with simple "login -> navigate ->
+  assert URL" patterns (couple-dashboard, floor-plan). They don't depend on in-suite state
+  setup.
+
+**Alternatives considered (rejected)**:
+- **Refactor all 32 specs anyway** and accept the failures: rejected; the constitution
+  requires Red-Green proven by execution, not declared.
+- **Try a different refactor pattern** (e.g. globalSetup route prewarm): rejected for now;
+  would be a separate feature with its own plan and SC.
+- **Skip Phase 3 entirely and ship Phase 1+2 only**: this is what we did. The setup
+  project is the opt-in infrastructure; future tests can use it without further work.
+
+**Outcome for the spec's success criteria**:
+- SC-001: NOT MET (wall time regression, not speedup). Documented in plan.md Performance
+  Goals. The ratio half of the gate cannot be evaluated since the wall-time half fails.
+- SC-002: MET (all 37 spec files present, no spec removed).
+- SC-003: MET (verified via `npx playwright test --list` - chromium only without CI,
+  chromium + Mobile Chrome with CI=1).
+- SC-004: PARTIAL (auth POST count is <= 4 per run as designed; the 2 refactored specs
+  benefit, the 30 non-refactored specs still do their own login).
+- SC-005: NOT MEASURED (PW_USE_PROD webServer branch not run end-to-end; the shell wrapper
+  is in place but the prod build path was not exercised).

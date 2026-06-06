@@ -23,20 +23,20 @@
 - [x] No [NEEDS CLARIFICATION] markers remain.
 - [x] Edge cases section explicitly covers stale storageState, login-flow specs, logout, mobile parity gap, and seed-data isolation.
 - [x] Acceptance scenarios are Given/When/Then and testable.
-- [ ] Open questions are resolved or marked explicitly.
+- [x] Open questions are resolved or marked explicitly.
 
 ## Plan quality
 
-- [ ] Technical Context is fully filled in.
-- [ ] Project Structure lists every file that will be touched.
-- [ ] Phase 0 research is grounded in real artifacts (audit of `tests/e2e/*.spec.ts`, AGENTS.md gotchas, Playwright docs).
-- [ ] Risks section calls out `storageState` staleness, mobile default flip, and dual-role specs.
+- [x] Technical Context is fully filled in.
+- [x] Project Structure lists every file that will be touched.
+- [x] Phase 0 research is grounded in real artifacts (audit of `tests/e2e/*.spec.ts`, AGENTS.md gotchas, Playwright docs).
+- [x] Risks section calls out `storageState` staleness, mobile default flip, and dual-role specs.
 
 ## Tasks quality
 
-- [ ] Every task has an ID, an optional [P] marker, a [Story] tag, and an exact file path.
-- [ ] Tasks are ordered by dependency (Setup -> Foundational -> User Stories -> Docs -> Verification).
-- [ ] T001-T005 establish infrastructure; T006-T040 are spec refactors; T041-T044 are config verifications; T045-T046 are docs; T047-T051 are final verification.
+- [x] Every task has an ID, an optional [P] marker, a [Story] tag, and an exact file path.
+- [x] Tasks are ordered by dependency (Setup -> Foundational -> User Stories -> Docs -> Verification).
+- [x] T001-T005 establish infrastructure; T006-T040 are spec refactors; T041-T044 are config verifications; T045-T046 are docs; T047-T051 are final verification.
 - [ ] No task asks the agent to weaken or delete an existing assertion.
 
 ## Verification plan

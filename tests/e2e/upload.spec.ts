@@ -2,6 +2,10 @@ import { test, expect } from "@playwright/test";
 
 test.describe("File upload validation", () => {
   test.beforeEach(async ({ page }) => {
+    await page.goto("/auth/login");
+    await page.fill('input[type="email"]', "admin@example.com");
+    await page.fill('input[type="password"]', "admin123");
+    await page.click('button[type="submit"]');
     await page.waitForURL(/\/admin/);
     await page.goto("/admin/weddings/1");
     await page.waitForLoadState("networkidle");

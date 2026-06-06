@@ -1,6 +1,10 @@
 import { test, expect } from "@playwright/test";
 
 async function ensureWeddingUnlocked(page: import("@playwright/test").Page) {
+  await page.goto("/auth/login");
+  await page.fill('input[id="email"]', "admin@example.com");
+  await page.fill('input[id="password"]', "admin123");
+  await page.click('button[type="submit"]');
   await page.waitForURL(/\/admin/, { timeout: 20000 });
 
   await page.goto("/admin/weddings/1");
@@ -60,6 +64,11 @@ test.describe("RSVP single-page experience", () => {
   });
 
   test.afterEach(async ({ page }) => {
+    // Always unlock wedding 1 after each test to avoid breaking subsequent tests
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "admin@example.com");
+    await page.fill('input[id="password"]', "admin123");
+    await page.click('button[type="submit"]');
     await page.waitForURL(/\/admin/, { timeout: 20000 });
 
     await page.goto("/admin/weddings/1");
@@ -73,6 +82,11 @@ test.describe("RSVP single-page experience", () => {
   test("locked wedding shows RSVP is closed", async ({ page, browserName }) => {
     test.skip(browserName !== "chromium", "Chromium only to avoid DB race conditions");
 
+    // Lock wedding 1 via admin
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "admin@example.com");
+    await page.fill('input[id="password"]', "admin123");
+    await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/admin/);
 
     await page.goto("/admin/weddings/1");

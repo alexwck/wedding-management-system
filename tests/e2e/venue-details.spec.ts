@@ -10,9 +10,10 @@ test.describe("Venue details on landing page (US2)", () => {
     // Welcome message should be visible
     await expect(page.getByText("We can't wait to celebrate with you!").first()).toBeVisible();
 
-    // Wedding date visible (date and time are rendered in separate lines)
-    await expect(page.locator('p').filter({ hasText: /\w+ \d{1,2}, \d{4}/ })).toBeVisible();
-    await expect(page.locator('p').filter({ hasText: /\d{1,2}:\d{2} [AP]M GMT[+-]\d+/ })).toBeVisible();
+    // Wedding date visible (formatWeddingDate includes time and UTC offset)
+    // Date may differ from seed if admin tests modified it
+    const dateEl = page.locator("p").filter({ hasText: /\d{4} at \d+:\d+ [AP]M GMT[+-]\d+/ });
+    await expect(dateEl).toBeVisible();
 
     // RSVP form is inline (no separate CTA button)
     await expect(page.locator("text=/RSVP for/")).toBeVisible();
@@ -63,6 +64,11 @@ test.describe("Venue section on RSVP form (US3)", () => {
 
 test.describe("Admin venue editing (US1)", () => {
   test.beforeEach(async ({ page }) => {
+    // Login as admin
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "admin@example.com");
+    await page.fill('input[id="password"]', "admin123");
+    await page.click('button[type="submit"]');
     await page.waitForURL("/admin");
   });
 
@@ -100,6 +106,10 @@ test.describe("Admin venue editing (US1)", () => {
 
 test.describe("Couple venue editing (US1)", () => {
   test.beforeEach(async ({ page }) => {
+    await page.goto("/auth/login");
+    await page.fill('input[id="email"]', "alex@example.com");
+    await page.fill('input[id="password"]', "couple123");
+    await page.click('button[type="submit"]');
     await page.waitForURL("/dashboard");
   });
 
