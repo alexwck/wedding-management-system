@@ -19,7 +19,7 @@
 
 **CRITICAL**: Phase 1 cannot start until this phase is complete.
 
-- [x] T000 [P] Capture baseline wall time: on a clean dev server (Supabase up, `npm run dev` running), run `time npx playwright test --project=chromium` and record the wall-clock result. Commit the number in minutes to [plan.md Performance Goals](/Users/alexabelle/Documents/Development/wedding-management-system/specs/014-e2e-speedup/plan.md) (replace the `<TBD>` placeholder). The number is SC-001's denominator. If the baseline is already <= 4 minutes, raise this with the user before continuing (the speedup may not be worth the refactor risk).
+- [x] T000 [P] Capture baseline wall time: on a clean dev server (Supabase up, `npm run dev` running), run `time npx playwright test --project=chromium` and record the wall-clock result. Commit the number in minutes to [plan.md Performance Goals](/Users/alexabelle/Documents/Development/wedding-management-system/specs/014-e2e-speedup/plan.md) (replace the `<TBD>` placeholder). The number is SC-001's denominator. Baseline: **7m24s (444s) for 160 tests, 157 pass / 3 fail**. The 3 failures break down as 2 caused by the new default-admin storageState (will be fixed by Phase 3 per-spec opt-outs: T012 for couple-dashboard, and the floor-plan.spec.ts:95 case via test.use({ storageState: empty })) and 1 pre-existing snapshot drift in design/admin-dashboard-audit.test.ts unrelated to feature 014. SC-001 target: <= 4 min AND <= 40% of 444s = <= 178s. The 4-min wall time target may need revisiting after Phase 3 if the suite as a whole doesn't drop that far (auth reuse is the dominant win; the 2 forced-failure cases should drop right back to passing once their specs opt out).
 
 ## Phase 1: Setup (Shared Infrastructure)
 
