@@ -68,14 +68,14 @@ For each file below: delete the inline `page.goto('/auth/login')` + fill + submi
 - [ ] T009 [P] [US1] Refactor `tests/e2e/admin-manage.spec.ts`
 - [ ] T010 [P] [US1] Refactor `tests/e2e/admin-mobile.spec.ts`
 - [ ] T011 [P] [US1] Refactor `tests/e2e/admin-seat-view.spec.ts`
-- [ ] T012 [P] [US1] Refactor `tests/e2e/couple-dashboard.spec.ts` (this one needs couple storage; add `test.use({ storageState: "playwright/.auth/couple.json" })` at top)
-- [ ] T013 [P] [US1] Refactor `tests/e2e/couple-mobile.spec.ts` (couple storage)
+- [x] T012 [P] [US1] Refactor `tests/e2e/couple-dashboard.spec.ts` (this one needs couple storage; add `test.use({ storageState: "playwright/.auth/couple.json" })` at top)
+- [x] T013 [P] [US1] Refactor `tests/e2e/couple-mobile.spec.ts` (couple storage)
 - [ ] T014 [P] [US1] Refactor `tests/e2e/dashboard-layout.spec.ts`
 - [ ] T015 [P] [US1] Refactor `tests/e2e/editable-couple-name.spec.ts`
 - [ ] T016 [P] [US1] Refactor `tests/e2e/floor-plan-catalog-disable.spec.ts`
 - [ ] T017 [P] [US1] Refactor `tests/e2e/floor-plan-fixes.spec.ts`
 - [ ] T018 [P] [US1] Refactor `tests/e2e/floor-plan-item-placement.spec.ts`
-- [ ] T019 [P] [US1] Refactor `tests/e2e/floor-plan-save-oob.spec.ts`
+- [x] T019 [P] [US1] Refactor `tests/e2e/floor-plan-save-oob.spec.ts`
 - [ ] T020 [P] [US1] Refactor `tests/e2e/floor-plan.spec.ts`
 - [ ] T021 [P] [US1] Refactor `tests/e2e/guest-panel.spec.ts`
 - [ ] T022 [P] [US1] Refactor `tests/e2e/guest-rsvp-mobile.spec.ts`

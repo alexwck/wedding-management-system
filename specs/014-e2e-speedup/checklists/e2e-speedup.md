@@ -20,9 +20,9 @@
 
 ## Spec quality
 
-- [ ] No [NEEDS CLARIFICATION] markers remain.
-- [ ] Edge cases section explicitly covers stale storageState, login-flow specs, logout, mobile parity gap, and seed-data isolation.
-- [ ] Acceptance scenarios are Given/When/Then and testable.
+- [x] No [NEEDS CLARIFICATION] markers remain.
+- [x] Edge cases section explicitly covers stale storageState, login-flow specs, logout, mobile parity gap, and seed-data isolation.
+- [x] Acceptance scenarios are Given/When/Then and testable.
 - [ ] Open questions are resolved or marked explicitly.
 
 ## Plan quality
