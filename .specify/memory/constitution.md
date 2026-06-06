@@ -335,3 +335,32 @@ SYNC IMPACT REPORT (v2.6.0):
 -->
 
 **Version**: 2.7.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-05-18
+
+### XI. Testing Pyramid (Push Tests Down)
+
+Every feature MUST allocate its test budget across the three testing tiers in proportion
+to the testing pyramid / trophy principle:
+
+| Layer | Time budget per test | What belongs here |
+|---|---|---|
+| **Unit** | 1-50 ms | Pure functions, validators, branch coverage, edge cases. Mock all external dependencies. |
+| **Component / Integration** | 50-500 ms | Component rendering, controlled state transitions, form input, prop plumbing, accessible labels. Mock at module boundaries (network, Supabase). |
+| **E2E** | 1-5 s+ | Critical user journeys, cross-system flows, UI/API integration. Real network, real browser, real DB. |
+
+**Push tests down.** If a behavior can be thoroughly tested in a Unit test, do not
+include it in a Component or E2E test. The E2E layer is the most expensive and the most
+flaky; it should contain the fewest tests and only the ones that exercise a real
+network/browser/DB interaction that a lower layer cannot model.
+
+**Each new feature MUST add tests to all applicable layers.** A feature with only E2E
+tests is incomplete; a feature with only Unit tests is under-tested at the integration
+boundary.
+
+**Pyramid health check**: the ratio of unit : component : E2E test files should be
+roughly 3 : 1 : 1 (or better on the unit side). A drift toward 1 : 1 : 3 is a smell that
+the E2E layer is doing work that should be at a lower tier. Refactors that expand E2E
+coverage without expanding Unit / Component coverage MUST justify the deviation in
+the spec's `## Notes` section.
+
+**Re-evaluate after each spec phase.** When `/speckit-analyze` runs, it MUST include a
+pyramid ratio check and flag any layer that grew disproportionately.
