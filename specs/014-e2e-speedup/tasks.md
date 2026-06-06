@@ -19,15 +19,15 @@
 
 **CRITICAL**: Phase 1 cannot start until this phase is complete.
 
-- [ ] T000 [P] Capture baseline wall time: on a clean dev server (Supabase up, `npm run dev` running), run `time npx playwright test --project=chromium` and record the wall-clock result. Commit the number in minutes to [plan.md Performance Goals](/Users/alexabelle/Documents/Development/wedding-management-system/specs/014-e2e-speedup/plan.md) (replace the `<TBD>` placeholder). The number is SC-001's denominator. If the baseline is already <= 4 minutes, raise this with the user before continuing (the speedup may not be worth the refactor risk).
+- [x] T000 [P] Capture baseline wall time: on a clean dev server (Supabase up, `npm run dev` running), run `time npx playwright test --project=chromium` and record the wall-clock result. Commit the number in minutes to [plan.md Performance Goals](/Users/alexabelle/Documents/Development/wedding-management-system/specs/014-e2e-speedup/plan.md) (replace the `<TBD>` placeholder). The number is SC-001's denominator. If the baseline is already <= 4 minutes, raise this with the user before continuing (the speedup may not be worth the refactor risk).
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create `tests/e2e/auth.setup.ts` with two `setup()` blocks: one for `admin@example.com` writing `playwright/.auth/admin.json`, one for `alex@example.com` writing `playwright/.auth/couple.json`. Each block does the existing inline login flow + `waitForURL` + `waitForLoadState("networkidle")` + `context.storageState({ path })`. File begins with `test.use({ storageState: { cookies: [], origins: [] } })`.
-- [ ] T002 [P] Add `playwright/.auth/` to `.gitignore` so generated storage state is never committed.
-- [ ] T003 [P] Add `test:e2e:prod` script to `package.json` that sets `PW_USE_PROD=1` and re-runs `playwright test`.
+- [x] T001 [P] Create `tests/e2e/auth.setup.ts` with two `setup()` blocks: one for `admin@example.com` writing `playwright/.auth/admin.json`, one for `alex@example.com` writing `playwright/.auth/couple.json`. Each block does the existing inline login flow + `waitForURL` + `waitForLoadState("networkidle")` + `context.storageState({ path })`. File begins with `test.use({ storageState: { cookies: [], origins: [] } })`.
+- [x] T002 [P] Add `playwright/.auth/` to `.gitignore` so generated storage state is never committed.
+- [x] T003 [P] Add `test:e2e:prod` script to `package.json` that sets `PW_USE_PROD=1` and re-runs `playwright test`.
 
 **Checkpoint**: Helper file in place, gitignore updated, prod script wired.
 
@@ -39,14 +39,14 @@
 
 **CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Rewrite `playwright.config.ts`:
+- [x] T004 Rewrite `playwright.config.ts`:
   - Add a `setup` project with `testMatch: /.*\.setup\.ts/`.
   - Add `dependencies: ["setup"]` to both `chromium` and `Mobile Chrome`.
   - Default `chromium` to `storageState: "playwright/.auth/admin.json"`.
   - Default `Mobile Chrome` to `storageState: "playwright/.auth/couple.json"`.
   - Conditionally include `Mobile Chrome` in `projects` only when `process.env.CI` is set.
   - Conditionally swap `webServer.command` to `npm run build && npm run start` when `process.env.PW_USE_PROD` is set; bump `webServer.timeout` to 180_000 in that branch.
-- [ ] T005 [P] Create the empty `playwright/.auth/` directory with a `.gitkeep` so the directory exists in a clean checkout (the .gitignore entry above prevents content from being committed).
+- [x] T005 [P] Create the empty `playwright/.auth/` directory with a `.gitkeep` so the directory exists in a clean checkout (the .gitignore entry above prevents content from being committed).
 
 **Checkpoint**: Config change compiles. `npx playwright test --list` shows `setup`, `chromium`, and (with `CI=1`) `Mobile Chrome`.
 
