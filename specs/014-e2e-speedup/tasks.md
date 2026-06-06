@@ -237,3 +237,30 @@ For each file below: delete the inline `page.goto('/auth/login')` + fill + submi
   regressions early.
 - After Phase 6: run the full SC verification matrix in
   [quickstart.md §"Verify all success criteria"](/Users/alexabelle/Documents/Development/wedding-management-system/specs/014-e2e-speedup/quickstart.md).
+
+
+---
+
+## Traceability: FR / SC / US -> Task map
+
+This table makes the spec-to-tasks mapping explicit so a reviewer can verify
+coverage at a glance. The mapping is also enforced by [checklists/requirements-quality.md §CHK003](/Users/alexabelle/Documents/Development/wedding-management-system/specs/014-e2e-speedup/checklists/requirements-quality.md).
+
+| Spec ID | Description | Task IDs |
+|---|---|---|
+| FR-001 | Add `setup` project that signs in as admin + couple, writes storageState | T001, T002, T005 |
+| FR-002 | Per-project default storageState (chromium=admin, mobile=couple) with opt-out | T004 (config), T012, T013 (opt-in for couple specs) |
+| FR-003 | Refactor 32 specs to remove inline login | T006-T036 (in-scope) + T037-T040 (opt-out) |
+| FR-004 | Mobile Chrome conditional on `CI=1` | T004 (config) |
+| FR-005 | `test:e2e:prod` opt-in with build-reuse | T003 (package.json) + T004 (webServer branch) |
+| FR-006 | Gitignore `playwright/.auth/` | T002 |
+| FR-007 | AGENTS.md docs update | T045, T046 |
+| SC-001 | Wall time <= 4 min AND <= 40% of baseline | T000 (capture) + T047 (verify) |
+| SC-002 | All 37 spec files preserved | T049 (grep audit) + T052 (5 out-of-scope) + T053 (2 helpers) |
+| SC-003 | CI=1 includes both projects | T004 (config) + T041, T042 (verify) + T048 (CI run) |
+| SC-004 | <= 4 POSTs to Supabase auth per run | T049 (grep audit) + post-run network trace |
+| SC-005 | `test:e2e:prod` same pass/fail as dev | T003 + T043 (prod run) + T044 (debug if needed) |
+| US1 | Faster dev-loop test runs | T000, T003, T004, T006-T036, T047 |
+| US2 | Auth state reused across tests | T001, T004, T006-T036, T037-T040 |
+| US3 | Configurable browser projects | T004, T041, T042 |
+| US4 | Production build opt-in | T003, T004, T043, T044 |
