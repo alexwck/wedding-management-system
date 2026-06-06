@@ -111,8 +111,8 @@ For each file below: delete the inline `page.goto('/auth/login')` + fill + submi
 
 **Independent Test**: With `CI` unset, `npx playwright test --list` shows only `setup` + `chromium`. With `CI=1`, it also shows `Mobile Chrome`.
 
-- [ ] T041 [US3] Confirm the conditional in `playwright.config.ts` works (T004 should already cover this). Run `npx playwright test --list` and assert output.
-- [ ] T042 [P] [US3] Run `CI=1 npx playwright test --list` and assert `Mobile Chrome` is in the output.
+- [x] T041 [US3] Confirm the conditional in `playwright.config.ts` works (T004 should already cover this). Run `npx playwright test --list` and assert output.
+- [x] T042 [P] [US3] Run `CI=1 npx playwright test --list` and assert `Mobile Chrome` is in the output.
 
 **Checkpoint**: Local default is single project; CI default is both.
 

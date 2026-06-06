@@ -13,10 +13,10 @@
 
 - [x] Spec-driven (no implementation started before spec is in `specs/014-e2e-speedup/spec.md`).
 - [x] Red-green proven by execution. Baseline measurement of `npx playwright test --project=chromium` is captured before changes; final measurement is taken after.
-- [ ] `workers: 1` is preserved globally.
-- [ ] No experimental features. Playwright's `setup` project is a stable documented feature.
-- [ ] AGENTS.md "E2E test resilience" and "Test data isolation" rules are not weakened.
-- [ ] DESIGN.md / Nova Glass unaffected. This is a tooling change, no UI touched.
+- [x] `workers: 1` is preserved globally.
+- [x] No experimental features. Playwright's `setup` project is a stable documented feature.
+- [x] AGENTS.md "E2E test resilience" and "Test data isolation" rules are not weakened.
+- [x] DESIGN.md / Nova Glass unaffected. This is a tooling change, no UI touched.
 
 ## Spec quality
 
