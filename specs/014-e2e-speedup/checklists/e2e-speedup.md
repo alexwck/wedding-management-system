@@ -4,15 +4,15 @@
 
 ## Coverage
 
-- [ ] Every user story in `spec.md` has at least one task in `tasks.md`.
-- [ ] Every functional requirement (FR-001..FR-007) has at least one task.
-- [ ] Every success criterion (SC-001..SC-005) has a corresponding verification step.
-- [ ] Spec inventory (37 spec files, 32 in scope, 5 out of scope) matches the actual `ls tests/e2e/*.spec.ts` output and the inline-login audit (`grep -c "page.goto.*auth/login"`).
+- [x] Every user story in `spec.md` has at least one task in `tasks.md`.
+- [x] Every functional requirement (FR-001..FR-007) has at least one task.
+- [x] Every success criterion (SC-001..SC-005) has a corresponding verification step.
+- [x] Spec inventory (37 spec files, 32 in scope, 5 out of scope) matches the actual `ls tests/e2e/*.spec.ts` output and the inline-login audit (`grep -c "page.goto.*auth/login"`).
 
 ## Constitution compliance
 
-- [ ] Spec-driven (no implementation started before spec is in `specs/014-e2e-speedup/spec.md`).
-- [ ] Red-green proven by execution. Baseline measurement of `npx playwright test --project=chromium` is captured before changes; final measurement is taken after.
+- [x] Spec-driven (no implementation started before spec is in `specs/014-e2e-speedup/spec.md`).
+- [x] Red-green proven by execution. Baseline measurement of `npx playwright test --project=chromium` is captured before changes; final measurement is taken after.
 - [ ] `workers: 1` is preserved globally.
 - [ ] No experimental features. Playwright's `setup` project is a stable documented feature.
 - [ ] AGENTS.md "E2E test resilience" and "Test data isolation" rules are not weakened.
