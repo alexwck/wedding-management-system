@@ -1,14 +1,13 @@
 import { test, expect } from "@playwright/test";
 
+// Spec-wide override: this file tests the couple role, so load the couple storageState
+// instead of the project default (admin). Per FR-002 in specs/014-e2e-speedup/spec.md.
+test.use({ storageState: "playwright/.auth/couple.json" });
+
 test.describe("Couple views RSVP dashboard", () => {
   test("couple can login and view their RSVP dashboard with summary", async ({ page }) => {
-    // Login as a couple user
-    await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "alex@example.com");
-    await page.fill('input[id="password"]', "couple123");
-    await page.click('button[type="submit"]');
-
-    // Should redirect to dashboard
+    // storageState gives us a pre-authenticated context; navigate to the dashboard.
+    await page.goto("/dashboard");
     await expect(page).toHaveURL(/\/dashboard/);
 
     // Should see dashboard with summary cards
@@ -17,12 +16,7 @@ test.describe("Couple views RSVP dashboard", () => {
   });
 
   test("couple can view RSVP list page", async ({ page, viewport }) => {
-    // Login as a couple user
-    await page.goto("/auth/login");
-    await page.fill('input[id="email"]', "alex@example.com");
-    await page.fill('input[id="password"]', "couple123");
-    await page.click('button[type="submit"]');
-
+    await page.goto("/dashboard");
     await expect(page).toHaveURL(/\/dashboard/);
 
     // Navigate to RSVPs page
@@ -56,11 +50,15 @@ test.describe("Couple views RSVP dashboard", () => {
     await expect(page).toHaveURL(/\/dashboard/);
   });
 
-  test("unauthenticated user cannot access dashboard", async ({ page }) => {
-    // Try to access dashboard without logging in
-    await page.goto("/dashboard");
+  test.describe("unauthenticated", () => {
+    test.use({ storageState: { cookies: [], origins: [] } });
 
-    // Should be redirected to login
-    await expect(page).toHaveURL(/\/auth\/login/);
+    test("cannot access dashboard", async ({ page }) => {
+      // Try to access dashboard without logging in
+      await page.goto("/dashboard");
+
+      // Should be redirected to login
+      await expect(page).toHaveURL(/\/auth\/login/);
+    });
   });
 });
