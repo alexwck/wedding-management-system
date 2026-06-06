@@ -29,7 +29,7 @@ test.describe("Undo/redo state restoration", () => {
     const initialTables = await getTableCount(page);
 
     // Place first round table
-    const roundTableBtn = page.locator("button", { hasText: /5ft.*chairs/i }).first();
+    const roundTableBtn = page.locator("button", { hasText: /^5ft$/ }).first();
     await expect(roundTableBtn).toBeVisible({ timeout: 10000 });
     await roundTableBtn.click();
 
@@ -102,7 +102,7 @@ test.describe("Undo/redo state restoration", () => {
     const initialTables = await getTableCount(page);
 
     // Place two items to enable undo
-    const roundTableBtn2 = page.locator("button", { hasText: /5ft.*chairs/i }).first();
+    const roundTableBtn2 = page.locator("button", { hasText: /^5ft$/ }).first();
     await expect(roundTableBtn2).toBeVisible({ timeout: 10000 });
     await roundTableBtn2.click();
     await expect(page.locator('[data-testid="canvas-stats"]')).toContainText(roundText(initialTables + 1), { timeout: 5000 });

@@ -10,10 +10,12 @@ test.describe("Venue details on landing page (US2)", () => {
     // Welcome message should be visible
     await expect(page.getByText("We can't wait to celebrate with you!").first()).toBeVisible();
 
-    // Wedding date visible (formatWeddingDate includes time and UTC offset)
+    // Wedding date/time visible; date and time render as separate lines.
     // Date may differ from seed if admin tests modified it
-    const dateEl = page.locator("p").filter({ hasText: /\d{4} at \d+:\d+ [AP]M GMT[+-]\d+/ });
+    const dateEl = page.locator("p").filter({ hasText: /[A-Z][a-z]+ \d{1,2}, \d{4}/ }).first();
+    const timeEl = page.locator("p").filter({ hasText: /\d{1,2}:\d{2} [AP]M GMT[+-]\d{1,2}(?::\d{2})?/ }).first();
     await expect(dateEl).toBeVisible();
+    await expect(timeEl).toBeVisible();
 
     // RSVP form is inline (no separate CTA button)
     await expect(page.locator("text=/RSVP for/")).toBeVisible();
